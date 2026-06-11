@@ -1,0 +1,259 @@
+import { useEffect, useState } from "react";
+import {
+  useChangeTeacherPassword,
+  useTeacherProfile,
+  useUpdateTeacherProfile,
+} from "@/features/teacher/hooks/useTeacher";
+import { PageContainer } from "@/components/layout/PageContainer";
+import { Card } from "@/components/ui/Card";
+import { Button } from "@/components/ui/Button";
+import { BrandLogo } from "@/components/brand/BrandLogo";
+import { formControlClass } from "@/lib/formControl";
+import { toast } from "@/stores/uiStore";
+
+const TIMEZONES = [
+  "Asia/Dhaka",
+  "Asia/Riyadh",
+  "Asia/Dubai",
+  "Asia/Karachi",
+  "Asia/Kolkata",
+  "Europe/London",
+  "Europe/Paris",
+  "America/New_York",
+  "America/Chicago",
+  "America/Los_Angeles",
+];
+
+export function TeacherProfilePage() {
+  const { data: profile, isLoading } = useTeacherProfile();
+  const updateProfile = useUpdateTeacherProfile();
+  const changePassword = useChangeTeacherPassword();
+
+  const [name, setName] = useState("");
+  const [timezone, setTimezone] = useState("Asia/Dhaka");
+  const [country, setCountry] = useState("");
+  const [meetingLink, setMeetingLink] = useState("");
+  const [bankName, setBankName] = useState("");
+  const [bankAccount, setBankAccount] = useState("");
+  const [bKashNumber, setBKashNumber] = useState("");
+
+  const [currentPassword, setCurrentPassword] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+
+  useEffect(() => {
+    if (!profile) return;
+    setName(profile.name);
+    setTimezone(profile.timezone || "Asia/Dhaka");
+    setCountry(profile.country || "");
+    setMeetingLink(profile.meetingLink || "");
+    setBankName(profile.bankName || "");
+    setBankAccount(profile.bankAccount || "");
+    setBKashNumber(profile.bKashNumber || "");
+  }, [profile]);
+
+  function handleProfileSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    updateProfile.mutate({
+      name,
+      timezone,
+      country,
+      meetingLink,
+      bankName,
+      bankAccount,
+      bKashNumber,
+    });
+  }
+
+  function handlePasswordSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    if (newPassword !== confirmPassword) {
+      toast.error("Passwords do not match");
+      return;
+    }
+    if (newPassword.length < 6) {
+      toast.error("Password must be at least 6 characters");
+      return;
+    }
+    changePassword.mutate(
+      { currentPassword, newPassword },
+      {
+        onSuccess: () => {
+          setCurrentPassword("");
+          setNewPassword("");
+          setConfirmPassword("");
+        },
+      }
+    );
+  }
+
+  const passwordMismatch =
+    confirmPassword.length > 0 && newPassword !== confirmPassword;
+
+  return (
+    <PageContainer className="flex flex-col gap-6" size="narrow">
+      <div>
+        <h1 className="font-display text-2xl font-bold text-[#03214F]">My Profile</h1>
+        <p className="text-sm text-zinc-500">Timezone, meeting link, payout details, and password</p>
+      </div>
+
+      <Card className="flex flex-col items-center gap-3 rounded-3xl border-0 p-8 shadow-sm">
+        <BrandLogo size="lg" />
+        <div className="text-center">
+          <p className="font-display text-xl font-bold text-[#03214F]">
+            {(profile?.name ?? name) || "—"}
+          </p>
+          <p className="text-sm text-zinc-500">{profile?.email ?? "—"}</p>
+        </div>
+      </Card>
+
+      {isLoading ? (
+        <p className="text-sm text-zinc-400">Loading profile…</p>
+      ) : (
+        <>
+          <Card className="rounded-3xl border-0 p-6 shadow-sm">
+            <h2 className="mb-4 font-bold text-[#03214F]">Account & schedule</h2>
+            <form onSubmit={handleProfileSubmit} className="flex flex-col gap-4">
+              <label className="flex flex-col gap-1.5">
+                <span className="text-xs font-medium text-zinc-500">Display name</span>
+                <input
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  className={formControlClass}
+                  required
+                />
+              </label>
+
+              <label className="flex flex-col gap-1.5">
+                <span className="text-xs font-medium text-zinc-500">Timezone</span>
+                <select
+                  value={timezone}
+                  onChange={(e) => setTimezone(e.target.value)}
+                  className={formControlClass}
+                >
+                  {TIMEZONES.map((tz) => (
+                    <option key={tz} value={tz}>
+                      {tz}
+                    </option>
+                  ))}
+                </select>
+              </label>
+
+              <label className="flex flex-col gap-1.5">
+                <span className="text-xs font-medium text-zinc-500">Country</span>
+                <input
+                  value={country}
+                  onChange={(e) => setCountry(e.target.value)}
+                  placeholder="e.g. Bangladesh"
+                  className={formControlClass}
+                />
+              </label>
+
+              <label className="flex flex-col gap-1.5">
+                <span className="text-xs font-medium text-zinc-500">Class meeting link</span>
+                <input
+                  value={meetingLink}
+                  onChange={(e) => setMeetingLink(e.target.value)}
+                  placeholder="Zoom / Google Meet URL"
+                  className={formControlClass}
+                />
+              </label>
+
+              <h3 className="pt-2 font-semibold text-[#03214F]">Payout details</h3>
+
+              <label className="flex flex-col gap-1.5">
+                <span className="text-xs font-medium text-zinc-500">Bank name</span>
+                <input
+                  value={bankName}
+                  onChange={(e) => setBankName(e.target.value)}
+                  className={formControlClass}
+                />
+              </label>
+
+              <label className="flex flex-col gap-1.5">
+                <span className="text-xs font-medium text-zinc-500">Bank account</span>
+                <input
+                  value={bankAccount}
+                  onChange={(e) => setBankAccount(e.target.value)}
+                  className={formControlClass}
+                />
+              </label>
+
+              <label className="flex flex-col gap-1.5">
+                <span className="text-xs font-medium text-zinc-500">bKash number</span>
+                <input
+                  value={bKashNumber}
+                  onChange={(e) => setBKashNumber(e.target.value)}
+                  className={formControlClass}
+                />
+              </label>
+
+              <Button
+                type="submit"
+                disabled={updateProfile.isPending}
+                className="mt-2 w-full rounded-xl"
+              >
+                {updateProfile.isPending ? "Saving…" : "Save profile"}
+              </Button>
+            </form>
+          </Card>
+
+          <Card className="rounded-3xl border-0 p-6 shadow-sm">
+            <h2 className="mb-4 font-bold text-[#03214F]">Change password</h2>
+            <form onSubmit={handlePasswordSubmit} className="flex flex-col gap-4">
+              <label className="flex flex-col gap-1.5">
+                <span className="text-xs font-medium text-zinc-500">Current password</span>
+                <input
+                  type="password"
+                  value={currentPassword}
+                  onChange={(e) => setCurrentPassword(e.target.value)}
+                  className={formControlClass}
+                  required
+                />
+              </label>
+
+              <label className="flex flex-col gap-1.5">
+                <span className="text-xs font-medium text-zinc-500">New password</span>
+                <input
+                  type="password"
+                  value={newPassword}
+                  onChange={(e) => setNewPassword(e.target.value)}
+                  minLength={6}
+                  className={formControlClass}
+                  required
+                />
+              </label>
+
+              <label className="flex flex-col gap-1.5">
+                <span className="text-xs font-medium text-zinc-500">Confirm new password</span>
+                <input
+                  type="password"
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  className={formControlClass}
+                  required
+                />
+                {passwordMismatch ? (
+                  <span className="text-xs text-red-500">Passwords do not match</span>
+                ) : null}
+              </label>
+
+              <Button
+                type="submit"
+                variant="secondary"
+                disabled={
+                  changePassword.isPending ||
+                  passwordMismatch ||
+                  newPassword.length < 6
+                }
+                className="mt-2 w-full rounded-xl"
+              >
+                {changePassword.isPending ? "Updating…" : "Update password"}
+              </Button>
+            </form>
+          </Card>
+        </>
+      )}
+    </PageContainer>
+  );
+}
