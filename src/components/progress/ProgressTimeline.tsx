@@ -1,0 +1,170 @@
+import { Award, Calendar, TrendingUp } from "lucide-react";
+import type { LucideIcon } from "lucide-react";
+import { Card } from "@/components/ui/Card";
+import { CardSkeleton } from "@/components/ui/CardSkeleton";
+import type { MonthlyProgressSnapshot, StudentProgressRecord } from "@/types/models";
+import { classTitle } from "@/lib/utils/class";
+import { formatCurriculumPath } from "@/lib/api/curriculumApi";
+import { formatMonthLabel } from "@/lib/utils/month";
+
+type TimelineKind = "progress" | "monthly" | "milestone";
+
+interface TimelineEvent {
+  id: string;
+  date: Date;
+  kind: TimelineKind;
+  title: string;
+  detail: string;
+  badge?: string;
+}
+
+function buildTimelineEvents(
+  records: StudentProgressRecord[],
+  snapshots: MonthlyProgressSnapshot[]
+): TimelineEvent[] {
+  const events: TimelineEvent[] = [];
+
+  for (const record of records) {
+    if (!record.updatedAt) continue;
+    const surahCount = record.surahsCompleted?.length ?? 0;
+    const curriculumText = record.curriculumLabels?.program
+      ? formatCurriculumPath(record.curriculumLabels)
+      : "";
+    const baseDetail =
+      surahCount > 0
+        ? `Tajweed ${record.tajweedScore}% · ${surahCount} surah${surahCount !== 1 ? "s" : ""} memorized`
+        : `Tajweed score updated to ${record.tajweedScore}%`;
+    events.push({
+      id: `progress-${record._id}`,
+      date: new Date(record.updatedAt),
+      kind: "progress",
+      title: record.class ? classTitle(record.class) : "Progress update",
+      detail: curriculumText ? `${curriculumText} · ${baseDetail}` : baseDetail,
+      badge: `${record.tajweedScore}%`,
+    });
+
+    if (surahCount >= 5) {
+      events.push({
+        id: `milestone-surahs-${record._id}`,
+        date: new Date(record.updatedAt),
+        kind: "milestone",
+        title: "Memorization milestone",
+        detail: `${surahCount} surahs completed in ${record.class ? classTitle(record.class) : "your class"}`,
+        badge: `${surahCount}`,
+      });
+    }
+
+    if (record.tajweedScore >= 80) {
+      events.push({
+        id: `milestone-tajweed-${record._id}`,
+        date: new Date(record.updatedAt),
+        kind: "milestone",
+        title: "Strong tajweed",
+        detail: `Reached ${record.tajweedScore}% tajweed proficiency`,
+        badge: `${record.tajweedScore}%`,
+      });
+    }
+  }
+
+  for (const snap of snapshots) {
+    const date = snap.updatedAt ? new Date(snap.updatedAt) : new Date(`${snap.month}-01`);
+    events.push({
+      id: `monthly-${snap._id}`,
+      date,
+      kind: "monthly",
+      title: `${formatMonthLabel(snap.month)} report`,
+      detail: snap.teacherSummary
+        ? snap.teacherSummary.slice(0, 120) + (snap.teacherSummary.length > 120 ? "…" : "")
+        : `${snap.sessionsHeld} session${snap.sessionsHeld !== 1 ? "s" : ""} · Tajweed ${snap.tajweedScore}%`,
+      badge: snap.class.title,
+    });
+  }
+
+  return events
+    .sort((a, b) => b.date.getTime() - a.date.getTime())
+    .slice(0, 10);
+}
+
+const kindMeta: Record<TimelineKind, { icon: LucideIcon; accent: string }> = {
+  progress: { icon: TrendingUp, accent: "text-[#2b7fff] bg-[#EEF2F8]" },
+  monthly: { icon: Calendar, accent: "text-[#C4922B] bg-[#FDF3E0]" },
+  milestone: { icon: Award, accent: "text-emerald-600 bg-emerald-50" },
+};
+
+interface ProgressTimelineProps {
+  records: StudentProgressRecord[];
+  snapshots: MonthlyProgressSnapshot[];
+  isLoading?: boolean;
+}
+
+export function ProgressTimeline({ records, snapshots, isLoading }: ProgressTimelineProps) {
+  if (isLoading) {
+    return <CardSkeleton lines={4} />;
+  }
+
+  const events = buildTimelineEvents(records, snapshots);
+
+  if (events.length === 0) {
+    return (
+      <Card className="flex flex-col gap-2 rounded-2xl border border-dashed border-portal p-5">
+        <p className="text-sm font-semibold text-portal-heading">Progress history & milestones</p>
+        <p className="text-sm text-portal-muted">
+          Timeline entries appear when your teacher updates progress or submits a monthly report.
+        </p>
+      </Card>
+    );
+  }
+
+  return (
+    <Card className="flex flex-col gap-4 rounded-2xl border-0 p-5 shadow-sm">
+      <div>
+        <p className="font-bold text-portal-heading">Progress history & milestones</p>
+        <p className="text-xs text-portal-muted">Recent updates from your classes</p>
+      </div>
+
+      <ol className="relative flex flex-col gap-0">
+        {events.map((event, index) => {
+          const { icon: Icon, accent } = kindMeta[event.kind];
+          const isLast = index === events.length - 1;
+
+          return (
+            <li key={event.id} className="relative flex gap-4 pb-6 last:pb-0">
+              {!isLast ? (
+                <span
+                  className="absolute left-[1.125rem] top-10 h-[calc(100%-1.5rem)] w-px bg-portal-border"
+                  aria-hidden
+                />
+              ) : null}
+              <div
+                className={`relative z-10 flex size-9 shrink-0 items-center justify-center rounded-xl ${accent}`}
+              >
+                <Icon className="size-4" />
+              </div>
+              <div className="min-w-0 flex-1 pt-0.5">
+                <div className="flex flex-wrap items-start justify-between gap-2">
+                  <p className="font-semibold text-sm text-portal-heading">{event.title}</p>
+                  <time
+                    className="shrink-0 text-xs text-portal-muted"
+                    dateTime={event.date.toISOString()}
+                  >
+                    {event.date.toLocaleDateString(undefined, {
+                      month: "short",
+                      day: "numeric",
+                      year: "numeric",
+                    })}
+                  </time>
+                </div>
+                <p className="mt-1 text-sm text-portal-muted">{event.detail}</p>
+                {event.badge ? (
+                  <span className="mt-2 inline-block rounded-full bg-portal-muted px-2.5 py-0.5 text-xs font-medium text-portal-heading">
+                    {event.badge}
+                  </span>
+                ) : null}
+              </div>
+            </li>
+          );
+        })}
+      </ol>
+    </Card>
+  );
+}
