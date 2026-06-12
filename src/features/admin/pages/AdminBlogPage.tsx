@@ -7,6 +7,7 @@ import {
 } from "@/features/admin/hooks/useAdmin";
 import { PageContainer } from "@/components/layout/PageContainer";
 import { Card } from "@/components/ui/Card";
+import { PageLoading } from "@/components/ui/PageLoading";
 import { Button } from "@/components/ui/Button";
 import { Select } from "@/components/ui/Select";
 import { formControlClass } from "@/lib/formControl";
@@ -75,7 +76,7 @@ export function AdminBlogPage() {
       </div>
 
       {isLoading ? (
-        <p className="text-sm text-zinc-400">Loading posts…</p>
+        <PageLoading label="Loading posts…" />
       ) : filtered.length === 0 ? (
         <Card className="rounded-2xl border-0 p-8 text-center shadow-sm">
           <p className="text-zinc-400">No blog posts yet. Create your first article.</p>
