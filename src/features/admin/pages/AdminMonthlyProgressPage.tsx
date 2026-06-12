@@ -6,6 +6,7 @@ import { Card } from "@/components/ui/Card";
 import { currentMonthValue, formatMonthLabel } from "@/lib/utils/month";
 import { formControlClass } from "@/lib/formControl";
 
+import { PageLoading } from "@/components/ui/PageLoading";
 export function AdminMonthlyProgressPage() {
   const [month, setMonth] = useState(currentMonthValue());
   const { data: snapshots = [], isLoading } = useAdminMonthlyProgress(month);
@@ -36,7 +37,7 @@ export function AdminMonthlyProgressPage() {
       </Card>
 
       {isLoading ? (
-        <p className="text-sm text-zinc-400">Loading snapshots…</p>
+        <PageLoading label="Loading snapshots…" />
       ) : snapshots.length === 0 ? (
         <Card className="rounded-2xl border-0 p-8 text-center shadow-sm">
           <TrendingUp className="mx-auto size-8 text-zinc-300" />

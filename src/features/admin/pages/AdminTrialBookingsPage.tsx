@@ -10,6 +10,7 @@ import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { EmptyState } from "@/components/ui/EmptyState";
 
+import { PageLoading } from "@/components/ui/PageLoading";
 type Filter = "new" | "all" | TrialBookingStatus;
 
 function statusStyles(status: TrialBookingStatus) {
@@ -102,7 +103,7 @@ export function AdminTrialBookingsPage() {
       </div>
 
       {isLoading ? (
-        <p className="text-sm text-zinc-400">Loading trial bookings…</p>
+        <PageLoading label="Loading trial bookings…" />
       ) : bookings.length === 0 ? (
         <EmptyState
           icon={CalendarCheck}

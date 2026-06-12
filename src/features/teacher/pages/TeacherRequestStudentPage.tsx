@@ -11,6 +11,7 @@ import { EmptyState } from "@/components/ui/EmptyState";
 import { formControlClass } from "@/lib/formControl";
 import type { StudentRequestStatus } from "@/types/models";
 
+import { PageLoading } from "@/components/ui/PageLoading";
 const COURSE_TYPES = ["Quran", "Tajweed", "Hifz", "Arabic", "Other"];
 
 function statusStyles(status: StudentRequestStatus) {
@@ -106,7 +107,7 @@ export function TeacherRequestStudentPage() {
       <div>
         <h2 className="mb-3 font-bold text-[#03214F]">Your requests</h2>
         {isLoading ? (
-          <p className="text-sm text-zinc-400">Loading requests…</p>
+          <PageLoading label="Loading requests…" />
         ) : requests.length === 0 ? (
           <EmptyState
             icon={UserPlus}

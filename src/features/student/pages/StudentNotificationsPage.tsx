@@ -6,6 +6,7 @@ import {
 import { PageContainer } from "@/components/layout/PageContainer";
 import { Card } from "@/components/ui/Card";
 
+import { PageLoading } from "@/components/ui/PageLoading";
 export function StudentNotificationsPage() {
   const { data: notifications = [], isLoading } = useStudentNotifications();
   const markRead = useMarkNotificationRead();
@@ -25,7 +26,7 @@ export function StudentNotificationsPage() {
       </div>
 
       {isLoading ? (
-        <p className="text-sm text-zinc-400">Loading…</p>
+        <PageLoading />
       ) : notifications.length === 0 ? (
         <Card className="rounded-2xl border-0 p-8 text-center shadow-sm">
           <p className="text-sm text-zinc-400">No notifications yet.</p>

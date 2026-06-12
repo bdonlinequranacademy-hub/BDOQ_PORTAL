@@ -8,6 +8,7 @@ import { PageContainer } from "@/components/layout/PageContainer";
 import { Button } from "@/components/ui/Button";
 import { formControlClass } from "@/lib/formControl";
 
+import { PageLoading } from "@/components/ui/PageLoading";
 const AVATAR_COLORS = [
   "bg-teal-100 text-teal-700",
   "bg-purple-100 text-purple-700",
@@ -87,7 +88,7 @@ export function TeacherStudentsPage() {
 
       {/* Student list */}
       {isLoading ? (
-        <p className="text-zinc-400 text-sm">Loading students…</p>
+        <PageLoading label="Loading students…" />
       ) : (
         <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
           {filtered.map((student, i) => {

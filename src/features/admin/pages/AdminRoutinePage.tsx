@@ -17,6 +17,7 @@ import { groupSessionsByDay, sortSessionsForTable } from "@/lib/utils/schedule";
 import { uniqueCountries, formatCountryWithFlag } from "@/lib/utils/countryDisplay";
 import type { SessionSlotView } from "@/types/models";
 
+import { PageLoading } from "@/components/ui/PageLoading";
 export function AdminRoutinePage() {
   const navigate = useNavigate();
   const [view, setView] = useState<ScheduleViewMode>("timeline");
@@ -125,7 +126,7 @@ export function AdminRoutinePage() {
       </div>
 
       {isLoading ? (
-        <p className="text-sm text-zinc-400">Loading routine…</p>
+        <PageLoading label="Loading routine…" />
       ) : filteredSessions.length === 0 ? (
         <EmptyState
           icon={CalendarDays}

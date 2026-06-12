@@ -19,6 +19,7 @@ import { PageContainer } from "@/components/layout/PageContainer";
 import { Button } from "@/components/ui/Button";
 import { EmptyState } from "@/components/ui/EmptyState";
 
+import { PageLoading } from "@/components/ui/PageLoading";
 function initials(name: string) {
   return name.split(" ").slice(0, 2).map((w) => w[0]).join("").toUpperCase();
 }
@@ -79,7 +80,7 @@ export function TeacherAtRiskPage() {
       </div>
 
       {isLoading ? (
-        <p className="text-sm text-zinc-400">Analysing students…</p>
+        <PageLoading label="Analysing students…" />
       ) : atRisk.length === 0 ? (
         <EmptyState
           icon={Brain}

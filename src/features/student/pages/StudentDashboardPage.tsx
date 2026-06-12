@@ -27,6 +27,7 @@ import { classTitle, teacherName } from "@/lib/utils/class";
 import { StudentCurriculumPlan } from "@/components/curriculum/StudentCurriculumPlan";
 import { formatCurriculumPath } from "@/lib/api/curriculumApi";
 
+import { PageLoading } from "@/components/ui/PageLoading";
 function isOverdue(dueDate: string) {
   return new Date(dueDate) < new Date();
 }
@@ -113,7 +114,7 @@ export function StudentDashboardPage() {
               </span>
             </div>
             {scheduleLoading ? (
-              <p className="text-sm text-zinc-400">Loading schedule…</p>
+              <PageLoading label="Loading schedule…" />
             ) : todaySessions.length === 0 ? (
               <p className="text-sm text-zinc-400">No classes scheduled for today.</p>
             ) : (
@@ -140,7 +141,7 @@ export function StudentDashboardPage() {
               </button>
             </div>
             {classesLoading ? (
-              <p className="text-sm text-zinc-400">Loading…</p>
+              <PageLoading />
             ) : classes.length === 0 ? (
               <p className="text-sm text-zinc-400">No classes enrolled yet.</p>
             ) : (

@@ -11,6 +11,7 @@ import { SessionScheduleTable } from "@/components/schedule/SessionScheduleTable
 import { groupSessionsByDay, sortSessionsForTable } from "@/lib/utils/schedule";
 import type { SessionSlotView } from "@/types/models";
 
+import { PageLoading } from "@/components/ui/PageLoading";
 function todayIsoDate() {
   return new Date().toISOString().split("T")[0];
 }
@@ -62,7 +63,7 @@ export function TeacherRoutinePage() {
         </div>
 
         {isLoading ? (
-          <p className="text-sm text-zinc-400">Loading routine…</p>
+          <PageLoading label="Loading routine…" />
         ) : totalSessions === 0 ? (
           <div className="rounded-2xl border border-dashed border-zinc-200 bg-white p-10 text-center">
             <p className="font-semibold text-[#03214F]">No routine yet</p>

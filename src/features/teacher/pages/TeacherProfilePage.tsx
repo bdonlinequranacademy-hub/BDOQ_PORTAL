@@ -11,6 +11,7 @@ import { BrandLogo } from "@/components/brand/BrandLogo";
 import { formControlClass } from "@/lib/formControl";
 import { toast } from "@/stores/uiStore";
 
+import { PageLoading } from "@/components/ui/PageLoading";
 const TIMEZONES = [
   "Asia/Dhaka",
   "Asia/Riyadh",
@@ -108,7 +109,7 @@ export function TeacherProfilePage() {
       </Card>
 
       {isLoading ? (
-        <p className="text-sm text-zinc-400">Loading profile…</p>
+        <PageLoading label="Loading profile…" />
       ) : (
         <>
           <Card className="rounded-3xl border-0 p-6 shadow-sm">

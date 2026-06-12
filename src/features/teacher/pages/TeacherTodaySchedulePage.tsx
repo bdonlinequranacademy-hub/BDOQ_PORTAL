@@ -14,6 +14,7 @@ import { useSessionClock } from "@/hooks/useSessionClock";
 import { Button } from "@/components/ui/Button";
 import type { SessionSlotView } from "@/types/models";
 
+import { PageLoading } from "@/components/ui/PageLoading";
 function todayIsoDate() {
   return new Date().toISOString().split("T")[0];
 }
@@ -109,7 +110,7 @@ export function TeacherTodaySchedulePage() {
         )}
 
         {isLoading ? (
-          <p className="text-sm text-zinc-400">Loading schedule…</p>
+          <PageLoading label="Loading schedule…" />
         ) : sessions.length === 0 ? (
           <div className="rounded-2xl border border-dashed border-zinc-200 bg-white p-10 text-center">
             <p className="font-semibold text-[#03214F]">No classes scheduled today</p>

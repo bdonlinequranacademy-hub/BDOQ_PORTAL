@@ -30,6 +30,7 @@ import { LogSessionSheet } from "@/components/schedule/LogSessionSheet";
 import { sortSessionsByAcademyTime } from "@/lib/utils/schedule";
 import type { SessionSlotView } from "@/types/models";
 
+import { PageLoading } from "@/components/ui/PageLoading";
 function todayLabel() {
   return new Date().toLocaleDateString("en-US", {
     weekday: "short",
@@ -155,7 +156,7 @@ export function TeacherDashboardPage() {
             </div>
 
             {scheduleLoading ? (
-              <p className="text-sm text-zinc-400">Loading…</p>
+              <PageLoading />
             ) : todaySessions.length === 0 ? (
               <p className="text-sm text-zinc-400">No classes scheduled today.</p>
             ) : (

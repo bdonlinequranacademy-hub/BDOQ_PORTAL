@@ -5,6 +5,7 @@ import { PageContainer } from "@/components/layout/PageContainer";
 import { Card } from "@/components/ui/Card";
 import { EmptyState } from "@/components/ui/EmptyState";
 
+import { PageLoading } from "@/components/ui/PageLoading";
 export function AdminAtRiskPage() {
   const { data: atRisk = [], isLoading } = useAdminAtRisk();
 
@@ -25,7 +26,7 @@ export function AdminAtRiskPage() {
       </div>
 
       {isLoading ? (
-        <p className="text-sm text-zinc-400">Analyzing…</p>
+        <PageLoading label="Analyzing…" />
       ) : atRisk.length === 0 ? (
         <EmptyState
           icon={Brain}

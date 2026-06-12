@@ -10,6 +10,7 @@ import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { EmptyState } from "@/components/ui/EmptyState";
 
+import { PageLoading } from "@/components/ui/PageLoading";
 type Filter = "new" | "all" | ContactMessageStatus;
 
 function statusStyles(status: ContactMessageStatus) {
@@ -99,7 +100,7 @@ export function AdminContactMessagesPage() {
       </div>
 
       {isLoading ? (
-        <p className="text-sm text-zinc-400">Loading contact messages…</p>
+        <PageLoading label="Loading contact messages…" />
       ) : messages.length === 0 ? (
         <EmptyState
           icon={Inbox}

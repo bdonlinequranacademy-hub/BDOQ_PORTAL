@@ -12,6 +12,7 @@ import {
 } from "@/lib/homeworkDue";
 import { formatCurriculumPath } from "@/lib/api/curriculumApi";
 
+import { PageLoading } from "@/components/ui/PageLoading";
 const MIN_SUBMISSION_CHARS = 20;
 
 export function StudentHomeworkDetailPage() {
@@ -58,8 +59,10 @@ export function StudentHomeworkDetailPage() {
         <h1 className="font-display text-xl font-bold text-[#03214F]">Homework</h1>
       </div>
 
-      {isLoading || !hw ? (
-        <p className="text-sm text-zinc-400">{isLoading ? "Loading…" : "Not found."}</p>
+      {isLoading ? (
+        <PageLoading compact />
+      ) : !hw ? (
+        <p className="text-sm text-zinc-400">Not found.</p>
       ) : (
         <>
           <div>

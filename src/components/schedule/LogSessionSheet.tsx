@@ -11,6 +11,7 @@ import { Textarea } from "@/components/ui/Textarea";
 import { Button } from "@/components/ui/Button";
 import { formControlClass } from "@/lib/formControl";
 
+import { PageLoading } from "@/components/ui/PageLoading";
 interface LogSessionSheetProps {
   session: SessionSlotView | null;
   open: boolean;
@@ -176,7 +177,7 @@ export function LogSessionSheet({
         </label>
 
         {treeLoading ? (
-          <p className="text-xs text-zinc-400">Loading curriculum…</p>
+          <PageLoading compact label="Loading curriculum…" />
         ) : (
           <NestedCurriculumSelect
             tree={curriculumTree}

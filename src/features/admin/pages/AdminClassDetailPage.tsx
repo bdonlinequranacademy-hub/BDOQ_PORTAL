@@ -13,6 +13,7 @@ import { Button } from "@/components/ui/Button";
 import { classTitle, teacherName, studentList } from "@/lib/utils/class";
 import { formControlClass } from "@/lib/formControl";
 
+import { PageLoading } from "@/components/ui/PageLoading";
 export function AdminClassDetailPage() {
   const { id = "" } = useParams();
   const navigate = useNavigate();
@@ -52,8 +53,10 @@ export function AdminClassDetailPage() {
         </button>
       </div>
 
-      {isLoading || !cls ? (
-        <p className="text-sm text-zinc-400">{isLoading ? "Loading…" : "Not found."}</p>
+      {isLoading ? (
+        <PageLoading compact />
+      ) : !cls ? (
+        <p className="text-sm text-zinc-400">Not found.</p>
       ) : (
         <>
           <div className="rounded-3xl bg-gradient-to-br from-[#03214F] to-[#0a3a7a] p-6 text-white">

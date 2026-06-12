@@ -11,6 +11,7 @@ import { MissingCurriculumBadge } from "@/components/curriculum/CurriculumProgra
 import { formatHomeworkDueLabel, isHomeworkOverdue } from "@/lib/homeworkDue";
 import type { AdminHomeworkItem } from "@/types/models";
 
+import { PageLoading } from "@/components/ui/PageLoading";
 function classTitle(item: AdminHomeworkItem) {
   return typeof item.class === "object" ? item.class.title : "Class";
 }
@@ -52,7 +53,7 @@ export function AdminHomeworkPage() {
       </div>
 
       {isLoading ? (
-        <p className="text-sm text-zinc-400">Loading homework…</p>
+        <PageLoading label="Loading homework…" />
       ) : visibleHomework.length === 0 ? (
         <EmptyState
           icon={BookOpenCheck}

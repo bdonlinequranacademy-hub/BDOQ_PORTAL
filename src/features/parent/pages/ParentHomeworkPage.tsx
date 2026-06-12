@@ -8,6 +8,7 @@ import { PageContainer } from "@/components/layout/PageContainer";
 import { Card } from "@/components/ui/Card";
 import type { StudentHomeworkItem } from "@/types/models";
 
+import { PageLoading } from "@/components/ui/PageLoading";
 function hwClassTitle(hw: StudentHomeworkItem) {
   return typeof hw.class === "object" ? hw.class.title : "Class";
 }
@@ -37,7 +38,7 @@ export function ParentHomeworkPage() {
       {!childId ? (
         <p className="text-sm text-zinc-400">Select a child to view homework.</p>
       ) : isLoading ? (
-        <p className="text-sm text-zinc-400">Loading…</p>
+        <PageLoading />
       ) : (
         <>
           <div className="grid grid-cols-3 gap-3">

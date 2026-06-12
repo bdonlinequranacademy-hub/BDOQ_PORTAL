@@ -14,6 +14,7 @@ import { currentMonthValue, formatBdt, formatMonthLabel } from "@/lib/utils/mont
 import { formControlClass } from "@/lib/formControl";
 import type { ClassLogView } from "@/types/models";
 
+import { PageLoading } from "@/components/ui/PageLoading";
 export function AdminEarningsPage() {
   const navigate = useNavigate();
   const [month, setMonth] = useState(currentMonthValue());
@@ -68,7 +69,7 @@ export function AdminEarningsPage() {
       ) : null}
 
       {isLoading ? (
-        <p className="text-sm text-zinc-400">Loading earnings…</p>
+        <PageLoading label="Loading earnings…" />
       ) : (
         <>
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">

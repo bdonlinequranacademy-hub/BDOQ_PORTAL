@@ -36,6 +36,7 @@ import { PageContainer } from "@/components/layout/PageContainer";
 import { Card } from "@/components/ui/Card";
 import { classTitle, teacherName, studentCount } from "@/lib/utils/class";
 
+import { PageLoading } from "@/components/ui/PageLoading";
 export function AdminDashboardPage() {
   const user = useAuthStore((s) => s.user);
   const navigate = useNavigate();
@@ -226,7 +227,7 @@ export function AdminDashboardPage() {
               </button>
             </div>
             {isLoading ? (
-              <p className="text-sm text-zinc-400">Loading…</p>
+              <PageLoading />
             ) : !stats?.todaysClasses?.length ? (
               <p className="text-sm text-zinc-400">No classes scheduled today.</p>
             ) : (

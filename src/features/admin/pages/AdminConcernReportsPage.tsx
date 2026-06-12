@@ -11,6 +11,7 @@ import { Button } from "@/components/ui/Button";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { Textarea } from "@/components/ui/Textarea";
 
+import { PageLoading } from "@/components/ui/PageLoading";
 type Filter = "new" | "all" | ConcernReportStatus;
 
 function categoryLabel(category: ConcernCategory) {
@@ -131,7 +132,7 @@ export function AdminConcernReportsPage() {
       </div>
 
       {isLoading ? (
-        <p className="text-sm text-zinc-400">Loading concern reports…</p>
+        <PageLoading label="Loading concern reports…" />
       ) : reports.length === 0 ? (
         <EmptyState
           icon={ShieldAlert}

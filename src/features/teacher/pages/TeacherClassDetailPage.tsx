@@ -5,6 +5,7 @@ import { PageContainer } from "@/components/layout/PageContainer";
 import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 
+import { PageLoading } from "@/components/ui/PageLoading";
 export function TeacherClassDetailPage() {
   const { id = "" } = useParams();
   const navigate = useNavigate();
@@ -24,10 +25,10 @@ export function TeacherClassDetailPage() {
         <h1 className="font-display text-xl font-bold text-[#03214F]">Class Detail</h1>
       </div>
 
-      {isLoading || !cls ? (
-        <p className="text-sm text-zinc-400 p-2">
-          {isLoading ? "Loading…" : "Class not found."}
-        </p>
+      {isLoading ? (
+        <PageLoading compact />
+      ) : !cls ? (
+        <p className="p-2 text-sm text-zinc-400">Class not found.</p>
       ) : (
         <>
           <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-[#03214F] to-[#0a3a7a] p-6 text-white">

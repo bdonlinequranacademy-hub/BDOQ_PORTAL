@@ -32,6 +32,7 @@ import { CurriculumProgramFilter } from "@/components/curriculum/CurriculumProgr
 import { formatCurriculumPath, matchesProgramFilter } from "@/lib/api/curriculumApi";
 import type { CurriculumPath } from "@/lib/api/curriculumApi";
 
+import { PageLoading } from "@/components/ui/PageLoading";
 const BORDER_COLORS = [
   "border-l-teal-500",
   "border-l-blue-500",
@@ -187,7 +188,7 @@ export function TeacherHomeworkPage() {
         </div>
 
         {isLoading ? (
-          <p className="text-zinc-400 text-sm">Loading…</p>
+          <PageLoading />
         ) : visibleHomework.length === 0 ? (
           <EmptyState
             icon={FilePlus}

@@ -15,6 +15,7 @@ import { EmptyState } from "@/components/ui/EmptyState";
 import { formControlClass } from "@/lib/formControl";
 import { ClipboardCheck, Search } from "lucide-react";
 
+import { PageLoading } from "@/components/ui/PageLoading";
 type Filter = "pending" | "all" | ClassLogStatus;
 
 export function AdminClassLogsPage() {
@@ -126,7 +127,7 @@ export function AdminClassLogsPage() {
       </div>
 
       {isLoading ? (
-        <p className="text-sm text-zinc-400">Loading class logs…</p>
+        <PageLoading label="Loading class logs…" />
       ) : visibleLogs.length === 0 ? (
         <EmptyState
           icon={ClipboardCheck}

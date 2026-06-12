@@ -12,6 +12,7 @@ import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import type { BlogCategory, BlogPostStatus } from "@/types/models";
 
+import { PageLoading } from "@/components/ui/PageLoading";
 const CATEGORIES: BlogCategory[] = [
   "Quran & Tajweed",
   "Parent Guides",
@@ -92,7 +93,7 @@ export function AdminBlogFormPage() {
   if (isEdit && isLoading) {
     return (
       <PageContainer>
-        <p className="text-sm text-zinc-400">Loading post…</p>
+        <PageLoading label="Loading post…" />
       </PageContainer>
     );
   }

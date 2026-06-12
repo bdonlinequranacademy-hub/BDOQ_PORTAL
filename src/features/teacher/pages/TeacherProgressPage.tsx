@@ -23,6 +23,7 @@ import { Button } from "@/components/ui/Button";
 import { Select } from "@/components/ui/Select";
 import { Textarea } from "@/components/ui/Textarea";
 
+import { PageLoading } from "@/components/ui/PageLoading";
 export function TeacherProgressPage() {
   const [params] = useSearchParams();
   const { data: students = [] } = useTeacherStudents();
@@ -174,7 +175,7 @@ export function TeacherProgressPage() {
 
         {studentId && classId ? (
           progressLoading ? (
-            <p className="text-zinc-400 text-sm">Loading progress…</p>
+            <PageLoading label="Loading progress…" />
           ) : (
             <>
               <Card className="rounded-2xl border-0 shadow-sm p-5 flex flex-col gap-4">
@@ -191,7 +192,7 @@ export function TeacherProgressPage() {
                   </p>
                 ) : null}
                 {treeLoading ? (
-                  <p className="text-sm text-zinc-400">Loading curriculum…</p>
+                  <PageLoading label="Loading curriculum…" />
                 ) : (
                   <NestedCurriculumSelect
                     tree={curriculumTree}

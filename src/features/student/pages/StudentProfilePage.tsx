@@ -12,6 +12,7 @@ import { formControlClass } from "@/lib/formControl";
 import { PROFILE_TIMEZONES } from "@/lib/profileTimezones";
 import { toast } from "@/stores/uiStore";
 
+import { PageLoading } from "@/components/ui/PageLoading";
 export function StudentProfilePage() {
   const { data: profile, isLoading } = useStudentProfile();
   const updateProfile = useUpdateStudentProfile();
@@ -85,7 +86,7 @@ export function StudentProfilePage() {
       </Card>
 
       {isLoading ? (
-        <p className="text-sm text-zinc-400">Loading profile…</p>
+        <PageLoading label="Loading profile…" />
       ) : (
         <>
           <Card className="rounded-3xl border-0 p-6 shadow-sm">

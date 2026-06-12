@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/Button";
 import { classTitle, teacherName, studentCount } from "@/lib/utils/class";
 import { formControlClass } from "@/lib/formControl";
 
+import { PageLoading } from "@/components/ui/PageLoading";
 export function AdminClassesPage() {
   const navigate = useNavigate();
   const [search, setSearch] = useState("");
@@ -54,7 +55,7 @@ export function AdminClassesPage() {
       </div>
 
       {isLoading ? (
-        <p className="text-sm text-zinc-400">Loading classes…</p>
+        <PageLoading label="Loading classes…" />
       ) : filtered.length === 0 ? (
         <Card className="rounded-2xl border-0 p-8 text-center shadow-sm">
           <p className="text-zinc-400">No classes found.</p>

@@ -6,6 +6,7 @@ import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { classTitle, teacherName } from "@/lib/utils/class";
 
+import { PageLoading } from "@/components/ui/PageLoading";
 export function StudentClassDetailPage() {
   const { id = "" } = useParams();
   const navigate = useNavigate();
@@ -25,8 +26,10 @@ export function StudentClassDetailPage() {
         <h1 className="font-display text-xl font-bold text-[#03214F]">Class Detail</h1>
       </div>
 
-      {isLoading || !cls ? (
-        <p className="text-sm text-zinc-400">{isLoading ? "Loading…" : "Not found."}</p>
+      {isLoading ? (
+        <PageLoading compact />
+      ) : !cls ? (
+        <p className="text-sm text-zinc-400">Not found.</p>
       ) : (
         <>
           <div className="rounded-3xl bg-gradient-to-br from-[#03214F] to-[#0a3a7a] p-6 text-white">

@@ -7,6 +7,7 @@ import { ClassLogStatusBadge } from "@/components/schedule/ClassLogStatusBadge";
 import { currentMonthValue, formatBdt, formatMonthLabel } from "@/lib/utils/month";
 import { formControlClass } from "@/lib/formControl";
 
+import { PageLoading } from "@/components/ui/PageLoading";
 export function TeacherEarningsPage() {
   const [month, setMonth] = useState(currentMonthValue());
   const { data, isLoading } = useTeacherEarnings(month);
@@ -29,7 +30,7 @@ export function TeacherEarningsPage() {
       </div>
 
       {isLoading ? (
-        <p className="text-sm text-zinc-400">Loading earnings…</p>
+        <PageLoading label="Loading earnings…" />
       ) : (
         <>
           <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">

@@ -13,6 +13,7 @@ import { Textarea } from "@/components/ui/Textarea";
 import { formatCurriculumPath } from "@/lib/api/curriculumApi";
 import type { Grade, HomeworkSubmission, HomeworkSubmissionStatus } from "@/types/models";
 
+import { PageLoading } from "@/components/ui/PageLoading";
 const GRADES: Grade[] = ["A", "B", "C", "D", "F"];
 
 const GRADE_COLORS: Record<Grade, string> = {
@@ -109,8 +110,10 @@ export function TeacherHomeworkGradePage() {
         </div>
       </div>
 
-      {isLoading || !homework ? (
-        <p className="p-5 text-sm text-zinc-400">{isLoading ? "Loading…" : "Homework not found."}</p>
+      {isLoading ? (
+        <PageLoading compact />
+      ) : !homework ? (
+        <p className="p-5 text-sm text-zinc-400">Homework not found.</p>
       ) : (
         <PageContainer className="flex flex-col gap-6 pb-8">
           <div className="flex flex-col gap-1">

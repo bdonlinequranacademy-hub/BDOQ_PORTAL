@@ -15,6 +15,7 @@ import { Card } from "@/components/ui/Card";
 import { formControlClass } from "@/lib/formControl";
 import { ClipboardList, Search } from "lucide-react";
 
+import { PageLoading } from "@/components/ui/PageLoading";
 type Filter = "all" | ClassLogStatus;
 
 export function TeacherClassLogsPage() {
@@ -118,7 +119,7 @@ export function TeacherClassLogsPage() {
       </div>
 
       {isLoading ? (
-        <p className="text-sm text-zinc-400">Loading class logs…</p>
+        <PageLoading label="Loading class logs…" />
       ) : visibleLogs.length === 0 ? (
         <Card className="flex flex-col items-center gap-3 rounded-2xl border border-dashed border-zinc-200 p-10 text-center">
           <ClipboardList className="size-10 text-zinc-300" />

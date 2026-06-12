@@ -8,6 +8,7 @@ import { Card } from "@/components/ui/Card";
 import { DateInput } from "@/components/ui/DateInput";
 import { Select } from "@/components/ui/Select";
 
+import { PageLoading } from "@/components/ui/PageLoading";
 export function TeacherAttendancePage() {
   const navigate = useNavigate();
   const [params] = useSearchParams();
@@ -43,7 +44,7 @@ export function TeacherAttendancePage() {
 
       <Card className="flex flex-col gap-4 rounded-2xl border-0 p-5 shadow-sm">
         {isLoading ? (
-          <p className="text-sm text-zinc-400">Loading classes…</p>
+          <PageLoading label="Loading classes…" />
         ) : (
           <Select
             label="Select Class"

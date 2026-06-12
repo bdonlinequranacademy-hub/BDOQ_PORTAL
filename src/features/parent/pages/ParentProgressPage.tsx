@@ -8,6 +8,7 @@ import { Card } from "@/components/ui/Card";
 import { classTitle } from "@/lib/utils/class";
 import { formatCurriculumPath } from "@/lib/api/curriculumApi";
 
+import { PageLoading } from "@/components/ui/PageLoading";
 export function ParentProgressPage() {
   const childId = useSelectedChildId() ?? "";
   const { data: records = [], isLoading } = useParentChildProgress(childId);
@@ -24,7 +25,7 @@ export function ParentProgressPage() {
       {!childId ? (
         <p className="text-sm text-zinc-400">Select a child to view progress.</p>
       ) : isLoading ? (
-        <p className="text-sm text-zinc-400">Loading…</p>
+        <PageLoading />
       ) : records.length === 0 ? (
         <Card className="rounded-2xl border-0 p-8 text-center shadow-sm">
           <p className="text-sm text-zinc-400">No progress records yet.</p>

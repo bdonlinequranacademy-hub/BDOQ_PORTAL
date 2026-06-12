@@ -2,13 +2,14 @@ import { useParentChildren, useSelectedChildId } from "@/features/parent/hooks/u
 import { useParentStore } from "@/stores/parentStore";
 import { Select } from "@/components/ui/Select";
 
+import { PageLoading } from "@/components/ui/PageLoading";
 export function ChildSelector() {
   const { data: children = [], isLoading } = useParentChildren();
   const selectedChildId = useSelectedChildId();
   const setSelectedChildId = useParentStore((s) => s.setSelectedChildId);
 
   if (isLoading) {
-    return <p className="text-sm text-zinc-400">Loading children…</p>;
+    return <PageLoading compact label="Loading children…" />;
   }
 
   if (children.length === 0) {

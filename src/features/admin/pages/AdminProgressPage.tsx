@@ -7,6 +7,7 @@ import { useCurriculumTree } from "@/components/curriculum/NestedCurriculumSelec
 import { formatCurriculumPath, matchesProgramFilter } from "@/lib/api/curriculumApi";
 import { MissingCurriculumBadge } from "@/components/curriculum/CurriculumProgramFilter";
 
+import { PageLoading } from "@/components/ui/PageLoading";
 export function AdminProgressPage() {
   const [programFilter, setProgramFilter] = useState("");
   const { data: records = [], isLoading } = useAdminProgress();
@@ -66,7 +67,7 @@ export function AdminProgressPage() {
       </div>
 
       {isLoading ? (
-        <p className="text-sm text-zinc-400">Loading…</p>
+        <PageLoading />
       ) : visibleRecords.length === 0 ? (
         <Card className="rounded-2xl border-0 p-8 text-center shadow-sm">
           <p className="text-zinc-400">

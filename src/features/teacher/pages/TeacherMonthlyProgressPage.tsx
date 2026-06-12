@@ -15,6 +15,7 @@ import { currentMonthValue, formatMonthLabel } from "@/lib/utils/month";
 import { formControlClass } from "@/lib/formControl";
 import type { TeacherStudent } from "@/lib/api/teacherApi";
 
+import { PageLoading } from "@/components/ui/PageLoading";
 export function TeacherMonthlyProgressPage() {
   const [month, setMonth] = useState(currentMonthValue());
   const [studentId, setStudentId] = useState("");
@@ -171,7 +172,7 @@ export function TeacherMonthlyProgressPage() {
       <div>
         <h2 className="mb-3 font-bold text-[#03214F]">Saved snapshots</h2>
         {isLoading ? (
-          <p className="text-sm text-zinc-400">Loading…</p>
+          <PageLoading />
         ) : snapshots.length === 0 ? (
           <p className="text-sm text-zinc-400">No snapshots for this month yet.</p>
         ) : (

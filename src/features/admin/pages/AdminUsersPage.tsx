@@ -22,6 +22,7 @@ import { CountrySelect } from "@/components/ui/CountrySelect";
 import { formatCountryWithFlag } from "@/lib/utils/countryDisplay";
 import type { CurriculumAssignment, Role } from "@/types/models";
 
+import { PageLoading } from "@/components/ui/PageLoading";
 const ROLE_COLORS: Record<Role, string> = {
   student: "bg-teal-100 text-teal-700",
   teacher: "bg-blue-100 text-blue-700",
@@ -196,7 +197,7 @@ export function AdminUsersPage() {
       ) : null}
 
       {isLoading ? (
-        <p className="text-sm text-zinc-400">Loading users…</p>
+        <PageLoading label="Loading users…" />
       ) : (
         <Card className="overflow-hidden rounded-2xl border-0 p-0 shadow-sm">
           <div className="hidden md:grid md:grid-cols-[2fr_2fr_1fr_80px] md:gap-4 md:border-b md:border-zinc-100 md:bg-zinc-50 md:px-5 md:py-3 md:text-xs md:font-semibold md:uppercase md:tracking-wide md:text-zinc-500">

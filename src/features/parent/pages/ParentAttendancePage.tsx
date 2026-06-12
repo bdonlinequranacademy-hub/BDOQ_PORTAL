@@ -6,6 +6,7 @@ import { ChildSelector } from "@/features/parent/components/ChildSelector";
 import { PageContainer } from "@/components/layout/PageContainer";
 import { Card } from "@/components/ui/Card";
 
+import { PageLoading } from "@/components/ui/PageLoading";
 const STATUS_STYLES = {
   present: "bg-emerald-100 text-emerald-700",
   absent: "bg-red-100 text-red-700",
@@ -30,7 +31,7 @@ export function ParentAttendancePage() {
       {!childId ? (
         <p className="text-sm text-zinc-400">Select a child to view attendance.</p>
       ) : isLoading ? (
-        <p className="text-sm text-zinc-400">Loading…</p>
+        <PageLoading />
       ) : (
         <>
           <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">

@@ -22,6 +22,7 @@ import {
   surahTopicId,
 } from "@/lib/curriculumCatalog";
 
+import { PageLoading } from "@/components/ui/PageLoading";
 function cloneTree(nodes: CurriculumNode[]): CurriculumNode[] {
   return nodes.map((node) => ({
     ...node,
@@ -278,7 +279,7 @@ export function AdminCurriculumPage() {
       </div>
 
       {isLoading ? (
-        <p className="text-sm text-zinc-400">Loading curriculum…</p>
+        <PageLoading label="Loading curriculum…" />
       ) : tree.length === 0 ? (
         <Card className="rounded-2xl p-6 text-sm text-zinc-500">
           No curriculum loaded. Click Reset defaults.
