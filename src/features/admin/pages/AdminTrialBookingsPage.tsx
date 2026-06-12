@@ -32,6 +32,19 @@ function whatsappHref(number: string) {
   return `https://wa.me/${digits}`;
 }
 
+function formatTimeSlot(slot?: TrialBookingView["timeSlot"]) {
+  if (!slot) return null;
+  const labels: Record<NonNullable<TrialBookingView["timeSlot"]>, string> = {
+    anytime: "Anytime (flexible)",
+    early_morning: "Early morning (5am – 8am)",
+    morning: "Morning (6am – 12pm)",
+    afternoon: "Afternoon (12pm – 5pm)",
+    evening: "Evening (5pm – 10pm)",
+    late_evening: "Late evening (8pm – 11pm)",
+  };
+  return labels[slot] ?? slot;
+}
+
 function formatLearner(type: TrialBookingView["learnerType"]) {
   if (type === "child") return "Child (under 12)";
   if (type === "teen") return "Teen (12–17)";
@@ -138,13 +151,20 @@ export function AdminTrialBookingsPage() {
                 </div>
 
                 <div className="flex flex-col gap-1 text-sm text-zinc-600">
-                  <a
-                    href={`mailto:${booking.email}`}
-                    className="inline-flex items-center gap-2 hover:text-[#03214F]"
-                  >
-                    <Mail className="size-4 shrink-0 text-zinc-400" />
-                    {booking.email}
-                  </a>
+                  {booking.email ? (
+                    <a
+                      href={`mailto:${booking.email}`}
+                      className="inline-flex items-center gap-2 hover:text-[#03214F]"
+                    >
+                      <Mail className="size-4 shrink-0 text-zinc-400" />
+                      {booking.email}
+                    </a>
+                  ) : (
+                    <span className="inline-flex items-center gap-2 text-zinc-400">
+                      <Mail className="size-4 shrink-0" />
+                      No email provided
+                    </span>
+                  )}
                   {wa ? (
                     <a
                       href={wa}
@@ -165,7 +185,8 @@ export function AdminTrialBookingsPage() {
                 </div>
 
                 <ul className="space-y-1 text-xs text-zinc-500">
-                  {booking.timeSlot ? <li>Preferred time: {booking.timeSlot}</li> : null}
+                  {booking.country ? <li>Country: {booking.country}</li> : null}
+                  {booking.timeSlot ? <li>Preferred time: {formatTimeSlot(booking.timeSlot)}</li> : null}
                   {booking.preferredDays.length > 0 ? (
                     <li>Days: {booking.preferredDays.join(", ")}</li>
                   ) : null}

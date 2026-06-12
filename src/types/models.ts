@@ -538,10 +538,17 @@ export type TrialBookingStatus = "new" | "contacted" | "scheduled" | "closed";
 export interface TrialBookingView {
   _id: string;
   parentName: string;
-  email: string;
+  email?: string;
   whatsapp: string;
+  country?: string;
   learnerType: "child" | "teen" | "adult";
-  timeSlot?: "morning" | "afternoon" | "evening";
+  timeSlot?:
+    | "anytime"
+    | "early_morning"
+    | "morning"
+    | "afternoon"
+    | "evening"
+    | "late_evening";
   teacherPreference: "any" | "female" | "male";
   preferredDays: string[];
   timezone?: string;
