@@ -26,6 +26,7 @@ import {
 } from "lucide-react";
 import { useAuthStore } from "@/stores/authStore";
 import { useUnreadNotificationCount } from "@/hooks/useUnreadNotifications";
+import { useRealtimeNotifications } from "@/hooks/useRealtimeNotifications";
 import { BrandLogo } from "@/components/brand/BrandLogo";
 import { GlobalSearch } from "@/components/search/GlobalSearch";
 import { ThemeToggle } from "@/components/theme/ThemeToggle";
@@ -156,6 +157,7 @@ export function AppLayout() {
   const navigate = useNavigate();
   const location = useLocation();
   const { count: unreadCount, hasNotifications } = useUnreadNotificationCount();
+  useRealtimeNotifications();
 
   if (!user) return null;
 

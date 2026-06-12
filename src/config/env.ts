@@ -19,9 +19,19 @@ function resolvePublicSiteUrl(): string {
   return "http://localhost:4321";
 }
 
+function resolveSocketUrl(): string {
+  const explicit = import.meta.env.VITE_SOCKET_URL?.trim();
+  if (explicit) return explicit.replace(/\/$/, "");
+
+  const api = resolveApiUrl();
+  if (api.endsWith("/api")) return api.slice(0, -4);
+  return api.replace(/\/api\/?$/, "");
+}
+
 export const env = {
   apiUrl: resolveApiUrl(),
   publicSiteUrl: resolvePublicSiteUrl(),
+  socketUrl: resolveSocketUrl(),
   isDev: import.meta.env.DEV,
   isProd: import.meta.env.PROD,
 };
