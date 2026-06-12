@@ -11,8 +11,7 @@ import { Button } from "@/components/ui/Button";
 import { Select } from "@/components/ui/Select";
 import { formControlClass } from "@/lib/formControl";
 import type { BlogPostStatus } from "@/types/models";
-
-const SITE_URL = import.meta.env.VITE_PUBLIC_SITE_URL || "http://localhost:4321";
+import { env } from "@/config/env";
 
 const statusStyle: Record<BlogPostStatus, string> = {
   draft: "bg-zinc-100 text-zinc-600",
@@ -109,7 +108,7 @@ export function AdminBlogPage() {
               <div className="flex shrink-0 flex-wrap items-center gap-2">
                 {post.status === "published" && (
                   <a
-                    href={`${SITE_URL}/blog/${post.slug}`}
+                    href={`${env.publicSiteUrl}/blog/${post.slug}`}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="flex items-center gap-1 rounded-lg border border-zinc-200 px-3 py-2 text-xs font-medium text-zinc-600 hover:bg-zinc-50"

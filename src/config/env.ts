@@ -13,8 +13,15 @@ function resolveApiUrl(): string {
   return DEFAULT_API_URL;
 }
 
+function resolvePublicSiteUrl(): string {
+  const raw = import.meta.env.VITE_PUBLIC_SITE_URL?.trim();
+  if (raw) return raw.replace(/\/$/, "");
+  return "http://localhost:4321";
+}
+
 export const env = {
   apiUrl: resolveApiUrl(),
+  publicSiteUrl: resolvePublicSiteUrl(),
   isDev: import.meta.env.DEV,
   isProd: import.meta.env.PROD,
 };
