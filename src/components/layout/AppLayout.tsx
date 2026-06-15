@@ -31,6 +31,7 @@ import { BrandLogo } from "@/components/brand/BrandLogo";
 import { GlobalSearch } from "@/components/search/GlobalSearch";
 import { ThemeToggle } from "@/components/theme/ThemeToggle";
 import { MobileNavMenu, mobilePrimaryPaths } from "@/components/layout/MobileNavMenu";
+import { isStaffAdmin } from "@/lib/assignableRoles";
 import type { Role } from "@/types/models";
 
 interface NavItem {
@@ -72,6 +73,7 @@ function navItemsForRole(role: Role): NavItem[] {
         { label: "Report Concern", icon: <Flag className="size-5" />, path: "/student/report-concern" },
         { label: "Profile", icon: <User className="size-5" />, path: "/student/profile" },
       ];
+    case "super_admin":
     case "admin":
       return [
         { label: "Dashboard", icon: <LayoutDashboard className="size-5" />, path: "/admin" },
@@ -252,7 +254,7 @@ export function AppLayout() {
                 aria-label="Notifications"
                 onClick={() =>
                   navigate(
-                    user.role === "admin"
+                    isStaffAdmin(user.role)
                       ? "/admin"
                       : `/${user.role}/notifications`
                   )

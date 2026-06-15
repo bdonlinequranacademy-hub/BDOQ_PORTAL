@@ -4,7 +4,7 @@ import { useAuthStore } from "@/stores/authStore";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import { BrandLogo } from "@/components/brand/BrandLogo";
-import { homePathForRole } from "@/lib/utils/roles";
+import { homePathForRole, matchesAdminRoute } from "@/lib/utils/roles";
 import { loginPathForPortal, type PortalIntent } from "@/lib/portalAuth";
 import type { Role } from "@/types/models";
 
@@ -72,13 +72,15 @@ export function PortalHomePage() {
               <p className="flex-1 text-sm text-zinc-500">{p.desc}</p>
               <Link
                 to={
-                  isAuthenticated && user && user.role === p.role
+                  isAuthenticated && user && (p.role === "admin" ? matchesAdminRoute(user.role) : user.role === p.role)
                     ? homePathForRole(user.role as Role)
                     : loginPathForPortal(p.role)
                 }
                 className="text-sm font-semibold text-[#C4922B] hover:underline"
               >
-                {isAuthenticated && user?.role === p.role ? "Open portal →" : "Sign in →"}
+                {isAuthenticated && user && (p.role === "admin" ? matchesAdminRoute(user.role) : user.role === p.role)
+                  ? "Open portal →"
+                  : "Sign in →"}
               </Link>
             </Card>
           ))}

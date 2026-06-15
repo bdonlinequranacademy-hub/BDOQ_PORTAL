@@ -4,6 +4,7 @@ import { useQuery } from "@tanstack/react-query";
 import { BookOpen, GraduationCap, Search, User, X, Library } from "lucide-react";
 import { searchApi } from "@/lib/api/searchApi";
 import { filterPortalPages } from "@/lib/portalNav";
+import { isStaffAdmin } from "@/lib/assignableRoles";
 import { useCurriculumTree } from "@/components/curriculum/NestedCurriculumSelect";
 import type { Role, SearchResultItem } from "@/types/models";
 import { formControlClass } from "@/lib/formControl";
@@ -63,7 +64,7 @@ export function GlobalSearch({ role }: { role: Role }) {
   }, [curriculumTree, debounced]);
 
   const programLink =
-    role === "admin"
+    isStaffAdmin(role)
       ? "/admin/curriculum"
       : role === "teacher"
         ? "/teacher/progress"

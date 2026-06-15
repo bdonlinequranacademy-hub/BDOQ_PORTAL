@@ -84,6 +84,7 @@ export function portalPagesForRole(role: Role): PortalPageLink[] {
 
       ];
 
+    case "super_admin":
     case "admin":
 
       return [

@@ -45,5 +45,6 @@ export const PORTAL_COPY: Record<
 
 export function roleMatchesPortal(userRole: Role, portal: PortalIntent): boolean {
   if (portal === "student") return userRole === "student" || userRole === "parent";
+  if (portal === "admin") return userRole === "admin" || userRole === "super_admin";
   return userRole === portal;
 }

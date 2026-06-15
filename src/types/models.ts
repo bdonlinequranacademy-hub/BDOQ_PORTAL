@@ -1,4 +1,4 @@
-export type Role = "student" | "teacher" | "admin" | "parent";
+export type Role = "student" | "teacher" | "admin" | "super_admin" | "parent";
 export type AttendanceStatus = "present" | "absent" | "late";
 export type RiskLevel = "high" | "medium" | "low";
 export type Grade = "A" | "B" | "C" | "D" | "F";

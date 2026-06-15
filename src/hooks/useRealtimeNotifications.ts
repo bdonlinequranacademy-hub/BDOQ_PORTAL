@@ -11,6 +11,7 @@ import {
   disconnectRealtimeSocket,
   getRealtimeSocket,
 } from "@/lib/realtime/socket";
+import { isStaffAdmin } from "@/lib/assignableRoles";
 import type { Role } from "@/types/models";
 
 type SocketPayload = {
@@ -38,7 +39,7 @@ function invalidateForRole(qc: ReturnType<typeof useQueryClient>, role: Role) {
     qc.invalidateQueries({ queryKey: parentKeys.notifications });
     return;
   }
-  if (role === "admin") {
+  if (isStaffAdmin(role)) {
     qc.invalidateQueries({ queryKey: adminKeys.stats });
     qc.invalidateQueries({ queryKey: ["admin"] });
   }
@@ -72,8 +73,8 @@ export function useRealtimeNotifications() {
     };
 
     const onAdminPending = () => {
-      if (!active || role !== "admin") return;
-      invalidateForRole(qc, "admin");
+      if (!active || !role || !isStaffAdmin(role)) return;
+      invalidateForRole(qc, role);
       if (!location.pathname.startsWith("/admin")) {
         toast.info("New admin activity — check your dashboard.");
       }

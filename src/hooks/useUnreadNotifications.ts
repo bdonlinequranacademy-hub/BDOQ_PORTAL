@@ -3,6 +3,7 @@ import { useAuthStore } from "@/stores/authStore";
 import { studentApi } from "@/lib/api/studentApi";
 import { teacherApi } from "@/lib/api/teacherApi";
 import { adminApi } from "@/lib/api/adminApi";
+import { isStaffAdmin } from "@/lib/assignableRoles";
 
 export function useUnreadNotificationCount() {
   const role = useAuthStore((s) => s.user?.role);
@@ -18,7 +19,7 @@ export function useUnreadNotificationCount() {
         const res = await teacherApi.getNotifications();
         return (res.data ?? []).filter((n) => !n.isRead).length;
       }
-      if (role === "admin") {
+      if (role && isStaffAdmin(role)) {
         const res = await adminApi.getStats();
         const pending = res.data?.pendingActions;
         return (
@@ -30,14 +31,17 @@ export function useUnreadNotificationCount() {
       }
       return 0;
     },
-    enabled: role === "student" || role === "teacher" || role === "admin",
+    enabled: Boolean(
+      role && (role === "student" || role === "teacher" || isStaffAdmin(role))
+    ),
     staleTime: 30_000,
   });
 
   return {
     count,
-    hasNotifications:
-      role === "student" || role === "teacher" || role === "admin",
+    hasNotifications: Boolean(
+      role && (role === "student" || role === "teacher" || isStaffAdmin(role))
+    ),
     isLoading,
   };
 }

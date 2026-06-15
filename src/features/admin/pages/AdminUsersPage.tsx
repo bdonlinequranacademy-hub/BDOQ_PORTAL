@@ -12,7 +12,8 @@ import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { Select } from "@/components/ui/Select";
 import { formControlClass } from "@/lib/formControl";
-import { ASSIGNABLE_ROLES, displayRole } from "@/lib/assignableRoles";
+import { ASSIGNABLE_ROLES, assignableRolesFor, canManageUserAccount, displayRole, isSuperAdmin, roleLabel } from "@/lib/assignableRoles";
+import { useAuthStore } from "@/stores/authStore";
 import { PROFILE_TIMEZONES } from "@/lib/profileTimezones";
 import {
   CurriculumAssignmentEditor,
@@ -27,6 +28,7 @@ const ROLE_COLORS: Record<Role, string> = {
   student: "bg-teal-100 text-teal-700",
   teacher: "bg-blue-100 text-blue-700",
   admin: "bg-purple-100 text-purple-700",
+  super_admin: "bg-fuchsia-100 text-fuchsia-800",
   parent: "bg-teal-100 text-teal-700",
 };
 
@@ -40,6 +42,12 @@ function genderLabel(gender?: "male" | "female") {
 }
 
 export function AdminUsersPage() {
+  const currentUser = useAuthStore((s) => s.user);
+  const actorRole = currentUser?.role ?? "admin";
+  const creatableRoles = assignableRolesFor(actorRole);
+  const roleFilterOptions = isSuperAdmin(actorRole)
+    ? (["all", ...ASSIGNABLE_ROLES] as const)
+    : (["all", ...creatableRoles, "admin"] as const);
   const [roleFilter, setRoleFilter] = useState<RoleFilter>("all");
   const [genderFilter, setGenderFilter] = useState<GenderFilter>("all");
   const [search, setSearch] = useState("");
@@ -47,7 +55,7 @@ export function AdminUsersPage() {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [role, setRole] = useState<(typeof ASSIGNABLE_ROLES)[number]>("student");
+  const [role, setRole] = useState<(typeof creatableRoles)[number]>("student");
   const [gender, setGender] = useState<"" | "male" | "female">("");
   const [timezone, setTimezone] = useState("Asia/Dhaka");
   const [country, setCountry] = useState("Bangladesh");
@@ -162,7 +170,7 @@ export function AdminUsersPage() {
       </div>
 
       <div className="flex flex-wrap gap-2">
-        {(["all", ...ASSIGNABLE_ROLES] as const).map((r) => (
+        {roleFilterOptions.map((r) => (
           <button
             key={r}
             onClick={() => setRoleFilter(r)}
@@ -172,7 +180,7 @@ export function AdminUsersPage() {
                 : "border border-zinc-200 bg-white text-[#03214F]"
             }`}
           >
-            {r}
+            {r === "all" ? "all" : roleLabel(r as Role)}
           </button>
         ))}
       </div>
@@ -209,6 +217,7 @@ export function AdminUsersPage() {
           <div className="divide-y divide-zinc-100">
             {filtered.map((u) => {
               const shownRole = displayRole(u.role);
+              const manageable = canManageUserAccount(actorRole, u.role);
               return (
                 <div
                   key={u.id}
@@ -246,29 +255,37 @@ export function AdminUsersPage() {
                   </div>
                   <p className="hidden text-sm text-zinc-600 md:block">{u.email}</p>
                   <span
-                    className={`w-fit rounded-full px-2.5 py-0.5 text-xs font-medium capitalize ${ROLE_COLORS[shownRole]}`}
+                    className={`w-fit rounded-full px-2.5 py-0.5 text-xs font-medium ${ROLE_COLORS[shownRole]}`}
                   >
-                    {shownRole}
+                    {roleLabel(u.role)}
                   </span>
                   <div className="flex justify-end gap-1">
-                    <button
-                      onClick={() => openEditUser(u)}
-                      className="rounded-lg p-2 text-[#03214F] hover:bg-zinc-100"
-                      aria-label="Edit user"
-                      title="Edit user"
-                    >
-                      <Pencil className="size-4" />
-                    </button>
-                    {u.isActive !== false ? (
-                      <button
-                        onClick={() => handleDeactivate(u)}
-                        className="rounded-lg p-2 text-red-500 hover:bg-red-50"
-                        aria-label="Deactivate user"
-                        title="Deactivate user"
-                      >
-                        <Trash2 className="size-4" />
-                      </button>
-                    ) : null}
+                    {manageable ? (
+                      <>
+                        <button
+                          onClick={() => openEditUser(u)}
+                          className="rounded-lg p-2 text-[#03214F] hover:bg-zinc-100"
+                          aria-label="Edit user"
+                          title="Edit user"
+                        >
+                          <Pencil className="size-4" />
+                        </button>
+                        {u.isActive !== false ? (
+                          <button
+                            onClick={() => handleDeactivate(u)}
+                            className="rounded-lg p-2 text-red-500 hover:bg-red-50"
+                            aria-label="Deactivate user"
+                            title="Deactivate user"
+                          >
+                            <Trash2 className="size-4" />
+                          </button>
+                        ) : null}
+                      </>
+                    ) : (
+                      <span className="px-2 py-2 text-[10px] font-medium uppercase tracking-wide text-zinc-400">
+                        Protected
+                      </span>
+                    )}
                   </div>
                 </div>
               );
@@ -306,9 +323,9 @@ export function AdminUsersPage() {
               }
               label="Role"
             >
-              {ASSIGNABLE_ROLES.map((r) => (
+              {[...new Set([editRole, ...creatableRoles])].map((r) => (
                 <option key={r} value={r}>
-                  {r}
+                  {roleLabel(r)}
                 </option>
               ))}
             </Select>
@@ -422,12 +439,12 @@ export function AdminUsersPage() {
             />
             <Select
               value={role}
-              onChange={(e) => setRole(e.target.value as (typeof ASSIGNABLE_ROLES)[number])}
+              onChange={(e) => setRole(e.target.value as (typeof creatableRoles)[number])}
               label="Role"
             >
-              {ASSIGNABLE_ROLES.map((r) => (
+              {creatableRoles.map((r) => (
                 <option key={r} value={r}>
-                  {r}
+                  {roleLabel(r)}
                 </option>
               ))}
             </Select>
