@@ -36,13 +36,21 @@ export function LoginPage() {
 
     if (error === "oauth") {
       toast.error("Google sign-in failed. Please try again or use email.");
+    } else if (error === "oauth_role") {
+      toast.error(
+        `This Google account is not a ${portal} account. Use the correct portal or contact your admin.`
+      );
+    } else if (error === "oauth_account_required") {
+      toast.error(
+        `${portal === "admin" ? "Admin" : "Teacher"} accounts must be created by your academy admin before Google sign-in.`
+      );
     } else if (error === "deactivated") {
       toast.error("This account has been deactivated. Contact support.");
     }
 
     searchParams.delete("error");
     setSearchParams(searchParams, { replace: true });
-  }, [searchParams, setSearchParams]);
+  }, [searchParams, setSearchParams, portal]);
 
   function handleSubmit(e: FormEvent) {
     e.preventDefault();
@@ -142,7 +150,7 @@ export function LoginPage() {
             <div className="h-px flex-1 bg-zinc-200" />
           </div>
 
-          <GoogleAuthButton label="Continue with Google" />
+          <GoogleAuthButton label="Continue with Google" portal={portal} />
 
           {/* Footer link */}
           {portal === "student" ? (

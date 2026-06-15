@@ -1,16 +1,21 @@
 import { env } from "@/config/env";
+import type { PortalIntent } from "@/lib/portalAuth";
 
-const googleAuthUrl = `${env.apiUrl}/auth/google`;
+function googleAuthUrl(portal: PortalIntent): string {
+  const params = new URLSearchParams({ portal });
+  return `${env.apiUrl}/auth/google?${params.toString()}`;
+}
 
 interface GoogleAuthButtonProps {
   label: string;
+  portal: PortalIntent;
   className?: string;
 }
 
-export function GoogleAuthButton({ label, className = "" }: GoogleAuthButtonProps) {
+export function GoogleAuthButton({ label, portal, className = "" }: GoogleAuthButtonProps) {
   return (
     <a
-      href={googleAuthUrl}
+      href={googleAuthUrl(portal)}
       className={
         className ||
         "flex h-12 w-full items-center justify-center gap-2 rounded-xl border border-zinc-200 bg-white text-sm font-medium text-navy shadow-sm transition hover:bg-cream"

@@ -17,19 +17,20 @@ export function useLogin() {
         data.user.role === "parent"
           ? { ...data.user, role: "student" as const }
           : data.user;
-      login(data.token, user);
 
       const portal = parsePortalIntent(
         new URLSearchParams(window.location.search).get("portal")
       );
+
       if (!roleMatchesPortal(user.role, portal)) {
         toast.error(
-          `This email is a ${user.role} account, not ${portal}. Opening your ${user.role} dashboard.`
+          `This account is registered as ${user.role}, not ${portal}. Please use the correct sign-in page.`
         );
-      } else {
-        toast.success(`Welcome back, ${user.name}!`);
+        return;
       }
 
+      login(data.token, user);
+      toast.success(`Welcome back, ${user.name}!`);
       navigate(homePathForRole(user.role), { replace: true });
     },
     onError: (err: Error) => {

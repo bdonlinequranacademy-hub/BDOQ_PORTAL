@@ -238,6 +238,7 @@ export function RegisterPage() {
 
           <GoogleAuthButton
             label="Sign up with Google"
+            portal={portal}
             className="flex h-12 w-full items-center justify-center gap-2 rounded-2xl border border-zinc-200 bg-white text-sm font-medium text-navy shadow-sm transition hover:bg-cream"
           />
 
