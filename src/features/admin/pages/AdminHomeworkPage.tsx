@@ -13,11 +13,15 @@ import type { AdminHomeworkItem } from "@/types/models";
 
 import { PageLoading } from "@/components/ui/PageLoading";
 function classTitle(item: AdminHomeworkItem) {
-  return typeof item.class === "object" ? item.class.title : "Class";
+  const cls = item.class;
+  if (cls && typeof cls === "object") return cls.title;
+  return "Unknown class";
 }
 
 function teacherName(item: AdminHomeworkItem) {
-  return typeof item.teacher === "object" ? item.teacher.name : "Teacher";
+  const teacher = item.teacher;
+  if (teacher && typeof teacher === "object") return teacher.name;
+  return "Unknown teacher";
 }
 
 export function AdminHomeworkPage() {

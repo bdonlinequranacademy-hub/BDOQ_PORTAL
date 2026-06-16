@@ -24,7 +24,7 @@ export function StudentHomeworkDetailPage() {
 
   const hw = homework.find((h) => h._id === id);
   const classLabel =
-    hw && typeof hw.class === "object" ? hw.class.title : "Class";
+    hw?.class && typeof hw.class === "object" ? hw.class.title : "Class";
   const overdue = hw ? isHomeworkOverdue(hw.dueDate, hw.submitted) : false;
   const trimmedLength = content.trim().length;
   const hasGrade = Boolean(hw?.submission?.grade);

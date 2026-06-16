@@ -12,7 +12,9 @@ import { formatCurriculumPath } from "@/lib/api/curriculumApi";
 type Filter = "all" | "pending" | "review" | "submitted" | "overdue";
 
 function hwClassTitle(hw: StudentHomeworkItem) {
-  return typeof hw.class === "object" ? hw.class.title : "Class";
+  const cls = hw.class;
+  if (cls && typeof cls === "object") return cls.title;
+  return "Class";
 }
 
 export function StudentHomeworkListPane() {

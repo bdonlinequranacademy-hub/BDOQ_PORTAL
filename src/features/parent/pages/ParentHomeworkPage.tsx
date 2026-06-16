@@ -10,7 +10,9 @@ import type { StudentHomeworkItem } from "@/types/models";
 
 import { PageLoading } from "@/components/ui/PageLoading";
 function hwClassTitle(hw: StudentHomeworkItem) {
-  return typeof hw.class === "object" ? hw.class.title : "Class";
+  const cls = hw.class;
+  if (cls && typeof cls === "object") return cls.title;
+  return "Class";
 }
 
 function isOverdue(dueDate: string) {

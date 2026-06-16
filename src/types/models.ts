@@ -461,8 +461,8 @@ export interface AdminHomeworkItem {
   _id: string;
   title: string;
   description?: string;
-  class: { _id: string; title: string } | string;
-  teacher: { _id: string; name: string } | string;
+  class: { _id: string; title: string } | string | null;
+  teacher: { _id: string; name: string } | string | null;
   dueDate: string;
   curriculumProgram?: string;
   curriculumUnit?: string;
