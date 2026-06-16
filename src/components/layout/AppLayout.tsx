@@ -85,6 +85,7 @@ function navItemsForRole(role: Role): NavItem[] {
         { label: "Classes", icon: <BookOpen className="size-5" />, path: "/admin/classes" },
         { label: "Routine", icon: <CalendarDays className="size-5" />, path: "/admin/schedule/routine" },
         { label: "Class Logs", icon: <ClipboardCheck className="size-5" />, path: "/admin/class-logs" },
+        { label: "Student Care", icon: <ShieldAlert className="size-5" />, path: "/admin/student-care" },
         { label: "Trial Bookings", icon: <CalendarCheck className="size-5" />, path: "/admin/trial-bookings" },
         { label: "Contact Messages", icon: <Inbox className="size-5" />, path: "/admin/contact-messages" },
         { label: "Student Requests", icon: <UserPlus className="size-5" />, path: "/admin/student-requests" },
@@ -93,7 +94,6 @@ function navItemsForRole(role: Role): NavItem[] {
         { label: "Earnings", icon: <Banknote className="size-5" />, path: "/admin/earnings" },
         { label: "Attendance", icon: <ClipboardList className="size-5" />, path: "/admin/attendance" },
         { label: "Progress", icon: <BarChart3 className="size-5" />, path: "/admin/progress" },
-        { label: "Student Care", icon: <ShieldAlert className="size-5" />, path: "/admin/student-care" },
         { label: "Concern Reports", icon: <Flag className="size-5" />, path: "/admin/concern-reports" },
         { label: "Blog", icon: <Newspaper className="size-5" />, path: "/admin/blog" },
       ];

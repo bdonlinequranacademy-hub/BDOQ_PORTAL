@@ -7,7 +7,7 @@ import { EmptyState } from "@/components/ui/EmptyState";
 
 import { PageLoading } from "@/components/ui/PageLoading";
 export function AdminAtRiskPage() {
-  const { data: atRisk = [], isLoading } = useAdminAtRisk();
+  const { data: atRisk = [], isLoading, isError, refetch } = useAdminAtRisk();
 
   return (
     <PageContainer className="flex flex-col gap-6">
@@ -25,7 +25,15 @@ export function AdminAtRiskPage() {
         </p>
       </div>
 
-      {isLoading ? (
+      {isError ? (
+        <EmptyState
+          icon={Brain}
+          title="Could not load student care alerts"
+          description="The analysis request failed. Try refreshing the page."
+          actionLabel="Retry"
+          onAction={() => refetch()}
+        />
+      ) : isLoading ? (
         <PageLoading label="Analyzing…" />
       ) : atRisk.length === 0 ? (
         <EmptyState

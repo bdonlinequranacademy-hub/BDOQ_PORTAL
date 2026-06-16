@@ -18,37 +18,62 @@ import { ClipboardCheck, Search } from "lucide-react";
 import { PageLoading } from "@/components/ui/PageLoading";
 type Filter = "pending" | "all" | ClassLogStatus;
 
+const TABS: { id: Filter; label: string }[] = [
+  { id: "pending", label: "Pending" },
+  { id: "approved", label: "Approved" },
+  { id: "rejected", label: "Rejected" },
+  { id: "all", label: "All" },
+];
+
+function logSearchText(log: ClassLogView): string {
+  return [
+    log.student?.name,
+    log.teacher?.name,
+    log.classTitle,
+    log.lessonReport,
+  ]
+    .filter(Boolean)
+    .join(" ")
+    .toLowerCase();
+}
+
 export function AdminClassLogsPage() {
   const [filter, setFilter] = useState<Filter>("pending");
   const [programFilter, setProgramFilter] = useState("");
   const [search, setSearch] = useState("");
-  const status = filter === "all" ? undefined : filter;
-  const { data: logs = [], isLoading } = useAdminClassLogs(status);
+  const { data: logs = [], isLoading, isError, refetch } = useAdminClassLogs();
   const { data: curriculumTree = [] } = useCurriculumTree();
   const approve = useApproveClassLog();
   const reject = useRejectClassLog();
 
-  const pendingCount =
-    filter === "pending" ? logs.length : logs.filter((l) => l.status === "pending").length;
+  const tabCounts = useMemo(
+    () => ({
+      pending: logs.filter((l) => l.status === "pending").length,
+      approved: logs.filter((l) => l.status === "approved").length,
+      rejected: logs.filter((l) => l.status === "rejected").length,
+      all: logs.length,
+    }),
+    [logs]
+  );
+
+  const filteredByStatus = useMemo(() => {
+    if (filter === "all") return logs;
+    return logs.filter((log) => log.status === filter);
+  }, [logs, filter]);
 
   const missingProgramCount = useMemo(
-    () => logs.filter((l) => !l.curriculumProgram).length,
-    [logs]
+    () => filteredByStatus.filter((l) => !l.curriculumProgram).length,
+    [filteredByStatus]
   );
 
   const visibleLogs = useMemo(() => {
     const q = search.trim().toLowerCase();
-    return logs.filter((log) => {
+    return filteredByStatus.filter((log) => {
       if (!matchesProgramFilter(log.curriculumProgram, programFilter)) return false;
       if (!q) return true;
-      return (
-        log.student.name.toLowerCase().includes(q) ||
-        log.teacher.name.toLowerCase().includes(q) ||
-        log.classTitle.toLowerCase().includes(q) ||
-        log.lessonReport.toLowerCase().includes(q)
-      );
+      return logSearchText(log).includes(q);
     });
-  }, [logs, programFilter, search]);
+  }, [filteredByStatus, programFilter, search]);
 
   function handleApprove(log: ClassLogView) {
     approve.mutate(log._id);
@@ -68,10 +93,10 @@ export function AdminClassLogsPage() {
         </p>
       </div>
 
-      {filter === "pending" && pendingCount > 0 ? (
+      {filter === "pending" && tabCounts.pending > 0 ? (
         <Card className="rounded-2xl border-0 bg-amber-50 p-4 shadow-sm">
           <p className="text-sm font-semibold text-amber-800">
-            {pendingCount} log{pendingCount === 1 ? "" : "s"} awaiting your approval
+            {tabCounts.pending} log{tabCounts.pending === 1 ? "" : "s"} awaiting your approval
           </p>
         </Card>
       ) : null}
@@ -103,14 +128,7 @@ export function AdminClassLogsPage() {
       </div>
 
       <div className="flex gap-2 overflow-x-auto pb-1">
-        {(
-          [
-            { id: "pending" as const, label: "Pending" },
-            { id: "approved" as const, label: "Approved" },
-            { id: "rejected" as const, label: "Rejected" },
-            { id: "all" as const, label: "All" },
-          ] as const
-        ).map((f) => (
+        {TABS.map((f) => (
           <button
             key={f.id}
             type="button"
@@ -122,19 +140,30 @@ export function AdminClassLogsPage() {
             }`}
           >
             {f.label}
+            <span className="ml-1.5 text-xs opacity-80">({tabCounts[f.id]})</span>
           </button>
         ))}
       </div>
 
-      {isLoading ? (
+      {isError ? (
+        <EmptyState
+          icon={ClipboardCheck}
+          title="Could not load class logs"
+          description="The server failed to return class logs. Try again in a moment."
+          actionLabel="Retry"
+          onAction={() => refetch()}
+        />
+      ) : isLoading ? (
         <PageLoading label="Loading class logs…" />
       ) : visibleLogs.length === 0 ? (
         <EmptyState
           icon={ClipboardCheck}
-          title={logs.length === 0 ? "No class logs in this view" : "No logs match your filters"}
+          title={filteredByStatus.length === 0 ? "No class logs in this view" : "No logs match your filters"}
           description={
-            logs.length === 0
-              ? "Logs appear when teachers submit session reports from their schedule."
+            filteredByStatus.length === 0
+              ? filter === "pending"
+                ? "No logs are waiting for approval. Approved and rejected logs appear in their tabs."
+                : "Logs appear when teachers submit session reports from their schedule."
               : "Try clearing search or program filter."
           }
         />
