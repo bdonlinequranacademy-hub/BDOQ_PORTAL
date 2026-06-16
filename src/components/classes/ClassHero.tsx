@@ -47,7 +47,7 @@ export function ClassHero({
             href={meetingLink}
             target="_blank"
             rel="noreferrer"
-            className="mt-2 inline-flex w-fit items-center gap-2 rounded-xl bg-white/15 px-4 py-2.5 text-sm font-semibold transition hover:bg-white/25"
+            className="mt-1 inline-flex w-fit items-center gap-2 rounded-xl bg-white/15 px-4 py-2.5 text-sm font-semibold transition hover:bg-white/25"
           >
             <Video className="size-4" />
             Join class meeting

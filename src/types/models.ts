@@ -282,6 +282,9 @@ export interface PopulatedUserRef {
   _id: string;
   name: string;
   email?: string;
+  country?: string;
+  studentId?: string;
+  timezone?: string;
 }
 
 export interface SessionTimeLabel {
