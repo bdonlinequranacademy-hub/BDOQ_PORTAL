@@ -222,11 +222,11 @@ export function AdminPaymentsPage() {
         {!showBilling ? (
           <Button
             type="button"
-            variant="secondary"
+            variant="primary"
             onClick={() => setShowBilling(true)}
-            className="inline-flex h-10 shrink-0 items-center gap-2 rounded-xl border-gold/30 bg-gold/10 px-4 text-navy hover:bg-gold/15"
+            className="inline-flex h-10 shrink-0 items-center gap-2 rounded-xl px-5 shadow-sm"
           >
-            <Banknote className="size-4 text-gold-dark" />
+            <Banknote className="size-4" />
             Set billing
           </Button>
         ) : (
@@ -234,7 +234,7 @@ export function AdminPaymentsPage() {
             type="button"
             variant="ghost"
             onClick={() => setShowBilling(false)}
-            className="h-10 shrink-0 rounded-xl border border-zinc-200 px-4 text-navy"
+            className="h-10 shrink-0 rounded-xl border-2 border-navy/20 bg-white px-4 text-navy shadow-sm hover:bg-navy/5"
           >
             Back to payments
           </Button>
