@@ -1,12 +1,8 @@
 import { useState } from "react";
 import {
   Banknote,
-  Calendar,
   Check,
-  CreditCard,
   ExternalLink,
-  Hash,
-  MapPin,
   X,
 } from "lucide-react";
 import type { BillingCurrency, PaymentRecordView, PaymentStatus } from "@/types/models";
@@ -77,100 +73,109 @@ function PaymentReviewCard({
 }) {
   const studentName = payment.student?.name ?? "Student";
   const methodLabel = METHOD_LABELS[payment.method] ?? payment.method.replace(/_/g, " ");
+  const paidOn = new Date(payment.paymentDate).toLocaleDateString();
+  const isPending = payment.status === "pending";
 
   return (
-    <article className="overflow-hidden rounded-2xl border border-zinc-100 bg-white shadow-sm transition hover:border-gold/25 hover:shadow-md">
-      <div className="flex flex-col gap-4 p-5 lg:flex-row lg:items-start lg:justify-between">
-        <div className="flex min-w-0 flex-1 gap-4">
-          <UserInitialAvatar name={studentName} size="md" />
-          <div className="min-w-0 flex-1">
-            <div className="flex flex-wrap items-start justify-between gap-2">
-              <div>
-                <p className="font-semibold text-navy">{studentName}</p>
-                <p className="truncate text-xs text-zinc-500">{payment.student?.email}</p>
+    <article className="border-b border-zinc-100 last:border-b-0">
+      <div className="flex flex-col gap-3 px-4 py-4 sm:px-5">
+        <div className="flex flex-wrap items-start gap-3">
+          <UserInitialAvatar name={studentName} size="sm" />
+          <div className="flex min-w-0 flex-1 flex-wrap items-start justify-between gap-x-4 gap-y-2">
+            <div className="min-w-0">
+              <p className="truncate font-semibold text-navy">{studentName}</p>
+              <p className="truncate text-xs text-zinc-500">{payment.student?.email}</p>
+            </div>
+            <div className="flex items-center gap-2 sm:gap-3">
+              <div className="text-right">
+                <p className="text-lg font-bold tabular-nums text-navy sm:text-xl">
+                  {formatAmount(payment.amount, payment.currency)}
+                </p>
+                <p className="text-[11px] text-zinc-500">
+                  {payment.monthsCovered} mo
+                  {payment.netAmount != null
+                    ? ` · net ${formatAmount(payment.netAmount, payment.currency)}`
+                    : ""}
+                </p>
               </div>
               <span
-                className={`shrink-0 rounded-full border px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wide ${statusStyles(payment.status)}`}
+                className={`rounded-full border px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide ${statusStyles(payment.status)}`}
               >
                 {payment.status}
               </span>
             </div>
-
-            <p className="mt-3 font-display text-2xl font-bold text-navy">
-              {formatAmount(payment.amount, payment.currency)}
-            </p>
-            <p className="text-xs text-zinc-500">
-              {payment.monthsCovered} month{payment.monthsCovered > 1 ? "s" : ""} covered
-              {payment.netAmount != null
-                ? ` · Net ${formatAmount(payment.netAmount, payment.currency)}`
-                : ""}
-            </p>
-
-            <div className="mt-4 grid gap-2 sm:grid-cols-2">
-              <div className="flex items-center gap-2 rounded-xl bg-zinc-50 px-3 py-2 text-xs text-zinc-600">
-                <CreditCard className="size-3.5 shrink-0 text-zinc-400" />
-                <span>{methodLabel}</span>
-              </div>
-              <div className="flex items-center gap-2 rounded-xl bg-zinc-50 px-3 py-2 text-xs text-zinc-600">
-                <Hash className="size-3.5 shrink-0 text-zinc-400" />
-                <span className="truncate">{payment.reference}</span>
-              </div>
-              <div className="flex items-center gap-2 rounded-xl bg-zinc-50 px-3 py-2 text-xs text-zinc-600">
-                <Calendar className="size-3.5 shrink-0 text-zinc-400" />
-                <span>Paid {new Date(payment.paymentDate).toLocaleDateString()}</span>
-              </div>
-              <div className="flex items-center gap-2 rounded-xl bg-zinc-50 px-3 py-2 text-xs text-zinc-600">
-                <MapPin className="size-3.5 shrink-0 text-zinc-400" />
-                <span>{payment.country}</span>
-              </div>
-            </div>
-
-            {payment.note ? (
-              <p className="mt-3 rounded-xl border border-zinc-100 bg-zinc-50/80 px-3 py-2 text-xs leading-relaxed text-zinc-600">
-                <span className="font-semibold text-navy">Note:</span> {payment.note}
-              </p>
-            ) : null}
-
-            {payment.rejectionReason ? (
-              <p className="mt-2 rounded-xl border border-red-100 bg-red-50 px-3 py-2 text-xs text-red-700">
-                <span className="font-semibold">Rejected:</span> {payment.rejectionReason}
-              </p>
-            ) : null}
-
-            <a
-              href={payment.screenshotUrl}
-              target="_blank"
-              rel="noreferrer"
-              className="mt-3 inline-flex items-center gap-1.5 rounded-lg border border-gold/30 bg-gold/5 px-3 py-1.5 text-xs font-semibold text-gold-dark transition hover:bg-gold/10"
-            >
-              View payment proof
-              <ExternalLink className="size-3.5" />
-            </a>
           </div>
         </div>
 
-        {payment.status === "pending" ? (
-          <div className="flex shrink-0 flex-col gap-2 sm:flex-row lg:flex-col lg:min-w-[140px]">
-            <Button
-              variant="success"
-              disabled={busy}
-              onClick={() => onApprove(payment.id)}
-              className="h-10 w-full gap-1.5 rounded-xl px-4"
-            >
-              <Check className="size-4" />
-              Approve
-            </Button>
-            <Button
-              variant="outline-danger"
-              disabled={busy}
-              onClick={() => onReject(payment.id)}
-              className="h-10 w-full gap-1.5 rounded-xl px-4"
-            >
-              <X className="size-4" />
-              Reject
-            </Button>
+        <dl className="grid grid-cols-2 gap-x-4 gap-y-2 text-xs sm:grid-cols-4">
+          <div>
+            <dt className="text-[10px] font-semibold uppercase tracking-wide text-zinc-400">Method</dt>
+            <dd className="mt-0.5 font-medium text-zinc-700">{methodLabel}</dd>
           </div>
+          <div>
+            <dt className="text-[10px] font-semibold uppercase tracking-wide text-zinc-400">Reference</dt>
+            <dd className="mt-0.5 truncate font-medium text-zinc-700" title={payment.reference}>
+              {payment.reference}
+            </dd>
+          </div>
+          <div>
+            <dt className="text-[10px] font-semibold uppercase tracking-wide text-zinc-400">Paid on</dt>
+            <dd className="mt-0.5 font-medium text-zinc-700">{paidOn}</dd>
+          </div>
+          <div>
+            <dt className="text-[10px] font-semibold uppercase tracking-wide text-zinc-400">Country</dt>
+            <dd className="mt-0.5 font-medium text-zinc-700">{payment.country}</dd>
+          </div>
+        </dl>
+
+        {payment.note ? (
+          <p className="w-full rounded-lg bg-zinc-50 px-3 py-2 text-xs leading-relaxed text-zinc-600">
+            <span className="font-semibold text-navy">Note · </span>
+            {payment.note}
+          </p>
         ) : null}
+
+        {payment.rejectionReason ? (
+          <p className="w-full rounded-lg border border-red-100 bg-red-50 px-3 py-2 text-xs text-red-700">
+            <span className="font-semibold">Rejected · </span>
+            {payment.rejectionReason}
+          </p>
+        ) : null}
+
+        <div className="flex flex-col gap-2 border-t border-zinc-100 pt-3 sm:flex-row sm:items-center sm:justify-between">
+          <a
+            href={payment.screenshotUrl}
+            target="_blank"
+            rel="noreferrer"
+            className="inline-flex w-fit items-center gap-1.5 text-xs font-semibold text-gold-dark hover:underline"
+          >
+            View payment proof
+            <ExternalLink className="size-3.5" />
+          </a>
+
+          {isPending ? (
+            <div className="flex gap-2 sm:justify-end">
+              <Button
+                variant="success"
+                disabled={busy}
+                onClick={() => onApprove(payment.id)}
+                className="h-9 flex-1 gap-1.5 rounded-lg px-4 sm:flex-none"
+              >
+                <Check className="size-4" />
+                Approve
+              </Button>
+              <Button
+                variant="outline-danger"
+                disabled={busy}
+                onClick={() => onReject(payment.id)}
+                className="h-9 flex-1 gap-1.5 rounded-lg px-4 sm:flex-none"
+              >
+                <X className="size-4" />
+                Reject
+              </Button>
+            </div>
+          ) : null}
+        </div>
       </div>
     </article>
   );
@@ -238,7 +243,7 @@ export function AdminPaymentsPage() {
         ) : pending.length === 0 ? (
           <EmptyState title="No pending payments" description="New submissions will appear here." />
         ) : (
-          <div className="grid gap-4">
+          <Card className="overflow-hidden rounded-2xl border border-zinc-100 bg-white p-0 shadow-sm">
             {pending.map((p) => (
               <PaymentReviewCard
                 key={p.id}
@@ -248,7 +253,7 @@ export function AdminPaymentsPage() {
                 onReject={(id) => setRejectId(id)}
               />
             ))}
-          </div>
+          </Card>
         )
       ) : null}
 
@@ -258,7 +263,7 @@ export function AdminPaymentsPage() {
         ) : all.length === 0 ? (
           <EmptyState title="No payments yet" description="Approved and rejected payments appear here." />
         ) : (
-          <div className="grid gap-4">
+          <Card className="overflow-hidden rounded-2xl border border-zinc-100 bg-white p-0 shadow-sm">
             {all.map((p) => (
               <PaymentReviewCard
                 key={p.id}
@@ -268,7 +273,7 @@ export function AdminPaymentsPage() {
                 onReject={(id) => setRejectId(id)}
               />
             ))}
-          </div>
+          </Card>
         )
       ) : null}
 
@@ -278,11 +283,11 @@ export function AdminPaymentsPage() {
         ) : overdue.length === 0 ? (
           <EmptyState title="No overdue students" description="All active billings are current." />
         ) : (
-          <div className="grid gap-3">
+          <Card className="overflow-hidden rounded-2xl border border-zinc-100 bg-white p-0 shadow-sm">
             {overdue.map((row) => (
               <article
                 key={row.student.id}
-                className="flex flex-col gap-3 rounded-2xl border border-red-100 bg-white p-5 shadow-sm sm:flex-row sm:items-center sm:justify-between"
+                className="flex flex-col gap-2 border-b border-zinc-100 px-4 py-4 last:border-b-0 sm:flex-row sm:items-center sm:justify-between sm:px-5"
               >
                 <div className="flex items-center gap-3">
                   <UserInitialAvatar name={row.student.name} size="sm" />
@@ -291,13 +296,13 @@ export function AdminPaymentsPage() {
                     <p className="text-xs text-zinc-500">{row.student.email}</p>
                   </div>
                 </div>
-                <div className="rounded-xl bg-red-50 px-4 py-2 text-sm text-red-800">
-                  {formatAmount(row.monthlyFee, row.currency)}/mo · Paid until{" "}
+                <p className="text-sm font-medium tabular-nums text-red-700">
+                  {formatAmount(row.monthlyFee, row.currency)}/mo · Due{" "}
                   {row.paidUntil ? new Date(row.paidUntil).toLocaleDateString() : "not set"}
-                </div>
+                </p>
               </article>
             ))}
-          </div>
+          </Card>
         )
       ) : null}
 
