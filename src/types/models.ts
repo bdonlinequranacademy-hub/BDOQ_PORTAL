@@ -655,6 +655,13 @@ export interface AdminStats {
     pendingClassLogs: number;
     newConcernReports?: number;
     pendingPayments?: number;
+    pendingStudentRequests?: number;
+  };
+  curriculumCoverage?: {
+    studentsWithPrograms: number;
+    totalStudents: number;
+    progressMissingProgram: number;
+    logsMissingProgram: number;
   };
 }
 

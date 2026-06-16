@@ -187,10 +187,18 @@ export function AdminPaymentsPage() {
   const [rejectId, setRejectId] = useState<string | null>(null);
   const [rejectReason, setRejectReason] = useState("");
 
-  const { data: pending = [], isLoading: pendingLoading } = useAdminPayments("pending");
-  const { data: all = [], isLoading: allLoading } = useAdminPayments();
-  const { data: overdue = [], isLoading: overdueLoading } = useAdminOverdueBillings();
-  const { data: students = [] } = useAdminUsers("student");
+  const { data: pending = [], isLoading: pendingLoading } = useAdminPayments("pending", {
+    enabled: !showBilling && tab === "pending",
+  });
+  const { data: all = [], isLoading: allLoading } = useAdminPayments(undefined, {
+    enabled: !showBilling && tab === "all",
+  });
+  const { data: overdue = [], isLoading: overdueLoading } = useAdminOverdueBillings({
+    enabled: !showBilling && tab === "overdue",
+  });
+  const { data: students = [] } = useAdminUsers("student", undefined, {
+    enabled: showBilling,
+  });
 
   const approvePayment = useApprovePayment();
   const rejectPayment = useRejectPayment();

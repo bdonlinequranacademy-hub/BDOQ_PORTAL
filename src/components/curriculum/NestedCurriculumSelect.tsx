@@ -33,12 +33,21 @@ export function pathReadyToSave(path: CurriculumPath, tree: CurriculumNode[]): b
   return true;
 }
 
-export function useCurriculumTree(params?: { studentId?: string; classId?: string }) {
+export function useCurriculumTree(
+  params?: { studentId?: string; classId?: string },
+  options?: { enabled?: boolean }
+) {
+  const defaultEnabled =
+    params?.studentId !== undefined ||
+    params?.classId !== undefined ||
+    params === undefined;
+
   return useQuery({
     queryKey: ["curriculum", "tree", params?.studentId, params?.classId],
     queryFn: () => curriculumApi.getTree(params),
     select: (r) => r.data ?? [],
-    enabled: params?.studentId !== undefined || params?.classId !== undefined || params === undefined,
+    enabled: options?.enabled ?? defaultEnabled,
+    staleTime: 10 * 60_000,
   });
 }
 

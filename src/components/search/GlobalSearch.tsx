@@ -54,7 +54,9 @@ export function GlobalSearch({ role }: { role: Role }) {
 
   const pages = useMemo(() => filterPortalPages(role, debounced), [role, debounced]);
 
-  const { data: curriculumTree = [] } = useCurriculumTree(undefined);
+  const { data: curriculumTree = [] } = useCurriculumTree(undefined, {
+    enabled: open && debounced.trim().length >= 2,
+  });
   const programHits = useMemo(() => {
     const q = debounced.trim().toLowerCase();
     if (q.length < 2) return [];

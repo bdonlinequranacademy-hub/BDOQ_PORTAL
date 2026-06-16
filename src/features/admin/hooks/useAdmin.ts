@@ -35,14 +35,20 @@ export function useAdminStats() {
     queryKey: adminKeys.stats,
     queryFn: adminApi.getStats,
     select: (r) => r.data,
+    staleTime: 120_000,
   });
 }
 
-export function useAdminUsers(role?: Role, gender?: "male" | "female") {
+export function useAdminUsers(
+  role?: Role,
+  gender?: "male" | "female",
+  options?: { enabled?: boolean }
+) {
   return useQuery({
     queryKey: [...adminKeys.users(role), gender] as const,
     queryFn: () => adminApi.getUsers(role, gender),
     select: (r) => r.data ?? [],
+    enabled: options?.enabled ?? true,
   });
 }
 
@@ -521,19 +527,24 @@ export function useResetAdminCurriculum() {
   });
 }
 
-export function useAdminPayments(status?: "pending" | "approved" | "rejected") {
+export function useAdminPayments(
+  status?: "pending" | "approved" | "rejected",
+  options?: { enabled?: boolean }
+) {
   return useQuery({
     queryKey: adminKeys.payments(status),
     queryFn: () => adminApi.getPayments(status),
     select: (r) => r.data ?? [],
+    enabled: options?.enabled ?? true,
   });
 }
 
-export function useAdminOverdueBillings() {
+export function useAdminOverdueBillings(options?: { enabled?: boolean }) {
   return useQuery({
     queryKey: adminKeys.overdueBillings,
     queryFn: adminApi.getOverdueBillings,
     select: (r) => r.data ?? [],
+    enabled: options?.enabled ?? true,
   });
 }
 

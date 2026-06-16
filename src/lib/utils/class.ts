@@ -25,9 +25,10 @@ export function studentList(
   return students as PopulatedUserRef[];
 }
 
-export function studentCount(cls: AdminClass) {
-  const list = studentList(cls.students);
-  return list.length;
+export function studentCount(cls: AdminClass & { students?: unknown[] }) {
+  if (!cls.students?.length) return 0;
+  if (typeof cls.students[0] === "string") return cls.students.length;
+  return studentList(cls.students as PopulatedUserRef[]).length;
 }
 
 const WEEK_DAYS = [

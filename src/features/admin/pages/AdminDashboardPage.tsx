@@ -22,42 +22,26 @@ import {
   CreditCard,
 } from "lucide-react";
 import { useAuthStore } from "@/stores/authStore";
-import {
-  useAdminStats,
-  useAdminAtRisk,
-  useAdminClassLogs,
-  useAdminStudentRequests,
-  useAdminTrialBookings,
-  useAdminContactMessages,
-  useAdminConcernReports,
-  useAdminProgress,
-  useAdminUsers,
-} from "@/features/admin/hooks/useAdmin";
+import { useAdminStats } from "@/features/admin/hooks/useAdmin";
 import { PageContainer } from "@/components/layout/PageContainer";
 import { Card } from "@/components/ui/Card";
 import { classTitle, teacherName, studentCount } from "@/lib/utils/class";
 
 import { PageLoading } from "@/components/ui/PageLoading";
+
 export function AdminDashboardPage() {
   const user = useAuthStore((s) => s.user);
   const navigate = useNavigate();
   const { data: stats, isLoading } = useAdminStats();
-  const pendingPayments = stats?.pendingActions?.pendingPayments ?? 0;
-  const { data: atRisk = [] } = useAdminAtRisk();
-  const { data: pendingLogs = [] } = useAdminClassLogs("pending");
-  const { data: pendingRequests = [] } = useAdminStudentRequests("pending");
-  const { data: newTrials = [] } = useAdminTrialBookings("new");
-  const { data: newContacts = [] } = useAdminContactMessages("new");
-  const { data: newConcerns = [] } = useAdminConcernReports("new");
-  const { data: progressRecords = [] } = useAdminProgress();
-  const { data: allLogs = [] } = useAdminClassLogs();
-  const { data: students = [] } = useAdminUsers("student");
 
-  const studentsWithPrograms = students.filter(
-    (s) => (s.curriculumAssignments?.length ?? 0) > 0
-  ).length;
-  const progressMissingProgram = progressRecords.filter((r) => !r.curriculumProgram).length;
-  const logsMissingProgram = allLogs.filter((l) => !l.curriculumProgram).length;
+  const pending = stats?.pendingActions;
+  const coverage = stats?.curriculumCoverage;
+  const pendingPayments = pending?.pendingPayments ?? 0;
+  const pendingLogs = pending?.pendingClassLogs ?? 0;
+  const pendingRequests = pending?.pendingStudentRequests ?? 0;
+  const newTrials = pending?.newTrials ?? 0;
+  const newContacts = pending?.newContacts ?? 0;
+  const newConcerns = pending?.newConcernReports ?? 0;
 
   const kpis = [
     {
@@ -96,16 +80,17 @@ export function AdminDashboardPage() {
         <p className="mt-1 text-sm text-zinc-500">Academy executive overview</p>
       </div>
 
-      {(pendingLogs.length > 0 ||
-        pendingRequests.length > 0 ||
-        newTrials.length > 0 ||
-        newContacts.length > 0 ||
-        newConcerns.length > 0) && (
+      {(pendingLogs > 0 ||
+        pendingRequests > 0 ||
+        newTrials > 0 ||
+        newContacts > 0 ||
+        newConcerns > 0 ||
+        pendingPayments > 0) && (
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-          {newConcerns.length > 0 ? (
+          {newConcerns > 0 ? (
             <Card className="rounded-2xl border-0 bg-red-50 p-4 shadow-sm">
               <p className="text-sm font-semibold text-red-900">
-                {newConcerns.length} new concern report{newConcerns.length === 1 ? "" : "s"}
+                {newConcerns} new concern report{newConcerns === 1 ? "" : "s"}
               </p>
               <button
                 type="button"
@@ -116,10 +101,10 @@ export function AdminDashboardPage() {
               </button>
             </Card>
           ) : null}
-          {newContacts.length > 0 ? (
+          {newContacts > 0 ? (
             <Card className="rounded-2xl border-0 bg-blue-50 p-4 shadow-sm">
               <p className="text-sm font-semibold text-blue-900">
-                {newContacts.length} new contact message{newContacts.length === 1 ? "" : "s"}
+                {newContacts} new contact message{newContacts === 1 ? "" : "s"}
               </p>
               <button
                 type="button"
@@ -130,10 +115,10 @@ export function AdminDashboardPage() {
               </button>
             </Card>
           ) : null}
-          {newTrials.length > 0 ? (
+          {newTrials > 0 ? (
             <Card className="rounded-2xl border-0 bg-amber-50 p-4 shadow-sm">
               <p className="text-sm font-semibold text-amber-900">
-                {newTrials.length} new trial lead{newTrials.length === 1 ? "" : "s"}
+                {newTrials} new trial lead{newTrials === 1 ? "" : "s"}
               </p>
               <button
                 type="button"
@@ -158,10 +143,10 @@ export function AdminDashboardPage() {
               </button>
             </Card>
           ) : null}
-          {pendingLogs.length > 0 ? (
+          {pendingLogs > 0 ? (
             <Card className="rounded-2xl border-0 bg-amber-50 p-4 shadow-sm">
               <p className="text-sm font-semibold text-amber-900">
-                {pendingLogs.length} class log{pendingLogs.length === 1 ? "" : "s"} pending
+                {pendingLogs} class log{pendingLogs === 1 ? "" : "s"} pending
               </p>
               <button
                 type="button"
@@ -172,10 +157,10 @@ export function AdminDashboardPage() {
               </button>
             </Card>
           ) : null}
-          {pendingRequests.length > 0 ? (
+          {pendingRequests > 0 ? (
             <Card className="rounded-2xl border-0 bg-[#F8FAFF] p-4 shadow-sm">
               <p className="text-sm font-semibold text-[#03214F]">
-                {pendingRequests.length} student request{pendingRequests.length === 1 ? "" : "s"}
+                {pendingRequests} student request{pendingRequests === 1 ? "" : "s"}
               </p>
               <button
                 type="button"
@@ -203,32 +188,36 @@ export function AdminDashboardPage() {
         ))}
       </div>
 
-      <Card className="rounded-2xl border-0 p-4 shadow-sm">
-        <p className="text-sm font-bold text-[#03214F]">Curriculum coverage</p>
-        <ul className="mt-2 space-y-1 text-sm text-zinc-600">
-          <li>
-            {studentsWithPrograms}/{students.length || "—"} students with assigned programs
-          </li>
-          {progressMissingProgram > 0 ? (
-            <li className="text-amber-700">
-              {progressMissingProgram} progress record{progressMissingProgram === 1 ? "" : "s"}{" "}
-              missing program
+      {coverage ? (
+        <Card className="rounded-2xl border-0 p-4 shadow-sm">
+          <p className="text-sm font-bold text-[#03214F]">Curriculum coverage</p>
+          <ul className="mt-2 space-y-1 text-sm text-zinc-600">
+            <li>
+              {coverage.studentsWithPrograms}/{coverage.totalStudents} students with assigned
+              programs
             </li>
-          ) : null}
-          {logsMissingProgram > 0 ? (
-            <li className="text-amber-700">
-              {logsMissingProgram} class log{logsMissingProgram === 1 ? "" : "s"} missing program
-            </li>
-          ) : null}
-        </ul>
-        <button
-          type="button"
-          onClick={() => navigate("/admin/curriculum")}
-          className="mt-3 text-sm font-semibold text-[#C4922B]"
-        >
-          Manage curriculum →
-        </button>
-      </Card>
+            {coverage.progressMissingProgram > 0 ? (
+              <li className="text-amber-700">
+                {coverage.progressMissingProgram} progress record
+                {coverage.progressMissingProgram === 1 ? "" : "s"} missing program
+              </li>
+            ) : null}
+            {coverage.logsMissingProgram > 0 ? (
+              <li className="text-amber-700">
+                {coverage.logsMissingProgram} class log
+                {coverage.logsMissingProgram === 1 ? "" : "s"} missing program
+              </li>
+            ) : null}
+          </ul>
+          <button
+            type="button"
+            onClick={() => navigate("/admin/curriculum")}
+            className="mt-3 text-sm font-semibold text-[#C4922B]"
+          >
+            Manage curriculum →
+          </button>
+        </Card>
+      ) : null}
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-3 lg:gap-8">
         <div className="flex flex-col gap-6 lg:col-span-2">
@@ -306,37 +295,17 @@ export function AdminDashboardPage() {
 
         <Card className="flex flex-col gap-4 rounded-3xl border-0 p-6 shadow-sm">
           <span className="text-base font-bold text-[#03214F]">Student Care Alerts</span>
-          {atRisk.length === 0 ? (
-            <p className="text-sm text-zinc-400">No students need extra care right now.</p>
-          ) : (
-            <div className="flex flex-col gap-3">
-              {atRisk.slice(0, 5).map((s) => (
-                <div
-                  key={s.studentId}
-                  className="flex items-center justify-between rounded-xl bg-[#F8FAFF] px-3 py-2"
-                >
-                  <span className="text-sm font-medium text-[#03214F]">
-                    {s.studentName}
-                  </span>
-                  <span
-                    className={`rounded-full px-2 py-0.5 text-[10px] font-semibold ${
-                      s.riskLevel === "high"
-                        ? "bg-red-100 text-red-600"
-                        : "bg-amber-100 text-amber-700"
-                    }`}
-                  >
-                    {s.riskLevel}
-                  </span>
-                </div>
-              ))}
-              <button
-                onClick={() => navigate("/admin/student-care")}
-                className="text-sm font-semibold text-[#C4922B]"
-              >
-                View all →
-              </button>
-            </div>
-          )}
+          <p className="text-sm text-zinc-500">
+            Attendance, homework, and progress flags load on the Student Care page.
+          </p>
+          <button
+            type="button"
+            onClick={() => navigate("/admin/student-care")}
+            className="inline-flex items-center gap-2 text-sm font-semibold text-[#C4922B]"
+          >
+            <ShieldAlert className="size-4" />
+            Open Student Care →
+          </button>
         </Card>
       </div>
     </PageContainer>

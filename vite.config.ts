@@ -18,6 +18,8 @@ export default defineConfig({
         manualChunks(id) {
           if (!id.includes("node_modules")) return;
           if (id.includes("@tanstack/react-query")) return "query";
+          if (id.includes("lucide-react")) return "icons";
+          if (id.includes("axios")) return "http";
           if (
             id.includes("react-router") ||
             id.includes("react-dom") ||
