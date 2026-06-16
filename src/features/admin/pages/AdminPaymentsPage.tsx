@@ -23,7 +23,7 @@ import { PageLoading } from "@/components/ui/PageLoading";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { UserInitialAvatar } from "@/components/ui/UserInitialAvatar";
 
-type Tab = "pending" | "all" | "overdue" | "billing";
+type PaymentTab = "pending" | "all" | "overdue";
 
 const CURRENCIES: BillingCurrency[] = ["USD", "GBP", "EUR", "BDT", "CAD", "AUD"];
 
@@ -182,7 +182,8 @@ function PaymentReviewCard({
 }
 
 export function AdminPaymentsPage() {
-  const [tab, setTab] = useState<Tab>("pending");
+  const [tab, setTab] = useState<PaymentTab>("pending");
+  const [showBilling, setShowBilling] = useState(false);
   const [rejectId, setRejectId] = useState<string | null>(null);
   const [rejectReason, setRejectReason] = useState("");
 
@@ -203,24 +204,114 @@ export function AdminPaymentsPage() {
 
   const busy = approvePayment.isPending || rejectPayment.isPending;
 
-  const tabs: { id: Tab; label: string; count?: number }[] = [
+  const paymentTabs: { id: PaymentTab; label: string; count?: number }[] = [
     { id: "pending", label: "Pending", count: pending.length },
     { id: "all", label: "All payments" },
     { id: "overdue", label: "Overdue", count: overdue.length },
-    { id: "billing", label: "Set billing" },
   ];
 
   return (
     <PageContainer className="flex flex-col gap-6">
-      <div>
-        <h1 className="font-display text-2xl font-bold text-navy">Payments</h1>
-        <p className="text-sm text-zinc-500">
-          Review manual payment proofs and manage student billing plans.
-        </p>
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+        <div>
+          <h1 className="font-display text-2xl font-bold text-navy">Payments</h1>
+          <p className="text-sm text-zinc-500">
+            Review manual payment proofs and manage student billing plans.
+          </p>
+        </div>
+        {!showBilling ? (
+          <Button
+            type="button"
+            variant="secondary"
+            onClick={() => setShowBilling(true)}
+            className="inline-flex h-10 shrink-0 items-center gap-2 rounded-xl border-gold/30 bg-gold/10 px-4 text-navy hover:bg-gold/15"
+          >
+            <Banknote className="size-4 text-gold-dark" />
+            Set billing
+          </Button>
+        ) : (
+          <Button
+            type="button"
+            variant="ghost"
+            onClick={() => setShowBilling(false)}
+            className="h-10 shrink-0 rounded-xl border border-zinc-200 px-4 text-navy"
+          >
+            Back to payments
+          </Button>
+        )}
       </div>
 
+      {showBilling ? (
+        <Card className="flex max-w-lg flex-col gap-4 rounded-2xl border-0 p-6 shadow-sm">
+          <div className="flex items-center gap-2">
+            <Banknote className="size-5 text-navy" />
+            <h2 className="font-display text-lg font-bold text-navy">Student billing plan</h2>
+          </div>
+          <Select
+            value={billingStudentId}
+            onChange={(e) => setBillingStudentId(e.target.value)}
+            label="Student"
+          >
+            <option value="">Select student…</option>
+            {students.map((s) => (
+              <option key={s.id} value={s.id}>
+                {s.name} ({s.email})
+              </option>
+            ))}
+          </Select>
+          <Input
+            type="number"
+            step="0.01"
+            min="0"
+            placeholder="Monthly fee"
+            value={monthlyFee}
+            onChange={(e) => setMonthlyFee(e.target.value)}
+          />
+          <Select
+            value={billingCurrency}
+            onChange={(e) => setBillingCurrency(e.target.value as BillingCurrency)}
+            label="Currency"
+          >
+            {CURRENCIES.map((c) => (
+              <option key={c} value={c}>
+                {c}
+              </option>
+            ))}
+          </Select>
+          <Input
+            type="number"
+            min="1"
+            max="28"
+            placeholder="Due day of month (1–28)"
+            value={dueDay}
+            onChange={(e) => setDueDay(e.target.value)}
+          />
+          <Input
+            type="date"
+            value={paidUntil}
+            onChange={(e) => setPaidUntil(e.target.value)}
+          />
+          <Button
+            disabled={!billingStudentId || !monthlyFee || upsertBilling.isPending}
+            className="h-11 rounded-xl"
+            onClick={() => {
+              if (!billingStudentId || !monthlyFee) return;
+              upsertBilling.mutate({
+                studentId: billingStudentId,
+                monthlyFee: Number(monthlyFee),
+                currency: billingCurrency,
+                dueDayOfMonth: Number(dueDay) || 1,
+                ...(paidUntil ? { paidUntil } : {}),
+              });
+            }}
+          >
+            {upsertBilling.isPending ? "Saving…" : "Save billing plan"}
+          </Button>
+        </Card>
+      ) : (
+        <>
       <div className="flex flex-wrap gap-2">
-        {tabs.map((t) => (
+        {paymentTabs.map((t) => (
           <button
             key={t.id}
             type="button"
@@ -305,75 +396,8 @@ export function AdminPaymentsPage() {
           </Card>
         )
       ) : null}
-
-      {tab === "billing" ? (
-        <Card className="flex max-w-lg flex-col gap-4 rounded-2xl border-0 p-6 shadow-sm">
-          <div className="flex items-center gap-2">
-            <Banknote className="size-5 text-navy" />
-            <h2 className="font-display text-lg font-bold text-navy">Student billing plan</h2>
-          </div>
-          <Select
-            value={billingStudentId}
-            onChange={(e) => setBillingStudentId(e.target.value)}
-            label="Student"
-          >
-            <option value="">Select student…</option>
-            {students.map((s) => (
-              <option key={s.id} value={s.id}>
-                {s.name} ({s.email})
-              </option>
-            ))}
-          </Select>
-          <Input
-            type="number"
-            step="0.01"
-            min="0"
-            placeholder="Monthly fee"
-            value={monthlyFee}
-            onChange={(e) => setMonthlyFee(e.target.value)}
-          />
-          <Select
-            value={billingCurrency}
-            onChange={(e) => setBillingCurrency(e.target.value as BillingCurrency)}
-            label="Currency"
-          >
-            {CURRENCIES.map((c) => (
-              <option key={c} value={c}>
-                {c}
-              </option>
-            ))}
-          </Select>
-          <Input
-            type="number"
-            min="1"
-            max="28"
-            placeholder="Due day of month (1–28)"
-            value={dueDay}
-            onChange={(e) => setDueDay(e.target.value)}
-          />
-          <Input
-            type="date"
-            value={paidUntil}
-            onChange={(e) => setPaidUntil(e.target.value)}
-          />
-          <Button
-            disabled={!billingStudentId || !monthlyFee || upsertBilling.isPending}
-            className="h-11 rounded-xl"
-            onClick={() => {
-              if (!billingStudentId || !monthlyFee) return;
-              upsertBilling.mutate({
-                studentId: billingStudentId,
-                monthlyFee: Number(monthlyFee),
-                currency: billingCurrency,
-                dueDayOfMonth: Number(dueDay) || 1,
-                ...(paidUntil ? { paidUntil } : {}),
-              });
-            }}
-          >
-            {upsertBilling.isPending ? "Saving…" : "Save billing plan"}
-          </Button>
-        </Card>
-      ) : null}
+        </>
+      )}
 
       {rejectId ? (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
