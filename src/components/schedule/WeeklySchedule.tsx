@@ -1,6 +1,6 @@
 import { Calendar } from "lucide-react";
 import { EmptyState } from "@/components/ui/EmptyState";
-import { classTitle } from "@/lib/utils/class";
+import { classTitle, formatDuration, getTodayWeekDay } from "@/lib/utils/class";
 
 const WEEK_DAYS = [
   "Sunday",
@@ -60,20 +60,37 @@ export function WeeklySchedule({ classes, onClassClick }: WeeklyScheduleProps) {
     ),
   }));
 
+  const today = getTodayWeekDay();
+
   return (
     <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4 2xl:grid-cols-7">
-      {byDay.map(({ day, items }) => (
+      {byDay.map(({ day, items }) => {
+        const isToday = day === today;
+        return (
         <div
           key={day}
-          className={`flex min-h-[120px] flex-col rounded-2xl border p-3 ${
-            items.length > 0
-              ? "border-gold/30 bg-portal-surface shadow-sm"
-              : "border-dashed border-portal bg-portal-muted"
+          className={`flex min-h-[128px] flex-col rounded-2xl border p-3 transition ${
+            isToday
+              ? "border-gold bg-gold/5 shadow-md ring-2 ring-gold/25"
+              : items.length > 0
+                ? "border-gold/30 bg-portal-surface shadow-sm"
+                : "border-dashed border-portal bg-portal-muted"
           }`}
         >
-          <span className="mb-2 text-xs font-bold uppercase tracking-wide text-portal-heading">
-            {day.slice(0, 3)}
-          </span>
+          <div className="mb-2 flex items-center justify-between gap-1">
+            <span
+              className={`text-xs font-bold uppercase tracking-wide ${
+                isToday ? "text-gold-dark" : "text-portal-heading"
+              }`}
+            >
+              {day.slice(0, 3)}
+            </span>
+            {isToday ? (
+              <span className="rounded-full bg-gold/20 px-1.5 py-0.5 text-[9px] font-bold uppercase text-gold-dark">
+                Today
+              </span>
+            ) : null}
+          </div>
           {items.length === 0 ? (
             <span className="text-xs text-portal-muted">—</span>
           ) : (
@@ -88,13 +105,19 @@ export function WeeklySchedule({ classes, onClassClick }: WeeklyScheduleProps) {
                   <p className="line-clamp-2 text-xs font-semibold text-portal-heading">
                     {classTitle(cls)}
                   </p>
-                  <p className="text-[10px] text-portal-muted">{cls.schedule?.time}</p>
+                  <p className="text-[10px] text-portal-muted">
+                    {cls.schedule?.time}
+                    {cls.schedule?.duration
+                      ? ` · ${formatDuration(cls.schedule.duration)}`
+                      : ""}
+                  </p>
                 </button>
               ))}
             </div>
           )}
         </div>
-      ))}
+      );
+      })}
     </div>
   );
 }

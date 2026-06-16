@@ -1,130 +1,116 @@
 import { useNavigate } from "react-router-dom";
-import { Users, Calendar, ChevronRight, BookOpen } from "lucide-react";
+import { ClipboardList, BookOpen } from "lucide-react";
 import { useTeacherClasses } from "@/features/teacher/hooks/useTeacher";
 import { PageContainer } from "@/components/layout/PageContainer";
 import { PageLoading } from "@/components/ui/PageLoading";
 import { EmptyState } from "@/components/ui/EmptyState";
+import { ClassCard } from "@/components/classes/ClassCard";
+import { TodayClassesBanner } from "@/components/classes/TodayClassesBanner";
 import { WeeklySchedule, toScheduleClassItem } from "@/components/schedule/WeeklySchedule";
+import { classesScheduledToday } from "@/lib/utils/class";
 import { CountryLabel } from "@/components/ui/CountryLabel";
 
 export function TeacherClassesPage() {
   const navigate = useNavigate();
   const { data: classes = [], isLoading } = useTeacherClasses();
+  const todayClasses = classesScheduledToday(classes);
 
   return (
-    <PageContainer className="flex flex-col gap-5">
+    <PageContainer className="flex flex-col gap-6">
       <div>
-        <h1 className="font-display text-2xl font-bold leading-8 text-portal-heading">My Classes</h1>
-        <p className="mt-0.5 text-sm text-portal-muted">
-          {classes.length} class{classes.length !== 1 ? "es" : ""} assigned
+        <h1 className="font-display text-2xl font-bold text-navy">My classes</h1>
+        <p className="mt-0.5 text-sm text-zinc-500">
+          {classes.length} class{classes.length !== 1 ? "es" : ""} · schedules, students, and quick actions
         </p>
       </div>
 
-      <div>
-        <h2 className="mb-3 font-semibold text-portal-heading">Weekly schedule</h2>
+      {!isLoading && todayClasses.length > 0 ? (
+        <TodayClassesBanner
+          classes={todayClasses.map((c) => ({
+            _id: c._id,
+            name: c.name,
+            schedule: c.schedule,
+          }))}
+          onClassClick={(id) => navigate(`/teacher/classes/${id}`)}
+        />
+      ) : null}
+
+      <section>
+        <h2 className="mb-3 font-semibold text-navy">Weekly schedule</h2>
         {isLoading ? (
           <PageLoading label="Loading schedule…" />
         ) : (
           <WeeklySchedule
             classes={classes.map((c) =>
-              toScheduleClassItem({ _id: c._id, name: c.name, schedule: c.schedule as never })
+              toScheduleClassItem({
+                _id: c._id,
+                name: c.name,
+                schedule: c.schedule as never,
+              })
             )}
             onClassClick={(id) => navigate(`/teacher/classes/${id}`)}
           />
         )}
-      </div>
+      </section>
 
       {isLoading ? (
-        <PageLoading />
+        <PageLoading label="Loading classes…" />
       ) : classes.length === 0 ? (
         <EmptyState
           icon={BookOpen}
           title="No classes assigned"
-          description="An admin will assign classes to your account."
+          description="An admin will assign classes to your account. You will see schedules and student lists here."
         />
       ) : (
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
-          {classes.map((cls) => (
-            <button
-              key={cls._id}
-              onClick={() => navigate(`/teacher/classes/${cls._id}`)}
-              className="shadow-[0_6px_18px_-12px_rgba(3,33,79,0.18)] rounded-3xl bg-white text-left flex flex-col gap-3 p-5 hover:shadow-md transition"
-            >
-              {/* Header */}
-              <div className="flex items-start justify-between gap-2">
-                <div className="flex flex-col gap-1">
-                  <span className="font-bold text-[#03214F] text-base leading-6">{cls.name}</span>
-                  {cls.subject && (
-                    <span className="text-zinc-400 text-xs">{cls.subject}</span>
-                  )}
-                </div>
-                <ChevronRight className="size-5 text-zinc-300 shrink-0 mt-0.5" />
-              </div>
-
-              {/* Meta */}
-              <div className="flex flex-col gap-2">
-                <div className="flex items-center gap-4">
-                  <div className="flex items-center gap-1.5 text-zinc-500 text-xs">
-                    <Users className="size-3.5" />
-                    <span>{cls.studentIds?.length ?? 0} students</span>
-                  </div>
-                  {cls.schedule?.[0] && (
-                    <div className="flex items-center gap-1.5 text-zinc-500 text-xs">
-                      <Calendar className="size-3.5" />
-                      <span>
-                        {cls.schedule[0].day} · {cls.schedule[0].time}
-                      </span>
+        <section>
+          <h2 className="mb-3 font-semibold text-navy">All classes</h2>
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
+            {classes.map((cls) => (
+              <ClassCard
+                key={cls._id}
+                title={cls.name}
+                subtitle={cls.description ?? cls.subject}
+                schedule={cls.schedule}
+                studentCount={cls.studentIds?.length ?? cls.students?.length ?? 0}
+                meetingLink={cls.meetingLink}
+                onClick={() => navigate(`/teacher/classes/${cls._id}`)}
+                footer={
+                  cls.students && cls.students.length > 0 ? (
+                    <div className="flex flex-col gap-1">
+                      {cls.students.slice(0, 3).map((student) => (
+                        <div
+                          key={student._id}
+                          className="flex flex-wrap items-center gap-x-2 text-xs text-zinc-600"
+                        >
+                          <span className="font-medium text-navy">{student.name}</span>
+                          {student.studentId ? (
+                            <span className="text-zinc-400">{student.studentId}</span>
+                          ) : null}
+                          <CountryLabel country={student.country} className="text-zinc-500" showFallback={false} />
+                        </div>
+                      ))}
+                      {cls.students.length > 3 ? (
+                        <span className="text-xs text-zinc-400">
+                          +{cls.students.length - 3} more students
+                        </span>
+                      ) : null}
                     </div>
-                  )}
-                </div>
-                {cls.students && cls.students.length > 0 ? (
-                  <div className="flex flex-col gap-1">
-                    {cls.students.map((student) => (
-                      <div
-                        key={student._id}
-                        className="flex flex-wrap items-center gap-x-2 gap-y-0.5 text-xs"
-                      >
-                        <span className="font-medium text-[#03214F]">{student.name}</span>
-                        {student.studentId ? (
-                          <span className="text-zinc-400">{student.studentId}</span>
-                        ) : null}
-                        <CountryLabel
-                          country={student.country}
-                          className="text-zinc-500"
-                          showFallback={!student.country}
-                        />
-                      </div>
-                    ))}
-                  </div>
-                ) : null}
-              </div>
-
-              {/* Attend CTA */}
-              <div className="flex gap-2">
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    navigate(`/teacher/attendance?classId=${cls._id}`);
-                  }}
-                  className="rounded-xl bg-[#03214F]/8 text-[#03214F] text-xs font-semibold px-3 py-2"
-                >
-                  Mark Attendance
-                </button>
-                {cls.meetingLink && (
-                  <a
-                    href={cls.meetingLink}
-                    target="_blank"
-                    rel="noreferrer"
-                    onClick={(e) => e.stopPropagation()}
-                    className="rounded-xl bg-[#2b7fff] text-white text-xs font-semibold px-3 py-2"
+                  ) : null
+                }
+                actions={
+                  <button
+                    type="button"
+                    onClick={() => navigate(`/teacher/attendance?classId=${cls._id}`)}
+                    className="inline-flex items-center gap-1.5 rounded-xl bg-navy/8 px-3 py-2 text-xs font-semibold text-navy transition hover:bg-navy/12"
                   >
-                    Join Class
-                  </a>
-                )}
-              </div>
-            </button>
-          ))}
-        </div>
+                    <ClipboardList className="size-3.5" />
+                    Attendance
+                  </button>
+                }
+              />
+            ))}
+          </div>
+        </section>
       )}
     </PageContainer>
   );

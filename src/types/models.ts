@@ -27,6 +27,7 @@ export interface AuthUser {
 export interface ScheduleEntry {
   day: string;
   time: string;
+  duration?: number;
 }
 
 export interface ClassStudentSummary {

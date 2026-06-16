@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { ArrowLeft, Pencil, UserPlus, UserMinus, ExternalLink } from "lucide-react";
+import { ArrowLeft, Pencil, UserPlus, UserMinus, Banknote } from "lucide-react";
 import {
   useAdminClass,
   useAdminUsers,
@@ -10,10 +10,11 @@ import {
 import { PageContainer } from "@/components/layout/PageContainer";
 import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
-import { classTitle, teacherName, studentList } from "@/lib/utils/class";
+import { ClassHero } from "@/components/classes/ClassHero";
+import { classTitle, formatDuration, studentCount, studentList, teacherName } from "@/lib/utils/class";
 import { formControlClass } from "@/lib/formControl";
-
 import { PageLoading } from "@/components/ui/PageLoading";
+
 export function AdminClassDetailPage() {
   const { id = "" } = useParams();
   const navigate = useNavigate();
@@ -37,63 +38,63 @@ export function AdminClassDetailPage() {
     <PageContainer className="flex flex-col gap-6">
       <div className="flex items-center justify-between gap-3">
         <button
+          type="button"
           onClick={() => navigate("/admin/classes")}
           className="flex size-9 items-center justify-center rounded-full bg-zinc-100"
           aria-label="Back to classes"
         >
-          <ArrowLeft className="size-5 text-[#03214F]" />
+          <ArrowLeft className="size-5 text-navy" />
         </button>
-        <h1 className="flex-1 font-display text-xl font-bold text-[#03214F]">Class Detail</h1>
+        <h1 className="flex-1 font-display text-xl font-bold text-navy">Class details</h1>
         <button
+          type="button"
           onClick={() => navigate(`/admin/classes/${id}/edit`)}
           className="flex size-9 items-center justify-center rounded-full bg-zinc-100"
           aria-label="Edit class"
         >
-          <Pencil className="size-4 text-[#03214F]" />
+          <Pencil className="size-4 text-navy" />
         </button>
       </div>
 
       {isLoading ? (
         <PageLoading compact />
       ) : !cls ? (
-        <p className="text-sm text-zinc-400">Not found.</p>
+        <p className="text-sm text-zinc-400">Class not found.</p>
       ) : (
         <>
-          <div className="rounded-3xl bg-gradient-to-br from-[#03214F] to-[#0a3a7a] p-6 text-white">
-            <h2 className="font-display text-2xl font-bold">{classTitle(cls)}</h2>
-            {cls.description && (
-              <p className="mt-2 text-sm text-white/70">{cls.description}</p>
-            )}
-            <p className="mt-3 text-sm text-white/80">
-              Teacher: {teacherName(typeof cls.teacher === "object" ? cls.teacher : undefined)}
-            </p>
-            {cls.schedule && (
-              <p className="text-sm text-[#C4922B]">
-                {cls.schedule.day} · {cls.schedule.time}
-              </p>
-            )}
-            {cls.isActive === false && (
-              <span className="mt-3 inline-block rounded-full bg-white/20 px-2.5 py-0.5 text-xs font-semibold">
-                Inactive
-              </span>
-            )}
-            {cls.meetingLink && (
-              <a
-                href={cls.meetingLink}
-                target="_blank"
-                rel="noreferrer"
-                className="mt-4 inline-flex items-center gap-2 rounded-xl bg-white/15 px-4 py-2 text-sm font-semibold"
-              >
-                <ExternalLink className="size-4" />
-                Meeting link
-              </a>
-            )}
-          </div>
+          <ClassHero
+            title={classTitle(cls)}
+            description={cls.description}
+            teacherName={teacherName(typeof cls.teacher === "object" ? cls.teacher : undefined)}
+            schedule={cls.schedule}
+            meetingLink={cls.meetingLink}
+            badge={
+              cls.isActive === false ? (
+                <span className="w-fit rounded-full bg-white/20 px-2.5 py-0.5 text-xs font-semibold">
+                  Inactive
+                </span>
+              ) : undefined
+            }
+            meta={
+              <div className="flex flex-wrap gap-3 text-sm text-white/80">
+                <span>{studentCount(cls)} students enrolled</span>
+                {cls.sessionRateBdt != null ? (
+                  <span className="inline-flex items-center gap-1">
+                    <Banknote className="size-3.5" />
+                    {cls.sessionRateBdt} BDT / session
+                  </span>
+                ) : null}
+                {cls.schedule?.duration ? (
+                  <span>{formatDuration(cls.schedule.duration)} per session</span>
+                ) : null}
+              </div>
+            }
+          />
 
           <Card className="flex flex-col gap-4 rounded-2xl border-0 p-5 shadow-sm">
-            <span className="font-bold text-[#03214F]">Enrolled Students ({enrolled.length})</span>
+            <span className="font-bold text-navy">Enrolled students ({enrolled.length})</span>
             {enrolled.length === 0 ? (
-              <p className="text-sm text-zinc-400">No students enrolled.</p>
+              <p className="text-sm text-zinc-400">No students enrolled yet.</p>
             ) : (
               <div className="grid grid-cols-1 gap-2 md:grid-cols-2">
                 {enrolled.map((s) => (
@@ -102,10 +103,11 @@ export function AdminClassDetailPage() {
                     className="flex items-center justify-between rounded-xl bg-zinc-50 px-4 py-3"
                   >
                     <div>
-                      <p className="text-sm font-semibold text-[#03214F]">{s.name}</p>
+                      <p className="text-sm font-semibold text-navy">{s.name}</p>
                       <p className="text-xs text-zinc-400">{s.email}</p>
                     </div>
                     <button
+                      type="button"
                       onClick={() => {
                         if (!window.confirm(`Remove ${s.name} from this class?`)) return;
                         removeStudent.mutate(s._id);
@@ -122,11 +124,11 @@ export function AdminClassDetailPage() {
           </Card>
 
           <Card className="flex flex-col gap-3 rounded-2xl border-0 p-5 shadow-sm">
-            <span className="flex items-center gap-2 text-sm font-bold text-[#03214F]">
+            <span className="flex items-center gap-2 text-sm font-bold text-navy">
               <UserPlus className="size-4" />
-              Add Student
+              Add student
             </span>
-            <div className="flex gap-2">
+            <div className="flex flex-col gap-2 sm:flex-row">
               <select
                 value={pickStudent}
                 onChange={(e) => setPickStudent(e.target.value)}
@@ -142,9 +144,9 @@ export function AdminClassDetailPage() {
               <Button
                 onClick={handleAssign}
                 disabled={!pickStudent || assignStudent.isPending}
-                className="rounded-xl bg-[#03214F] px-4 text-white"
+                className="rounded-xl bg-navy px-4 text-white"
               >
-                Add
+                Add to class
               </Button>
             </div>
           </Card>
@@ -153,4 +155,3 @@ export function AdminClassDetailPage() {
     </PageContainer>
   );
 }
-

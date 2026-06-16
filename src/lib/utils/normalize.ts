@@ -33,6 +33,10 @@ export function normalizeSchedule(raw: unknown): ScheduleEntry[] {
     .map((entry) => ({
       day: asString(entry.day),
       time: asString(entry.time),
+      duration:
+        typeof entry.duration === "number" && entry.duration > 0
+          ? entry.duration
+          : undefined,
     }));
 }
 

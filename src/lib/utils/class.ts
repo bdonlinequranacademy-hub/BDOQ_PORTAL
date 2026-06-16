@@ -1,4 +1,9 @@
-import type { AdminClass, PopulatedUserRef } from "@/types/models";
+import type {
+  AdminClass,
+  ClassSchedule,
+  PopulatedUserRef,
+  ScheduleEntry,
+} from "@/types/models";
 
 export function classTitle(cls: { title?: string; name?: string }) {
   return cls.title ?? cls.name ?? "Untitled class";
@@ -23,4 +28,61 @@ export function studentList(
 export function studentCount(cls: AdminClass) {
   const list = studentList(cls.students);
   return list.length;
+}
+
+const WEEK_DAYS = [
+  "Sunday",
+  "Monday",
+  "Tuesday",
+  "Wednesday",
+  "Thursday",
+  "Friday",
+  "Saturday",
+] as const;
+
+export type WeekDay = (typeof WEEK_DAYS)[number];
+
+export function getTodayWeekDay(): WeekDay {
+  return WEEK_DAYS[new Date().getDay()];
+}
+
+export function isTodayScheduleDay(day?: string): boolean {
+  if (!day) return false;
+  return day.toLowerCase() === getTodayWeekDay().toLowerCase();
+}
+
+export type ScheduleLike =
+  | ClassSchedule
+  | ScheduleEntry
+  | { day: string; time: string; duration?: number }
+  | ScheduleEntry[]
+  | ClassSchedule[]
+  | undefined;
+
+export function primaryScheduleEntry(schedule?: ScheduleLike): ClassSchedule | undefined {
+  if (!schedule) return undefined;
+  if (Array.isArray(schedule)) {
+    const first = schedule[0];
+    return first ? { day: first.day, time: first.time, duration: (first as ClassSchedule).duration } : undefined;
+  }
+  return schedule as ClassSchedule;
+}
+
+export function formatScheduleLine(schedule?: ScheduleLike): string | null {
+  const entry = primaryScheduleEntry(schedule);
+  if (!entry?.day || !entry.time) return null;
+  const duration = entry.duration ? ` · ${formatDuration(entry.duration)}` : "";
+  return `${entry.day} · ${entry.time}${duration}`;
+}
+
+export function formatDuration(minutes?: number): string {
+  if (!minutes || minutes <= 0) return "";
+  if (minutes < 60) return `${minutes} min`;
+  const h = Math.floor(minutes / 60);
+  const m = minutes % 60;
+  return m > 0 ? `${h}h ${m}m` : `${h}h`;
+}
+
+export function classesScheduledToday<T extends { schedule?: ScheduleLike }>(classes: T[]): T[] {
+  return classes.filter((c) => isTodayScheduleDay(primaryScheduleEntry(c.schedule)?.day));
 }

@@ -1,12 +1,13 @@
 import { useParams, useNavigate } from "react-router-dom";
-import { ArrowLeft, Calendar, ExternalLink, Video, ClipboardList, BookOpenCheck } from "lucide-react";
+import { ArrowLeft, BookOpenCheck, ClipboardList, Lightbulb } from "lucide-react";
 import { useStudentClass } from "@/features/student/hooks/useStudent";
 import { PageContainer } from "@/components/layout/PageContainer";
 import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
-import { classTitle, teacherName } from "@/lib/utils/class";
-
+import { ClassHero } from "@/components/classes/ClassHero";
+import { classTitle, formatDuration, teacherName } from "@/lib/utils/class";
 import { PageLoading } from "@/components/ui/PageLoading";
+
 export function StudentClassDetailPage() {
   const { id = "" } = useParams();
   const navigate = useNavigate();
@@ -21,74 +22,66 @@ export function StudentClassDetailPage() {
           className="flex size-9 items-center justify-center rounded-full bg-zinc-100"
           aria-label="Back to classes"
         >
-          <ArrowLeft className="size-5 text-[#03214F]" />
+          <ArrowLeft className="size-5 text-navy" />
         </button>
-        <h1 className="font-display text-xl font-bold text-[#03214F]">Class Detail</h1>
+        <h1 className="font-display text-xl font-bold text-navy">Class details</h1>
       </div>
 
       {isLoading ? (
         <PageLoading compact />
       ) : !cls ? (
-        <p className="text-sm text-zinc-400">Not found.</p>
+        <p className="text-sm text-zinc-400">Class not found.</p>
       ) : (
         <>
-          <div className="rounded-3xl bg-gradient-to-br from-[#03214F] to-[#0a3a7a] p-6 text-white">
-            <h2 className="font-display text-2xl font-bold">{classTitle(cls)}</h2>
-            {cls.description && (
-              <p className="mt-2 text-sm text-white/70">{cls.description}</p>
-            )}
-            <p className="mt-3 text-sm">
-              Teacher: {teacherName(typeof cls.teacher === "object" ? cls.teacher : undefined)}
-            </p>
-            {cls.schedule && (
-              <div className="mt-2 flex items-center gap-2 text-sm text-[#C4922B]">
-                <Calendar className="size-4" />
-                {cls.schedule.day} · {cls.schedule.time}
-              </div>
-            )}
-            {cls.meetingLink && (
-              <a
-                href={cls.meetingLink}
-                target="_blank"
-                rel="noreferrer"
-                className="mt-4 inline-flex items-center gap-2 rounded-xl bg-white/15 px-4 py-2 text-sm font-semibold"
-              >
-                <Video className="size-4" />
-                Join Class
-                <ExternalLink className="size-3.5 opacity-70" />
-              </a>
-            )}
-          </div>
+          <ClassHero
+            title={classTitle(cls)}
+            description={cls.description}
+            teacherName={teacherName(typeof cls.teacher === "object" ? cls.teacher : undefined)}
+            schedule={cls.schedule}
+            meetingLink={cls.meetingLink}
+            meta={
+              cls.schedule?.duration ? (
+                <p className="text-sm text-white/75">
+                  Session length: {formatDuration(cls.schedule.duration)}
+                </p>
+              ) : undefined
+            }
+          />
 
-          <div className="flex flex-col gap-3 sm:flex-row">
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
             <Button
               type="button"
               onClick={() => navigate("/student/homework")}
-              className="flex flex-1 items-center justify-center gap-2 rounded-xl bg-[#03214F] py-2.5 text-sm text-white"
+              className="flex items-center justify-center gap-2 rounded-xl bg-navy py-2.5 text-sm text-white"
             >
               <BookOpenCheck className="size-4" />
-              View Homework
+              View homework
             </Button>
             <Button
               type="button"
               variant="ghost"
               onClick={() => navigate("/student/attendance")}
-              className="flex flex-1 items-center justify-center gap-2 rounded-xl border border-[#C4922B] py-2.5 text-sm text-[#C4922B]"
+              className="flex items-center justify-center gap-2 rounded-xl border border-gold py-2.5 text-sm text-gold-dark"
             >
               <ClipboardList className="size-4" />
-              My Attendance
+              My attendance
             </Button>
           </div>
 
-          <Card className="rounded-2xl border-0 p-5 shadow-sm">
-            <p className="text-sm leading-relaxed text-zinc-600">
-              Attend live sessions on time and submit homework before the due date. Your
-              teacher updates progress and monthly reports on the Progress page.
-            </p>
+          <Card className="flex gap-3 rounded-2xl border-0 p-5 shadow-sm">
+            <div className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-gold/15">
+              <Lightbulb className="size-5 text-gold-dark" />
+            </div>
+            <div>
+              <p className="font-semibold text-navy">Before each session</p>
+              <p className="mt-1 text-sm leading-relaxed text-zinc-600">
+                Join on time using the meeting link above. Complete homework before the due date.
+                Your teacher updates progress on the Progress page after each class.
+              </p>
+            </div>
           </Card>
         </>
       )}
     </PageContainer>
   );
 }
-

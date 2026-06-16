@@ -1,15 +1,20 @@
 import { useParams, useNavigate } from "react-router-dom";
-import { ArrowLeft, Users, Calendar, Video, ExternalLink } from "lucide-react";
+import { ArrowLeft, Users } from "lucide-react";
 import { useTeacherClass } from "@/features/teacher/hooks/useTeacher";
 import { PageContainer } from "@/components/layout/PageContainer";
 import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
-
+import { ClassHero } from "@/components/classes/ClassHero";
+import { CountryLabel } from "@/components/ui/CountryLabel";
+import { formatDuration } from "@/lib/utils/class";
 import { PageLoading } from "@/components/ui/PageLoading";
+
 export function TeacherClassDetailPage() {
   const { id = "" } = useParams();
   const navigate = useNavigate();
   const { data: cls, isLoading } = useTeacherClass(id);
+
+  const schedule = cls?.schedule?.[0];
 
   return (
     <PageContainer className="flex flex-col gap-5">
@@ -17,93 +22,86 @@ export function TeacherClassDetailPage() {
         <button
           type="button"
           onClick={() => navigate("/teacher/classes")}
-          className="flex size-9 items-center justify-center rounded-full bg-zinc-100 text-[#03214F]"
+          className="flex size-9 items-center justify-center rounded-full bg-zinc-100 text-navy"
           aria-label="Back to classes"
         >
           <ArrowLeft className="size-5" />
         </button>
-        <h1 className="font-display text-xl font-bold text-[#03214F]">Class Detail</h1>
+        <h1 className="font-display text-xl font-bold text-navy">Class details</h1>
       </div>
 
       {isLoading ? (
         <PageLoading compact />
       ) : !cls ? (
-        <p className="p-2 text-sm text-zinc-400">Class not found.</p>
+        <p className="text-sm text-zinc-400">Class not found.</p>
       ) : (
         <>
-          <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-[#03214F] to-[#0a3a7a] p-6 text-white">
-            <div className="absolute -right-8 -top-8 size-28 rounded-full bg-white/10" />
-            <div className="relative flex flex-col gap-3">
-              <h2 className="text-xl font-bold leading-7">{cls.name}</h2>
-              {cls.subject && <span className="text-sm text-white/70">{cls.subject}</span>}
-              {cls.level && (
-                <span className="self-start rounded-full bg-white/15 px-3 py-1 text-xs font-medium text-white">
+          <ClassHero
+            title={cls.name}
+            description={cls.description ?? cls.subject}
+            schedule={cls.schedule}
+            meetingLink={cls.meetingLink}
+            badge={
+              cls.level ? (
+                <span className="w-fit rounded-full bg-white/15 px-3 py-1 text-xs font-medium">
                   {cls.level}
                 </span>
-              )}
-              <div className="mt-2 flex items-center gap-4">
-                <div className="flex items-center gap-1.5 text-sm text-white/70">
-                  <Users className="size-4" />
-                  <span>{cls.studentIds?.length ?? 0} students</span>
-                </div>
-              </div>
-            </div>
-          </div>
+              ) : undefined
+            }
+            meta={
+              <p className="text-sm text-white/80">
+                {cls.studentIds?.length ?? cls.students?.length ?? 0} students
+                {schedule?.duration ? ` · ${formatDuration(schedule.duration)} per session` : ""}
+              </p>
+            }
+          />
 
-          {cls.schedule?.length > 0 && (
-            <Card className="flex flex-col gap-3 rounded-2xl border-0 p-5 shadow-sm">
-              <span className="text-sm font-bold text-[#03214F]">Schedule</span>
-              {cls.schedule.map((s, i) => (
-                <div key={i} className="flex items-center gap-3">
-                  <div className="flex size-9 items-center justify-center rounded-xl bg-[#2b7fff]/10">
-                    <Calendar className="size-4 text-[#2b7fff]" />
-                  </div>
-                  <div className="flex flex-col">
-                    <span className="text-sm font-semibold text-[#03214F]">{s.day}</span>
-                    <span className="text-xs text-zinc-400">{s.time}</span>
-                  </div>
-                </div>
-              ))}
-            </Card>
-          )}
-
-          {cls.meetingLink && (
-            <a
-              href={cls.meetingLink}
-              target="_blank"
-              rel="noreferrer"
-              className="flex h-12 w-full items-center justify-center gap-2 rounded-2xl bg-[#2b7fff] font-semibold text-white"
-            >
-              <Video className="size-4" />
-              Join Class Meeting
-              <ExternalLink className="size-3.5 opacity-70" />
-            </a>
-          )}
-
-          <div className="flex gap-3">
+          <div className="flex flex-col gap-3 sm:flex-row">
             <Button
               onClick={() => navigate(`/teacher/attendance?classId=${cls._id}`)}
-              className="flex-1 rounded-xl bg-[#03214F] py-2.5 text-sm text-white"
+              className="flex-1 rounded-xl bg-navy py-2.5 text-sm text-white"
             >
-              Mark Attendance
+              Mark attendance
             </Button>
             <Button
               onClick={() => navigate(`/teacher/homework?classId=${cls._id}&new=1`)}
               variant="ghost"
-              className="flex-1 rounded-xl border border-[#C4922B] py-2.5 text-sm text-[#C4922B]"
+              className="flex-1 rounded-xl border border-gold py-2.5 text-sm text-gold-dark"
             >
-              Assign Homework
+              Assign homework
             </Button>
           </div>
 
-          {cls.description && (
-            <Card className="rounded-2xl border-0 p-5 shadow-sm">
-              <p className="text-sm leading-relaxed text-zinc-500">{cls.description}</p>
-            </Card>
-          )}
+          <Card className="rounded-2xl border-0 p-5 shadow-sm">
+            <div className="mb-4 flex items-center gap-2">
+              <Users className="size-4 text-navy" />
+              <span className="font-bold text-navy">
+                Students ({cls.students?.length ?? cls.studentIds?.length ?? 0})
+              </span>
+            </div>
+            {!cls.students?.length ? (
+              <p className="text-sm text-zinc-400">No students enrolled in this class.</p>
+            ) : (
+              <div className="divide-y divide-zinc-100">
+                {cls.students.map((student) => (
+                  <div
+                    key={student._id}
+                    className="flex flex-wrap items-center justify-between gap-2 py-3 first:pt-0 last:pb-0"
+                  >
+                    <div>
+                      <p className="font-semibold text-navy">{student.name}</p>
+                      {student.studentId ? (
+                        <p className="text-xs text-zinc-400">{student.studentId}</p>
+                      ) : null}
+                    </div>
+                    <CountryLabel country={student.country} className="text-sm text-zinc-500" />
+                  </div>
+                ))}
+              </div>
+            )}
+          </Card>
         </>
       )}
     </PageContainer>
   );
 }
-
