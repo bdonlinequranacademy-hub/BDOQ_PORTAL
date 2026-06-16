@@ -34,8 +34,6 @@ import { PageContainer } from "@/components/layout/PageContainer";
 
 import { Card } from "@/components/ui/Card";
 
-import { LocaleToggle } from "@/components/ui/LocaleToggle";
-
 
 
 interface Tool {
@@ -178,18 +176,9 @@ export function TeacherAIAssistantPage() {
 
     <PageContainer className="flex flex-col gap-6">
 
-      <div className="flex flex-wrap items-start justify-between gap-4">
-
-        <div>
-
-          <h1 className="font-display text-2xl font-bold text-portal-heading">AI Assistant</h1>
-
-          <p className="text-sm text-portal-muted">Powered by Al Bayaan AI</p>
-
-        </div>
-
-        <LocaleToggle />
-
+      <div>
+        <h1 className="font-display text-2xl font-bold text-portal-heading">AI Assistant</h1>
+        <p className="text-sm text-portal-muted">Powered by Al Bayaan AI</p>
       </div>
 
 
@@ -207,9 +196,7 @@ export function TeacherAIAssistantPage() {
           <h2 className="font-display text-xl font-bold text-portal-heading">AI Teacher Tools</h2>
 
           <p className="text-sm text-portal-muted">
-
-            Reports and summaries use your EN / বাং preference when you generate them.
-
+            Reports and summaries are generated in clear, professional English.
           </p>
 
         </div>

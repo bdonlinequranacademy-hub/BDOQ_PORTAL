@@ -6,7 +6,6 @@ import {
   useTeacherStudents,
   useGenerateProgressReport,
 } from "@/features/teacher/hooks/useTeacher";
-import { useUiStore, type AiLocale } from "@/stores/uiStore";
 import type { AIProgressReport } from "@/types/models";
 import { PageContainer } from "@/components/layout/PageContainer";
 import { Card } from "@/components/ui/Card";
@@ -15,13 +14,11 @@ import { Select } from "@/components/ui/Select";
 
 export function TeacherAIReportPage() {
   const [params] = useSearchParams();
-  const locale = useUiStore((s) => s.aiLocale);
   const { data: students = [] } = useTeacherStudents();
   const generateReport = useGenerateProgressReport();
 
   const [studentId, setStudentId] = useState(params.get("studentId") ?? "");
   const [report, setReport] = useState<string | null>(null);
-  const [contentLocale, setContentLocale] = useState<AiLocale | undefined>();
   const [stats, setStats] = useState<AIProgressReport["stats"] | null>(null);
 
   useEffect(() => {
@@ -34,7 +31,6 @@ export function TeacherAIReportPage() {
     const res = await generateReport.mutateAsync(studentId);
     setReport(res.data?.report ?? null);
     setStats(res.data?.stats ?? null);
-    setContentLocale((res.data?.locale as AiLocale | undefined) ?? locale);
   }
 
   const selectedName = students.find((s) => s._id === studentId)?.name ?? "";
@@ -63,7 +59,6 @@ export function TeacherAIReportPage() {
             setStudentId(e.target.value);
             setReport(null);
             setStats(null);
-            setContentLocale(undefined);
           }}
         >
           <option value="">Choose a student…</option>
@@ -118,7 +113,6 @@ export function TeacherAIReportPage() {
           title={`Report: ${selectedName}`}
           subtitle="AI progress analysis"
           content={report}
-          contentLocale={contentLocale}
           onRegenerate={handleGenerate}
           isRegenerating={generateReport.isPending}
         />

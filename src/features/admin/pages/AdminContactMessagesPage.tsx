@@ -36,7 +36,7 @@ function nextActions(status: ContactMessageStatus): { label: string; status: Con
 }
 
 function localeLabel(locale?: ContactMessageView["locale"]) {
-  if (locale === "bn") return "বাংলা";
+  if (locale === "bn") return "Bengali";
   if (locale === "en") return "English";
   return null;
 }

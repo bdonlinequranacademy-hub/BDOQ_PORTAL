@@ -2,7 +2,6 @@ import { useState } from "react";
 import { Sparkles } from "lucide-react";
 import { useAuthStore } from "@/stores/authStore";
 import { useGenerateStudyPlan } from "@/features/student/hooks/useStudent";
-import { useUiStore, type AiLocale } from "@/stores/uiStore";
 import { authUserId } from "@/lib/utils/authUser";
 import { formControlClass } from "@/lib/formControl";
 import { PageContainer } from "@/components/layout/PageContainer";
@@ -13,13 +12,11 @@ import type { StudyPlanResult } from "@/types/models";
 
 export function StudentStudyPlanPage() {
   const userId = authUserId(useAuthStore((s) => s.user));
-  const locale = useUiStore((s) => s.aiLocale);
   const studyPlan = useGenerateStudyPlan();
   const [goal, setGoal] = useState("");
   const [days, setDays] = useState(5);
   const [minutes, setMinutes] = useState(30);
   const [plan, setPlan] = useState<StudyPlanResult | null>(null);
-  const [contentLocale, setContentLocale] = useState<AiLocale | undefined>();
 
   async function handleGenerate() {
     if (!userId || !goal.trim()) return;
@@ -31,7 +28,6 @@ export function StudentStudyPlanPage() {
     });
     if (res.data) {
       setPlan(res.data);
-      setContentLocale((res.data.locale as AiLocale | undefined) ?? locale);
     }
   }
 
@@ -118,7 +114,6 @@ export function StudentStudyPlanPage() {
           <AIReportPanel
             title="Your study plan"
             content={plan.studyPlan}
-            contentLocale={contentLocale}
             onRegenerate={handleGenerate}
             isRegenerating={studyPlan.isPending}
           />

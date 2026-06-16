@@ -12,8 +12,6 @@ import {
 
 } from "@/features/parent/hooks/useParent";
 
-import { useUiStore, type AiLocale } from "@/stores/uiStore";
-
 import { ChildSelector } from "@/features/parent/components/ChildSelector";
 
 import { PageContainer } from "@/components/layout/PageContainer";
@@ -30,13 +28,9 @@ export function ParentSummaryPage() {
 
   const childId = useSelectedChildId() ?? "";
 
-  const locale = useUiStore((s) => s.aiLocale);
-
   const generate = useGenerateParentSummary();
 
   const [summary, setSummary] = useState<string | null>(null);
-
-  const [contentLocale, setContentLocale] = useState<AiLocale | undefined>();
 
 
 
@@ -51,9 +45,6 @@ export function ParentSummaryPage() {
     const res = await generate.mutateAsync(childId);
 
     setSummary(res.data?.summary ?? null);
-
-    setContentLocale((res.data?.locale as AiLocale | undefined) ?? locale);
-
   }
 
 
@@ -125,9 +116,6 @@ export function ParentSummaryPage() {
               subtitle={childName ? `For ${childName}` : undefined}
 
               content={summary}
-
-              contentLocale={contentLocale}
-
               onRegenerate={handleGenerate}
 
               isRegenerating={generate.isPending}
