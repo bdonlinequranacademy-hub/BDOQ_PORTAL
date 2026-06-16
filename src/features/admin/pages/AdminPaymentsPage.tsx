@@ -1,6 +1,15 @@
 import { useState } from "react";
-import { Banknote, Check, ExternalLink, X } from "lucide-react";
-import type { BillingCurrency, PaymentRecordView } from "@/types/models";
+import {
+  Banknote,
+  Calendar,
+  Check,
+  CreditCard,
+  ExternalLink,
+  Hash,
+  MapPin,
+  X,
+} from "lucide-react";
+import type { BillingCurrency, PaymentRecordView, PaymentStatus } from "@/types/models";
 import {
   useAdminPayments,
   useAdminOverdueBillings,
@@ -16,12 +25,46 @@ import { Input } from "@/components/ui/Input";
 import { Select } from "@/components/ui/Select";
 import { PageLoading } from "@/components/ui/PageLoading";
 import { EmptyState } from "@/components/ui/EmptyState";
+import { UserInitialAvatar } from "@/components/ui/UserInitialAvatar";
 
 type Tab = "pending" | "all" | "overdue" | "billing";
 
 const CURRENCIES: BillingCurrency[] = ["USD", "GBP", "EUR", "BDT", "CAD", "AUD"];
 
-function PaymentRow({
+const METHOD_LABELS: Record<string, string> = {
+  zelle: "Zelle",
+  wise: "Wise",
+  bank_transfer: "Bank transfer",
+  paypal: "PayPal",
+  cash_app: "Cash App",
+  bkash: "bKash",
+  nagad: "Nagad",
+  other: "Other",
+};
+
+function formatAmount(amount: number, currency: string) {
+  try {
+    return new Intl.NumberFormat(undefined, {
+      style: "currency",
+      currency,
+      minimumFractionDigits: 2,
+    }).format(amount);
+  } catch {
+    return `${currency} ${amount.toFixed(2)}`;
+  }
+}
+
+function statusStyles(status: PaymentStatus) {
+  if (status === "approved") {
+    return "border-emerald-200 bg-emerald-50 text-emerald-800";
+  }
+  if (status === "rejected") {
+    return "border-red-200 bg-red-50 text-red-800";
+  }
+  return "border-amber-200 bg-amber-50 text-amber-900";
+}
+
+function PaymentReviewCard({
   payment,
   onApprove,
   onReject,
@@ -32,56 +75,104 @@ function PaymentRow({
   onReject: (id: string) => void;
   busy: boolean;
 }) {
+  const studentName = payment.student?.name ?? "Student";
+  const methodLabel = METHOD_LABELS[payment.method] ?? payment.method.replace(/_/g, " ");
+
   return (
-    <div className="flex flex-col gap-3 border-b border-zinc-100 p-5 last:border-0 md:flex-row md:items-start md:justify-between">
-      <div className="flex-1">
-        <p className="font-semibold text-navy">
-          {payment.student?.name ?? "Student"} · {payment.currency} {payment.amount.toFixed(2)}
-        </p>
-        <p className="text-xs text-zinc-500">{payment.student?.email}</p>
-        <p className="mt-2 text-sm text-zinc-600">
-          {payment.monthsCovered} month{payment.monthsCovered > 1 ? "s" : ""} ·{" "}
-          {payment.method.replace("_", " ")} · Ref: {payment.reference}
-        </p>
-        <p className="text-xs text-zinc-500">
-          Paid on {new Date(payment.paymentDate).toLocaleDateString()} · {payment.country}
-          {payment.transactionFee != null
-            ? ` · Fee ${payment.currency} ${payment.transactionFee.toFixed(2)}`
-            : ""}
-        </p>
-        {payment.note ? <p className="mt-1 text-xs text-zinc-500">Note: {payment.note}</p> : null}
-        <a
-          href={payment.screenshotUrl}
-          target="_blank"
-          rel="noreferrer"
-          className="mt-2 inline-flex items-center gap-1 text-xs font-semibold text-gold hover:underline"
-        >
-          View screenshot <ExternalLink className="size-3" />
-        </a>
-      </div>
-      {payment.status === "pending" ? (
-        <div className="flex gap-2">
-          <Button
-            disabled={busy}
-            onClick={() => onApprove(payment.id)}
-            className="gap-1 rounded-xl bg-emerald-600 text-white hover:bg-emerald-700"
-          >
-            <Check className="size-4" /> Approve
-          </Button>
-          <Button
-            disabled={busy}
-            onClick={() => onReject(payment.id)}
-            className="gap-1 rounded-xl bg-red-50 text-red-600 hover:bg-red-100"
-          >
-            <X className="size-4" /> Reject
-          </Button>
+    <article className="overflow-hidden rounded-2xl border border-zinc-100 bg-white shadow-sm transition hover:border-gold/25 hover:shadow-md">
+      <div className="flex flex-col gap-4 p-5 lg:flex-row lg:items-start lg:justify-between">
+        <div className="flex min-w-0 flex-1 gap-4">
+          <UserInitialAvatar name={studentName} size="md" />
+          <div className="min-w-0 flex-1">
+            <div className="flex flex-wrap items-start justify-between gap-2">
+              <div>
+                <p className="font-semibold text-navy">{studentName}</p>
+                <p className="truncate text-xs text-zinc-500">{payment.student?.email}</p>
+              </div>
+              <span
+                className={`shrink-0 rounded-full border px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wide ${statusStyles(payment.status)}`}
+              >
+                {payment.status}
+              </span>
+            </div>
+
+            <p className="mt-3 font-display text-2xl font-bold text-navy">
+              {formatAmount(payment.amount, payment.currency)}
+            </p>
+            <p className="text-xs text-zinc-500">
+              {payment.monthsCovered} month{payment.monthsCovered > 1 ? "s" : ""} covered
+              {payment.netAmount != null
+                ? ` · Net ${formatAmount(payment.netAmount, payment.currency)}`
+                : ""}
+            </p>
+
+            <div className="mt-4 grid gap-2 sm:grid-cols-2">
+              <div className="flex items-center gap-2 rounded-xl bg-zinc-50 px-3 py-2 text-xs text-zinc-600">
+                <CreditCard className="size-3.5 shrink-0 text-zinc-400" />
+                <span>{methodLabel}</span>
+              </div>
+              <div className="flex items-center gap-2 rounded-xl bg-zinc-50 px-3 py-2 text-xs text-zinc-600">
+                <Hash className="size-3.5 shrink-0 text-zinc-400" />
+                <span className="truncate">{payment.reference}</span>
+              </div>
+              <div className="flex items-center gap-2 rounded-xl bg-zinc-50 px-3 py-2 text-xs text-zinc-600">
+                <Calendar className="size-3.5 shrink-0 text-zinc-400" />
+                <span>Paid {new Date(payment.paymentDate).toLocaleDateString()}</span>
+              </div>
+              <div className="flex items-center gap-2 rounded-xl bg-zinc-50 px-3 py-2 text-xs text-zinc-600">
+                <MapPin className="size-3.5 shrink-0 text-zinc-400" />
+                <span>{payment.country}</span>
+              </div>
+            </div>
+
+            {payment.note ? (
+              <p className="mt-3 rounded-xl border border-zinc-100 bg-zinc-50/80 px-3 py-2 text-xs leading-relaxed text-zinc-600">
+                <span className="font-semibold text-navy">Note:</span> {payment.note}
+              </p>
+            ) : null}
+
+            {payment.rejectionReason ? (
+              <p className="mt-2 rounded-xl border border-red-100 bg-red-50 px-3 py-2 text-xs text-red-700">
+                <span className="font-semibold">Rejected:</span> {payment.rejectionReason}
+              </p>
+            ) : null}
+
+            <a
+              href={payment.screenshotUrl}
+              target="_blank"
+              rel="noreferrer"
+              className="mt-3 inline-flex items-center gap-1.5 rounded-lg border border-gold/30 bg-gold/5 px-3 py-1.5 text-xs font-semibold text-gold-dark transition hover:bg-gold/10"
+            >
+              View payment proof
+              <ExternalLink className="size-3.5" />
+            </a>
+          </div>
         </div>
-      ) : (
-        <span className="rounded-full bg-zinc-100 px-3 py-1 text-xs font-semibold capitalize text-zinc-700">
-          {payment.status}
-        </span>
-      )}
-    </div>
+
+        {payment.status === "pending" ? (
+          <div className="flex shrink-0 flex-col gap-2 sm:flex-row lg:flex-col lg:min-w-[140px]">
+            <Button
+              variant="success"
+              disabled={busy}
+              onClick={() => onApprove(payment.id)}
+              className="h-10 w-full gap-1.5 rounded-xl px-4"
+            >
+              <Check className="size-4" />
+              Approve
+            </Button>
+            <Button
+              variant="outline-danger"
+              disabled={busy}
+              onClick={() => onReject(payment.id)}
+              className="h-10 w-full gap-1.5 rounded-xl px-4"
+            >
+              <X className="size-4" />
+              Reject
+            </Button>
+          </div>
+        ) : null}
+      </div>
+    </article>
   );
 }
 
@@ -129,10 +220,10 @@ export function AdminPaymentsPage() {
             key={t.id}
             type="button"
             onClick={() => setTab(t.id)}
-            className={`rounded-full px-4 py-1.5 text-sm font-medium ${
+            className={`rounded-full px-4 py-1.5 text-sm font-medium transition ${
               tab === t.id
-                ? "bg-navy text-white"
-                : "border border-zinc-200 bg-white text-navy"
+                ? "bg-navy text-white shadow-sm"
+                : "border border-zinc-200 bg-white text-navy hover:border-gold/40 hover:bg-gold/5"
             }`}
           >
             {t.label}
@@ -147,9 +238,9 @@ export function AdminPaymentsPage() {
         ) : pending.length === 0 ? (
           <EmptyState title="No pending payments" description="New submissions will appear here." />
         ) : (
-          <Card className="overflow-hidden rounded-2xl border-0 p-0 shadow-sm">
+          <div className="grid gap-4">
             {pending.map((p) => (
-              <PaymentRow
+              <PaymentReviewCard
                 key={p.id}
                 payment={p}
                 busy={busy}
@@ -157,17 +248,19 @@ export function AdminPaymentsPage() {
                 onReject={(id) => setRejectId(id)}
               />
             ))}
-          </Card>
+          </div>
         )
       ) : null}
 
       {tab === "all" ? (
         allLoading ? (
           <PageLoading label="Loading payments…" />
+        ) : all.length === 0 ? (
+          <EmptyState title="No payments yet" description="Approved and rejected payments appear here." />
         ) : (
-          <Card className="overflow-hidden rounded-2xl border-0 p-0 shadow-sm">
+          <div className="grid gap-4">
             {all.map((p) => (
-              <PaymentRow
+              <PaymentReviewCard
                 key={p.id}
                 payment={p}
                 busy={busy}
@@ -175,7 +268,7 @@ export function AdminPaymentsPage() {
                 onReject={(id) => setRejectId(id)}
               />
             ))}
-          </Card>
+          </div>
         )
       ) : null}
 
@@ -185,22 +278,26 @@ export function AdminPaymentsPage() {
         ) : overdue.length === 0 ? (
           <EmptyState title="No overdue students" description="All active billings are current." />
         ) : (
-          <Card className="divide-y divide-zinc-100 overflow-hidden rounded-2xl border-0 p-0 shadow-sm">
+          <div className="grid gap-3">
             {overdue.map((row) => (
-              <div key={row.student.id} className="flex flex-col gap-1 p-5 md:flex-row md:items-center md:justify-between">
-                <div>
-                  <p className="font-semibold text-navy">{row.student.name}</p>
-                  <p className="text-xs text-zinc-500">{row.student.email}</p>
+              <article
+                key={row.student.id}
+                className="flex flex-col gap-3 rounded-2xl border border-red-100 bg-white p-5 shadow-sm sm:flex-row sm:items-center sm:justify-between"
+              >
+                <div className="flex items-center gap-3">
+                  <UserInitialAvatar name={row.student.name} size="sm" />
+                  <div>
+                    <p className="font-semibold text-navy">{row.student.name}</p>
+                    <p className="text-xs text-zinc-500">{row.student.email}</p>
+                  </div>
                 </div>
-                <div className="text-sm text-zinc-600">
-                  {row.currency} {row.monthlyFee}/mo · Paid until{" "}
-                  {row.paidUntil
-                    ? new Date(row.paidUntil).toLocaleDateString()
-                    : "not set"}
+                <div className="rounded-xl bg-red-50 px-4 py-2 text-sm text-red-800">
+                  {formatAmount(row.monthlyFee, row.currency)}/mo · Paid until{" "}
+                  {row.paidUntil ? new Date(row.paidUntil).toLocaleDateString() : "not set"}
                 </div>
-              </div>
+              </article>
             ))}
-          </Card>
+          </div>
         )
       ) : null}
 
@@ -256,7 +353,7 @@ export function AdminPaymentsPage() {
           />
           <Button
             disabled={!billingStudentId || !monthlyFee || upsertBilling.isPending}
-            className="h-11 rounded-xl bg-navy text-white"
+            className="h-11 rounded-xl"
             onClick={() => {
               if (!billingStudentId || !monthlyFee) return;
               upsertBilling.mutate({
@@ -277,6 +374,9 @@ export function AdminPaymentsPage() {
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
           <Card className="flex w-full max-w-md flex-col gap-4 rounded-2xl p-6 shadow-xl">
             <h3 className="font-display text-lg font-bold text-navy">Reject payment</h3>
+            <p className="text-sm text-zinc-500">
+              The student will see this reason in their payment history.
+            </p>
             <Input
               placeholder="Reason (optional)"
               value={rejectReason}
@@ -284,20 +384,30 @@ export function AdminPaymentsPage() {
             />
             <div className="flex gap-2">
               <Button
-                className="flex-1 rounded-xl bg-red-600 text-white"
+                variant="danger"
+                className="flex-1 rounded-xl"
                 disabled={rejectPayment.isPending}
                 onClick={() => {
                   rejectPayment.mutate(
                     { id: rejectId, reason: rejectReason || undefined },
-                    { onSuccess: () => { setRejectId(null); setRejectReason(""); } }
+                    {
+                      onSuccess: () => {
+                        setRejectId(null);
+                        setRejectReason("");
+                      },
+                    }
                   );
                 }}
               >
-                Reject
+                Reject payment
               </Button>
               <Button
-                className="flex-1 rounded-xl"
-                onClick={() => { setRejectId(null); setRejectReason(""); }}
+                variant="ghost"
+                className="flex-1 rounded-xl border border-zinc-200"
+                onClick={() => {
+                  setRejectId(null);
+                  setRejectReason("");
+                }}
               >
                 Cancel
               </Button>
