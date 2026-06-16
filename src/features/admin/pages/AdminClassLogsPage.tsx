@@ -145,8 +145,13 @@ export function AdminClassLogsPage() {
               key={log._id}
               log={log}
               showTeacher
-              onApprove={log.status === "pending" ? handleApprove : undefined}
+              onApprove={
+                log.status === "pending" || log.status === "rejected"
+                  ? handleApprove
+                  : undefined
+              }
               onReject={log.status === "pending" ? handleReject : undefined}
+              approveLabel={log.status === "rejected" ? "Approve again" : undefined}
               actionPending={approve.isPending || reject.isPending}
             />
           ))}

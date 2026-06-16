@@ -14,6 +14,7 @@ interface ClassLogCardProps {
   onApprove?: (log: ClassLogView) => void;
   onReject?: (log: ClassLogView) => void;
   actionPending?: boolean;
+  approveLabel?: string;
 }
 
 export function ClassLogCard({
@@ -22,6 +23,7 @@ export function ClassLogCard({
   onApprove,
   onReject,
   actionPending,
+  approveLabel = "Approve",
 }: ClassLogCardProps) {
   return (
     <Card className="flex flex-col gap-4 rounded-2xl border border-zinc-100 bg-white p-5 shadow-sm">
@@ -115,7 +117,7 @@ export function ClassLogCard({
             disabled={actionPending}
             className="flex-1 rounded-xl bg-emerald-600 text-white"
           >
-            Approve
+            {approveLabel}
           </Button>
         ) : null}
         {onReject ? (
