@@ -29,8 +29,8 @@ export function AdminClassDetailPage() {
   const removeStudent = useRemoveStudent(id);
 
   const enrolled = cls ? studentList(cls.students) : [];
-  const enrolledIds = new Set(enrolled.map((s) => s._id));
-  const available = allStudents.filter((s) => !enrolledIds.has(s.id));
+  const enrolledIds = new Set(enrolled.map((s) => String(s._id)));
+  const available = allStudents.filter((s) => !enrolledIds.has(String(s.id)));
 
   async function handleAssign(studentId: string) {
     await assignStudent.mutateAsync(studentId);

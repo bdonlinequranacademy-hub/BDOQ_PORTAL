@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Search, UserMinus, UserPlus, Users } from "lucide-react";
 import type { AdminUser, PopulatedUserRef } from "@/types/models";
 import { Button } from "@/components/ui/Button";
@@ -15,6 +15,21 @@ interface ClassEnrollmentPanelProps {
   adding?: boolean;
 }
 
+function normalizeId(id: string | undefined | null): string {
+  return id ? String(id) : "";
+}
+
+function matchesStudentQuery(student: AdminUser | PopulatedUserRef, q: string): boolean {
+  const query = q.trim().toLowerCase();
+  if (!query) return true;
+  return (
+    student.name.toLowerCase().includes(query) ||
+    student.email?.toLowerCase().includes(query) ||
+    ("studentId" in student && student.studentId?.toLowerCase().includes(query)) ||
+    false
+  );
+}
+
 export function ClassEnrollmentPanel({
   enrolled,
   available,
@@ -26,38 +41,56 @@ export function ClassEnrollmentPanel({
   const [rosterSearch, setRosterSearch] = useState("");
   const [pickStudent, setPickStudent] = useState("");
   const [addSearch, setAddSearch] = useState("");
+  const [pickerOpen, setPickerOpen] = useState(false);
+  const pickerRef = useRef<HTMLDivElement>(null);
 
   const metaById = useMemo(
-    () => new Map(allStudents.map((s) => [s.id, s])),
+    () => new Map(allStudents.map((s) => [normalizeId(s.id), s])),
     [allStudents]
   );
 
   const filteredEnrolled = enrolled.filter((s) => {
-    const q = rosterSearch.trim().toLowerCase();
+    const meta = metaById.get(normalizeId(s._id));
+    const q = rosterSearch.trim();
     if (!q) return true;
-    const meta = metaById.get(s._id);
     return (
-      s.name.toLowerCase().includes(q) ||
-      s.email?.toLowerCase().includes(q) ||
-      meta?.studentId?.toLowerCase().includes(q)
+      matchesStudentQuery(s, q) ||
+      (meta ? matchesStudentQuery(meta, q) : false)
     );
   });
 
-  const filteredAvailable = available.filter((s) => {
-    const q = addSearch.trim().toLowerCase();
-    if (!q) return true;
-    return (
-      s.name.toLowerCase().includes(q) ||
-      s.email.toLowerCase().includes(q) ||
-      s.studentId?.toLowerCase().includes(q)
-    );
-  });
+  const filteredAvailable = useMemo(
+    () => available.filter((s) => matchesStudentQuery(s, addSearch)),
+    [available, addSearch]
+  );
+
+  const selectedStudent = useMemo(
+    () => available.find((s) => s.id === pickStudent),
+    [available, pickStudent]
+  );
+
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (!pickerRef.current?.contains(event.target as Node)) {
+        setPickerOpen(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
 
   function handleAdd() {
     if (!pickStudent) return;
     onAdd(pickStudent);
     setPickStudent("");
     setAddSearch("");
+    setPickerOpen(false);
+  }
+
+  function handlePickStudent(student: AdminUser) {
+    setPickStudent(student.id);
+    setAddSearch(student.name);
+    setPickerOpen(false);
   }
 
   return (
@@ -74,7 +107,7 @@ export function ClassEnrollmentPanel({
             </p>
           </div>
         </div>
-        {enrolled.length > 2 ? (
+        {enrolled.length >= 1 ? (
           <div className="relative mt-2 sm:mt-0 sm:w-56">
             <Search className="absolute left-3 top-1/2 size-3.5 -translate-y-1/2 text-zinc-400" />
             <input
@@ -92,9 +125,9 @@ export function ClassEnrollmentPanel({
           <UserPlus className="size-4 text-gold-dark" />
           Add student to this class
         </p>
-        <div className="flex flex-col gap-3 lg:flex-row">
-          <div className="relative flex-1">
-            <Search className="absolute left-3 top-1/2 size-3.5 -translate-y-1/2 text-zinc-400" />
+        <div className="flex flex-col gap-3 sm:flex-row">
+          <div ref={pickerRef} className="relative min-w-0 flex-1">
+            <Search className="pointer-events-none absolute left-3 top-1/2 z-10 size-3.5 -translate-y-1/2 text-zinc-400" />
             <input
               className={`${formControlClass} py-2.5 pl-9 text-sm`}
               placeholder="Search students by name, email, or ID…"
@@ -102,32 +135,70 @@ export function ClassEnrollmentPanel({
               onChange={(e) => {
                 setAddSearch(e.target.value);
                 setPickStudent("");
+                setPickerOpen(true);
               }}
+              onFocus={() => setPickerOpen(true)}
+              aria-expanded={pickerOpen}
+              aria-haspopup="listbox"
+              aria-controls="class-student-picker"
             />
+            {pickerOpen ? (
+              <ul
+                id="class-student-picker"
+                role="listbox"
+                className="absolute z-30 mt-1 max-h-60 w-full overflow-y-auto rounded-xl border border-zinc-200 bg-white py-1 shadow-lg"
+              >
+                {available.length === 0 ? (
+                  <li className="px-4 py-3 text-sm text-zinc-500">
+                    All students are already enrolled in this class.
+                  </li>
+                ) : filteredAvailable.length === 0 ? (
+                  <li className="px-4 py-3 text-sm text-zinc-500">
+                    No students match &ldquo;{addSearch.trim()}&rdquo;.
+                  </li>
+                ) : (
+                  filteredAvailable.map((student) => {
+                    const isSelected = pickStudent === student.id;
+                    return (
+                      <li key={student.id} role="option" aria-selected={isSelected}>
+                        <button
+                          type="button"
+                          onClick={() => handlePickStudent(student)}
+                          className={`flex w-full items-start gap-3 px-3 py-2.5 text-left transition hover:bg-gold/10 ${
+                            isSelected ? "bg-gold/15" : ""
+                          }`}
+                        >
+                          <UserInitialAvatar name={student.name} size="sm" />
+                          <span className="min-w-0 flex-1">
+                            <span className="block truncate text-sm font-semibold text-navy">
+                              {student.name}
+                            </span>
+                            <span className="block truncate text-xs text-zinc-500">
+                              {student.email}
+                              {student.studentId ? ` · ${student.studentId}` : ""}
+                            </span>
+                          </span>
+                        </button>
+                      </li>
+                    );
+                  })
+                )}
+              </ul>
+            ) : null}
           </div>
-          <select
-            value={pickStudent}
-            onChange={(e) => setPickStudent(e.target.value)}
-            className={`${formControlClass} lg:min-w-[220px] text-sm`}
-          >
-            <option value="">
-              {filteredAvailable.length === 0 ? "No students available" : "Select student…"}
-            </option>
-            {filteredAvailable.map((s) => (
-              <option key={s.id} value={s.id}>
-                {s.name}
-                {s.studentId ? ` · ${s.studentId}` : ""}
-              </option>
-            ))}
-          </select>
           <Button
             onClick={handleAdd}
             disabled={!pickStudent || adding}
-            className="rounded-xl bg-navy px-5 text-white lg:shrink-0"
+            className="rounded-xl bg-navy px-5 text-white sm:shrink-0"
           >
             {adding ? "Adding…" : "Add to class"}
           </Button>
         </div>
+        {selectedStudent ? (
+          <p className="mt-2 text-xs text-zinc-500">
+            Selected: <span className="font-semibold text-navy">{selectedStudent.name}</span>
+          </p>
+        ) : null}
       </div>
 
       <div className="p-5">
@@ -144,13 +215,13 @@ export function ClassEnrollmentPanel({
         ) : (
           <ul className="grid grid-cols-1 gap-3 lg:grid-cols-2">
             {filteredEnrolled.map((s) => {
-              const meta = metaById.get(s._id);
+              const meta = metaById.get(normalizeId(s._id));
               const studentId = s.studentId ?? meta?.studentId;
               const country = s.country ?? meta?.country;
               const timezone = s.timezone ?? meta?.timezone;
               return (
                 <li
-                  key={s._id}
+                  key={normalizeId(s._id)}
                   className="group flex items-start gap-3 rounded-2xl border border-zinc-100 bg-white p-4 transition hover:border-gold/25 hover:shadow-sm"
                 >
                   <UserInitialAvatar name={s.name} size="md" />
@@ -175,7 +246,7 @@ export function ClassEnrollmentPanel({
                   </div>
                   <button
                     type="button"
-                    onClick={() => onRemove(s._id, s.name)}
+                    onClick={() => onRemove(normalizeId(s._id), s.name)}
                     className="inline-flex shrink-0 items-center gap-1 rounded-lg border border-transparent px-2 py-1.5 text-xs font-semibold text-red-600 opacity-80 transition hover:border-red-100 hover:bg-red-50 hover:opacity-100 group-hover:opacity-100"
                     aria-label={`Remove ${s.name} from class`}
                   >
