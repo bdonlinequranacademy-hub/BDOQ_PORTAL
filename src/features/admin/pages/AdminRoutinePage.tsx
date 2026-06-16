@@ -24,7 +24,7 @@ export function AdminRoutinePage() {
   const [teacherId, setTeacherId] = useState("");
   const [countryFilter, setCountryFilter] = useState("");
   const { data: teachers = [] } = useAdminTeachers();
-  const { data: sessions = [], isLoading } = useAdminAcademyRoutine(
+  const { data: sessions = [], isLoading, isError, refetch } = useAdminAcademyRoutine(
     teacherId || undefined
   );
   const resync = useResyncAdminSchedule();
@@ -125,7 +125,15 @@ export function AdminRoutinePage() {
         </span>
       </div>
 
-      {isLoading ? (
+      {isError ? (
+        <EmptyState
+          icon={CalendarDays}
+          title="Could not load routine"
+          description="The server failed to return session slots. Try resyncing or refresh the page."
+          actionLabel="Retry"
+          onAction={() => refetch()}
+        />
+      ) : isLoading ? (
         <PageLoading label="Loading routine…" />
       ) : filteredSessions.length === 0 ? (
         <EmptyState
