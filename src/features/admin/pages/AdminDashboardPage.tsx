@@ -19,6 +19,7 @@ import {
   TrendingUp,
   Flag,
   Library,
+  CreditCard,
 } from "lucide-react";
 import { useAuthStore } from "@/stores/authStore";
 import {
@@ -41,6 +42,7 @@ export function AdminDashboardPage() {
   const user = useAuthStore((s) => s.user);
   const navigate = useNavigate();
   const { data: stats, isLoading } = useAdminStats();
+  const pendingPayments = stats?.pendingActions?.pendingPayments ?? 0;
   const { data: atRisk = [] } = useAdminAtRisk();
   const { data: pendingLogs = [] } = useAdminClassLogs("pending");
   const { data: pendingRequests = [] } = useAdminStudentRequests("pending");
@@ -139,6 +141,20 @@ export function AdminDashboardPage() {
                 className="mt-2 text-sm font-semibold text-[#C4922B]"
               >
                 Review trial bookings →
+              </button>
+            </Card>
+          ) : null}
+          {pendingPayments > 0 ? (
+            <Card className="rounded-2xl border-0 bg-emerald-50 p-4 shadow-sm">
+              <p className="text-sm font-semibold text-emerald-900">
+                {pendingPayments} payment proof{pendingPayments === 1 ? "" : "s"} to review
+              </p>
+              <button
+                type="button"
+                onClick={() => navigate("/admin/payments")}
+                className="mt-2 text-sm font-semibold text-[#03214F]"
+              >
+                Review payments →
               </button>
             </Card>
           ) : null}
@@ -259,6 +275,7 @@ export function AdminDashboardPage() {
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
             {[
               { label: "Manage Users", to: "/admin/users", icon: Users },
+              { label: "Payments", to: "/admin/payments", icon: CreditCard },
               { label: "Curriculum", to: "/admin/curriculum", icon: Library },
               { label: "Manage Classes", to: "/admin/classes", icon: BookOpen },
               { label: "Academy Routine", to: "/admin/schedule/routine", icon: CalendarDays },

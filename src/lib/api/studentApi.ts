@@ -13,6 +13,8 @@ import type {
   WeeklyFamilyReport,
   ConcernReportView,
   ConcernCategory,
+  StudentBillingView,
+  PaymentRecordView,
 } from "@/types/models";
 import { currentWeekRange } from "@/lib/utils/weekRange";
 import { getAiLocale } from "@/lib/api/getAiLocale";
@@ -123,5 +125,27 @@ export const studentApi = {
   changePassword: (payload: { currentPassword: string; newPassword: string }) =>
     apiClient
       .patch<ApiResponse<null>>("/student/profile/password", payload)
+      .then((r) => r.data),
+
+  getPaymentStatus: () =>
+    apiClient
+      .get<
+        ApiResponse<{
+          billing: StudentBillingView | null;
+          pendingSubmissions: number;
+        }>
+      >("/student/payments/status")
+      .then((r) => r.data),
+
+  getPayments: () =>
+    apiClient
+      .get<ApiResponse<PaymentRecordView[]>>("/student/payments")
+      .then((r) => r.data),
+
+  submitPayment: (formData: FormData) =>
+    apiClient
+      .post<ApiResponse<PaymentRecordView>>("/student/payments", formData, {
+        headers: { "Content-Type": "multipart/form-data" },
+      })
       .then((r) => r.data),
 };

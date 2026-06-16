@@ -650,7 +650,68 @@ export interface AdminStats {
     newContacts: number;
     pendingClassLogs: number;
     newConcernReports?: number;
+    pendingPayments?: number;
   };
+}
+
+export type BillingCurrency = "USD" | "GBP" | "EUR" | "BDT" | "CAD" | "AUD";
+export type PaymentMethod =
+  | "zelle"
+  | "wise"
+  | "bank_transfer"
+  | "paypal"
+  | "cash_app"
+  | "other";
+export type PaymentStatus = "pending" | "approved" | "rejected";
+export type BillingStatus = "current" | "due_soon" | "overdue" | "not_set";
+
+export interface StudentBillingView {
+  monthlyFee: number;
+  currency: BillingCurrency;
+  dueDayOfMonth: number;
+  paidUntil: string | null;
+  status: BillingStatus;
+  isActive: boolean;
+}
+
+export interface PaymentRecordView {
+  id: string;
+  studentId: string;
+  amount: number;
+  currency: BillingCurrency;
+  country: string;
+  paymentDate: string;
+  monthsCovered: number;
+  method: PaymentMethod;
+  reference: string;
+  transactionFee?: number;
+  netAmount?: number;
+  note?: string;
+  screenshotUrl: string;
+  status: PaymentStatus;
+  rejectionReason?: string;
+  paidUntilAfter?: string;
+  reviewedAt?: string;
+  createdAt: string;
+  student?: {
+    id: string;
+    name: string;
+    email: string;
+    country?: string;
+  };
+}
+
+export interface OverdueBillingView {
+  student: {
+    id: string;
+    name: string;
+    email: string;
+    country?: string;
+  };
+  monthlyFee: number;
+  currency: BillingCurrency;
+  paidUntil: string | null;
+  status: BillingStatus;
 }
 
 export type BlogPostStatus = "draft" | "published";

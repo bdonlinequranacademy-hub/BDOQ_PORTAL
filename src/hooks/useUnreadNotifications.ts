@@ -26,7 +26,8 @@ export function useUnreadNotificationCount() {
           (pending?.newTrials ?? 0) +
           (pending?.newContacts ?? 0) +
           (pending?.pendingClassLogs ?? 0) +
-          (pending?.newConcernReports ?? 0)
+          (pending?.newConcernReports ?? 0) +
+          (pending?.pendingPayments ?? 0)
         );
       }
       return 0;

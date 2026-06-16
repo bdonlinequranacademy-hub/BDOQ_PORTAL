@@ -23,6 +23,7 @@ import {
   Inbox,
   Flag,
   Library,
+  CreditCard,
 } from "lucide-react";
 import { useAuthStore } from "@/stores/authStore";
 import { useUnreadNotificationCount } from "@/hooks/useUnreadNotifications";
@@ -70,6 +71,7 @@ function navItemsForRole(role: Role): NavItem[] {
         { label: "Attendance", icon: <ClipboardList className="size-5" />, path: "/student/attendance" },
         { label: "Progress", icon: <TrendingUp className="size-5" />, path: "/student/progress" },
         { label: "Summary", icon: <MessageSquare className="size-5" />, path: "/student/summary" },
+        { label: "Payments", icon: <CreditCard className="size-5" />, path: "/student/payments" },
         { label: "Report Concern", icon: <Flag className="size-5" />, path: "/student/report-concern" },
         { label: "Profile", icon: <User className="size-5" />, path: "/student/profile" },
       ];
@@ -78,6 +80,7 @@ function navItemsForRole(role: Role): NavItem[] {
       return [
         { label: "Dashboard", icon: <LayoutDashboard className="size-5" />, path: "/admin" },
         { label: "Users", icon: <Users className="size-5" />, path: "/admin/users" },
+        { label: "Payments", icon: <CreditCard className="size-5" />, path: "/admin/payments" },
         { label: "Curriculum", icon: <Library className="size-5" />, path: "/admin/curriculum" },
         { label: "Classes", icon: <BookOpen className="size-5" />, path: "/admin/classes" },
         { label: "Routine", icon: <CalendarDays className="size-5" />, path: "/admin/schedule/routine" },

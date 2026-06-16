@@ -14,6 +14,8 @@ export const studentKeys = {
   todaySchedule: ["student", "schedule", "today"] as const,
   monthlyProgress: (month?: string) => ["student", "monthlyProgress", month] as const,
   profile: ["student", "profile"] as const,
+  paymentStatus: ["student", "payments", "status"] as const,
+  payments: ["student", "payments"] as const,
 };
 
 export function useStudentClasses() {
@@ -166,5 +168,50 @@ export function useSubmitConcernReport() {
     mutationFn: studentApi.submitConcernReport,
     onSuccess: () => addToast("success", "Concern report submitted"),
     onError: () => addToast("error", "Failed to submit report"),
+  });
+}
+
+export function useStudentPaymentStatus() {
+  return useQuery({
+    queryKey: studentKeys.paymentStatus,
+    queryFn: studentApi.getPaymentStatus,
+    select: (r) => r.data,
+  });
+}
+
+export function useStudentPayments() {
+  return useQuery({
+    queryKey: studentKeys.payments,
+    queryFn: studentApi.getPayments,
+    select: (r) => r.data ?? [],
+  });
+}
+
+export function useSubmitStudentPayment() {
+  const qc = useQueryClient();
+  const addToast = useUiStore((s) => s.addToast);
+  return useMutation({
+    mutationFn: studentApi.submitPayment,
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: studentKeys.paymentStatus });
+      qc.invalidateQueries({ queryKey: studentKeys.payments });
+      addToast("success", "Payment submitted for review");
+    },
+    onError: (error: unknown) => {
+      const message =
+        error &&
+        typeof error === "object" &&
+        "response" in error &&
+        error.response &&
+        typeof error.response === "object" &&
+        "data" in error.response &&
+        error.response.data &&
+        typeof error.response.data === "object" &&
+        "message" in error.response.data &&
+        typeof error.response.data.message === "string"
+          ? error.response.data.message
+          : "Failed to submit payment";
+      addToast("error", message);
+    },
   });
 }

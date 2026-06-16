@@ -76,6 +76,8 @@ export function portalPagesForRole(role: Role): PortalPageLink[] {
 
         { label: "Weekly Summary", path: "/student/summary", keywords: "weekly report template" },
 
+        { label: "Payments", path: "/student/payments", keywords: "tuition fee zelle wise proof" },
+
         { label: "Report Concern", path: "/student/report-concern", keywords: "poaching safety" },
 
         { label: "Profile", path: "/student/profile", keywords: "account settings" },
@@ -92,6 +94,8 @@ export function portalPagesForRole(role: Role): PortalPageLink[] {
         { label: "Dashboard", path: "/admin", keywords: "home overview" },
 
         { label: "Users", path: "/admin/users", keywords: "students teachers" },
+
+        { label: "Payments", path: "/admin/payments", keywords: "tuition billing zelle wise approve" },
 
         { label: "Curriculum", path: "/admin/curriculum", keywords: "programs quran tajweed tree" },
 

@@ -275,6 +275,15 @@ export const AdminCurriculumPage = lazyNamed(
   () => import("@/features/admin/pages/AdminCurriculumPage"),
   "AdminCurriculumPage"
 );
+export const AdminPaymentsPage = lazyNamed(
+  () => import("@/features/admin/pages/AdminPaymentsPage"),
+  "AdminPaymentsPage"
+);
+
+export const StudentPaymentsPage = lazyNamed(
+  () => import("@/features/student/pages/StudentPaymentsPage"),
+  "StudentPaymentsPage"
+);
 
 export const PortalHomePage = lazyNamed(
   () => import("@/pages/PortalHomePage"),

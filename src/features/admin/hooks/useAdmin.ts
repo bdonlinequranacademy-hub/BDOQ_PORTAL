@@ -1,7 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { adminApi } from "@/lib/api/adminApi";
 import { useUiStore } from "@/stores/uiStore";
-import type { Role, ClassSchedule, BlogPostStatus, BlogCategory, ClassLogStatus, StudentRequestStatus, TrialBookingStatus, ContactMessageStatus } from "@/types/models";
+import type { Role, ClassSchedule, BlogPostStatus, BlogCategory, ClassLogStatus, StudentRequestStatus, TrialBookingStatus, ContactMessageStatus, BillingCurrency } from "@/types/models";
 
 export const adminKeys = {
   stats: ["admin", "stats"] as const,
@@ -25,6 +25,9 @@ export const adminKeys = {
   concernReports: (status?: string) => ["admin", "concernReports", status] as const,
   academyRoutine: (teacherId?: string) => ["admin", "academyRoutine", teacherId] as const,
   curriculum: ["admin", "curriculum"] as const,
+  payments: (status?: string) => ["admin", "payments", status] as const,
+  overdueBillings: ["admin", "payments", "overdue"] as const,
+  studentBilling: (studentId: string) => ["admin", "billing", studentId] as const,
 };
 
 export function useAdminStats() {
@@ -515,5 +518,75 @@ export function useResetAdminCurriculum() {
       addToast("success", "Curriculum reset to defaults");
     },
     onError: () => addToast("error", "Failed to reset curriculum"),
+  });
+}
+
+export function useAdminPayments(status?: "pending" | "approved" | "rejected") {
+  return useQuery({
+    queryKey: adminKeys.payments(status),
+    queryFn: () => adminApi.getPayments(status),
+    select: (r) => r.data ?? [],
+  });
+}
+
+export function useAdminOverdueBillings() {
+  return useQuery({
+    queryKey: adminKeys.overdueBillings,
+    queryFn: adminApi.getOverdueBillings,
+    select: (r) => r.data ?? [],
+  });
+}
+
+export function useApprovePayment() {
+  const qc = useQueryClient();
+  const addToast = useUiStore((s) => s.addToast);
+  return useMutation({
+    mutationFn: adminApi.approvePayment,
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["admin", "payments"] });
+      qc.invalidateQueries({ queryKey: adminKeys.overdueBillings });
+      qc.invalidateQueries({ queryKey: adminKeys.stats });
+      addToast("success", "Payment approved");
+    },
+    onError: () => addToast("error", "Failed to approve payment"),
+  });
+}
+
+export function useRejectPayment() {
+  const qc = useQueryClient();
+  const addToast = useUiStore((s) => s.addToast);
+  return useMutation({
+    mutationFn: ({ id, reason }: { id: string; reason?: string }) =>
+      adminApi.rejectPayment(id, reason),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["admin", "payments"] });
+      qc.invalidateQueries({ queryKey: adminKeys.stats });
+      addToast("success", "Payment rejected");
+    },
+    onError: () => addToast("error", "Failed to reject payment"),
+  });
+}
+
+export function useUpsertStudentBilling() {
+  const qc = useQueryClient();
+  const addToast = useUiStore((s) => s.addToast);
+  return useMutation({
+    mutationFn: ({
+      studentId,
+      ...payload
+    }: {
+      studentId: string;
+      monthlyFee: number;
+      currency: BillingCurrency;
+      dueDayOfMonth?: number;
+      paidUntil?: string;
+      isActive?: boolean;
+    }) => adminApi.upsertStudentBilling(studentId, payload),
+    onSuccess: (_data, vars) => {
+      qc.invalidateQueries({ queryKey: adminKeys.studentBilling(vars.studentId) });
+      qc.invalidateQueries({ queryKey: adminKeys.overdueBillings });
+      addToast("success", "Billing plan saved");
+    },
+    onError: () => addToast("error", "Failed to save billing plan"),
   });
 }

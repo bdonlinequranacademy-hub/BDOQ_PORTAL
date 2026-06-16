@@ -27,6 +27,10 @@ import type {
   TrialBookingStatus,
   SessionSlotView,
   CurriculumAssignment,
+  StudentBillingView,
+  PaymentRecordView,
+  OverdueBillingView,
+  BillingCurrency,
 } from "@/types/models";
 import type { CurriculumNode } from "@/lib/api/curriculumApi";
 import { api as apiClient } from "./client";
@@ -332,5 +336,46 @@ export const adminApi = {
   resetCurriculum: () =>
     apiClient
       .post<ApiResponse<CurriculumNode[]>>("/admin/curriculum/reset")
+      .then((r) => r.data),
+
+  getPayments: (status?: "pending" | "approved" | "rejected") =>
+    apiClient
+      .get<ApiResponse<PaymentRecordView[]>>("/admin/payments", {
+        params: status ? { status } : {},
+      })
+      .then((r) => r.data),
+
+  getOverdueBillings: () =>
+    apiClient
+      .get<ApiResponse<OverdueBillingView[]>>("/admin/payments/overdue")
+      .then((r) => r.data),
+
+  approvePayment: (id: string) =>
+    apiClient
+      .patch<ApiResponse<PaymentRecordView>>(`/admin/payments/${id}/approve`)
+      .then((r) => r.data),
+
+  rejectPayment: (id: string, reason?: string) =>
+    apiClient
+      .patch<ApiResponse<PaymentRecordView>>(`/admin/payments/${id}/reject`, { reason })
+      .then((r) => r.data),
+
+  getStudentBilling: (studentId: string) =>
+    apiClient
+      .get<ApiResponse<StudentBillingView | null>>(`/admin/students/${studentId}/billing`)
+      .then((r) => r.data),
+
+  upsertStudentBilling: (
+    studentId: string,
+    payload: {
+      monthlyFee: number;
+      currency: BillingCurrency;
+      dueDayOfMonth?: number;
+      paidUntil?: string;
+      isActive?: boolean;
+    }
+  ) =>
+    apiClient
+      .put<ApiResponse<StudentBillingView>>(`/admin/students/${studentId}/billing`, payload)
       .then((r) => r.data),
 };
