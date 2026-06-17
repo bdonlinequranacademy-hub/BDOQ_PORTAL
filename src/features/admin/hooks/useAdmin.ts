@@ -347,6 +347,19 @@ export function useAdminHomework() {
   });
 }
 
+export function useDeleteAdminHomework() {
+  const qc = useQueryClient();
+  const addToast = useUiStore((s) => s.addToast);
+  return useMutation({
+    mutationFn: adminApi.deleteHomework,
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: adminKeys.homework });
+      addToast("success", "Homework deleted");
+    },
+    onError: () => addToast("error", "Failed to delete homework"),
+  });
+}
+
 export function useAdminConcernReports(status?: import("@/types/models").ConcernReportStatus) {
   return useQuery({
     queryKey: adminKeys.concernReports(status),

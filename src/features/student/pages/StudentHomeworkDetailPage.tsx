@@ -1,7 +1,14 @@
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { ArrowLeft, CheckCircle, Send, Clock, RotateCcw } from "lucide-react";
+import { useAuthStore } from "@/stores/authStore";
 import { useStudentHomework, useSubmitHomework } from "@/features/student/hooks/useStudent";
+import {
+  NestedCurriculumSelect,
+  pathReadyToSave,
+  useCurriculumTree,
+} from "@/components/curriculum/NestedCurriculumSelect";
+import type { CurriculumPath } from "@/lib/api/curriculumApi";
 import { PageContainer } from "@/components/layout/PageContainer";
 import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
@@ -11,16 +18,35 @@ import {
   isHomeworkOverdue,
 } from "@/lib/homeworkDue";
 import { formatCurriculumPath } from "@/lib/api/curriculumApi";
-
 import { PageLoading } from "@/components/ui/PageLoading";
+
 const MIN_SUBMISSION_CHARS = 20;
+
+function pathFromHomework(
+  program?: string,
+  unit?: string,
+  topic?: string
+): CurriculumPath {
+  return {
+    programId: program ?? "",
+    unitId: unit ?? "",
+    topicId: topic ?? "",
+  };
+}
 
 export function StudentHomeworkDetailPage() {
   const { id = "" } = useParams();
   const navigate = useNavigate();
+  const user = useAuthStore((s) => s.user);
   const { data: homework = [], isLoading } = useStudentHomework();
   const submit = useSubmitHomework(id);
   const [content, setContent] = useState("");
+  const [curriculum, setCurriculum] = useState<CurriculumPath>({ programId: "" });
+
+  const { data: curriculumTree = [], isLoading: treeLoading } = useCurriculumTree(
+    user?._id ? { studentId: user._id } : undefined,
+    { enabled: Boolean(user?._id) }
+  );
 
   const hw = homework.find((h) => h._id === id);
   const classLabel =
@@ -32,16 +58,36 @@ export function StudentHomeworkDetailPage() {
   const canSubmit = hw?.canSubmit !== false;
   const underReview = hw?.underReview;
   const returned = status === "returned";
+  const curriculumReady = pathReadyToSave(curriculum, curriculumTree);
 
   useEffect(() => {
-    if (returned && hw?.submission?.content) {
+    if (!hw) return;
+    if (returned && hw.submission?.content) {
       setContent(hw.submission.content);
     }
-  }, [returned, hw?.submission?.content]);
+    const fromSubmission = hw.submission
+      ? pathFromHomework(
+          hw.submission.curriculumProgram,
+          hw.submission.curriculumUnit,
+          hw.submission.curriculumTopic
+        )
+      : null;
+    const fromAssignment = pathFromHomework(
+      hw.curriculumProgram,
+      hw.curriculumUnit,
+      hw.curriculumTopic
+    );
+    setCurriculum(fromSubmission?.programId ? fromSubmission : fromAssignment);
+  }, [hw?._id, returned, hw?.submission?.content]);
 
   async function handleSubmit() {
-    if (!content.trim() || !canSubmit) return;
-    await submit.mutateAsync(content.trim());
+    if (!content.trim() || !canSubmit || !curriculumReady) return;
+    await submit.mutateAsync({
+      content: content.trim(),
+      curriculumProgram: curriculum.programId,
+      curriculumUnit: curriculum.unitId || undefined,
+      curriculumTopic: curriculum.topicId || undefined,
+    });
     navigate(`/student/homework/success?id=${id}`);
   }
 
@@ -70,7 +116,7 @@ export function StudentHomeworkDetailPage() {
             <p className="text-sm text-zinc-400">{classLabel}</p>
             {hw.curriculumLabels?.program ? (
               <p className="mt-1 text-xs font-medium text-[#C4922B]">
-                {formatCurriculumPath(hw.curriculumLabels)}
+                Assigned topic: {formatCurriculumPath(hw.curriculumLabels)}
               </p>
             ) : null}
             <p
@@ -85,11 +131,11 @@ export function StudentHomeworkDetailPage() {
             </p>
           </div>
 
-          {hw.description && (
+          {hw.description ? (
             <Card className="rounded-2xl border-0 bg-[#F8FAFF] p-5 shadow-sm">
               <p className="text-sm leading-relaxed text-zinc-700">{hw.description}</p>
             </Card>
-          )}
+          ) : null}
 
           {underReview && hw.submission ? (
             <Card className="flex flex-col gap-3 rounded-2xl border-0 p-5 shadow-sm">
@@ -99,6 +145,11 @@ export function StudentHomeworkDetailPage() {
                   Sent to your teacher for review — not marked as submitted until they approve.
                 </span>
               </div>
+              {hw.submission.curriculumLabels?.program ? (
+                <p className="text-xs font-medium text-[#C4922B]">
+                  Your topic: {formatCurriculumPath(hw.submission.curriculumLabels)}
+                </p>
+              ) : null}
               <div className="rounded-xl bg-[#EEF2F8] p-4">
                 <p className="text-sm text-zinc-800">{hw.submission.content}</p>
               </div>
@@ -147,6 +198,11 @@ export function StudentHomeworkDetailPage() {
                 <CheckCircle className="size-5" />
                 <span className="font-semibold">Submitted</span>
               </div>
+              {hw.submission.curriculumLabels?.program ? (
+                <p className="text-xs font-medium text-[#C4922B]">
+                  Topic: {formatCurriculumPath(hw.submission.curriculumLabels)}
+                </p>
+              ) : null}
               <div className="rounded-xl bg-[#EEF2F8] p-4">
                 <p className="text-sm text-zinc-800">{hw.submission.content}</p>
               </div>
@@ -158,6 +214,25 @@ export function StudentHomeworkDetailPage() {
                   This assignment is overdue. Submit as soon as you can.
                 </p>
               ) : null}
+
+              <div>
+                <span className="font-semibold text-[#03214F]">Lesson topic</span>
+                <p className="mt-1 text-xs text-zinc-500">
+                  Select the exact lesson from your study plan that this homework covers.
+                </p>
+              </div>
+
+              {treeLoading ? (
+                <PageLoading compact label="Loading your study plan…" />
+              ) : (
+                <NestedCurriculumSelect
+                  tree={curriculumTree}
+                  value={curriculum}
+                  onChange={setCurriculum}
+                  required
+                />
+              )}
+
               <span className="font-semibold text-[#03214F]">Your submission</span>
               <Textarea
                 value={content}
@@ -174,7 +249,7 @@ export function StudentHomeworkDetailPage() {
               </p>
               <Button
                 onClick={handleSubmit}
-                disabled={!content.trim() || submit.isPending}
+                disabled={!content.trim() || !curriculumReady || submit.isPending}
                 className="flex h-12 items-center justify-center gap-2 rounded-xl bg-[#03214F] text-white"
               >
                 <Send className="size-4" />

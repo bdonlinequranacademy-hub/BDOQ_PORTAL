@@ -94,7 +94,12 @@ export function useSubmitHomework(homeworkId: string) {
   const qc = useQueryClient();
   const addToast = useUiStore((s) => s.addToast);
   return useMutation({
-    mutationFn: (content: string) => studentApi.submitHomework(homeworkId, content),
+    mutationFn: (payload: {
+      content: string;
+      curriculumProgram: string;
+      curriculumUnit?: string;
+      curriculumTopic?: string;
+    }) => studentApi.submitHomework(homeworkId, payload),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: studentKeys.homework });
       addToast("success", "Homework submitted");

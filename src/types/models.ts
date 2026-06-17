@@ -71,6 +71,10 @@ export interface HomeworkSubmission {
   reviewFeedback?: string;
   grade?: Grade;
   feedback?: string;
+  curriculumProgram?: string;
+  curriculumUnit?: string;
+  curriculumTopic?: string;
+  curriculumLabels?: { program?: string; unit?: string; topic?: string };
 }
 
 export interface Homework {
@@ -156,15 +160,6 @@ export interface StudentClass {
   isActive?: boolean;
 }
 
-export interface StudentHomeworkSubmission {
-  submittedAt: string;
-  content: string;
-  status?: HomeworkSubmissionStatus;
-  reviewFeedback?: string;
-  grade?: Grade;
-  feedback?: string;
-}
-
 export interface StudentHomeworkItem {
   _id: string;
   title: string;
@@ -175,9 +170,25 @@ export interface StudentHomeworkItem {
   submitted: boolean;
   underReview?: boolean;
   canSubmit?: boolean;
+  curriculumProgram?: string;
+  curriculumUnit?: string;
+  curriculumTopic?: string;
   curriculumLabels?: { program?: string; unit?: string; topic?: string };
   submission: StudentHomeworkSubmission | null;
   createdAt?: string;
+}
+
+export interface StudentHomeworkSubmission {
+  submittedAt: string;
+  content: string;
+  status?: HomeworkSubmissionStatus;
+  reviewFeedback?: string;
+  grade?: Grade;
+  feedback?: string;
+  curriculumProgram?: string;
+  curriculumUnit?: string;
+  curriculumTopic?: string;
+  curriculumLabels?: { program?: string; unit?: string; topic?: string };
 }
 
 export interface StudentAttendanceRecord {

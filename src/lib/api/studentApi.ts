@@ -29,11 +29,17 @@ export const studentApi = {
   getHomework: () =>
     apiClient.get<ApiResponse<StudentHomeworkItem[]>>("/student/homework").then((r) => r.data),
 
-  submitHomework: (id: string, content: string) =>
+  submitHomework: (
+    id: string,
+    payload: {
+      content: string;
+      curriculumProgram: string;
+      curriculumUnit?: string;
+      curriculumTopic?: string;
+    }
+  ) =>
     apiClient
-      .post<ApiResponse<{ homeworkId: string }>>(`/student/homework/${id}/submit`, {
-        content,
-      })
+      .post<ApiResponse<{ homeworkId: string }>>(`/student/homework/${id}/submit`, payload)
       .then((r) => r.data),
 
   getAttendance: () =>

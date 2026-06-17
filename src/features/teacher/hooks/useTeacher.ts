@@ -65,7 +65,24 @@ export function useTeacherHomework() {
   return useQuery({
     queryKey: teacherKeys.homework,
     queryFn: teacherApi.getHomework,
-    select: (r) => r.data ?? [],
+    select: (r) =>
+      (r.data ?? []).map((raw) => {
+        const hw = raw as Homework & {
+          class?: { _id?: string; title?: string } | string;
+        };
+        const cls = hw.class;
+        const classId =
+          typeof cls === "object" && cls?._id
+            ? String(cls._id)
+            : typeof cls === "string"
+              ? cls
+              : hw.classId ?? "";
+        const className =
+          typeof cls === "object" && cls?.title
+            ? cls.title
+            : hw.className;
+        return { ...hw, classId, className };
+      }),
   });
 }
 
@@ -100,6 +117,7 @@ export function useHomeworkDetail(id: string) {
             reviewFeedback: s.reviewFeedback as string | undefined,
             grade: s.grade as Grade | undefined,
             feedback: s.feedback as string | undefined,
+            curriculumLabels: s.curriculumLabels as HomeworkSubmission["curriculumLabels"],
           };
         }),
       } as Homework;
@@ -354,6 +372,44 @@ export function useCreateHomework() {
       addToast("success", "Homework created");
     },
     onError: () => addToast("error", "Failed to create homework"),
+  });
+}
+
+export function useUpdateHomework() {
+  const qc = useQueryClient();
+  const addToast = useUiStore((s) => s.addToast);
+  return useMutation({
+    mutationFn: ({
+      id,
+      ...payload
+    }: {
+      id: string;
+      title?: string;
+      description?: string;
+      dueDate?: string;
+      curriculumProgram?: string;
+      curriculumUnit?: string;
+      curriculumTopic?: string;
+    }) => teacherApi.updateHomework(id, payload),
+    onSuccess: (_, vars) => {
+      qc.invalidateQueries({ queryKey: teacherKeys.homework });
+      qc.invalidateQueries({ queryKey: teacherKeys.homeworkDetail(vars.id) });
+      addToast("success", "Homework updated");
+    },
+    onError: () => addToast("error", "Failed to update homework"),
+  });
+}
+
+export function useDeleteHomework() {
+  const qc = useQueryClient();
+  const addToast = useUiStore((s) => s.addToast);
+  return useMutation({
+    mutationFn: teacherApi.deleteHomework,
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: teacherKeys.homework });
+      addToast("success", "Homework deleted");
+    },
+    onError: () => addToast("error", "Failed to delete homework"),
   });
 }
 

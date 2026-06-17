@@ -178,7 +178,12 @@ export function TeacherHomeworkGradePage() {
               {activeSub && (
                 <Card className="flex flex-col gap-4 rounded-3xl border-0 p-5 shadow-sm lg:sticky lg:top-20">
                   <div className="rounded-2xl bg-[#EEF2F8] p-4">
-                    <p className="text-zinc-800 text-sm leading-relaxed">{activeSub.content}</p>
+                    {activeSub.curriculumLabels?.program ? (
+                      <p className="mb-2 text-xs font-medium text-[#C4922B]">
+                        Student topic: {formatCurriculumPath(activeSub.curriculumLabels)}
+                      </p>
+                    ) : null}
+                    <p className="text-sm leading-relaxed text-zinc-800">{activeSub.content}</p>
                   </div>
 
                   {activeStatus === "pending_review" ? (

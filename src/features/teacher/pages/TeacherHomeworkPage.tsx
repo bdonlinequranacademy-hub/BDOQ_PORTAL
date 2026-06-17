@@ -7,30 +7,27 @@ import {
   Users,
   ChevronRight,
   Plus,
-  X,
+  Pencil,
+  Trash2,
 } from "lucide-react";
 import {
   useTeacherHomework,
   useTeacherClasses,
   useCreateHomework,
+  useUpdateHomework,
+  useDeleteHomework,
 } from "@/features/teacher/hooks/useTeacher";
+import { HomeworkFormSheet } from "@/components/homework/HomeworkFormSheet";
+import type { HomeworkFormValues } from "@/components/homework/HomeworkFormSheet";
 import { PageContainer } from "@/components/layout/PageContainer";
 import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
-import { Input } from "@/components/ui/Input";
-import { Textarea } from "@/components/ui/Textarea";
-import { Select } from "@/components/ui/Select";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { useAuthStore } from "@/stores/authStore";
-import { formControlClass } from "@/lib/formControl";
-import { defaultHomeworkDueDate } from "@/lib/homeworkDue";
-import {
-  NestedCurriculumSelect,
-  useCurriculumTree,
-} from "@/components/curriculum/NestedCurriculumSelect";
 import { CurriculumProgramFilter } from "@/components/curriculum/CurriculumProgramFilter";
+import { useCurriculumTree } from "@/components/curriculum/NestedCurriculumSelect";
 import { formatCurriculumPath, matchesProgramFilter } from "@/lib/api/curriculumApi";
-import type { CurriculumPath } from "@/lib/api/curriculumApi";
+import type { Homework } from "@/types/models";
 
 import { PageLoading } from "@/components/ui/PageLoading";
 const BORDER_COLORS = [
@@ -58,6 +55,21 @@ const REVIEW_AVATAR_COLORS = [
   "bg-green-100 text-green-700",
 ];
 
+function toFormInitial(hw: Homework): Partial<HomeworkFormValues> & { homeworkId: string } {
+  return {
+    homeworkId: hw._id,
+    title: hw.title,
+    description: hw.description ?? "",
+    classId: hw.classId,
+    dueDate: hw.dueDate.split("T")[0],
+    curriculum: {
+      programId: hw.curriculumProgram ?? "",
+      unitId: hw.curriculumUnit ?? "",
+      topicId: hw.curriculumTopic ?? "",
+    },
+  };
+}
+
 export function TeacherHomeworkPage() {
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
@@ -65,19 +77,16 @@ export function TeacherHomeworkPage() {
   const { data: homework = [], isLoading } = useTeacherHomework();
   const { data: classes = [] } = useTeacherClasses();
   const createHomework = useCreateHomework();
+  const updateHomework = useUpdateHomework();
+  const deleteHomework = useDeleteHomework();
 
-  const [showForm, setShowForm] = useState(false);
-  const [title, setTitle] = useState("");
-  const [description, setDescription] = useState("");
-  const [classId, setClassId] = useState(searchParams.get("classId") ?? "");
-  const [dueDate, setDueDate] = useState("");
-  const [curriculum, setCurriculum] = useState<CurriculumPath>({ programId: "" });
+  const [sheetMode, setSheetMode] = useState<"create" | "edit" | null>(null);
+  const [editing, setEditing] = useState<Homework | null>(null);
   const [programFilter, setProgramFilter] = useState("");
 
-  const { data: curriculumTree = [] } = useCurriculumTree(
-    classId ? { classId } : undefined
-  );
   const { data: allPrograms = [] } = useCurriculumTree();
+
+  const classOptions = classes.map((c) => ({ _id: c._id, name: c.name }));
 
   const visibleHomework = useMemo(
     () => homework.filter((hw) => matchesProgramFilter(hw.curriculumProgram, programFilter)),
@@ -85,24 +94,56 @@ export function TeacherHomeworkPage() {
   );
 
   useEffect(() => {
-    const prefillClass = searchParams.get("classId");
-    if (prefillClass) setClassId(prefillClass);
-    if (searchParams.get("new") === "1") setShowForm(true);
+    if (searchParams.get("new") === "1") setSheetMode("create");
   }, [searchParams]);
 
-  useEffect(() => {
-    if (!showForm) return;
-    if (!dueDate) setDueDate(defaultHomeworkDueDate());
-    if (!classId && classes.length === 1) {
-      setClassId(classes[0]._id);
-    }
-  }, [showForm, classes, classId, dueDate]);
-
-  function closeForm() {
-    setShowForm(false);
+  function closeSheet() {
+    setSheetMode(null);
+    setEditing(null);
     if (searchParams.has("new") || searchParams.has("classId")) {
       setSearchParams({}, { replace: true });
     }
+  }
+
+  function openCreate() {
+    setEditing(null);
+    setSheetMode("create");
+  }
+
+  function openEdit(hw: Homework, e: React.MouseEvent) {
+    e.stopPropagation();
+    setEditing(hw);
+    setSheetMode("edit");
+  }
+
+  async function handleDelete(hw: Homework, e: React.MouseEvent) {
+    e.stopPropagation();
+    const confirmed = window.confirm(
+      `Delete "${hw.title}"? This removes the assignment and all submissions.`
+    );
+    if (!confirmed) return;
+    await deleteHomework.mutateAsync(hw._id);
+  }
+
+  async function handleFormSubmit(values: HomeworkFormValues) {
+    const payload = {
+      title: values.title.trim(),
+      description: values.description.trim(),
+      dueDate: values.dueDate,
+      curriculumProgram: values.curriculum.programId,
+      curriculumUnit: values.curriculum.unitId || undefined,
+      curriculumTopic: values.curriculum.topicId || undefined,
+    };
+
+    if (sheetMode === "edit" && editing) {
+      await updateHomework.mutateAsync({ id: editing._id, ...payload });
+    } else {
+      await createHomework.mutateAsync({
+        ...payload,
+        classId: values.classId,
+      });
+    }
+    closeSheet();
   }
 
   const activeCount = visibleHomework.length;
@@ -111,46 +152,31 @@ export function TeacherHomeworkPage() {
     0
   );
 
-  async function handleCreate() {
-    if (!title || !classId || !dueDate || !curriculum.programId) return;
-    await createHomework.mutateAsync({
-      title,
-      description,
-      classId,
-      dueDate,
-      curriculumProgram: curriculum.programId,
-      curriculumUnit: curriculum.unitId || undefined,
-      curriculumTopic: curriculum.topicId || undefined,
-    });
-    setTitle("");
-    setDescription("");
-    setClassId("");
-    setDueDate("");
-    setCurriculum({ programId: "" });
-    closeForm();
-  }
+  const formInitial =
+    sheetMode === "edit" && editing
+      ? toFormInitial(editing)
+      : searchParams.get("classId")
+        ? { classId: searchParams.get("classId") ?? "" }
+        : undefined;
 
   return (
     <PageContainer className="flex flex-col gap-6">
-      {/* Greeting */}
       <div className="flex flex-col gap-1">
-        <span className="text-zinc-500 text-sm">Assalamu Alaikum,</span>
-        <h1 className="font-bold text-[#03214F] text-2xl">{user?.name ?? "Teacher"}</h1>
+        <span className="text-sm text-zinc-500">Assalamu Alaikum,</span>
+        <h1 className="text-2xl font-bold text-[#03214F]">{user?.name ?? "Teacher"}</h1>
       </div>
 
-      {/* Pills */}
       <div className="flex gap-2">
-        <div className="rounded-full bg-[#EEF2F8] flex items-center gap-2 px-4 py-2">
-          <span className="font-bold text-[#03214F] text-sm">{activeCount}</span>
-          <span className="text-[#03214F]/70 text-xs">Active Assignments</span>
+        <div className="flex items-center gap-2 rounded-full bg-[#EEF2F8] px-4 py-2">
+          <span className="text-sm font-bold text-[#03214F]">{activeCount}</span>
+          <span className="text-xs text-[#03214F]/70">Active Assignments</span>
         </div>
-        <div className="rounded-full bg-[#FDF3E0] flex items-center gap-2 px-4 py-2">
-          <span className="font-bold text-[#C4922B] text-sm">{pendingCount}</span>
-          <span className="text-[#C4922B]/80 text-xs">Pending Reviews</span>
+        <div className="flex items-center gap-2 rounded-full bg-[#FDF3E0] px-4 py-2">
+          <span className="text-sm font-bold text-[#C4922B]">{pendingCount}</span>
+          <span className="text-xs text-[#C4922B]/80">Pending Reviews</span>
         </div>
       </div>
 
-      {/* KPI grid */}
       <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
         {[
           { icon: <FilePlus className="size-5 text-teal-600" />, bg: "bg-teal-100", value: activeCount, label: "Active Assignments" },
@@ -158,18 +184,17 @@ export function TeacherHomeworkPage() {
           { icon: <CheckCircle className="size-5 text-green-600" />, bg: "bg-green-100", value: visibleHomework.filter((h) => h.submissionCount === h.totalStudents).length, label: "Fully Submitted" },
           { icon: <Users className="size-5 text-blue-600" />, bg: "bg-blue-100", value: classes.reduce((acc, c) => acc + (c.studentIds?.length ?? 0), 0), label: "Total Students" },
         ].map((k) => (
-          <Card key={k.label} className="rounded-2xl border-0 shadow-sm p-4 flex flex-col gap-2">
-            <div className={`size-9 rounded-xl ${k.bg} flex items-center justify-center`}>{k.icon}</div>
-            <span className="font-bold text-[#03214F] text-2xl">{k.value}</span>
-            <span className="text-zinc-400 text-xs">{k.label}</span>
+          <Card key={k.label} className="flex flex-col gap-2 rounded-2xl border-0 p-4 shadow-sm">
+            <div className={`flex size-9 items-center justify-center rounded-xl ${k.bg}`}>{k.icon}</div>
+            <span className="text-2xl font-bold text-[#03214F]">{k.value}</span>
+            <span className="text-xs text-zinc-400">{k.label}</span>
           </Card>
         ))}
       </div>
 
-      {/* Active Assignments */}
-      <Card className="rounded-3xl border-0 shadow-sm p-5 flex flex-col gap-4">
+      <Card className="flex flex-col gap-4 rounded-3xl border-0 p-5 shadow-sm">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-          <span className="font-bold text-[#03214F] text-base">Active Assignments</span>
+          <span className="text-base font-bold text-[#03214F]">Active Assignments</span>
           <div className="flex flex-wrap items-center gap-2">
             <CurriculumProgramFilter
               tree={allPrograms}
@@ -178,8 +203,9 @@ export function TeacherHomeworkPage() {
               className="rounded-xl border border-zinc-200 px-3 py-2 text-sm"
             />
             <button
-              onClick={() => setShowForm(true)}
-              className="font-semibold text-[#C4922B] text-sm flex items-center gap-1"
+              type="button"
+              onClick={openCreate}
+              className="flex items-center gap-1 text-sm font-semibold text-[#C4922B]"
             >
               <Plus className="size-4" />
               Assign New
@@ -195,7 +221,7 @@ export function TeacherHomeworkPage() {
             title={homework.length === 0 ? "No homework yet" : "No assignments for this program"}
             description={
               homework.length === 0
-                ? "Create an assignment for one of your classes. Due date defaults to one week ahead."
+                ? "Create an assignment and pick the exact lesson topic from your students' study plan."
                 : "Try clearing the program filter."
             }
           />
@@ -205,41 +231,64 @@ export function TeacherHomeworkPage() {
               <div
                 key={hw._id}
                 onClick={() => navigate(`/teacher/homework/${hw._id}/grade`)}
-                className={`rounded-2xl bg-[#F8F9FF] border-l-4 ${BORDER_COLORS[i % BORDER_COLORS.length]} flex items-center gap-3 p-3 cursor-pointer`}
+                className={`flex cursor-pointer items-center gap-3 rounded-2xl border-l-4 bg-[#F8F9FF] p-3 ${BORDER_COLORS[i % BORDER_COLORS.length]}`}
               >
-                <div className="flex flex-col flex-1 gap-1">
-                  <span className="font-bold text-[#03214F] text-sm">{hw.title}</span>
-                  <span className="text-zinc-400 text-xs">
-                    {hw.className ?? "–"} · Due {new Date(hw.dueDate).toLocaleDateString("en-US", { month: "short", day: "numeric" })}
+                <div className="flex flex-1 flex-col gap-1">
+                  <span className="text-sm font-bold text-[#03214F]">{hw.title}</span>
+                  <span className="text-xs text-zinc-400">
+                    {hw.className ?? "–"} · Due{" "}
+                    {new Date(hw.dueDate).toLocaleDateString("en-US", {
+                      month: "short",
+                      day: "numeric",
+                    })}
                     {hw.curriculumLabels?.program
                       ? ` · ${formatCurriculumPath(hw.curriculumLabels)}`
                       : ""}
                   </span>
                   <span
-                    className={`font-semibold rounded-full text-[10px] mt-1 px-2 py-0.5 w-fit ${SUBMISSION_BADGE_COLORS[i % SUBMISSION_BADGE_COLORS.length]}`}
+                    className={`mt-1 w-fit rounded-full px-2 py-0.5 text-[10px] font-semibold ${SUBMISSION_BADGE_COLORS[i % SUBMISSION_BADGE_COLORS.length]}`}
                   >
                     {hw.submissionCount ?? 0}/{hw.totalStudents ?? 0} submitted
                   </span>
                 </div>
-                <ChevronRight className="size-5 text-zinc-300" />
+                <div className="flex items-center gap-1">
+                  <button
+                    type="button"
+                    onClick={(e) => openEdit(hw, e)}
+                    className="rounded-lg p-2 text-zinc-400 hover:bg-white hover:text-[#03214F]"
+                    aria-label="Edit homework"
+                  >
+                    <Pencil className="size-4" />
+                  </button>
+                  <button
+                    type="button"
+                    onClick={(e) => handleDelete(hw, e)}
+                    disabled={deleteHomework.isPending}
+                    className="rounded-lg p-2 text-zinc-400 hover:bg-white hover:text-red-600"
+                    aria-label="Delete homework"
+                  >
+                    <Trash2 className="size-4" />
+                  </button>
+                  <ChevronRight className="size-5 text-zinc-300" />
+                </div>
               </div>
             ))}
           </div>
         )}
 
         <button
-          onClick={() => setShowForm(true)}
-          className="font-semibold text-[#C4922B] text-sm flex items-center gap-1 mt-1"
+          type="button"
+          onClick={openCreate}
+          className="mt-1 flex items-center gap-1 text-sm font-semibold text-[#C4922B]"
         >
           <Plus className="size-4" />
           Create New Assignment
         </button>
       </Card>
 
-      {/* Pending Reviews */}
       {homework.some((hw) => (hw.submissions?.length ?? 0) > 0) && (
-        <Card className="rounded-3xl border-0 shadow-sm p-5 flex flex-col gap-4">
-          <span className="font-bold text-[#03214F] text-base">Pending Reviews</span>
+        <Card className="flex flex-col gap-4 rounded-3xl border-0 p-5 shadow-sm">
+          <span className="text-base font-bold text-[#03214F]">Pending Reviews</span>
           <div className="flex flex-col gap-3">
             {homework
               .flatMap((hw) =>
@@ -252,21 +301,25 @@ export function TeacherHomeworkPage() {
               .map(({ hw, sub, si }) => (
                 <div key={sub._id} className="flex items-center gap-3">
                   <div
-                    className={`size-10 font-bold rounded-full flex items-center justify-center text-xs ${REVIEW_AVATAR_COLORS[si % REVIEW_AVATAR_COLORS.length]}`}
+                    className={`flex size-10 items-center justify-center rounded-full text-xs font-bold ${REVIEW_AVATAR_COLORS[si % REVIEW_AVATAR_COLORS.length]}`}
                   >
                     {initials(sub.studentName ?? "?")}
                   </div>
-                  <div className="flex flex-col flex-1 gap-0.5">
-                    <span className="font-bold text-[#03214F] text-sm">
+                  <div className="flex flex-1 flex-col gap-0.5">
+                    <span className="text-sm font-bold text-[#03214F]">
                       {sub.studentName ?? "Student"}
                     </span>
-                    <span className="text-zinc-400 text-xs">
-                      {hw.title} · {new Date(sub.submittedAt).toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit" })}
+                    <span className="text-xs text-zinc-400">
+                      {hw.title} ·{" "}
+                      {new Date(sub.submittedAt).toLocaleTimeString("en-US", {
+                        hour: "2-digit",
+                        minute: "2-digit",
+                      })}
                     </span>
                   </div>
                   <Button
                     onClick={() => navigate(`/teacher/homework/${hw._id}/grade`)}
-                    className="rounded-full bg-[#03214F] text-white text-xs px-4 h-8 py-0"
+                    className="h-8 rounded-full bg-[#03214F] px-4 py-0 text-xs text-white"
                   >
                     Review
                   </Button>
@@ -276,71 +329,15 @@ export function TeacherHomeworkPage() {
         </Card>
       )}
 
-      {/* Create homework drawer */}
-      {showForm && (
-        <div className="fixed inset-0 z-50 flex items-end bg-black/40">
-          <div className="flex w-full flex-col gap-5 rounded-t-3xl border-t border-portal-border bg-portal-surface p-6">
-            <div className="flex justify-between items-center">
-              <span className="font-bold text-[#03214F] text-lg">New Homework</span>
-              <button type="button" onClick={closeForm}>
-                <X className="size-5 text-zinc-400" />
-              </button>
-            </div>
-            <Input
-              placeholder="Title"
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-            />
-            <Textarea
-              placeholder="Description (optional)"
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
-              rows={3}
-            />
-            <Select
-              label="Class"
-              value={classId}
-              onChange={(e) => {
-                setClassId(e.target.value);
-                setCurriculum({ programId: "" });
-              }}
-            >
-              <option value="">Select class…</option>
-              {classes.map((c) => (
-                <option key={c._id} value={c._id}>{c.name}</option>
-              ))}
-            </Select>
-            {classId ? (
-              <NestedCurriculumSelect
-                tree={curriculumTree}
-                value={curriculum}
-                onChange={setCurriculum}
-                required
-              />
-            ) : (
-              <p className="text-xs text-zinc-500">Select a class to load curriculum options.</p>
-            )}
-            <label className="flex flex-col gap-1.5">
-              <span className="text-xs font-medium text-zinc-500">
-                Due date (defaults to 7 days from today)
-              </span>
-              <input
-                type="date"
-                value={dueDate}
-                onChange={(e) => setDueDate(e.target.value)}
-                className={formControlClass}
-              />
-            </label>
-            <Button
-              onClick={handleCreate}
-              disabled={createHomework.isPending || !title || !classId || !dueDate || !curriculum.programId}
-              className="rounded-xl bg-[#03214F] text-white font-semibold w-full h-12"
-            >
-              {createHomework.isPending ? "Creating…" : "Create Homework"}
-            </Button>
-          </div>
-        </div>
-      )}
+      <HomeworkFormSheet
+        open={sheetMode !== null}
+        mode={sheetMode === "edit" ? "edit" : "create"}
+        initial={formInitial}
+        classes={classOptions}
+        isSubmitting={createHomework.isPending || updateHomework.isPending}
+        onClose={closeSheet}
+        onSubmit={handleFormSubmit}
+      />
     </PageContainer>
   );
 }

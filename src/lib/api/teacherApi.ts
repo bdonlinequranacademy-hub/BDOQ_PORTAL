@@ -105,6 +105,24 @@ export const teacherApi = {
   }) =>
     apiClient.post<ApiResponse<Homework>>("/teacher/homework", payload).then((r) => r.data),
 
+  updateHomework: (
+    id: string,
+    payload: {
+      title?: string;
+      description?: string;
+      dueDate?: string;
+      curriculumProgram?: string;
+      curriculumUnit?: string;
+      curriculumTopic?: string;
+    }
+  ) =>
+    apiClient.put<ApiResponse<Homework>>(`/teacher/homework/${id}`, payload).then((r) => r.data),
+
+  deleteHomework: (id: string) =>
+    apiClient
+      .delete<ApiResponse<{ homeworkId: string }>>(`/teacher/homework/${id}`)
+      .then((r) => r.data),
+
   reviewHomeworkSubmission: (
     homeworkId: string,
     payload: { studentId: string; action: "approve" | "return"; feedback?: string }

@@ -192,6 +192,11 @@ export const adminApi = {
       .get<ApiResponse<AdminHomeworkItem[]>>("/admin/homework")
       .then((r) => r.data),
 
+  deleteHomework: (id: string) =>
+    apiClient
+      .delete<ApiResponse<{ homeworkId: string }>>(`/admin/homework/${id}`)
+      .then((r) => r.data),
+
   getConcernReports: (status?: ConcernReportStatus) =>
     apiClient
       .get<ApiResponse<ConcernReportView[]>>("/admin/concern-reports", {

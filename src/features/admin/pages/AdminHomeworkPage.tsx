@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react";
-import { BookOpenCheck } from "lucide-react";
-import { useAdminHomework } from "@/features/admin/hooks/useAdmin";
+import { BookOpenCheck, Trash2 } from "lucide-react";
+import { useAdminHomework, useDeleteAdminHomework } from "@/features/admin/hooks/useAdmin";
 import { PageContainer } from "@/components/layout/PageContainer";
 import { Card } from "@/components/ui/Card";
 import { EmptyState } from "@/components/ui/EmptyState";
@@ -27,6 +27,7 @@ function teacherName(item: AdminHomeworkItem) {
 export function AdminHomeworkPage() {
   const [programFilter, setProgramFilter] = useState("");
   const { data: homework = [], isLoading } = useAdminHomework();
+  const deleteHomework = useDeleteAdminHomework();
   const { data: curriculumTree = [] } = useCurriculumTree();
 
   const visibleHomework = useMemo(
@@ -70,13 +71,14 @@ export function AdminHomeworkPage() {
         />
       ) : (
         <Card className="overflow-hidden rounded-2xl border-0 p-0 shadow-sm">
-          <div className="hidden border-b border-zinc-100 bg-zinc-50 px-5 py-3 md:grid md:grid-cols-[2fr_1.5fr_1.2fr_1fr_1fr_1fr] md:text-xs md:font-semibold md:uppercase md:text-zinc-500">
+          <div className="hidden border-b border-zinc-100 bg-zinc-50 px-5 py-3 md:grid md:grid-cols-[2fr_1.5fr_1.2fr_1fr_1fr_1fr_0.5fr] md:text-xs md:font-semibold md:uppercase md:text-zinc-500">
             <span>Assignment</span>
             <span>Program</span>
             <span>Class / Teacher</span>
             <span>Due</span>
             <span>Submissions</span>
             <span>Grading</span>
+            <span />
           </div>
           <div className="divide-y divide-zinc-100">
             {visibleHomework.map((hw) => {
@@ -84,7 +86,7 @@ export function AdminHomeworkPage() {
               return (
                 <div
                   key={hw._id}
-                  className="flex flex-col gap-2 p-4 md:grid md:grid-cols-[2fr_1.5fr_1.2fr_1fr_1fr_1fr] md:items-center md:gap-4"
+                  className="flex flex-col gap-2 p-4 md:grid md:grid-cols-[2fr_1.5fr_1.2fr_1fr_1fr_1fr_0.5fr] md:items-center md:gap-4"
                 >
                   <div>
                     <p className="font-semibold text-[#03214F]">{hw.title}</p>
@@ -123,6 +125,21 @@ export function AdminHomeworkPage() {
                       </span>
                     ) : null}
                   </p>
+                  <button
+                    type="button"
+                    onClick={async () => {
+                      const ok = window.confirm(
+                        `Delete "${hw.title}"? This removes all student submissions.`
+                      );
+                      if (!ok) return;
+                      await deleteHomework.mutateAsync(hw._id);
+                    }}
+                    disabled={deleteHomework.isPending}
+                    className="inline-flex items-center justify-center rounded-lg p-2 text-zinc-400 hover:bg-red-50 hover:text-red-600"
+                    aria-label="Delete homework"
+                  >
+                    <Trash2 className="size-4" />
+                  </button>
                 </div>
               );
             })}
