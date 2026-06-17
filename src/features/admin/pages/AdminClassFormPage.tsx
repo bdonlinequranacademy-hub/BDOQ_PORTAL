@@ -36,7 +36,7 @@ export function AdminClassFormPage() {
   const [scheduleDay, setScheduleDay] = useState<ClassSchedule["day"]>("Monday");
   const [scheduleTime, setScheduleTime] = useState("09:00");
   const [scheduleDuration, setScheduleDuration] = useState<number>(60);
-  const [scheduleRepeatDaily, setScheduleRepeatDaily] = useState(false);
+  const [scheduleRepeatWeekly, setScheduleRepeatWeekly] = useState(true);
   const [sessionRateBdt, setSessionRateBdt] = useState("500");
   const [selectedStudents, setSelectedStudents] = useState<string[]>([]);
   const [formError, setFormError] = useState<string | null>(null);
@@ -53,7 +53,7 @@ export function AdminClassFormPage() {
       setScheduleDay(existing.schedule.day);
       setScheduleTime(toTimeInputValue(existing.schedule.time));
       setScheduleDuration(existing.schedule.duration || 60);
-      setScheduleRepeatDaily(existing.schedule.repeatDaily === true);
+      setScheduleRepeatWeekly(existing.schedule.repeatWeekly !== false);
     }
     const enrolled = existing.students ?? [];
     if (enrolled.length && typeof enrolled[0] === "object") {
@@ -87,7 +87,7 @@ export function AdminClassFormPage() {
       day: scheduleDay,
       time: scheduleTime,
       duration: scheduleDuration,
-      repeatDaily: scheduleRepeatDaily,
+      repeatWeekly: scheduleRepeatWeekly,
     };
     const payload = {
       title: title.trim(),
@@ -173,9 +173,8 @@ export function AdminClassFormPage() {
           <div className="rounded-xl border border-[#C4922B]/25 bg-[#FDF3E0]/40 p-4">
             <p className="text-sm font-semibold text-[#03214F]">Class schedule</p>
             <p className="mt-1 text-xs leading-relaxed text-zinc-600">
-              {scheduleRepeatDaily
-                ? "One session every day at the time you pick below (Bangladesh time). This appears on the Routine page for each enrolled student."
-                : "One session per week on the day and time you pick below (Bangladesh time). This appears on the Routine page for each enrolled student."}
+              Pick the day and time for this class (Bangladesh time). This appears on the
+              Routine page for each enrolled student.
             </p>
             <div className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-3">
               <div className="flex flex-col gap-1">
@@ -183,8 +182,7 @@ export function AdminClassFormPage() {
                 <select
                   value={scheduleDay}
                   onChange={(e) => setScheduleDay(e.target.value as ClassSchedule["day"])}
-                  disabled={scheduleRepeatDaily}
-                  className={`${formControlClass} disabled:cursor-not-allowed disabled:bg-zinc-100 disabled:text-zinc-400`}
+                  className={formControlClass}
                 >
                   {CLASS_WEEK_DAYS.map((d) => (
                     <option key={d} value={d}>
@@ -221,21 +219,22 @@ export function AdminClassFormPage() {
             <label className="mt-4 flex cursor-pointer items-start gap-2.5">
               <input
                 type="checkbox"
-                checked={scheduleRepeatDaily}
-                onChange={(e) => setScheduleRepeatDaily(e.target.checked)}
+                checked={scheduleRepeatWeekly}
+                onChange={(e) => setScheduleRepeatWeekly(e.target.checked)}
                 className="mt-0.5 rounded border-zinc-300"
               />
               <span className="text-sm text-[#03214F]">
-                Repeat every day at this time
+                Repeat every {scheduleDay}
                 <span className="mt-0.5 block text-xs font-normal text-zinc-500">
-                  When checked, the class runs daily. When unchecked, only on the selected day.
+                  When checked, the class runs every week on this day. When unchecked, only
+                  once on the next upcoming {scheduleDay}.
                 </span>
               </span>
             </label>
             <p className="mt-3 text-xs font-medium text-[#9A6B1A]">
-              {scheduleRepeatDaily
-                ? `Repeats every day at ${scheduleTime} (BD) · ${scheduleDuration} min`
-                : `Repeats every ${scheduleDay} at ${scheduleTime} (BD) · ${scheduleDuration} min`}
+              {scheduleRepeatWeekly
+                ? `Repeats every ${scheduleDay} at ${scheduleTime} (BD) · ${scheduleDuration} min`
+                : `One session on ${scheduleDay} at ${scheduleTime} (BD) · ${scheduleDuration} min`}
             </p>
           </div>
 
@@ -256,9 +255,9 @@ export function AdminClassFormPage() {
         <Card className="flex flex-col gap-3 rounded-2xl border-0 p-5 shadow-sm">
           <span className="font-bold text-[#03214F] text-sm">Enroll Students</span>
           <p className="-mt-1 text-xs text-zinc-500">
-            {scheduleRepeatDaily
-              ? `Each student gets a routine slot every day at ${scheduleTime}.`
-              : `Each student gets their own routine slot on ${scheduleDay}s at ${scheduleTime}.`}
+            {scheduleRepeatWeekly
+              ? `Each student gets a routine slot every ${scheduleDay} at ${scheduleTime}.`
+              : `Each student gets one routine slot on the next ${scheduleDay} at ${scheduleTime}.`}
           </p>
           <div className="max-h-48 overflow-y-auto flex flex-col gap-2">
             {students.map((s) => (

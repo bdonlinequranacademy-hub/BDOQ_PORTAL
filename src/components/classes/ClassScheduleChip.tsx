@@ -20,9 +20,7 @@ export function ClassScheduleChip({
   const line = formatScheduleLine(schedule);
   if (!line) return null;
 
-  const entry = primaryScheduleEntry(schedule);
-  const isToday =
-    entry?.repeatDaily === true || isTodayScheduleDay(entry?.day);
+  const isToday = isTodayScheduleDay(primaryScheduleEntry(schedule)?.day);
 
   const tone =
     variant === "onDark"

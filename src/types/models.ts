@@ -276,7 +276,8 @@ export interface ClassSchedule {
   day: string;
   time: string;
   duration?: number;
-  repeatDaily?: boolean;
+  /** When true (default), repeats every week on `day`. When false, one session only. */
+  repeatWeekly?: boolean;
 }
 
 export interface PopulatedUserRef {

@@ -55,7 +55,7 @@ export function isTodayScheduleDay(day?: string): boolean {
 export type ScheduleLike =
   | ClassSchedule
   | ScheduleEntry
-  | { day: string; time: string; duration?: number; repeatDaily?: boolean }
+  | { day: string; time: string; duration?: number; repeatWeekly?: boolean }
   | ScheduleEntry[]
   | ClassSchedule[]
   | undefined;
@@ -69,7 +69,7 @@ export function primaryScheduleEntry(schedule?: ScheduleLike): ClassSchedule | u
           day: first.day,
           time: first.time,
           duration: (first as ClassSchedule).duration,
-          repeatDaily: (first as ClassSchedule).repeatDaily,
+          repeatWeekly: (first as ClassSchedule).repeatWeekly,
         }
       : undefined;
   }
@@ -78,13 +78,12 @@ export function primaryScheduleEntry(schedule?: ScheduleLike): ClassSchedule | u
 
 export function formatScheduleLine(schedule?: ScheduleLike): string | null {
   const entry = primaryScheduleEntry(schedule);
-  if (!entry?.time) return null;
+  if (!entry?.day || !entry?.time) return null;
   const duration = entry.duration ? ` · ${formatDuration(entry.duration)}` : "";
-  if (entry.repeatDaily) {
-    return `Every day · ${entry.time}${duration}`;
+  if (entry.repeatWeekly === false) {
+    return `One ${entry.day} · ${entry.time}${duration}`;
   }
-  if (!entry.day) return null;
-  return `${entry.day} · ${entry.time}${duration}`;
+  return `Every ${entry.day} · ${entry.time}${duration}`;
 }
 
 export function formatDuration(minutes?: number): string {
@@ -96,9 +95,5 @@ export function formatDuration(minutes?: number): string {
 }
 
 export function classesScheduledToday<T extends { schedule?: ScheduleLike }>(classes: T[]): T[] {
-  return classes.filter((c) => {
-    const entry = primaryScheduleEntry(c.schedule);
-    if (entry?.repeatDaily) return true;
-    return isTodayScheduleDay(entry?.day);
-  });
+  return classes.filter((c) => isTodayScheduleDay(primaryScheduleEntry(c.schedule)?.day));
 }

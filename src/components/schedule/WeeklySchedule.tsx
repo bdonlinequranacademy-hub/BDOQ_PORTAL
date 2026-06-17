@@ -16,7 +16,7 @@ export interface ScheduleClassItem {
   _id: string;
   title?: string;
   name?: string;
-  schedule?: { day: string; time: string; duration?: number; repeatDaily?: boolean };
+  schedule?: { day: string; time: string; duration?: number; repeatWeekly?: boolean };
 }
 
 /** Normalizes API schedule (single object or legacy array) for the grid. */
@@ -24,7 +24,7 @@ export function toScheduleClassItem(cls: {
   _id: string;
   title?: string;
   name?: string;
-  schedule?: { day: string; time: string; duration?: number; repeatDaily?: boolean } | { day: string; time: string }[];
+  schedule?: { day: string; time: string; duration?: number; repeatWeekly?: boolean } | { day: string; time: string }[];
 }): ScheduleClassItem {
   let schedule: ScheduleClassItem["schedule"];
   if (cls.schedule && !Array.isArray(cls.schedule) && "day" in cls.schedule) {
@@ -41,9 +41,7 @@ interface WeeklyScheduleProps {
 }
 
 export function WeeklySchedule({ classes, onClassClick }: WeeklyScheduleProps) {
-  const scheduled = classes.filter(
-    (c) => c.schedule?.repeatDaily || c.schedule?.day
-  );
+  const scheduled = classes.filter((c) => c.schedule?.day);
 
   if (scheduled.length === 0) {
     return (
@@ -57,10 +55,9 @@ export function WeeklySchedule({ classes, onClassClick }: WeeklyScheduleProps) {
 
   const byDay = WEEK_DAYS.map((day) => ({
     day,
-    items: scheduled.filter((c) => {
-      if (c.schedule?.repeatDaily) return true;
-      return c.schedule?.day?.toLowerCase() === day.toLowerCase();
-    }),
+    items: scheduled.filter(
+      (c) => c.schedule?.day?.toLowerCase() === day.toLowerCase()
+    ),
   }));
 
   const today = getTodayWeekDay();
