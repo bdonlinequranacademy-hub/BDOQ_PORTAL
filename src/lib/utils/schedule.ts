@@ -10,6 +10,24 @@ export const SCHEDULE_DAYS = [
   "Friday",
 ] as const;
 
+/** Parse stored schedule time for `<input type="time">` (HH:MM). */
+export function toTimeInputValue(raw: string | undefined): string {
+  if (!raw) return "09:00";
+  const match = raw.trim().match(/^(\d{1,2}):(\d{2})/);
+  if (!match) return "09:00";
+  return `${match[1]!.padStart(2, "0")}:${match[2]}`;
+}
+
+export const CLASS_WEEK_DAYS = [
+  "Sunday",
+  "Monday",
+  "Tuesday",
+  "Wednesday",
+  "Thursday",
+  "Friday",
+  "Saturday",
+] as const;
+
 export function groupSessionsByDay(sessions: SessionSlotView[]) {
   const map = new Map<string, SessionSlotView[]>();
   for (const day of SCHEDULE_DAYS) {

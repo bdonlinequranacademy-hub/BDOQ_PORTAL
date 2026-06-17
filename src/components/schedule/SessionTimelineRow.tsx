@@ -79,34 +79,49 @@ export function SessionTimelineRow({
                 </span>
               </div>
               <p className="mt-1.5 truncate text-base font-bold text-[#03214F]">
-                {session.student.name}
+                {session.classTitle}
               </p>
-              <p className="mt-0.5 text-xs text-zinc-500">
-                {session.student.studentId ? `${session.student.studentId} · ` : ""}
-                <CountryLabel country={session.student.country} showFallback />
-                <span className="mx-1.5 text-zinc-300">|</span>
-                {adminMode ? (
-                  <>
+              {adminMode ? (
+                <div className="mt-2 space-y-1 text-xs text-zinc-600">
+                  <p>
+                    <span className="font-semibold text-zinc-500">Student: </span>
+                    {session.student.name}
+                    {session.student.studentId ? ` · ${session.student.studentId}` : ""}
+                    {" · "}
+                    <CountryLabel country={session.student.country} showFallback />
+                  </p>
+                  <p>
+                    <span className="font-semibold text-zinc-500">Teacher: </span>
                     {session.teacher.name}
                     {" · "}
                     <CountryLabel country={session.teacher.country} className="inline" showFallback />
-                  </>
-                ) : (
-                  <>
+                  </p>
+                </div>
+              ) : (
+                <>
+                  <p className="mt-1.5 truncate text-base font-bold text-[#03214F]">
+                    {session.student.name}
+                  </p>
+                  <p className="mt-0.5 text-xs text-zinc-500">
+                    {session.student.studentId ? `${session.student.studentId} · ` : ""}
+                    <CountryLabel country={session.student.country} showFallback />
+                    <span className="mx-1.5 text-zinc-300">|</span>
                     Tea {session.times.teacher.time}
                     {" · "}
                     <CountryLabel country={session.teacher.country} className="inline" showFallback />
-                  </>
-                )}
-              </p>
-              <p className="mt-1 flex flex-wrap gap-x-3 gap-y-0.5 text-xs text-zinc-400">
-                <span>{session.classTitle}</span>
-                {adminMode ? (
-                  <span>
-                    Stu {session.times.student.time} · Tea {session.times.teacher.time}
-                  </span>
-                ) : null}
-              </p>
+                  </p>
+                </>
+              )}
+              {!adminMode ? (
+                <p className="mt-1 flex flex-wrap gap-x-3 gap-y-0.5 text-xs text-zinc-400">
+                  <span>{session.classTitle}</span>
+                </p>
+              ) : null}
+              {adminMode ? (
+                <p className="mt-1 text-xs text-zinc-400">
+                  Stu {session.times.student.time} · Tea {session.times.teacher.time}
+                </p>
+              ) : null}
             </div>
             <SessionStatusBadge session={session} routineView={routineView} />
           </div>

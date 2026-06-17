@@ -11,18 +11,12 @@ import { PageContainer } from "@/components/layout/PageContainer";
 import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
+import { formControlClass } from "@/lib/formControl";
+import { CLASS_WEEK_DAYS, toTimeInputValue } from "@/lib/utils/schedule";
 import { toast } from "@/stores/uiStore";
 import type { ClassSchedule } from "@/types/models";
 
-const DAYS = [
-  "Sunday",
-  "Monday",
-  "Tuesday",
-  "Wednesday",
-  "Thursday",
-  "Friday",
-  "Saturday",
-] as const;
+const DURATION_OPTIONS = [30, 45, 60, 90] as const;
 
 export function AdminClassFormPage() {
   const { id } = useParams();
@@ -41,6 +35,7 @@ export function AdminClassFormPage() {
   const [meetingLink, setMeetingLink] = useState("");
   const [scheduleDay, setScheduleDay] = useState<ClassSchedule["day"]>("Monday");
   const [scheduleTime, setScheduleTime] = useState("09:00");
+  const [scheduleDuration, setScheduleDuration] = useState<number>(60);
   const [sessionRateBdt, setSessionRateBdt] = useState("500");
   const [selectedStudents, setSelectedStudents] = useState<string[]>([]);
   const [formError, setFormError] = useState<string | null>(null);
@@ -55,7 +50,8 @@ export function AdminClassFormPage() {
     setSessionRateBdt(String(existing.sessionRateBdt ?? 500));
     if (existing.schedule) {
       setScheduleDay(existing.schedule.day);
-      setScheduleTime(existing.schedule.time);
+      setScheduleTime(toTimeInputValue(existing.schedule.time));
+      setScheduleDuration(existing.schedule.duration || 60);
     }
     const enrolled = existing.students ?? [];
     if (enrolled.length && typeof enrolled[0] === "object") {
@@ -80,15 +76,15 @@ export function AdminClassFormPage() {
       setFormError("Please select a teacher.");
       return;
     }
-    if (!scheduleTime.trim()) {
-      setFormError("Schedule time is required (e.g. 09:00).");
+    if (!scheduleTime) {
+      setFormError("Please pick a weekly session time.");
       return;
     }
 
     const schedule: ClassSchedule = {
       day: scheduleDay,
-      time: scheduleTime.trim(),
-      duration: 60,
+      time: scheduleTime,
+      duration: scheduleDuration,
     };
     const payload = {
       title: title.trim(),
@@ -160,7 +156,7 @@ export function AdminClassFormPage() {
             <select
               value={teacherId}
               onChange={(e) => setTeacherId(e.target.value)}
-              className="rounded-xl border border-zinc-200 px-4 py-3 text-sm"
+              className={formControlClass}
             >
               <option value="">Select teacher…</option>
               {teachers.map((t) => (
@@ -170,30 +166,58 @@ export function AdminClassFormPage() {
               ))}
             </select>
           </div>
-          <div className="grid grid-cols-2 gap-3">
-            <div className="flex flex-col gap-1">
-              <label className="text-xs font-medium text-zinc-500">Day</label>
-              <select
-                value={scheduleDay}
-                onChange={(e) => setScheduleDay(e.target.value)}
-                className="rounded-xl border border-zinc-200 px-3 py-3 text-sm"
-              >
-                {DAYS.map((d) => (
-                  <option key={d} value={d}>
-                    {d}
-                  </option>
-                ))}
-              </select>
+
+          <div className="rounded-xl border border-[#C4922B]/25 bg-[#FDF3E0]/40 p-4">
+            <p className="text-sm font-semibold text-[#03214F]">Weekly schedule</p>
+            <p className="mt-1 text-xs leading-relaxed text-zinc-600">
+              One session per week on the day and time you pick below (Bangladesh time).
+              This appears on the Routine page for each enrolled student.
+            </p>
+            <div className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-3">
+              <div className="flex flex-col gap-1">
+                <label className="text-xs font-medium text-zinc-500">Day</label>
+                <select
+                  value={scheduleDay}
+                  onChange={(e) => setScheduleDay(e.target.value as ClassSchedule["day"])}
+                  className={formControlClass}
+                >
+                  {CLASS_WEEK_DAYS.map((d) => (
+                    <option key={d} value={d}>
+                      {d}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <div className="flex flex-col gap-1">
+                <label className="text-xs font-medium text-zinc-500">Start time (BD)</label>
+                <input
+                  type="time"
+                  value={scheduleTime}
+                  onChange={(e) => setScheduleTime(e.target.value)}
+                  className={formControlClass}
+                  required
+                />
+              </div>
+              <div className="flex flex-col gap-1">
+                <label className="text-xs font-medium text-zinc-500">Duration</label>
+                <select
+                  value={scheduleDuration}
+                  onChange={(e) => setScheduleDuration(Number(e.target.value))}
+                  className={formControlClass}
+                >
+                  {DURATION_OPTIONS.map((mins) => (
+                    <option key={mins} value={mins}>
+                      {mins} minutes
+                    </option>
+                  ))}
+                </select>
+              </div>
             </div>
-            <div className="flex flex-col gap-1">
-              <label className="text-xs font-medium text-zinc-500">Time</label>
-              <Input
-                value={scheduleTime}
-                onChange={(e) => setScheduleTime(e.target.value)}
-                placeholder="09:00–09:45"
-              />
-            </div>
+            <p className="mt-3 text-xs font-medium text-[#9A6B1A]">
+              Repeats every {scheduleDay} at {scheduleTime} (BD) · {scheduleDuration} min
+            </p>
           </div>
+
           <Input
             placeholder="Meeting link (Zoom, etc.)"
             value={meetingLink}
@@ -210,6 +234,9 @@ export function AdminClassFormPage() {
 
         <Card className="flex flex-col gap-3 rounded-2xl border-0 p-5 shadow-sm">
           <span className="font-bold text-[#03214F] text-sm">Enroll Students</span>
+          <p className="-mt-1 text-xs text-zinc-500">
+            Each student gets their own routine slot on {scheduleDay}s at {scheduleTime}.
+          </p>
           <div className="max-h-48 overflow-y-auto flex flex-col gap-2">
             {students.map((s) => (
               <label

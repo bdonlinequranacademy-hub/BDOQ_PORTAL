@@ -71,7 +71,7 @@ export function AdminRoutinePage() {
         <div>
           <h1 className="font-display text-2xl font-bold text-[#03214F]">Academy Routine</h1>
           <p className="mt-1 text-sm text-zinc-500">
-            All active session slots — Saturday → Friday
+            Weekly session slots per enrolled student — Saturday → Friday (Bangladesh time)
           </p>
         </div>
         <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:items-center">

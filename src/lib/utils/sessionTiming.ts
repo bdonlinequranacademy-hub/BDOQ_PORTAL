@@ -44,7 +44,7 @@ export function getSessionCountdownLabel(
   options?: { routineView?: boolean }
 ): string {
   if (options?.routineView && !isSessionToday(session, new Date(nowMs))) {
-    return `Every ${session.day}`;
+    return `Weekly · ${session.day}`;
   }
 
   const phase = resolveSessionPhase(session, nowMs);
