@@ -14,7 +14,8 @@ function renderInline(text: string): ReactNode[] {
   });
 }
 
-export function AIMarkdownContent({
+/** Renders simple markdown (headings, bullets, bold) for template reports. */
+export function ReportMarkdown({
   content,
   className = "",
 }: {
@@ -31,7 +32,7 @@ export function AIMarkdownContent({
     nodes.push(
       <ul key={key++} className="my-2 list-disc space-y-1.5 pl-5">
         {listItems.map((item, i) => (
-          <li key={i} className="text-portal leading-relaxed">
+          <li key={i} className="text-sm leading-relaxed text-portal">
             {renderInline(item)}
           </li>
         ))}
@@ -53,7 +54,7 @@ export function AIMarkdownContent({
       nodes.push(
         <h3
           key={key++}
-          className="mb-2 mt-4 first:mt-0 text-base font-bold text-portal-heading"
+          className="mb-2 mt-4 first:mt-0 text-sm font-bold text-portal-heading"
         >
           {line.slice(3).trim()}
         </h3>
@@ -66,7 +67,7 @@ export function AIMarkdownContent({
       nodes.push(
         <h4
           key={key++}
-          className="mb-1.5 mt-3 first:mt-0 text-sm font-semibold text-portal-heading"
+          className="mb-1.5 mt-3 first:mt-0 text-xs font-semibold text-portal-heading"
         >
           {line.slice(4).trim()}
         </h4>
@@ -81,7 +82,7 @@ export function AIMarkdownContent({
 
     flushList();
     nodes.push(
-      <p key={key++} className="my-2 leading-relaxed text-portal first:mt-0 last:mb-0">
+      <p key={key++} className="my-2 text-sm leading-relaxed text-portal first:mt-0 last:mb-0">
         {renderInline(line.trim())}
       </p>
     );
@@ -89,5 +90,5 @@ export function AIMarkdownContent({
 
   flushList();
 
-  return <div className={`ai-markdown ${className}`}>{nodes}</div>;
+  return <div className={className}>{nodes}</div>;
 }

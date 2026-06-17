@@ -36,7 +36,7 @@ export function TeacherParentSummaryPage() {
       <div>
         <h1 className="text-2xl font-bold text-[#03214F]">Weekly Family Report</h1>
         <p className="text-sm text-zinc-500">
-          Template report from class logs, attendance, and homework — no AI required
+          Built from approved class logs, attendance, and homework — verified portal data only
         </p>
       </div>
 

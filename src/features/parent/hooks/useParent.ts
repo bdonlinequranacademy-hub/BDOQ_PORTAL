@@ -2,8 +2,6 @@ import { useEffect } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { parentApi } from "@/lib/api/parentApi";
 import { useParentStore } from "@/stores/parentStore";
-import { useUiStore } from "@/stores/uiStore";
-import { getAiErrorMessage } from "@/lib/utils/aiErrorMessage";
 
 export const parentKeys = {
   children: ["parent", "children"] as const,
@@ -91,14 +89,5 @@ export function useMarkParentNotificationRead() {
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: parentKeys.notifications });
     },
-  });
-}
-
-export function useGenerateParentSummary() {
-  const addToast = useUiStore((s) => s.addToast);
-  return useMutation({
-    mutationFn: parentApi.generateParentSummary,
-    onError: (error) =>
-      addToast("error", getAiErrorMessage(error, "Failed to generate summary")),
   });
 }

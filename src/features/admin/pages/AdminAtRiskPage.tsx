@@ -1,6 +1,6 @@
 import { AlertCircle, Brain } from "lucide-react";
 import { useAdminAtRisk } from "@/features/admin/hooks/useAdmin";
-import { AIMarkdownContent } from "@/components/ai/AIMarkdownContent";
+import { ReportMarkdown } from "@/components/reports/ReportMarkdown";
 import { PageContainer } from "@/components/layout/PageContainer";
 import { Card } from "@/components/ui/Card";
 import { EmptyState } from "@/components/ui/EmptyState";
@@ -70,7 +70,10 @@ export function AdminAtRiskPage() {
               ))}
               {risk.aiGuidance && (
                 <div className="rounded-xl bg-[#EEF2F8] p-3">
-                  <AIMarkdownContent content={risk.aiGuidance} className="text-xs" />
+                  <p className="mb-2 text-[10px] font-semibold uppercase tracking-wide text-zinc-400">
+                    Suggested follow-up
+                  </p>
+                  <ReportMarkdown content={risk.aiGuidance} className="text-xs" />
                 </div>
               )}
             </Card>

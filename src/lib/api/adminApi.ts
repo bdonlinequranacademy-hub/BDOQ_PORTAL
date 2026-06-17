@@ -35,7 +35,6 @@ import type {
 import type { CurriculumNode } from "@/lib/api/curriculumApi";
 import { api as apiClient } from "./client";
 import type { ApiResponse } from "@/types/api";
-import { getAiLocale } from "@/lib/api/getAiLocale";
 import { normalizeAtRiskStudent } from "@/lib/utils/normalize";
 
 export const adminApi = {
@@ -149,9 +148,7 @@ export const adminApi = {
 
   getAtRisk: () =>
     apiClient
-      .get<ApiResponse<unknown[]>>("/ai/at-risk-students", {
-        params: { locale: getAiLocale() },
-      })
+      .get<ApiResponse<unknown[]>>("/ai/at-risk-students")
       .then((r) => ({
         ...r.data,
         data: (r.data.data ?? []).map((item) =>

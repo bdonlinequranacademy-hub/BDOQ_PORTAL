@@ -1,6 +1,4 @@
 import { api as apiClient } from "./client";
-import { currentWeekRange } from "@/lib/utils/weekRange";
-import { getAiLocale } from "@/lib/api/getAiLocale";
 import {
   normalizeAtRiskStudent,
   normalizeClass,
@@ -18,7 +16,6 @@ import type {
   AttendanceStatus,
   Progress,
   AtRiskStudent,
-  AIProgressReport,
   Grade,
   Notification,
   TodaySchedulePayload,
@@ -238,43 +235,13 @@ export const teacherApi = {
 
   getAtRisk: () =>
     apiClient
-      .get<ApiResponse<unknown[]>>("/ai/at-risk-students", {
-        params: { locale: getAiLocale() },
-      })
+      .get<ApiResponse<unknown[]>>("/ai/at-risk-students")
       .then((r) => ({
         ...r.data,
         data: (r.data.data ?? []).map((item) =>
           normalizeAtRiskStudent(item as Record<string, unknown>)
         ) as AtRiskStudent[],
       })),
-
-  generateEarlyWarning: (studentId: string) =>
-    apiClient
-      .post<ApiResponse<{ guidance: string; locale: string; aiGenerated: boolean }>>(
-        "/ai/early-warning",
-        { studentId, locale: getAiLocale() }
-      )
-      .then((r) => r.data),
-
-  generateProgressReport: (studentId: string) =>
-    apiClient
-      .post<ApiResponse<AIProgressReport>>("/ai/progress-report", {
-        studentId,
-        locale: getAiLocale(),
-      })
-      .then((r) => r.data),
-
-  generateParentSummary: (studentId: string) => {
-    const { weekStart, weekEnd } = currentWeekRange();
-    return apiClient
-      .post<ApiResponse<{ summary: string; locale?: string }>>("/ai/parent-summary", {
-        studentId,
-        weekStart,
-        weekEnd,
-        locale: getAiLocale(),
-      })
-      .then((r) => r.data);
-  },
 
   getEarnings: (month?: string) =>
     apiClient
@@ -336,14 +303,5 @@ export const teacherApi = {
   createStudentRequest: (payload: { message: string; preferredCourseType?: string }) =>
     apiClient
       .post<ApiResponse<StudentRequestView>>("/teacher/student-requests", payload)
-      .then((r) => r.data),
-
-  generateClassLogDraft: (payload: {
-    sessionSlotId: string;
-    sessionDate?: string;
-    topicsHint?: string;
-  }) =>
-    apiClient
-      .post<ApiResponse<{ draft: string }>>("/ai/class-log-draft", payload)
       .then((r) => r.data),
 };

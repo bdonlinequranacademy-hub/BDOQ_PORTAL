@@ -77,10 +77,6 @@ export const StudentProgressPage = lazyNamed(
   () => import("@/features/student/pages/StudentProgressPage"),
   "StudentProgressPage"
 );
-export const StudentStudyPlanPage = lazyNamed(
-  () => import("@/features/student/pages/StudentStudyPlanPage"),
-  "StudentStudyPlanPage"
-);
 export const StudentWeeklySummaryPage = lazyNamed(
   () => import("@/features/student/pages/StudentWeeklySummaryPage"),
   "StudentWeeklySummaryPage"
@@ -141,14 +137,6 @@ export const TeacherProgressPage = lazyNamed(
 export const TeacherAtRiskPage = lazyNamed(
   () => import("@/features/teacher/pages/TeacherAtRiskPage"),
   "TeacherAtRiskPage"
-);
-export const TeacherAIReportPage = lazyNamed(
-  () => import("@/features/teacher/pages/TeacherAIReportPage"),
-  "TeacherAIReportPage"
-);
-export const TeacherAIAssistantPage = lazyNamed(
-  () => import("@/features/teacher/pages/TeacherAIAssistantPage"),
-  "TeacherAIAssistantPage"
 );
 export const TeacherParentSummaryPage = lazyNamed(
   () => import("@/features/teacher/pages/TeacherParentSummaryPage"),

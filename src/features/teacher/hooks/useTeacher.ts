@@ -1,7 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { teacherApi } from "@/lib/api/teacherApi";
 import { useUiStore } from "@/stores/uiStore";
-import { getAiErrorMessage } from "@/lib/utils/aiErrorMessage";
 import type { AttendanceStatus, Grade, ClassLogStatus, Homework, HomeworkSubmission } from "@/types/models";
 
 export const teacherKeys = {
@@ -455,41 +454,5 @@ export function useToggleCurriculumComplete() {
       );
     },
     onError: () => addToast("error", "Failed to update curriculum"),
-  });
-}
-
-export function useGenerateProgressReport() {
-  const addToast = useUiStore((s) => s.addToast);
-  return useMutation({
-    mutationFn: (studentId: string) => teacherApi.generateProgressReport(studentId),
-    onError: (error) =>
-      addToast("error", getAiErrorMessage(error, "Failed to generate report")),
-  });
-}
-
-export function useGenerateParentSummary() {
-  const addToast = useUiStore((s) => s.addToast);
-  return useMutation({
-    mutationFn: (studentId: string) => teacherApi.generateParentSummary(studentId),
-    onError: (error) =>
-      addToast("error", getAiErrorMessage(error, "Failed to generate summary")),
-  });
-}
-
-export function useGenerateEarlyWarning() {
-  const addToast = useUiStore((s) => s.addToast);
-  return useMutation({
-    mutationFn: (studentId: string) => teacherApi.generateEarlyWarning(studentId),
-    onError: (error) =>
-      addToast("error", getAiErrorMessage(error, "Failed to generate AI guidance")),
-  });
-}
-
-export function useGenerateClassLogDraft() {
-  const addToast = useUiStore((s) => s.addToast);
-  return useMutation({
-    mutationFn: teacherApi.generateClassLogDraft,
-    onError: (error) =>
-      addToast("error", getAiErrorMessage(error, "Failed to generate draft")),
   });
 }

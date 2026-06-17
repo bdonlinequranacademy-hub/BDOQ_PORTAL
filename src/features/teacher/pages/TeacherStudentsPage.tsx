@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Search, ChevronRight, Brain, AlertCircle, Phone, CalendarPlus, ChevronDown, ChevronUp } from "lucide-react";
 import { useTeacherStudents, useAtRiskStudents } from "@/features/teacher/hooks/useTeacher";
+import { ReportMarkdown } from "@/components/reports/ReportMarkdown";
 import { formatCurriculumPath } from "@/lib/api/curriculumApi";
 import { CountryLabel } from "@/components/ui/CountryLabel";
 import { PageContainer } from "@/components/layout/PageContainer";
@@ -235,7 +236,7 @@ export function TeacherStudentsPage() {
                   className="rounded-lg bg-[#EEF2F8] flex items-center justify-between px-3 py-2"
                   onClick={() => setExpandedRisk(expanded ? null : risk.studentId)}
                 >
-                  <span className="font-medium text-[#03214F] text-xs">AI Guidance</span>
+                  <span className="font-medium text-[#03214F] text-xs">Suggested follow-up</span>
                   {expanded ? (
                     <ChevronUp className="size-4 text-zinc-400" />
                   ) : (
@@ -245,9 +246,7 @@ export function TeacherStudentsPage() {
 
                 {expanded && risk.aiGuidance && (
                   <div className="rounded-xl bg-[#EEF2F8] p-3">
-                    <p className="text-[#03214F] text-xs leading-relaxed italic">
-                      {risk.aiGuidance}
-                    </p>
+                    <ReportMarkdown content={risk.aiGuidance} className="text-xs" />
                   </div>
                 )}
 
@@ -256,11 +255,11 @@ export function TeacherStudentsPage() {
                     type="button"
                     className="flex-1 rounded-xl bg-[#03214F] text-white text-sm py-2"
                     onClick={() =>
-                      navigate(`/teacher/ai/parent-summary?studentId=${risk.studentId}`)
+                      navigate(`/teacher/weekly-report?studentId=${risk.studentId}`)
                     }
                   >
                     <Phone className="size-4 mr-2" />
-                    Parent Summary
+                    Weekly Report
                   </Button>
                   <Button
                     type="button"

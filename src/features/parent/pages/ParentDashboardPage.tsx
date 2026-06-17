@@ -130,8 +130,8 @@ export function ParentDashboardPage() {
               >
                 <MessageSquare className="size-6 text-emerald-200" />
                 <div>
-                  <p className="font-bold">Weekly AI Summary</p>
-                  <p className="text-xs text-white/70">Generate this week&apos;s update</p>
+                  <p className="font-bold">Weekly Summary</p>
+                  <p className="text-xs text-white/70">View this week&apos;s verified report</p>
                 </div>
               </button>
 

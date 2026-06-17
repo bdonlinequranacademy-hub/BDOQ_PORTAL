@@ -1,7 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { studentApi } from "@/lib/api/studentApi";
 import { useUiStore } from "@/stores/uiStore";
-import { getAiErrorMessage } from "@/lib/utils/aiErrorMessage";
 
 export const studentKeys = {
   classes: ["student", "classes"] as const,
@@ -115,16 +114,7 @@ export function useMarkNotificationRead() {
   });
 }
 
-export function useGenerateStudyPlan() {
-  const addToast = useUiStore((s) => s.addToast);
-  return useMutation({
-    mutationFn: studentApi.generateStudyPlan,
-    onError: (error) =>
-      addToast("error", getAiErrorMessage(error, "Failed to generate study plan")),
-  });
-}
-
-export function useGenerateWeeklySummary() {
+export function useStudentWeeklyReport() {
   const addToast = useUiStore((s) => s.addToast);
   return useMutation({
     mutationFn: studentApi.getWeeklyReport,

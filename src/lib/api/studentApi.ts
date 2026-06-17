@@ -6,7 +6,6 @@ import type {
   StudentAttendanceData,
   StudentProgressRecord,
   Notification,
-  StudyPlanResult,
   TodaySchedulePayload,
   MonthlyProgressSnapshot,
   StudentProfile,
@@ -16,8 +15,6 @@ import type {
   StudentBillingView,
   PaymentRecordView,
 } from "@/types/models";
-import { currentWeekRange } from "@/lib/utils/weekRange";
-import { getAiLocale } from "@/lib/api/getAiLocale";
 import { normalizeCurriculumAssignments } from "@/lib/utils/normalize";
 
 export const studentApi = {
@@ -71,29 +68,6 @@ export const studentApi = {
     apiClient
       .get<ApiResponse<TodaySchedulePayload>>("/student/schedule/today")
       .then((r) => r.data),
-
-  generateStudyPlan: (payload: {
-    studentId: string;
-    targetGoal: string;
-    availableDaysPerWeek: number;
-    minutesPerDay: number;
-  }) =>
-    apiClient
-      .post<ApiResponse<StudyPlanResult>>("/ai/study-plan", {
-        ...payload,
-        locale: getAiLocale(),
-      })
-      .then((r) => r.data),
-
-  generateWeeklySummary: (studentId: string) => {
-    const { weekStart, weekEnd } = currentWeekRange();
-    return apiClient
-      .post<ApiResponse<{ summary: string; studentName?: string; locale?: string; generatedAt: string }>>(
-        "/ai/parent-summary",
-        { studentId, weekStart, weekEnd, locale: getAiLocale() }
-      )
-      .then((r) => r.data);
-  },
 
   getMonthlyProgress: (month?: string) =>
     apiClient

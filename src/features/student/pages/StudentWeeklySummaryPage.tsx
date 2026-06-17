@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { FileText, MessageSquare } from "lucide-react";
 import { useAuthStore } from "@/stores/authStore";
-import { useGenerateWeeklySummary } from "@/features/student/hooks/useStudent";
+import { useStudentWeeklyReport } from "@/features/student/hooks/useStudent";
 import { PageContainer } from "@/components/layout/PageContainer";
 import { Button } from "@/components/ui/Button";
 import { WeeklyReportPanel } from "@/components/reports/WeeklyReportPanel";
@@ -9,7 +9,7 @@ import type { WeeklyFamilyReport } from "@/types/models";
 
 export function StudentWeeklySummaryPage() {
   const user = useAuthStore((s) => s.user);
-  const buildReport = useGenerateWeeklySummary();
+  const buildReport = useStudentWeeklyReport();
   const [report, setReport] = useState<WeeklyFamilyReport | null>(null);
 
   async function handleBuild() {

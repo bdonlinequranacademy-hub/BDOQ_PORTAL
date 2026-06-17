@@ -246,7 +246,7 @@ export function StudentDashboardPage() {
             </div>
             <div>
               <p className="font-bold">Weekly Summary</p>
-              <p className="text-xs text-white/70">AI progress update for guardians</p>
+              <p className="text-xs text-white/70">Verified weekly update from portal records</p>
             </div>
           </button>
 

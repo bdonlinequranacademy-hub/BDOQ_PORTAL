@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
-import { X, ClipboardList, Sparkles, AlertTriangle } from "lucide-react";
+import { X, ClipboardList, AlertTriangle } from "lucide-react";
 import type { SessionSlotView } from "@/types/models";
-import { useComplianceScan, useGenerateClassLogDraft } from "@/features/teacher/hooks/useTeacher";
+import { useComplianceScan } from "@/features/teacher/hooks/useTeacher";
 import {
   NestedCurriculumSelect,
   useCurriculumTree,
@@ -45,7 +45,6 @@ export function LogSessionSheet({
   const [curriculum, setCurriculum] = useState<CurriculumPath>({ programId: "" });
   const [scanBlock, setScanBlock] = useState<string | null>(null);
   const [scanWarnings, setScanWarnings] = useState<string[]>([]);
-  const draft = useGenerateClassLogDraft();
   const scan = useComplianceScan();
   const scanTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const studentId = session?.student._id;
@@ -122,18 +121,6 @@ export function LogSessionSheet({
     }
   }
 
-  async function handleAiDraft() {
-    if (!session) return;
-    const res = await draft.mutateAsync({
-      sessionSlotId: session._id,
-      sessionDate,
-      topicsHint: topicsInput.trim() || undefined,
-    });
-    if (res.data?.draft) {
-      setLessonReport(res.data.draft);
-    }
-  }
-
   return (
     <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/40 p-4 sm:items-center">
       <div
@@ -187,25 +174,16 @@ export function LogSessionSheet({
           />
         )}
 
-        <div className="flex items-center justify-between gap-2">
+        <div className="flex flex-col gap-1.5">
           <span className="text-sm font-medium text-[#03214F]">Lesson report</span>
-          <button
-            type="button"
-            onClick={handleAiDraft}
-            disabled={draft.isPending}
-            className="inline-flex items-center gap-1.5 rounded-lg bg-[#EEF2F8] px-2.5 py-1 text-xs font-semibold text-[#03214F] hover:bg-[#e0e8f5] disabled:opacity-50"
-          >
-            <Sparkles className="size-3.5 text-[#C4922B]" />
-            {draft.isPending ? "Drafting…" : "AI draft"}
-          </button>
+          <Textarea
+            placeholder="What was covered in today's class? Tajweed corrections, surahs revised, homework assigned…"
+            value={lessonReport}
+            onChange={(e) => setLessonReport(e.target.value)}
+            rows={6}
+            required
+          />
         </div>
-        <Textarea
-          placeholder="What was covered in today's class? Tajweed corrections, surahs revised, homework assigned…"
-          value={lessonReport}
-          onChange={(e) => setLessonReport(e.target.value)}
-          rows={6}
-          required
-        />
         {scanBlock ? (
           <div className="flex items-start gap-2 rounded-xl bg-red-50 p-3 text-xs text-red-700">
             <AlertTriangle className="mt-0.5 size-4 shrink-0" />

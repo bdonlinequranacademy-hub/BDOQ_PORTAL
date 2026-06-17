@@ -8,8 +8,6 @@ import type {
   StudentProgressRecord,
   Notification,
 } from "@/types/models";
-import { currentWeekRange } from "@/lib/utils/weekRange";
-import { getAiLocale } from "@/lib/api/getAiLocale";
 
 export const parentApi = {
   getChildren: () =>
@@ -44,14 +42,4 @@ export const parentApi = {
     apiClient
       .patch<ApiResponse<Notification>>(`/parent/notifications/${id}/read`)
       .then((r) => r.data),
-
-  generateParentSummary: (studentId: string) => {
-    const { weekStart, weekEnd } = currentWeekRange();
-    return apiClient
-      .post<ApiResponse<{ summary: string; studentName?: string; locale?: string; generatedAt: string }>>(
-        "/ai/parent-summary",
-        { studentId, weekStart, weekEnd, locale: getAiLocale() }
-      )
-      .then((r) => r.data);
-  },
 };
