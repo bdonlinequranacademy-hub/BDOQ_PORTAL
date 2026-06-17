@@ -276,6 +276,7 @@ export interface ClassSchedule {
   day: string;
   time: string;
   duration?: number;
+  repeatDaily?: boolean;
 }
 
 export interface PopulatedUserRef {
