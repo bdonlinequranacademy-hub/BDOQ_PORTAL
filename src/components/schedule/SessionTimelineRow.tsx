@@ -126,7 +126,7 @@ export function SessionTimelineRow({
                 </span>
               </div>
 
-              <h3 className="mt-2 font-display text-lg font-semibold capitalize leading-snug text-portal-heading">
+              <h3 className="mt-2 text-lg font-semibold capitalize leading-snug text-portal-heading">
                 {session.classTitle}
               </h3>
 

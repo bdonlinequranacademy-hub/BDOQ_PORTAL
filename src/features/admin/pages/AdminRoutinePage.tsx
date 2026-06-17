@@ -69,7 +69,7 @@ export function AdminRoutinePage() {
     <PageContainer className="flex flex-col gap-6">
       <div className="flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
         <div>
-          <h1 className="font-display text-2xl font-bold text-portal-heading">Academy Routine</h1>
+          <h1 className="text-2xl font-bold text-portal-heading">Academy Routine</h1>
           <p className="mt-1 text-sm text-portal-muted">
             Weekly session slots per enrolled student — Saturday → Friday (Bangladesh time)
           </p>

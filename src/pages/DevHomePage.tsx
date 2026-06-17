@@ -77,7 +77,7 @@ export function DevHomePage() {
 
       <Card>
         <h2 className="font-display text-xl text-navy">Typography</h2>
-        <p className="mt-3 font-display text-2xl text-navy">Playfair Display - headings</p>
+        <p className="mt-3 text-2xl font-bold text-navy">Plus Jakarta Sans — headings</p>
         <p className="font-sans text-base text-navy">Plus Jakarta Sans - body text</p>
         <p className="font-arabic text-2xl text-navy" dir="rtl">
           بسم الله الرحمن الرحيم
