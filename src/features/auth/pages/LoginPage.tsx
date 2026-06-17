@@ -70,7 +70,7 @@ export function LoginPage() {
         <div className="rounded-3xl bg-white px-8 py-8 shadow-xl shadow-navy/5 flex flex-col gap-6">
           {/* Heading */}
           <div className="text-center flex flex-col gap-2">
-            <h1 className="font-display text-3xl font-bold text-navy">{copy.signInTitle}</h1>
+            <h1 className="text-3xl font-bold text-navy">{copy.signInTitle}</h1>
             <p className="text-sm text-zinc-500">{copy.signInSubtitle}</p>
           </div>
 

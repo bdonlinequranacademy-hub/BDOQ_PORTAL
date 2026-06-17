@@ -101,7 +101,7 @@ export function ClassEnrollmentPanel({
             <Users className="size-4 text-navy" />
           </div>
           <div>
-            <h2 className="font-display text-base font-bold text-navy">Student roster</h2>
+            <h2 className="text-base font-bold text-navy">Student roster</h2>
             <p className="text-xs text-zinc-500">
               {enrolled.length} enrolled · {available.length} available to add
             </p>

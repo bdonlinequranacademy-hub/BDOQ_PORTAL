@@ -93,7 +93,7 @@ export function TeacherAttendanceSheetPage() {
         >
           <ArrowLeft className="size-5" />
         </button>
-        <h1 className="font-bold text-[#03214F] text-lg font-display">Mark Attendance</h1>
+        <h1 className="font-bold text-[#03214F] text-lg">Mark Attendance</h1>
         <button
           onClick={handleSubmit}
           className="font-semibold text-[#C4922B] text-sm px-2"
@@ -112,7 +112,7 @@ export function TeacherAttendanceSheetPage() {
               <span className="size-1.5 animate-pulse rounded-full bg-emerald-400" />
               Live Now
             </span>
-            <h2 className="font-bold text-xl font-display leading-7">
+            <h2 className="font-bold text-xl leading-7">
               {cls?.name ?? "Loading…"}
             </h2>
             <div className="text-white/80 text-sm flex items-center gap-2">

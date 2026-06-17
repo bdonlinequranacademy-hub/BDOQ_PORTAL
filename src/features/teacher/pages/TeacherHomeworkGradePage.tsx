@@ -117,7 +117,7 @@ export function TeacherHomeworkGradePage() {
       ) : (
         <PageContainer className="flex flex-col gap-6 pb-8">
           <div className="flex flex-col gap-1">
-            <h1 className="font-bold text-[#03214F] text-xl font-display">{homework.title}</h1>
+            <h1 className="font-bold text-[#03214F] text-xl">{homework.title}</h1>
             {homework.className && <p className="text-zinc-400 text-sm">{homework.className}</p>}
             {homework.curriculumLabels?.program ? (
               <p className="text-xs font-medium text-[#C4922B]">

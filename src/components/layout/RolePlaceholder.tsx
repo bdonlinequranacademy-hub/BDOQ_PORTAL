@@ -10,7 +10,7 @@ export function RolePlaceholder({ role }: { role: string }) {
   return (
     <div className="mx-auto max-w-2xl p-6">
       <Card>
-        <h1 className="font-display text-2xl text-navy">{role} Dashboard</h1>
+        <h1 className="text-2xl text-navy">{role} Dashboard</h1>
         <p className="mt-2 text-sm text-navy-500">
           Protected placeholder. Signed in as{" "}
           <span className="font-semibold text-navy">

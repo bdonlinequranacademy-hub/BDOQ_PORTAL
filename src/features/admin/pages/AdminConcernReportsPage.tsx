@@ -93,7 +93,7 @@ export function AdminConcernReportsPage() {
   return (
     <PageContainer className="flex flex-col gap-6">
       <div>
-        <h1 className="font-display text-2xl font-bold text-[#03214F]">Concern Reports</h1>
+        <h1 className="text-2xl font-bold text-[#03214F]">Concern Reports</h1>
         <p className="mt-1 text-sm text-zinc-500">
           Poaching, safety, and conduct reports from students and teachers
         </p>

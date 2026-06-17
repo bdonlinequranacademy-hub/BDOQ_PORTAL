@@ -94,7 +94,7 @@ export function StudentPaymentsPage() {
   return (
     <PageContainer className="flex flex-col gap-6">
       <div>
-        <h1 className="font-display text-2xl font-bold text-navy">Tuition & payments</h1>
+        <h1 className="text-2xl font-bold text-navy">Tuition & payments</h1>
         <p className="text-sm text-zinc-500">
           Submit manual payment proof after bank transfer, Zelle, Wise, or PayPal.
         </p>
@@ -103,7 +103,7 @@ export function StudentPaymentsPage() {
       <div className="grid gap-4 md:grid-cols-3">
         <Card className="rounded-2xl border-0 p-5 shadow-sm">
           <p className="text-xs font-semibold uppercase tracking-wide text-zinc-500">Monthly fee</p>
-          <p className="mt-2 font-display text-2xl font-bold text-navy">
+          <p className="mt-2 text-2xl font-bold text-navy">
             {billing
               ? `${billing.currency} ${billing.monthlyFee.toFixed(2)}`
               : "Not set"}
@@ -111,7 +111,7 @@ export function StudentPaymentsPage() {
         </Card>
         <Card className="rounded-2xl border-0 p-5 shadow-sm">
           <p className="text-xs font-semibold uppercase tracking-wide text-zinc-500">Paid until</p>
-          <p className="mt-2 font-display text-xl font-bold text-navy">
+          <p className="mt-2 text-xl font-bold text-navy">
             {billing?.paidUntil
               ? new Date(billing.paidUntil).toLocaleDateString("en-GB", {
                   day: "numeric",
@@ -130,7 +130,7 @@ export function StudentPaymentsPage() {
         </Card>
         <Card className="rounded-2xl border-0 p-5 shadow-sm">
           <p className="text-xs font-semibold uppercase tracking-wide text-zinc-500">Pending review</p>
-          <p className="mt-2 flex items-center gap-2 font-display text-2xl font-bold text-navy">
+          <p className="mt-2 flex items-center gap-2 text-2xl font-bold text-navy">
             <Clock className="size-5 text-gold" />
             {statusData?.pendingSubmissions ?? 0}
           </p>
@@ -145,7 +145,7 @@ export function StudentPaymentsPage() {
         <Card className="rounded-2xl border-0 p-6 shadow-sm">
           <div className="mb-5 flex items-center gap-2">
             <CreditCard className="size-5 text-navy" />
-            <h2 className="font-display text-lg font-bold text-navy">Submit payment proof</h2>
+            <h2 className="text-lg font-bold text-navy">Submit payment proof</h2>
           </div>
           <form onSubmit={handleSubmit} className="grid gap-4 md:grid-cols-2">
             <Input
@@ -252,7 +252,7 @@ export function StudentPaymentsPage() {
 
       <Card className="rounded-2xl border-0 p-0 shadow-sm overflow-hidden">
         <div className="border-b border-zinc-100 px-5 py-4">
-          <h2 className="font-display text-lg font-bold text-navy">Payment history</h2>
+          <h2 className="text-lg font-bold text-navy">Payment history</h2>
         </div>
         {historyLoading ? (
           <PageLoading label="Loading history…" />

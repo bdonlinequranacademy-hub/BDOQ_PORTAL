@@ -50,7 +50,7 @@ export function ResetPasswordPage() {
   return (
     <AuthLayout>
       <div className="flex w-full max-w-md flex-col gap-6 py-4">
-        <h1 className="font-display text-2xl font-bold text-navy">Set a new password</h1>
+        <h1 className="text-2xl font-bold text-navy">Set a new password</h1>
         <form onSubmit={handleSubmit} className="flex flex-col gap-4">
           <div className="relative">
             <Lock className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-zinc-400" />

@@ -76,7 +76,7 @@ export function AdminTrialBookingsPage() {
   return (
     <PageContainer className="flex flex-col gap-6">
       <div>
-        <h1 className="font-display text-2xl font-bold text-[#03214F]">Trial Bookings</h1>
+        <h1 className="text-2xl font-bold text-[#03214F]">Trial Bookings</h1>
         <p className="mt-1 text-sm text-zinc-500">
           Free trial requests from the public website — contact via WhatsApp within 24 hours
         </p>

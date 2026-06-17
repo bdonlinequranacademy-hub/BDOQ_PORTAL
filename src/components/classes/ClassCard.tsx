@@ -38,7 +38,7 @@ export function ClassCard({
         <div className="flex items-start justify-between gap-3">
           <div className="min-w-0 flex-1">
             <div className="flex flex-wrap items-center gap-2">
-              <h3 className="font-display text-base font-bold leading-snug text-navy">{title}</h3>
+              <h3 className="text-base font-bold leading-snug text-navy">{title}</h3>
               {inactive ? (
                 <span className="rounded-full bg-zinc-100 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-zinc-500">
                   Inactive

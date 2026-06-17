@@ -53,7 +53,7 @@ export function AdminClassesPage() {
     <PageContainer className="flex flex-col gap-6">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="font-display text-2xl font-bold text-navy">Classes</h1>
+          <h1 className="text-2xl font-bold text-navy">Classes</h1>
           <p className="text-sm text-zinc-500">
             Manage schedules, teachers, and student enrollment
           </p>

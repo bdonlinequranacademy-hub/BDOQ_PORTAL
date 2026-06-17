@@ -44,7 +44,7 @@ export function TeacherRoutinePage() {
       <PageContainer className="flex flex-col gap-6">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
           <div>
-            <h1 className="font-display text-2xl font-bold text-[#03214F]">My Routine</h1>
+            <h1 className="text-2xl font-bold text-[#03214F]">My Routine</h1>
             <p className="mt-1 text-sm text-zinc-500">
               Weekly teaching schedule — {totalSessions} session
               {totalSessions === 1 ? "" : "s"} per week

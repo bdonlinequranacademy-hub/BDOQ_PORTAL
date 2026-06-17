@@ -28,7 +28,7 @@ export function ClassHero({
       <div className="pointer-events-none absolute -bottom-8 right-12 size-20 rounded-full bg-gold/10" />
       <div className="relative flex flex-col gap-3">
         {badge}
-        <h2 className="font-display text-2xl font-bold leading-tight">{title}</h2>
+        <h2 className="text-2xl font-bold leading-tight">{title}</h2>
         {description ? (
           <p className="max-w-2xl text-sm leading-relaxed text-white/75">{description}</p>
         ) : null}

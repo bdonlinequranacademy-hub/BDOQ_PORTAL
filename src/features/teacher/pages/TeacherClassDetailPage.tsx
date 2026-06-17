@@ -27,7 +27,7 @@ export function TeacherClassDetailPage() {
         >
           <ArrowLeft className="size-5" />
         </button>
-        <h1 className="font-display text-xl font-bold text-navy">Class details</h1>
+        <h1 className="text-xl font-bold text-navy">Class details</h1>
       </div>
 
       {isLoading ? (

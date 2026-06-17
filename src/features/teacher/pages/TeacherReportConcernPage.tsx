@@ -38,7 +38,7 @@ export function TeacherReportConcernPage() {
   return (
     <PageContainer className="flex max-w-xl flex-col gap-6">
       <div>
-        <h1 className="font-display text-2xl font-bold text-[#03214F]">Report a Concern</h1>
+        <h1 className="text-2xl font-bold text-[#03214F]">Report a Concern</h1>
         <p className="mt-1 text-sm text-zinc-500">
           Report poaching attempts, off-platform payment requests, or safety issues. Admin will
           review confidentially.

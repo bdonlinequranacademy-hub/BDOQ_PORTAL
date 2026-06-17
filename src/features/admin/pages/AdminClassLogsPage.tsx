@@ -87,7 +87,7 @@ export function AdminClassLogsPage() {
   return (
     <PageContainer className="flex flex-col gap-6">
       <div>
-        <h1 className="font-display text-2xl font-bold text-[#03214F]">Class Log Approval</h1>
+        <h1 className="text-2xl font-bold text-[#03214F]">Class Log Approval</h1>
         <p className="mt-1 text-sm text-zinc-500">
           Review teacher session logs before they count toward verified sessions
         </p>

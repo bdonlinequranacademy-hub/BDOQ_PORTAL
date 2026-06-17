@@ -74,7 +74,7 @@ export function AdminDashboardPage() {
     <PageContainer className="flex flex-col gap-6 lg:gap-8">
       <div>
         <span className="text-sm text-zinc-500">Administration</span>
-        <h1 className="font-display text-2xl font-bold text-[#03214F] lg:text-3xl">
+        <h1 className="text-2xl font-bold text-[#03214F] lg:text-3xl">
           {user?.name ?? "Admin"}
         </h1>
         <p className="mt-1 text-sm text-zinc-500">Academy executive overview</p>

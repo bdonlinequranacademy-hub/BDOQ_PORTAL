@@ -42,7 +42,7 @@ export function EmailVerifiedPage() {
             <div className="absolute bottom-2 right-6 size-2 rounded-full bg-gold/70" />
           </div>
 
-          <h1 className="mb-4 text-center font-display text-3xl font-bold text-navy">
+          <h1 className="mb-4 text-center text-3xl font-bold text-navy">
             Email Verified!
           </h1>
           <p className="mb-8 px-2 text-center text-sm leading-relaxed text-zinc-500">

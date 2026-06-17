@@ -36,7 +36,7 @@ export function VerifyEmailPage() {
       <AuthLayout>
         <div className="flex flex-col items-center gap-4 py-8 text-center">
           <AlertCircle className="size-12 text-red-500" />
-          <h1 className="font-display text-xl font-bold text-navy">Verification failed</h1>
+          <h1 className="text-xl font-bold text-navy">Verification failed</h1>
           <p className="text-sm text-zinc-500">{error}</p>
           <Link to="/login" className="text-sm font-semibold text-gold hover:underline">
             Sign in

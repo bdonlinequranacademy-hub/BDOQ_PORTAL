@@ -28,7 +28,7 @@ export function TeacherAttendancePage() {
   return (
     <PageContainer className="flex flex-col gap-6" size="narrow">
       <div>
-        <h1 className="font-display text-2xl font-bold text-[#03214F]">Mark Attendance</h1>
+        <h1 className="text-2xl font-bold text-[#03214F]">Mark Attendance</h1>
         <p className="text-sm text-zinc-500">Select a class and date to begin</p>
       </div>
 

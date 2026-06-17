@@ -110,7 +110,7 @@ export function AdminBlogFormPage() {
       </button>
 
       <div>
-        <h1 className="font-display text-2xl font-bold text-[#03214F]">
+        <h1 className="text-2xl font-bold text-[#03214F]">
           {isEdit ? "Edit post" : "New blog post"}
         </h1>
         <p className="text-sm text-zinc-500">Only admins can create or edit articles.</p>

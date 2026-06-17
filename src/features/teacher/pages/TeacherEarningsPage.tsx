@@ -16,7 +16,7 @@ export function TeacherEarningsPage() {
     <PageContainer className="flex flex-col gap-6">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
         <div>
-          <h1 className="font-display text-2xl font-bold text-[#03214F]">My Earnings</h1>
+          <h1 className="text-2xl font-bold text-[#03214F]">My Earnings</h1>
           <p className="mt-1 text-sm text-zinc-500">
             Verified sessions from approved class logs — {formatMonthLabel(month)}
           </p>

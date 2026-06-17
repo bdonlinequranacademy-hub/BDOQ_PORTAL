@@ -61,7 +61,7 @@ export function AdminContactMessagesPage() {
   return (
     <PageContainer className="flex flex-col gap-6">
       <div>
-        <h1 className="font-display text-2xl font-bold text-[#03214F]">Contact Messages</h1>
+        <h1 className="text-2xl font-bold text-[#03214F]">Contact Messages</h1>
         <p className="mt-1 text-sm text-zinc-500">
           Enquiries from the website contact form — reply within 24 hours
         </p>

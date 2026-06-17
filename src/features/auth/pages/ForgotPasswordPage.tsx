@@ -28,7 +28,7 @@ export function ForgotPasswordPage() {
   return (
     <AuthLayout>
       <div className="flex w-full max-w-md flex-col gap-6 py-4">
-        <h1 className="font-display text-2xl font-bold text-navy">Forgot password?</h1>
+        <h1 className="text-2xl font-bold text-navy">Forgot password?</h1>
         {sent ? (
           <p className="text-sm text-zinc-500">
             If an account exists for <strong>{email}</strong>, you will receive reset

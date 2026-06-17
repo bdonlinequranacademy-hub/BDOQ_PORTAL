@@ -34,7 +34,7 @@ export function AdminProgressPage() {
     <PageContainer className="flex flex-col gap-6">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <div>
-          <h1 className="font-display text-2xl font-bold text-[#03214F]">
+          <h1 className="text-2xl font-bold text-[#03214F]">
             Progress Analytics
           </h1>
           <p className="text-sm text-zinc-500">Student Quran progress across the academy</p>

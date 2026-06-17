@@ -127,7 +127,7 @@ function PortalCard({
         </span>
       </div>
 
-      <h3 className="font-display text-xl font-bold text-portal-heading">{config.label}</h3>
+      <h3 className="text-xl font-bold text-portal-heading">{config.label}</h3>
       <p className="mt-2 flex-1 text-sm leading-relaxed text-zinc-500 dark:text-zinc-400">
         {config.desc}
       </p>
@@ -211,7 +211,7 @@ export function PortalHomePage() {
             <Users className="size-3.5" aria-hidden />
             Choose your portal
           </span>
-          <h1 className="mt-5 font-display text-3xl font-bold tracking-tight text-portal-heading sm:text-4xl lg:text-[2.75rem] lg:leading-tight">
+          <h1 className="mt-5 text-3xl font-bold tracking-tight text-portal-heading sm:text-4xl lg:text-[2.75rem] lg:leading-tight">
             Welcome to your academy portal
           </h1>
           <p className="mx-auto mt-4 max-w-2xl text-base leading-relaxed text-zinc-600 dark:text-zinc-400">

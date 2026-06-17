@@ -18,7 +18,7 @@ export function TeacherClassesPage() {
   return (
     <PageContainer className="flex flex-col gap-6">
       <div>
-        <h1 className="font-display text-2xl font-bold text-navy">My classes</h1>
+        <h1 className="text-2xl font-bold text-navy">My classes</h1>
         <p className="mt-0.5 text-sm text-zinc-500">
           {classes.length} class{classes.length !== 1 ? "es" : ""} · schedules, students, and quick actions
         </p>

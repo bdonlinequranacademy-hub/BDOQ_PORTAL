@@ -56,7 +56,7 @@ export function RegisterPage() {
         <div className="w-full rounded-3xl border border-zinc-200 bg-white px-6 py-6 shadow-xl shadow-navy/5 flex flex-col gap-6">
           {/* Heading */}
           <div className="flex flex-col gap-2">
-            <h1 className="font-display text-2xl font-bold text-navy">Create Student Account</h1>
+            <h1 className="text-2xl font-bold text-navy">Create Student Account</h1>
             <p className="text-sm leading-relaxed text-zinc-500">
               Public registration is for <strong className="font-semibold text-navy">students only</strong>.
               Teachers and admins receive accounts from your academy administrator.

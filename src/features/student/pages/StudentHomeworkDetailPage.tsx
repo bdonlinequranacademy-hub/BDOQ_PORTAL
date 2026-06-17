@@ -56,7 +56,7 @@ export function StudentHomeworkDetailPage() {
         >
           <ArrowLeft className="size-5 text-[#03214F]" />
         </button>
-        <h1 className="font-display text-xl font-bold text-[#03214F]">Homework</h1>
+        <h1 className="text-xl font-bold text-[#03214F]">Homework</h1>
       </div>
 
       {isLoading ? (
@@ -66,7 +66,7 @@ export function StudentHomeworkDetailPage() {
       ) : (
         <>
           <div>
-            <h2 className="font-display text-xl font-bold text-[#03214F]">{hw.title}</h2>
+            <h2 className="text-xl font-bold text-[#03214F]">{hw.title}</h2>
             <p className="text-sm text-zinc-400">{classLabel}</p>
             {hw.curriculumLabels?.program ? (
               <p className="mt-1 text-xs font-medium text-[#C4922B]">
@@ -126,7 +126,7 @@ export function StudentHomeworkDetailPage() {
                   <p className="text-xs font-semibold uppercase tracking-wide text-emerald-800">
                     Teacher feedback
                   </p>
-                  <p className="mt-1 font-display text-2xl font-bold text-emerald-700">
+                  <p className="mt-1 text-2xl font-bold text-emerald-700">
                     {hw.submission.grade}
                   </p>
                   {hw.submission.feedback ? (

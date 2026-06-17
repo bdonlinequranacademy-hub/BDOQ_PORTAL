@@ -53,7 +53,7 @@ export function AIMarkdownContent({
       nodes.push(
         <h3
           key={key++}
-          className="mb-2 mt-4 first:mt-0 font-display text-base font-bold text-portal-heading"
+          className="mb-2 mt-4 first:mt-0 text-base font-bold text-portal-heading"
         >
           {line.slice(3).trim()}
         </h3>

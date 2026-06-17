@@ -23,7 +23,7 @@ export function WeeklyReportPanel({ report }: { report: WeeklyFamilyReport }) {
     <Card className="flex flex-col gap-4 rounded-2xl border-0 p-5 shadow-sm">
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
-          <p className="font-display text-lg font-bold text-[#03214F]">
+          <p className="text-lg font-bold text-[#03214F]">
             {report.studentName}
           </p>
           <p className="text-sm text-zinc-500">

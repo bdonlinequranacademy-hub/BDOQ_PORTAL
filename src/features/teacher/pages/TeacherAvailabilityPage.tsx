@@ -31,7 +31,7 @@ export function TeacherAvailabilityPage() {
   return (
     <PageContainer className="flex flex-col gap-6" size="narrow">
       <div>
-        <h1 className="font-display text-2xl font-bold text-[#03214F]">Check Availability</h1>
+        <h1 className="text-2xl font-bold text-[#03214F]">Check Availability</h1>
         <p className="mt-1 text-sm text-zinc-500">
           See if a proposed slot conflicts with your current routine (academy time, Asia/Dhaka)
         </p>

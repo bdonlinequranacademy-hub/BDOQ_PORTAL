@@ -20,7 +20,7 @@ export function TeacherAttendanceSuccessPage() {
           <CheckCircle className="size-10 text-emerald-600" />
         </div>
         <div className="text-center flex flex-col gap-1">
-          <h1 className="font-bold text-[#03214F] text-2xl font-display">
+          <h1 className="font-bold text-[#03214F] text-2xl">
             Attendance Saved!
           </h1>
           <p className="text-zinc-500 text-sm">

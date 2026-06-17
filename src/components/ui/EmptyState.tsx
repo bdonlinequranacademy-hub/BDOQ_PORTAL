@@ -25,7 +25,7 @@ export function EmptyState({
       <div className="mb-4 flex size-14 items-center justify-center rounded-2xl bg-portal-muted">
         <Icon className="size-7 text-zinc-300 dark:text-portal-muted" strokeWidth={1.5} />
       </div>
-      <h3 className="font-display text-lg font-semibold text-portal-heading">{title}</h3>
+      <h3 className="text-lg font-semibold text-portal-heading">{title}</h3>
       {description && (
         <p className="mt-2 max-w-sm text-sm leading-relaxed text-zinc-500">{description}</p>
       )}

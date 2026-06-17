@@ -29,7 +29,7 @@ export function CheckEmailPage() {
         <div className="flex size-16 items-center justify-center rounded-2xl bg-[#EEF2F8]">
           <Mail className="size-8 text-[#03214F]" />
         </div>
-        <h1 className="font-display text-2xl font-bold text-navy">Check your email</h1>
+        <h1 className="text-2xl font-bold text-navy">Check your email</h1>
         <p className="max-w-sm text-sm leading-relaxed text-zinc-500">
           We sent a verification link to{" "}
           <span className="font-semibold text-navy">{email || "your inbox"}</span>.

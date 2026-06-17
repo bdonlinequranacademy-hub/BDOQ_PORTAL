@@ -12,7 +12,7 @@ export function AdminAtRiskPage() {
   return (
     <PageContainer className="flex flex-col gap-6">
       <div>
-        <h1 className="font-display text-2xl font-bold text-[#03214F]">Student Care Alerts</h1>
+        <h1 className="text-2xl font-bold text-[#03214F]">Student Care Alerts</h1>
         <p className="text-sm text-zinc-500">Students flagged for attendance, homework, or progress follow-up</p>
       </div>
 

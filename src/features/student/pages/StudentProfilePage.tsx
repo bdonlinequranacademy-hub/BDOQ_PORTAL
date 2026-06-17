@@ -66,7 +66,7 @@ export function StudentProfilePage() {
   return (
     <PageContainer className="flex flex-col gap-6" size="narrow">
       <div>
-        <h1 className="font-display text-2xl font-bold text-[#03214F]">My Profile</h1>
+        <h1 className="text-2xl font-bold text-[#03214F]">My Profile</h1>
         <p className="text-sm text-zinc-500">
           Your timezone and country help teachers schedule classes correctly.
         </p>
@@ -75,7 +75,7 @@ export function StudentProfilePage() {
       <Card className="flex flex-col items-center gap-3 rounded-3xl border-0 p-8 shadow-sm">
         <BrandLogo size="lg" />
         <div className="text-center">
-          <p className="font-display text-xl font-bold text-[#03214F]">
+          <p className="text-xl font-bold text-[#03214F]">
             {(profile?.name ?? name) || "—"}
           </p>
           <p className="text-sm text-zinc-500">{profile?.email ?? "—"}</p>

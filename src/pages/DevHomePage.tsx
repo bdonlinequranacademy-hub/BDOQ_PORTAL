@@ -55,7 +55,7 @@ export function DevHomePage() {
   return (
     <div className="mx-auto max-w-4xl space-y-8 p-6">
       <header>
-        <h1 className="font-display text-3xl text-navy">
+        <h1 className="text-3xl text-navy">
           Al Bayaan Portal - Step 0 Foundation
         </h1>
         <p className="mt-1 text-sm text-navy-500">
@@ -64,7 +64,7 @@ export function DevHomePage() {
       </header>
 
       <Card>
-        <h2 className="font-display text-xl text-navy">Color tokens</h2>
+        <h2 className="text-xl text-navy">Color tokens</h2>
         <div className="mt-3 grid grid-cols-3 gap-3 sm:grid-cols-5">
           {swatches.map((s) => (
             <div key={s.name} className="text-center">
@@ -76,7 +76,7 @@ export function DevHomePage() {
       </Card>
 
       <Card>
-        <h2 className="font-display text-xl text-navy">Typography</h2>
+        <h2 className="text-xl text-navy">Typography</h2>
         <p className="mt-3 text-2xl font-bold text-navy">Plus Jakarta Sans — headings</p>
         <p className="font-sans text-base text-navy">Plus Jakarta Sans - body text</p>
         <p className="font-arabic text-2xl text-navy" dir="rtl">
@@ -85,7 +85,7 @@ export function DevHomePage() {
       </Card>
 
       <Card>
-        <h2 className="font-display text-xl text-navy">Primitives gallery</h2>
+        <h2 className="text-xl text-navy">Primitives gallery</h2>
         <div className="mt-3 flex flex-wrap gap-3">
           <Button variant="primary">Primary</Button>
           <Button variant="secondary">Secondary</Button>
@@ -110,7 +110,7 @@ export function DevHomePage() {
       </Card>
 
       <Card>
-        <h2 className="font-display text-xl text-navy">API connectivity</h2>
+        <h2 className="text-xl text-navy">API connectivity</h2>
         <p className="mt-1 text-sm text-navy-500">
           Posts an empty body to <code>/auth/login</code> and shows the backend response.
         </p>
@@ -122,7 +122,7 @@ export function DevHomePage() {
       </Card>
 
       <Card>
-        <h2 className="font-display text-xl text-navy">Auth and route guards</h2>
+        <h2 className="text-xl text-navy">Auth and route guards</h2>
         <p className="mt-1 text-sm text-navy-500">
           Current: {user ? `${user.name} (${user.role})` : "logged out"}
         </p>

@@ -55,7 +55,7 @@ export function TeacherClassLogsPage() {
   return (
     <PageContainer className="flex flex-col gap-6">
       <div>
-        <h1 className="font-display text-2xl font-bold text-[#03214F]">My Class Logs</h1>
+        <h1 className="text-2xl font-bold text-[#03214F]">My Class Logs</h1>
         <p className="mt-1 text-sm text-zinc-500">
           Session logs with lesson reports — pending admin approval
         </p>

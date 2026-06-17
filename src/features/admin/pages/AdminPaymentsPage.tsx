@@ -222,7 +222,7 @@ export function AdminPaymentsPage() {
     <PageContainer className="flex flex-col gap-6">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
         <div>
-          <h1 className="font-display text-2xl font-bold text-navy">Payments</h1>
+          <h1 className="text-2xl font-bold text-navy">Payments</h1>
           <p className="text-sm text-zinc-500">
             Review manual payment proofs and manage student billing plans.
           </p>
@@ -253,7 +253,7 @@ export function AdminPaymentsPage() {
         <Card className="flex max-w-lg flex-col gap-4 rounded-2xl border-0 p-6 shadow-sm">
           <div className="flex items-center gap-2">
             <Banknote className="size-5 text-navy" />
-            <h2 className="font-display text-lg font-bold text-navy">Student billing plan</h2>
+            <h2 className="text-lg font-bold text-navy">Student billing plan</h2>
           </div>
           <Select
             value={billingStudentId}
@@ -410,7 +410,7 @@ export function AdminPaymentsPage() {
       {rejectId ? (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
           <Card className="flex w-full max-w-md flex-col gap-4 rounded-2xl p-6 shadow-xl">
-            <h3 className="font-display text-lg font-bold text-navy">Reject payment</h3>
+            <h3 className="text-lg font-bold text-navy">Reject payment</h3>
             <p className="text-sm text-zinc-500">
               The student will see this reason in their payment history.
             </p>

@@ -18,7 +18,7 @@ export function StudentHomeworkSuccessPage() {
         <div className="flex size-20 items-center justify-center rounded-full bg-emerald-100">
           <CheckCircle className="size-10 text-emerald-600" />
         </div>
-        <h1 className="font-display text-2xl font-bold text-[#03214F]">
+        <h1 className="text-2xl font-bold text-[#03214F]">
           Homework Submitted!
         </h1>
         <p className="max-w-sm text-sm text-zinc-500">

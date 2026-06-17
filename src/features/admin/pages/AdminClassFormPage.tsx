@@ -136,7 +136,7 @@ export function AdminClassFormPage() {
         >
           <ArrowLeft className="size-5 text-[#03214F]" />
         </button>
-        <h1 className="font-display text-xl font-bold text-[#03214F]">
+        <h1 className="text-xl font-bold text-[#03214F]">
           {isEdit ? "Edit Class" : "Create Class"}
         </h1>
       </div>

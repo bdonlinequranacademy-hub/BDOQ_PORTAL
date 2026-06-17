@@ -38,7 +38,7 @@ export function TeacherAIReportPage() {
   return (
     <PageContainer className="flex flex-col gap-6" size="narrow">
       <div>
-        <h1 className="font-display text-2xl font-bold text-[#03214F]">AI Progress Report</h1>
+        <h1 className="text-2xl font-bold text-[#03214F]">AI Progress Report</h1>
         <p className="text-sm text-zinc-500">Generate a detailed AI analysis for any student</p>
       </div>
 

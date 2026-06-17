@@ -16,7 +16,7 @@ export function ParentProgressPage() {
   return (
     <PageContainer className="flex flex-col gap-6">
       <div>
-        <h1 className="font-display text-2xl font-bold text-[#03214F]">Progress</h1>
+        <h1 className="text-2xl font-bold text-[#03214F]">Progress</h1>
         <p className="text-sm text-zinc-500">Quran learning milestones</p>
       </div>
 

@@ -147,7 +147,7 @@ export function AdminUsersPage() {
     <PageContainer className="flex flex-col gap-6">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="font-display text-2xl font-bold text-[#03214F]">User Management</h1>
+          <h1 className="text-2xl font-bold text-[#03214F]">User Management</h1>
           <p className="text-sm text-zinc-500">{users.length} users</p>
         </div>
         <Button
@@ -298,7 +298,7 @@ export function AdminUsersPage() {
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
           <Card className="flex w-full max-w-md flex-col gap-4 rounded-2xl border-0 p-6 shadow-xl">
             <div className="flex items-center justify-between">
-              <span className="font-display text-lg font-bold text-[#03214F]">
+              <span className="text-lg font-bold text-[#03214F]">
                 Edit User
               </span>
               <button onClick={() => setEditUserId(null)}>
@@ -417,7 +417,7 @@ export function AdminUsersPage() {
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
           <Card className="flex w-full max-w-md flex-col gap-4 rounded-2xl border-0 p-6 shadow-xl">
             <div className="flex items-center justify-between">
-              <span className="font-display text-lg font-bold text-[#03214F]">
+              <span className="text-lg font-bold text-[#03214F]">
                 New User
               </span>
               <button onClick={() => setShowForm(false)}>

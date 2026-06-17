@@ -54,7 +54,7 @@ export function AdminClassDetailPage() {
         </button>
         <div className="min-w-0 flex-1">
           <p className="text-xs font-semibold uppercase tracking-wide text-zinc-400">Class</p>
-          <h1 className="truncate font-display text-xl font-bold text-navy">
+          <h1 className="truncate text-xl font-bold text-navy">
             {cls ? classTitle(cls) : "Class details"}
           </h1>
         </div>

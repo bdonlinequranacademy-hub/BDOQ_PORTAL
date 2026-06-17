@@ -31,7 +31,7 @@ export function ParentHomeworkPage() {
   return (
     <PageContainer className="flex flex-col gap-6">
       <div>
-        <h1 className="font-display text-2xl font-bold text-[#03214F]">Homework</h1>
+        <h1 className="text-2xl font-bold text-[#03214F]">Homework</h1>
         <p className="text-sm text-zinc-500">Track assignments and completion</p>
       </div>
 

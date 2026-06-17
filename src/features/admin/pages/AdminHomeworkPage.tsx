@@ -43,7 +43,7 @@ export function AdminHomeworkPage() {
     <PageContainer className="flex flex-col gap-6">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <div>
-          <h1 className="font-display text-2xl font-bold text-[#03214F]">Homework</h1>
+          <h1 className="text-2xl font-bold text-[#03214F]">Homework</h1>
           <p className="text-sm text-zinc-500">
             Academy-wide assignments · {visibleHomework.length} shown
             {pendingGradeTotal > 0 ? ` · ${pendingGradeTotal} awaiting grade` : ""}

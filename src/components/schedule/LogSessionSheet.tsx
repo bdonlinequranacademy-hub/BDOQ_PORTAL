@@ -149,7 +149,7 @@ export function LogSessionSheet({
           <div>
             <div className="flex items-center gap-2">
               <ClipboardList className="size-5 text-[#C4922B]" />
-              <h2 className="font-display text-lg font-bold text-[#03214F]">Log Session</h2>
+              <h2 className="text-lg font-bold text-[#03214F]">Log Session</h2>
             </div>
             <p className="mt-1 text-sm text-zinc-500">
               {session.student.name} · {session.classTitle}

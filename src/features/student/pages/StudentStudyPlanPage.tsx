@@ -38,7 +38,7 @@ export function StudentStudyPlanPage() {
           <Sparkles className="size-6 text-[#C4922B]" />
         </div>
         <div>
-          <h1 className="font-display text-2xl font-bold text-[#03214F]">AI Study Plan</h1>
+          <h1 className="text-2xl font-bold text-[#03214F]">AI Study Plan</h1>
           <p className="text-sm text-zinc-500">Personalized weekly schedule</p>
         </div>
       </div>

@@ -135,7 +135,7 @@ export function TeacherHomeworkPage() {
       {/* Greeting */}
       <div className="flex flex-col gap-1">
         <span className="text-zinc-500 text-sm">Assalamu Alaikum,</span>
-        <h1 className="font-bold text-[#03214F] text-2xl font-display">{user?.name ?? "Teacher"}</h1>
+        <h1 className="font-bold text-[#03214F] text-2xl">{user?.name ?? "Teacher"}</h1>
       </div>
 
       {/* Pills */}
@@ -281,7 +281,7 @@ export function TeacherHomeworkPage() {
         <div className="fixed inset-0 z-50 flex items-end bg-black/40">
           <div className="flex w-full flex-col gap-5 rounded-t-3xl border-t border-portal-border bg-portal-surface p-6">
             <div className="flex justify-between items-center">
-              <span className="font-bold text-[#03214F] text-lg font-display">New Homework</span>
+              <span className="font-bold text-[#03214F] text-lg">New Homework</span>
               <button type="button" onClick={closeForm}>
                 <X className="size-5 text-zinc-400" />
               </button>

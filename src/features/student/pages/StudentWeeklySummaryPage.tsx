@@ -24,7 +24,7 @@ export function StudentWeeklySummaryPage() {
           <MessageSquare className="size-6 text-emerald-700" />
         </div>
         <div>
-          <h1 className="font-display text-2xl font-bold text-[#03214F]">Weekly Summary</h1>
+          <h1 className="text-2xl font-bold text-[#03214F]">Weekly Summary</h1>
           <p className="text-sm text-zinc-500">
             Template progress update for learners and guardians on this account
           </p>

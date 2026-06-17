@@ -38,7 +38,7 @@ export function AdminBlogPage() {
     <PageContainer className="flex flex-col gap-6">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="font-display text-2xl font-bold text-[#03214F]">Blog</h1>
+          <h1 className="text-2xl font-bold text-[#03214F]">Blog</h1>
           <p className="text-sm text-zinc-500">
             Create and publish articles for the public website — admin only
           </p>

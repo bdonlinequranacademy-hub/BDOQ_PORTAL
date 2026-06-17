@@ -63,7 +63,7 @@ export function ParentSummaryPage() {
 
         <div>
 
-          <h1 className="font-display text-2xl font-bold text-[#03214F]">Weekly Summary</h1>
+          <h1 className="text-2xl font-bold text-[#03214F]">Weekly Summary</h1>
 
           <p className="text-sm text-zinc-500">AI-generated update for this week</p>
 

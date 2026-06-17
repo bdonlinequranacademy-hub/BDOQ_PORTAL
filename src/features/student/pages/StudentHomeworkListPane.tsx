@@ -35,7 +35,7 @@ export function StudentHomeworkListPane() {
   return (
     <div className="flex flex-col gap-4 p-4 lg:max-h-[calc(100vh-8rem)] lg:overflow-y-auto lg:p-5">
       <div>
-        <h1 className="font-display text-xl font-bold text-[#03214F] lg:text-lg">Homework</h1>
+        <h1 className="text-xl font-bold text-[#03214F] lg:text-lg">Homework</h1>
         <p className="text-xs text-zinc-500">{homework.length} assignments</p>
       </div>
 

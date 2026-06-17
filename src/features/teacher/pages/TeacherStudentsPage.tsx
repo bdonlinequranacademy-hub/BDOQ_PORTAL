@@ -50,7 +50,7 @@ export function TeacherStudentsPage() {
     <PageContainer className="flex flex-col gap-6">
       {/* Header */}
       <div>
-        <h1 className="font-bold text-[#03214F] text-2xl leading-8 font-display">
+        <h1 className="font-bold text-[#03214F] text-2xl leading-8">
           Student Directory
         </h1>
         <p className="text-zinc-500 text-sm mt-0.5">
@@ -168,7 +168,7 @@ export function TeacherStudentsPage() {
               <Brain className="size-6 text-[#C4922B]" />
             </div>
             <div>
-              <h2 className="font-bold text-[#03214F] text-lg leading-7 font-display">
+              <h2 className="font-bold text-[#03214F] text-lg leading-7">
                 Student Care Alerts
               </h2>
               <p className="text-zinc-400 text-xs">Based on attendance, homework, and progress</p>
