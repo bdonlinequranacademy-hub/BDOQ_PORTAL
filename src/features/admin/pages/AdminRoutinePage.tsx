@@ -69,8 +69,8 @@ export function AdminRoutinePage() {
     <PageContainer className="flex flex-col gap-6">
       <div className="flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
         <div>
-          <h1 className="font-display text-2xl font-bold text-[#03214F]">Academy Routine</h1>
-          <p className="mt-1 text-sm text-zinc-500">
+          <h1 className="font-display text-2xl font-bold text-portal-heading">Academy Routine</h1>
+          <p className="mt-1 text-sm text-portal-muted">
             Weekly session slots per enrolled student — Saturday → Friday (Bangladesh time)
           </p>
         </div>
@@ -115,9 +115,9 @@ export function AdminRoutinePage() {
         </div>
       </div>
 
-      <div className="flex items-center gap-2 rounded-2xl bg-[#C4922B]/12 px-4 py-3">
-        <CalendarDays className="size-5 text-[#C4922B]" />
-        <span className="text-sm font-semibold text-[#03214F]">
+      <div className="flex items-center gap-2 rounded-2xl border border-gold/20 bg-gold/10 px-4 py-3 dark:border-gold/15 dark:bg-gold/10">
+        <CalendarDays className="size-5 shrink-0 text-gold" />
+        <span className="text-sm font-medium text-portal-heading">
           {filteredSessions.length} active session{filteredSessions.length === 1 ? "" : "s"}
           {teacherId ? " for selected teacher" : " academy-wide"}
           {countryFilter ? ` · ${formatCountryWithFlag(countryFilter)}` : ""}
@@ -157,11 +157,11 @@ export function AdminRoutinePage() {
           {grouped.map(({ day, sessions: daySessions }) =>
             daySessions.length === 0 ? null : (
               <section key={day} className="flex flex-col gap-3">
-                <div className="flex items-center gap-3 border-b border-zinc-100 pb-2">
-                  <h2 className="text-sm font-bold uppercase tracking-wide text-[#03214F]">
+                <div className="flex items-center gap-3 border-b border-portal pb-2">
+                  <h2 className="text-sm font-bold uppercase tracking-wide text-portal-heading">
                     {day}
                   </h2>
-                  <span className="rounded-full bg-zinc-100 px-2.5 py-0.5 text-xs font-medium text-zinc-600">
+                  <span className="rounded-full border border-portal bg-portal-muted px-2.5 py-0.5 text-xs font-semibold text-portal-muted">
                     {daySessions.length}
                   </span>
                 </div>

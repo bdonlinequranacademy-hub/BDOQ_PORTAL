@@ -31,30 +31,44 @@ export function SessionStatusBadge({
       ? `Live · ${formatCountdown(endsInMs)} left`
       : label;
 
+  const sizeClass = compact ? "px-2 py-0.5 text-[10px]" : "px-2.5 py-1 text-[11px]";
+
   if (phase === "live") {
     return (
       <span
-        className={`inline-flex items-center gap-1.5 rounded-full bg-red-500 font-bold uppercase tracking-wide text-white ${
-          compact ? "px-2 py-0.5 text-[10px]" : "px-2.5 py-1 text-[10px]"
-        }`}
+        className={`inline-flex shrink-0 items-center gap-1.5 rounded-full bg-red-500 font-bold uppercase tracking-wide text-white shadow-sm ${sizeClass}`}
       >
         <span className="size-1.5 animate-pulse rounded-full bg-white" />
-        Session live
+        Live
+      </span>
+    );
+  }
+
+  if (phase === "completed") {
+    return (
+      <span
+        className={`inline-flex shrink-0 items-center gap-1.5 rounded-full border border-portal bg-portal-muted font-medium text-portal-muted ${sizeClass}`}
+      >
+        {text}
+      </span>
+    );
+  }
+
+  if (phase === "scheduled") {
+    return (
+      <span
+        className={`inline-flex shrink-0 items-center rounded-full border border-gold/30 bg-gold/10 font-semibold text-gold dark:border-gold/25 dark:bg-gold/10 dark:text-gold-light ${sizeClass}`}
+      >
+        {text}
       </span>
     );
   }
 
   return (
     <span
-      className={`inline-flex items-center gap-1.5 rounded-lg font-medium ${
-        phase === "completed"
-          ? "bg-zinc-100 text-zinc-500"
-          : phase === "scheduled"
-            ? "bg-[#FDF3E0] text-[#9A6B1A]"
-            : "bg-[#F8FAFF] text-[#03214F]"
-      } ${compact ? "px-2 py-1 text-[10px]" : "px-3 py-1.5 text-xs"}`}
+      className={`inline-flex shrink-0 items-center gap-1.5 rounded-full border border-portal bg-portal-muted font-medium text-portal-heading ${sizeClass}`}
     >
-      {phase !== "scheduled" ? <Timer className="size-3 shrink-0" /> : null}
+      <Timer className="size-3 shrink-0 text-portal-muted" />
       {text}
     </span>
   );

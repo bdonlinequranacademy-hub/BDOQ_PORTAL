@@ -22,11 +22,11 @@ export function SessionScheduleTable({
   onMarkAttendance,
 }: SessionScheduleTableProps) {
   return (
-    <Card className="overflow-hidden rounded-2xl border border-zinc-100 p-0 shadow-sm">
+    <Card className="overflow-hidden p-0">
       <div className="overflow-x-auto">
         <table className="w-full min-w-[960px] text-left text-sm">
           <thead>
-            <tr className="border-b border-zinc-100 bg-zinc-50 text-[11px] font-semibold uppercase tracking-wide text-zinc-500">
+            <tr className="border-b border-portal bg-portal-muted text-[11px] font-semibold uppercase tracking-wide text-portal-muted">
               <th className="px-4 py-3">Day</th>
               <th className="px-4 py-3">BD time</th>
               <th className="px-4 py-3">Student time</th>
@@ -46,21 +46,21 @@ export function SessionScheduleTable({
               <th className="px-4 py-3 text-right">{adminMode ? "Class" : "Actions"}</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-zinc-100">
+          <tbody className="divide-y divide-portal">
             {sessions.map((session) => (
-              <tr key={session._id} className="bg-white hover:bg-zinc-50/80">
-                <td className="px-4 py-3 font-medium text-[#03214F]">{session.day}</td>
-                <td className="px-4 py-3 font-semibold text-[#2b7fff]">
+              <tr key={session._id} className="bg-portal-surface transition-colors hover:bg-portal-muted/40">
+                <td className="px-4 py-3 font-medium text-portal-heading">{session.day}</td>
+                <td className="px-4 py-3 font-semibold tabular-nums text-gold">
                   {session.times.academy.time}
                 </td>
-                <td className="px-4 py-3 text-zinc-600">{session.times.student.time}</td>
+                <td className="px-4 py-3 tabular-nums text-portal">{session.times.student.time}</td>
                 {adminMode ? (
-                  <td className="px-4 py-3 text-zinc-600">{session.times.teacher.time}</td>
+                  <td className="px-4 py-3 tabular-nums text-portal">{session.times.teacher.time}</td>
                 ) : null}
                 <td className="px-4 py-3">
-                  <p className="font-medium text-[#03214F]">{session.student.name}</p>
+                  <p className="font-medium text-portal-heading">{session.student.name}</p>
                   {session.student.studentId ? (
-                    <p className="text-xs text-zinc-400">{session.student.studentId}</p>
+                    <p className="text-xs text-portal-muted">{session.student.studentId}</p>
                   ) : null}
                 </td>
                 <td className="px-4 py-3">
@@ -68,7 +68,7 @@ export function SessionScheduleTable({
                 </td>
                 {adminMode ? (
                   <>
-                    <td className="px-4 py-3 font-medium text-[#03214F]">
+                    <td className="px-4 py-3 font-medium text-portal-heading">
                       {session.teacher.name}
                     </td>
                     <td className="px-4 py-3">
@@ -77,8 +77,8 @@ export function SessionScheduleTable({
                   </>
                 ) : null}
                 <td className="px-4 py-3">
-                  <p className="font-medium text-[#03214F]">{session.courseType}</p>
-                  <p className="text-xs text-zinc-400">{session.durationLabel}</p>
+                  <p className="font-medium capitalize text-portal-heading">{session.courseType}</p>
+                  <p className="text-xs text-portal-muted">{session.durationLabel}</p>
                 </td>
                 <td className="px-4 py-3">
                   <SessionStatusBadge session={session} routineView={routineView} compact />
@@ -88,7 +88,7 @@ export function SessionScheduleTable({
                     <button
                       type="button"
                       onClick={() => onViewClass(session)}
-                      className="text-xs font-semibold text-[#C4922B] hover:underline"
+                      className="text-xs font-semibold text-gold hover:underline dark:text-gold-light"
                     >
                       View class →
                     </button>

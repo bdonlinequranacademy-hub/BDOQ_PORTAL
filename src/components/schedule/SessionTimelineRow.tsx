@@ -16,6 +16,40 @@ interface SessionTimelineRowProps {
   onMarkAttendance?: (session: SessionSlotView) => void;
 }
 
+function ParticipantBlock({
+  label,
+  name,
+  meta,
+  country,
+}: {
+  label: string;
+  name: string;
+  meta?: string;
+  country?: string;
+}) {
+  const isMissing = /deleted/i.test(name);
+
+  return (
+    <div className="min-w-0">
+      <p className="text-[10px] font-semibold uppercase tracking-wider text-portal-muted">
+        {label}
+      </p>
+      <p
+        className={`mt-0.5 truncate text-sm font-semibold ${
+          isMissing ? "italic text-portal-muted" : "text-portal-heading"
+        }`}
+      >
+        {name}
+      </p>
+      <p className="mt-0.5 flex flex-wrap items-center gap-x-1.5 text-xs text-portal-muted">
+        {meta ? <span>{meta}</span> : null}
+        {meta && country ? <span aria-hidden>·</span> : null}
+        <CountryLabel country={country} showFallback className="inline" />
+      </p>
+    </div>
+  );
+}
+
 export function SessionTimelineRow({
   session,
   showDay = false,
@@ -31,116 +65,124 @@ export function SessionTimelineRow({
 
   return (
     <Card
-      className={`overflow-hidden rounded-2xl border bg-white p-0 shadow-sm ${
-        isLive ? "border-red-200 ring-1 ring-red-100" : "border-zinc-100"
+      className={`overflow-hidden p-0 transition-colors ${
+        isLive
+          ? "border-red-400/40 ring-1 ring-red-500/25 dark:border-red-400/30 dark:ring-red-500/20"
+          : ""
       }`}
     >
-      <div className="grid grid-cols-1 gap-0 lg:grid-cols-[112px_1fr_auto] lg:items-stretch">
-        {/* Time column — light panel, not solid dark block */}
+      <div className="grid grid-cols-1 lg:grid-cols-[minmax(108px,128px)_1fr]">
+        {/* Time rail */}
         <div
-          className={`flex flex-row items-center gap-4 border-b px-4 py-4 lg:flex-col lg:justify-center lg:gap-2 lg:border-b-0 lg:border-r lg:px-3 ${
-            isLive
-              ? "border-red-100 bg-red-50/60 lg:bg-red-50/40"
-              : "border-zinc-100 bg-[#F8FAFF]"
+          className={`flex border-b border-portal lg:flex-col lg:border-b-0 lg:border-r ${
+            isLive ? "bg-red-500/8 dark:bg-red-500/10" : "bg-portal-muted"
           }`}
         >
-          <div className="min-w-[72px] text-center">
+          <div className="flex flex-1 flex-col items-center justify-center px-3 py-4">
+            <span className="text-[10px] font-semibold uppercase tracking-wider text-portal-muted">
+              BD
+            </span>
             <p
-              className={`text-lg font-bold leading-tight ${
-                isLive ? "text-red-600" : "text-[#2b7fff]"
+              className={`mt-1 text-xl font-bold tabular-nums leading-none ${
+                isLive ? "text-red-500 dark:text-red-400" : "text-gold"
               }`}
             >
               {session.times.academy.time}
             </p>
-            <p className="text-[10px] font-semibold uppercase text-zinc-400">BD</p>
           </div>
-          <div className="hidden h-8 w-px bg-zinc-200 lg:block" />
-          <div className="min-w-[72px] text-center lg:mt-0">
-            <p className="text-sm font-semibold text-[#03214F]">{session.times.student.time}</p>
-            <p className="text-[10px] text-zinc-400">Student</p>
+
+          <div className="w-px self-stretch bg-portal-border lg:hidden" />
+
+          <div className="flex flex-1 flex-col items-center justify-center border-l border-portal px-3 py-4 lg:border-l-0 lg:border-t lg:border-portal">
+            <span className="text-[10px] font-semibold uppercase tracking-wider text-portal-muted">
+              Student
+            </span>
+            <p className="mt-1 text-sm font-semibold tabular-nums text-portal-heading">
+              {session.times.student.time}
+            </p>
+            {adminMode ? (
+              <p className="mt-1 hidden text-[10px] text-portal-muted lg:block">
+                Tea {session.times.teacher.time}
+              </p>
+            ) : null}
           </div>
         </div>
 
         {/* Main content */}
-        <div className="flex flex-col gap-3 px-4 py-4 lg:px-5">
-          <div className="flex flex-wrap items-start justify-between gap-2">
+        <div className="flex flex-col gap-3 px-4 py-4 lg:px-5 lg:py-4">
+          <div className="flex items-start justify-between gap-3">
             <div className="min-w-0 flex-1">
               <div className="flex flex-wrap items-center gap-2">
                 {showDay ? (
-                  <span className="rounded-full bg-zinc-100 px-2 py-0.5 text-[10px] font-bold uppercase text-zinc-600">
+                  <span className="rounded-md border border-portal bg-portal-muted px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-portal-muted">
                     {session.day}
                   </span>
                 ) : null}
-                <span className="rounded-full bg-[#03214F]/8 px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wide text-[#03214F]">
+                <span className="rounded-md bg-navy/8 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-portal-heading dark:bg-white/10">
                   {session.courseType}
                 </span>
-                <span className="text-xs font-medium text-zinc-400">
-                  {session.durationLabel.toUpperCase()}
+                <span className="text-[11px] font-medium text-portal-muted">
+                  {session.durationLabel}
                 </span>
               </div>
-              <p className="mt-1.5 truncate text-base font-bold text-[#03214F]">
+
+              <h3 className="mt-2 font-display text-lg font-semibold capitalize leading-snug text-portal-heading">
                 {session.classTitle}
-              </p>
-              {adminMode ? (
-                <div className="mt-2 space-y-1 text-xs text-zinc-600">
-                  <p>
-                    <span className="font-semibold text-zinc-500">Student: </span>
-                    {session.student.name}
-                    {session.student.studentId ? ` · ${session.student.studentId}` : ""}
-                    {" · "}
-                    <CountryLabel country={session.student.country} showFallback />
-                  </p>
-                  <p>
-                    <span className="font-semibold text-zinc-500">Teacher: </span>
-                    {session.teacher.name}
-                    {" · "}
-                    <CountryLabel country={session.teacher.country} className="inline" showFallback />
-                  </p>
-                </div>
-              ) : (
+              </h3>
+
+              {!adminMode ? (
                 <>
-                  <p className="mt-1.5 truncate text-base font-bold text-[#03214F]">
+                  <p className="mt-1 truncate text-sm font-medium text-portal-heading">
                     {session.student.name}
                   </p>
-                  <p className="mt-0.5 text-xs text-zinc-500">
-                    {session.student.studentId ? `${session.student.studentId} · ` : ""}
+                  <p className="mt-1 flex flex-wrap items-center gap-x-1.5 text-xs text-portal-muted">
+                    {session.student.studentId ? (
+                      <span>{session.student.studentId}</span>
+                    ) : null}
+                    {session.student.studentId ? <span aria-hidden>·</span> : null}
                     <CountryLabel country={session.student.country} showFallback />
-                    <span className="mx-1.5 text-zinc-300">|</span>
-                    Tea {session.times.teacher.time}
-                    {" · "}
+                    <span aria-hidden>·</span>
+                    <span>Tea {session.times.teacher.time}</span>
                     <CountryLabel country={session.teacher.country} className="inline" showFallback />
                   </p>
                 </>
-              )}
-              {!adminMode ? (
-                <p className="mt-1 flex flex-wrap gap-x-3 gap-y-0.5 text-xs text-zinc-400">
-                  <span>{session.classTitle}</span>
-                </p>
-              ) : null}
-              {adminMode ? (
-                <p className="mt-1 text-xs text-zinc-400">
-                  Stu {session.times.student.time} · Tea {session.times.teacher.time}
-                </p>
               ) : null}
             </div>
+
             <SessionStatusBadge session={session} routineView={routineView} />
           </div>
+
+          {adminMode ? (
+            <div className="grid gap-3 rounded-xl border border-portal bg-portal-muted/50 p-3 sm:grid-cols-2">
+              <ParticipantBlock
+                label="Student"
+                name={session.student.name}
+                meta={session.student.studentId}
+                country={session.student.country}
+              />
+              <ParticipantBlock
+                label="Teacher"
+                name={session.teacher.name}
+                country={session.teacher.country}
+              />
+            </div>
+          ) : null}
 
           {adminMode && onViewClass ? (
             <button
               type="button"
               onClick={() => onViewClass(session)}
-              className="w-fit rounded-lg bg-[#FDF3E0] px-4 py-2 text-xs font-semibold text-[#9A6B1A] hover:bg-[#F5E6C8]"
+              className="w-fit rounded-lg border border-gold/35 bg-gold/10 px-4 py-2 text-xs font-semibold text-gold transition hover:bg-gold/20 dark:border-gold/30 dark:bg-gold/10 dark:text-gold-light dark:hover:bg-gold/15"
             >
               View class →
             </button>
-          ) : (
+          ) : !adminMode ? (
             <SessionActionButtons
               session={session}
               onLogSession={onLogSession}
               onMarkAttendance={onMarkAttendance}
             />
-          )}
+          ) : null}
         </div>
       </div>
     </Card>

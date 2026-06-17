@@ -280,8 +280,16 @@
     color: rgb(251 191 36);
   }
 
-  .dark .hover\:border-\[\#03214F\]\/20:hover {
-    border-color: rgb(196 146 43 / 0.25);
+  .dark .text-\[\#9A6B1A\] {
+    color: rgb(217 169 74);
+  }
+
+  .dark .text-gold-dark {
+    color: rgb(217 169 74);
+  }
+
+  .dark .text-\[\#2b7fff\] {
+    color: rgb(147 197 253);
   }
 
   .brand-logo {
