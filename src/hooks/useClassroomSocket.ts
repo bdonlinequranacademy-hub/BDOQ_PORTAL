@@ -49,7 +49,11 @@ export function useClassroomSocket({
         if (state.sessionId !== sessionId) return;
         setSession(state);
         if (state.whiteboardJson) {
-          setRemoteWhiteboard({ version: Date.now(), json: state.whiteboardJson });
+          const hash = JSON.stringify(state.whiteboardJson);
+          setRemoteWhiteboard((prev) => {
+            if (prev && JSON.stringify(prev.json) === hash) return prev;
+            return { version: Date.now(), json: state.whiteboardJson! };
+          });
         }
       };
 
@@ -59,7 +63,11 @@ export function useClassroomSocket({
         fromUserId: string;
       }) => {
         if (payload.sessionId !== sessionId || payload.fromUserId === userId) return;
-        setRemoteWhiteboard({ version: Date.now(), json: payload.json });
+        const hash = JSON.stringify(payload.json);
+        setRemoteWhiteboard((prev) => {
+          if (prev && JSON.stringify(prev.json) === hash) return prev;
+          return { version: Date.now(), json: payload.json };
+        });
       };
 
       const onClear = (payload: { sessionId: string }) => {

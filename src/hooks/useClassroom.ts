@@ -45,6 +45,9 @@ export function useClassroom({ sessionId }: UseClassroomOptions) {
     return Boolean(session?.whiteboardLocked);
   }, [isTeacher, session?.whiteboardLocked]);
 
+  const readOnlyRef = useRef(readOnly);
+  readOnlyRef.current = readOnly;
+
   const handRaised = useMemo(() => {
     if (!userId || !session) return false;
     return session.participants.find((p) => p.userId === userId)?.handRaised ?? false;
@@ -57,13 +60,13 @@ export function useClassroom({ sessionId }: UseClassroomOptions) {
 
   const handleLocalWhiteboardChange = useCallback(
     (json: Record<string, unknown>) => {
-      if (readOnly) return;
+      if (readOnlyRef.current) return;
       if (syncTimerRef.current) clearTimeout(syncTimerRef.current);
       syncTimerRef.current = setTimeout(() => {
         emit("whiteboard:update", { sessionId, json });
-      }, 250);
+      }, 800);
     },
-    [emit, readOnly, sessionId]
+    [emit, sessionId]
   );
 
   const startClass = useCallback(() => {
