@@ -53,6 +53,10 @@ export const StudentClassDetailPage = lazyNamed(
   () => import("@/features/student/pages/StudentClassDetailPage"),
   "StudentClassDetailPage"
 );
+export const StudentClassroomDemoPage = lazyNamed(
+  () => import("@/features/student/pages/StudentClassroomDemoPage"),
+  "StudentClassroomDemoPage"
+);
 export const StudentHomeworkLayout = lazyNamed(
   () => import("@/features/student/pages/StudentHomeworkLayout"),
   "StudentHomeworkLayout"
@@ -109,6 +113,10 @@ export const TeacherClassesPage = lazyNamed(
 export const TeacherClassDetailPage = lazyNamed(
   () => import("@/features/teacher/pages/TeacherClassDetailPage"),
   "TeacherClassDetailPage"
+);
+export const TeacherWhiteboardDemoPage = lazyNamed(
+  () => import("@/features/teacher/pages/TeacherWhiteboardDemoPage"),
+  "TeacherWhiteboardDemoPage"
 );
 export const TeacherAttendancePage = lazyNamed(
   () => import("@/features/teacher/pages/TeacherAttendancePage"),
@@ -226,6 +234,10 @@ export const AdminAtRiskPage = lazyNamed(
 export const AdminBlogPage = lazyNamed(
   () => import("@/features/admin/pages/AdminBlogPage"),
   "AdminBlogPage"
+);
+export const AdminLiveClassesPage = lazyNamed(
+  () => import("@/features/admin/pages/AdminLiveClassesPage"),
+  "AdminLiveClassesPage"
 );
 export const AdminBlogFormPage = lazyNamed(
   () => import("@/features/admin/pages/AdminBlogFormPage"),

@@ -28,10 +28,16 @@ function resolveSocketUrl(): string {
   return api.replace(/\/api\/?$/, "");
 }
 
+function resolveJitsiDomain(): string {
+  const raw = import.meta.env.VITE_JITSI_DOMAIN?.trim();
+  return raw || "meet.jit.si";
+}
+
 export const env = {
   apiUrl: resolveApiUrl(),
   publicSiteUrl: resolvePublicSiteUrl(),
   socketUrl: resolveSocketUrl(),
+  jitsiDomain: resolveJitsiDomain(),
   isDev: import.meta.env.DEV,
   isProd: import.meta.env.PROD,
 };
