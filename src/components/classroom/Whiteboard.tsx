@@ -106,16 +106,15 @@ function WhiteboardInner({
             </div>
           </div>
 
-          <div
-            ref={containerRef}
-            className="relative w-full bg-[linear-gradient(rgba(3,33,79,0.04)_1px,transparent_1px),linear-gradient(90deg,rgba(3,33,79,0.04)_1px,transparent_1px)] bg-[size:24px_24px] p-2 sm:p-4"
-          >
+          <div className="relative w-full bg-[linear-gradient(rgba(3,33,79,0.04)_1px,transparent_1px),linear-gradient(90deg,rgba(3,33,79,0.04)_1px,transparent_1px)] bg-[size:24px_24px] p-2 sm:p-4">
             {readOnly ? (
               <div className="pointer-events-none absolute left-4 right-4 top-4 z-10 rounded-lg bg-gold/90 px-3 py-1.5 text-center text-[11px] font-semibold text-white">
                 View only — teacher locked the board
               </div>
             ) : null}
-            <canvas ref={canvasRef} className="block w-full rounded-xl border border-navy/10" />
+            <div ref={containerRef} className="h-[340px] w-full sm:h-[400px]">
+              <canvas ref={canvasRef} className="block rounded-xl border border-navy/10" />
+            </div>
           </div>
         </div>
 

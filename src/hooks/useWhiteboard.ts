@@ -130,8 +130,10 @@ export function useWhiteboard({
     if (!canvas || !container) return;
 
     const width = container.clientWidth;
-    const height = Math.min(420, Math.max(280, Math.round(width * 0.55)));
-    if (canvas.width === width && canvas.height === height) return;
+    const height = container.clientHeight;
+    if (width < 1 || height < 1) return;
+    if (Math.abs(canvas.width - width) < 2 && Math.abs(canvas.height - height) < 2) return;
+
     canvas.setDimensions({ width, height });
     canvas.requestRenderAll();
   }, [containerRef]);
