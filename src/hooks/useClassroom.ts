@@ -6,16 +6,17 @@ import type { Role } from "@/types/models";
 
 interface UseClassroomOptions {
   sessionId: string;
+  observeOnly?: boolean;
 }
 
-function isTeacherLike(role: Role | undefined): boolean {
-  return role === "teacher" || role === "admin" || role === "super_admin";
+function isTeacherRole(role: Role | undefined): boolean {
+  return role === "teacher";
 }
 
-export function useClassroom({ sessionId }: UseClassroomOptions) {
+export function useClassroom({ sessionId, observeOnly = false }: UseClassroomOptions) {
   const user = useAuthStore((s) => s.user);
   const userId = user?._id ?? user?.id;
-  const isTeacher = isTeacherLike(user?.role);
+  const isTeacher = isTeacherRole(user?.role) && !observeOnly;
   const isStudent = user?.role === "student";
 
   const {
@@ -41,9 +42,10 @@ export function useClassroom({ sessionId }: UseClassroomOptions) {
   }, [notification, clearNotification]);
 
   const readOnly = useMemo(() => {
+    if (observeOnly) return true;
     if (isTeacher) return false;
     return Boolean(session?.whiteboardLocked);
-  }, [isTeacher, session?.whiteboardLocked]);
+  }, [observeOnly, isTeacher, session?.whiteboardLocked]);
 
   const readOnlyRef = useRef(readOnly);
   readOnlyRef.current = readOnly;

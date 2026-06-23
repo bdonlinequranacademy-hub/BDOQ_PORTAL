@@ -1,4 +1,4 @@
-/** Sanitized Jitsi room name for a class session */
+/** Sanitized classroom room name for a class session */
 export function buildClassroomRoomName(classId?: string, sessionId?: string): string {
   const slug = classId
     ? `albayaan-class-${classId}`

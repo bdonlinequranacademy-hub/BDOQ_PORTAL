@@ -20,7 +20,7 @@ export function AdminObserveClassroomPage() {
           </Link>
           <h1 className="text-2xl font-bold text-navy">Observe classroom</h1>
           <p className="mt-1 text-sm text-zinc-500">
-            View-only — watch the whiteboard and optional video without changing the session.
+            Admin view — watch teachers, students, and the live whiteboard in real time.
           </p>
           {room ? (
             <p className="mt-1 font-mono text-xs text-zinc-400">Room: {room}</p>

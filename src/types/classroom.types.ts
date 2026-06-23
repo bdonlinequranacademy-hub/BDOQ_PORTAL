@@ -9,8 +9,6 @@ export type WhiteboardTool =
   | "line"
   | "arrow";
 
-export type ClassroomVideoRole = "teacher" | "student" | "observer";
-
 export type ClassroomSessionStatus = "waiting" | "live" | "ended";
 
 export interface ClassroomParticipant {
@@ -31,15 +29,6 @@ export interface ClassroomSessionSnapshot {
   whiteboardLocked: boolean;
   participants: ClassroomParticipant[];
   participantCount: number;
-}
-
-export interface ClassroomVideoState {
-  isApiReady: boolean;
-  isJoined: boolean;
-  participantCount: number;
-  isAudioMuted: boolean;
-  isVideoMuted: boolean;
-  isSharingScreen: boolean;
 }
 
 export interface WhiteboardToolbarState {

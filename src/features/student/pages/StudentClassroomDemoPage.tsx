@@ -7,7 +7,7 @@ export function StudentClassroomDemoPage() {
       <div className="mb-4">
         <h1 className="text-2xl font-bold text-navy">My Class</h1>
         <p className="mt-1 text-sm text-zinc-500">
-          Join your teacher&apos;s live class — video and whiteboard.
+          Join your teacher&apos;s live class — interactive whiteboard.
         </p>
       </div>
       <Classroom />
