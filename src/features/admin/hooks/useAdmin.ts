@@ -11,18 +11,15 @@ export const adminKeys = {
   class: (id: string) => ["admin", "class", id] as const,
   attendance: (classId?: string) => ["admin", "attendance", classId] as const,
   progress: (classId?: string) => ["admin", "progress", classId] as const,
-  atRisk: ["ai", "atRisk"] as const,
   blogPosts: (status?: BlogPostStatus, category?: BlogCategory) =>
     ["admin", "blog", status, category] as const,
   blogPost: (id: string) => ["admin", "blog", id] as const,
   classLogs: (status?: string) => ["admin", "classLogs", status] as const,
   earnings: (month?: string) => ["admin", "earnings", month] as const,
-  monthlyProgress: (month?: string) => ["admin", "monthlyProgress", month] as const,
   studentRequests: (status?: string) => ["admin", "studentRequests", status] as const,
   trialBookings: (status?: string) => ["admin", "trialBookings", status] as const,
   contactMessages: (status?: string) => ["admin", "contactMessages", status] as const,
   homework: ["admin", "homework"] as const,
-  concernReports: (status?: string) => ["admin", "concernReports", status] as const,
   academyRoutine: (teacherId?: string) => ["admin", "academyRoutine", teacherId] as const,
   curriculum: ["admin", "curriculum"] as const,
   payments: (status?: string) => ["admin", "payments", status] as const,
@@ -82,16 +79,6 @@ export function useAdminProgress(classId?: string) {
     queryKey: adminKeys.progress(classId),
     queryFn: () => adminApi.getProgress(classId),
     select: (r) => r.data ?? [],
-  });
-}
-
-export function useAdminAtRisk() {
-  const locale = useUiStore((s) => s.aiLocale);
-  return useQuery({
-    queryKey: [...adminKeys.atRisk, locale],
-    queryFn: adminApi.getAtRisk,
-    select: (r) => r.data ?? [],
-    staleTime: 5 * 60_000,
   });
 }
 
@@ -331,14 +318,6 @@ export function useAdminEarnings(month?: string) {
   });
 }
 
-export function useAdminMonthlyProgress(month?: string) {
-  return useQuery({
-    queryKey: adminKeys.monthlyProgress(month),
-    queryFn: () => adminApi.getMonthlyProgress(month),
-    select: (r) => r.data ?? [],
-  });
-}
-
 export function useAdminHomework() {
   return useQuery({
     queryKey: adminKeys.homework,
@@ -357,30 +336,6 @@ export function useDeleteAdminHomework() {
       addToast("success", "Homework deleted");
     },
     onError: () => addToast("error", "Failed to delete homework"),
-  });
-}
-
-export function useAdminConcernReports(status?: import("@/types/models").ConcernReportStatus) {
-  return useQuery({
-    queryKey: adminKeys.concernReports(status),
-    queryFn: () => adminApi.getConcernReports(status),
-    select: (r) => r.data ?? [],
-  });
-}
-
-export function useUpdateConcernReportStatus(id: string) {
-  const qc = useQueryClient();
-  const addToast = useUiStore((s) => s.addToast);
-  return useMutation({
-    mutationFn: (
-      payload: Parameters<typeof adminApi.updateConcernReportStatus>[1]
-    ) => adminApi.updateConcernReportStatus(id, payload),
-    onSuccess: () => {
-      qc.invalidateQueries({ queryKey: ["admin", "concernReports"] });
-      qc.invalidateQueries({ queryKey: adminKeys.stats });
-      addToast("success", "Report updated");
-    },
-    onError: () => addToast("error", "Failed to update report"),
   });
 }
 

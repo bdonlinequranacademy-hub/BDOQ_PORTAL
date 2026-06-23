@@ -11,7 +11,6 @@ export const studentKeys = {
   curriculumPlan: ["student", "curriculumPlan"] as const,
   notifications: ["student", "notifications"] as const,
   todaySchedule: ["student", "schedule", "today"] as const,
-  monthlyProgress: (month?: string) => ["student", "monthlyProgress", month] as const,
   profile: ["student", "profile"] as const,
   paymentStatus: ["student", "payments", "status"] as const,
   payments: ["student", "payments"] as const,
@@ -82,14 +81,6 @@ export function useStudentTodaySchedule() {
   });
 }
 
-export function useStudentMonthlyProgress(month?: string) {
-  return useQuery({
-    queryKey: studentKeys.monthlyProgress(month),
-    queryFn: () => studentApi.getMonthlyProgress(month),
-    select: (r) => r.data ?? [],
-  });
-}
-
 export function useSubmitHomework(homeworkId: string) {
   const qc = useQueryClient();
   const addToast = useUiStore((s) => s.addToast);
@@ -154,15 +145,6 @@ export function useChangeStudentPassword() {
     mutationFn: studentApi.changePassword,
     onSuccess: () => addToast("success", "Password changed"),
     onError: () => addToast("error", "Failed to change password"),
-  });
-}
-
-export function useSubmitConcernReport() {
-  const addToast = useUiStore((s) => s.addToast);
-  return useMutation({
-    mutationFn: studentApi.submitConcernReport,
-    onSuccess: () => addToast("success", "Concern report submitted"),
-    onError: () => addToast("error", "Failed to submit report"),
   });
 }
 

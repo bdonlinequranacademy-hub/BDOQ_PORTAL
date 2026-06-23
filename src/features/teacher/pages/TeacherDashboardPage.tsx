@@ -6,16 +6,13 @@ import {
   FilePlus,
   Star,
   TrendingUp,
-  ShieldAlert,
   MessageSquare,
-  AlertTriangle,
   MessageCircle,
   FileText,
 } from "lucide-react";
 import { useAuthStore } from "@/stores/authStore";
 import {
   useTeacherClasses,
-  useAtRiskStudents,
   useTeacherNotifications,
   useTeacherHomework,
   useTeacherTodaySchedule,
@@ -24,7 +21,6 @@ import {
 import { useLogSessionFlow } from "@/features/teacher/hooks/useLogSessionFlow";
 import { PageContainer } from "@/components/layout/PageContainer";
 import { Card } from "@/components/ui/Card";
-import { Button } from "@/components/ui/Button";
 import { SessionSlotCard } from "@/components/schedule/SessionSlotCard";
 import { LogSessionSheet } from "@/components/schedule/LogSessionSheet";
 import { sortSessionsByAcademyTime } from "@/lib/utils/schedule";
@@ -47,7 +43,6 @@ export function TeacherDashboardPage() {
   const user = useAuthStore((s) => s.user);
   const navigate = useNavigate();
   const { data: classes = [], isLoading } = useTeacherClasses();
-  const { data: atRisk = [] } = useAtRiskStudents();
   const { data: notifications = [] } = useTeacherNotifications();
   const { data: homework = [] } = useTeacherHomework();
   const { data: todaySchedule, isLoading: scheduleLoading } = useTeacherTodaySchedule();
@@ -62,10 +57,6 @@ export function TeacherDashboardPage() {
   } = useLogSessionFlow();
 
   const todaySessions = sortSessionsByAcademyTime(todaySchedule?.sessions ?? []);
-
-  const highRiskCount = atRisk.filter(
-    (s) => s.riskLevel === "high" || s.riskLevel === "medium"
-  ).length;
 
   const studentCount = classes.reduce(
     (acc, cls) => acc + (cls.studentCount ?? cls.studentIds?.length ?? 0),
@@ -211,12 +202,6 @@ export function TeacherDashboardPage() {
                   label: "Weekly Report",
                   to: "/teacher/weekly-report",
                 },
-                {
-                  icon: <ShieldAlert className="size-5 text-orange-500" />,
-                  bg: "bg-orange-50",
-                  label: "Student Care",
-                  to: "/teacher/student-care",
-                },
               ].map((a) => (
                 <button
                   key={a.label}
@@ -236,26 +221,6 @@ export function TeacherDashboardPage() {
         </div>
 
         <div className="flex flex-col gap-6">
-          {highRiskCount > 0 && (
-            <div className="flex items-center gap-4 rounded-3xl bg-[#FDF3E0] p-5">
-              <div className="flex size-11 shrink-0 items-center justify-center rounded-xl bg-[#C4922B]/20">
-                <AlertTriangle className="size-5 text-[#C4922B]" />
-              </div>
-              <div className="flex flex-1 flex-col gap-0.5">
-                <span className="text-sm font-bold text-[#2b7fff]">Student Care Alert</span>
-                <span className="text-xs text-amber-700">
-                  {highRiskCount} student{highRiskCount > 1 ? "s" : ""} need attention
-                </span>
-              </div>
-              <Button
-                onClick={() => navigate("/teacher/student-care")}
-                className="h-9 shrink-0 rounded-xl bg-[#2b7fff] px-4 py-0 text-xs text-white"
-              >
-                Review
-              </Button>
-            </div>
-          )}
-
           <Card className="flex flex-col gap-4 rounded-3xl border-0 p-6 shadow-[0_10px_30px_-12px_rgba(3,33,79,0.18)]">
             <div className="flex items-center justify-between">
               <span className="text-base font-bold text-[#2b7fff]">Notifications</span>

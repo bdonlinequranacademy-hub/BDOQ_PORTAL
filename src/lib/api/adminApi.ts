@@ -6,7 +6,6 @@ import type {
   AdminProgressRecord,
   Role,
   ClassSchedule,
-  AtRiskStudent,
   AdminBlogPost,
   BlogCategory,
   BlogPostStatus,
@@ -15,10 +14,7 @@ import type {
   ClassLogView,
   ClassLogStatus,
   AdminEarningsOverview,
-  MonthlyProgressSnapshot,
   AdminHomeworkItem,
-  ConcernReportView,
-  ConcernReportStatus,
   StudentRequestView,
   StudentRequestStatus,
   ContactMessageView,
@@ -35,7 +31,6 @@ import type {
 import type { CurriculumNode } from "@/lib/api/curriculumApi";
 import { api as apiClient } from "./client";
 import type { ApiResponse } from "@/types/api";
-import { normalizeAtRiskStudent } from "@/lib/utils/normalize";
 
 export const adminApi = {
   getStats: () =>
@@ -146,16 +141,6 @@ export const adminApi = {
       })
       .then((r) => r.data),
 
-  getAtRisk: () =>
-    apiClient
-      .get<ApiResponse<unknown[]>>("/ai/at-risk-students")
-      .then((r) => ({
-        ...r.data,
-        data: (r.data.data ?? []).map((item) =>
-          normalizeAtRiskStudent(item as Record<string, unknown>)
-        ) as AtRiskStudent[],
-      })),
-
   getClassLogs: (status?: ClassLogStatus) =>
     apiClient
       .get<ApiResponse<ClassLogView[]>>("/admin/class-logs", {
@@ -180,13 +165,6 @@ export const adminApi = {
       })
       .then((r) => r.data),
 
-  getMonthlyProgress: (month?: string) =>
-    apiClient
-      .get<ApiResponse<MonthlyProgressSnapshot[]>>("/admin/monthly-progress", {
-        params: month ? { month } : {},
-      })
-      .then((r) => r.data),
-
   getHomework: () =>
     apiClient
       .get<ApiResponse<AdminHomeworkItem[]>>("/admin/homework")
@@ -195,21 +173,6 @@ export const adminApi = {
   deleteHomework: (id: string) =>
     apiClient
       .delete<ApiResponse<{ homeworkId: string }>>(`/admin/homework/${id}`)
-      .then((r) => r.data),
-
-  getConcernReports: (status?: ConcernReportStatus) =>
-    apiClient
-      .get<ApiResponse<ConcernReportView[]>>("/admin/concern-reports", {
-        params: status ? { status } : {},
-      })
-      .then((r) => r.data),
-
-  updateConcernReportStatus: (
-    id: string,
-    payload: { status: ConcernReportStatus; adminNote?: string }
-  ) =>
-    apiClient
-      .patch<ApiResponse<ConcernReportView>>(`/admin/concern-reports/${id}/status`, payload)
       .then((r) => r.data),
 
   getStudentRequests: (status?: StudentRequestStatus) =>

@@ -1,6 +1,5 @@
 export type Role = "student" | "teacher" | "admin" | "super_admin" | "parent";
 export type AttendanceStatus = "present" | "absent" | "late";
-export type RiskLevel = "high" | "medium" | "low";
 export type Grade = "A" | "B" | "C" | "D" | "F";
 export type HomeworkSubmissionStatus =
   | "pending_review"
@@ -232,21 +231,6 @@ export interface StudyPlanResult {
   generatedAt: string;
 }
 
-export interface AtRiskReason {
-  type: "attendance" | "homework" | "progress";
-  message: string;
-}
-
-export interface AtRiskStudent {
-  studentId: string;
-  studentName: string;
-  riskLevel: RiskLevel;
-  reasons: AtRiskReason[];
-  aiGuidance?: string;
-  attendanceRate?: number;
-  homeworkCompletion?: number;
-}
-
 export interface AIProgressReport {
   report: string;
   studentName?: string;
@@ -428,23 +412,6 @@ export interface AdminEarningsOverview {
   }[];
 }
 
-export interface MonthlyProgressSnapshot {
-  _id: string;
-  month: string;
-  student: { _id: string; name: string; studentId?: string };
-  class: { _id: string; title: string };
-  teacher: { _id: string; name: string };
-  surahsCompleted: string[];
-  tajweedScore: number;
-  memorizedAyahs: number;
-  teacherSummary?: string;
-  qaResponses: { question: string; answer: string }[];
-  activityDates: string[];
-  sessionsHeld: number;
-  createdAt: string;
-  updatedAt: string;
-}
-
 export interface WeeklyFamilyReport {
   studentName: string;
   teacherName: string;
@@ -494,22 +461,6 @@ export interface ClassAttendanceEntry {
   studentName: string;
   status: AttendanceStatus;
   date: string;
-}
-
-export type ConcernReportStatus = "new" | "reviewed" | "closed";
-export type ConcernCategory = "poaching" | "safety" | "conduct" | "other";
-
-export interface ConcernReportView {
-  _id: string;
-  reporter: { _id: string; name: string; role: Role };
-  category: ConcernCategory;
-  message: string;
-  relatedTeacherId?: string;
-  relatedStudentId?: string;
-  status: ConcernReportStatus;
-  adminNote?: string;
-  createdAt: string;
-  updatedAt: string;
 }
 
 export interface TeacherProfile {
@@ -666,7 +617,6 @@ export interface AdminStats {
     newTrials: number;
     newContacts: number;
     pendingClassLogs: number;
-    newConcernReports?: number;
     pendingPayments?: number;
     pendingStudentRequests?: number;
   };

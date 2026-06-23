@@ -1,13 +1,12 @@
-import { Award, Calendar, TrendingUp } from "lucide-react";
+import { Award, TrendingUp } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import { Card } from "@/components/ui/Card";
 import { CardSkeleton } from "@/components/ui/CardSkeleton";
-import type { MonthlyProgressSnapshot, StudentProgressRecord } from "@/types/models";
+import type { StudentProgressRecord } from "@/types/models";
 import { classTitle } from "@/lib/utils/class";
 import { formatCurriculumPath } from "@/lib/api/curriculumApi";
-import { formatMonthLabel } from "@/lib/utils/month";
 
-type TimelineKind = "progress" | "monthly" | "milestone";
+type TimelineKind = "progress" | "milestone";
 
 interface TimelineEvent {
   id: string;
@@ -18,10 +17,7 @@ interface TimelineEvent {
   badge?: string;
 }
 
-function buildTimelineEvents(
-  records: StudentProgressRecord[],
-  snapshots: MonthlyProgressSnapshot[]
-): TimelineEvent[] {
+function buildTimelineEvents(records: StudentProgressRecord[]): TimelineEvent[] {
   const events: TimelineEvent[] = [];
 
   for (const record of records) {
@@ -66,20 +62,6 @@ function buildTimelineEvents(
     }
   }
 
-  for (const snap of snapshots) {
-    const date = snap.updatedAt ? new Date(snap.updatedAt) : new Date(`${snap.month}-01`);
-    events.push({
-      id: `monthly-${snap._id}`,
-      date,
-      kind: "monthly",
-      title: `${formatMonthLabel(snap.month)} report`,
-      detail: snap.teacherSummary
-        ? snap.teacherSummary.slice(0, 120) + (snap.teacherSummary.length > 120 ? "…" : "")
-        : `${snap.sessionsHeld} session${snap.sessionsHeld !== 1 ? "s" : ""} · Tajweed ${snap.tajweedScore}%`,
-      badge: snap.class.title,
-    });
-  }
-
   return events
     .sort((a, b) => b.date.getTime() - a.date.getTime())
     .slice(0, 10);
@@ -87,29 +69,27 @@ function buildTimelineEvents(
 
 const kindMeta: Record<TimelineKind, { icon: LucideIcon; accent: string }> = {
   progress: { icon: TrendingUp, accent: "text-[#2b7fff] bg-[#EEF2F8]" },
-  monthly: { icon: Calendar, accent: "text-[#C4922B] bg-[#FDF3E0]" },
   milestone: { icon: Award, accent: "text-emerald-600 bg-emerald-50" },
 };
 
 interface ProgressTimelineProps {
   records: StudentProgressRecord[];
-  snapshots: MonthlyProgressSnapshot[];
   isLoading?: boolean;
 }
 
-export function ProgressTimeline({ records, snapshots, isLoading }: ProgressTimelineProps) {
+export function ProgressTimeline({ records, isLoading }: ProgressTimelineProps) {
   if (isLoading) {
     return <CardSkeleton lines={4} />;
   }
 
-  const events = buildTimelineEvents(records, snapshots);
+  const events = buildTimelineEvents(records);
 
   if (events.length === 0) {
     return (
       <Card className="flex flex-col gap-2 rounded-2xl border border-dashed border-portal p-5">
         <p className="text-sm font-semibold text-portal-heading">Progress history & milestones</p>
         <p className="text-sm text-portal-muted">
-          Timeline entries appear when your teacher updates progress or submits a monthly report.
+          Timeline entries appear when your teacher updates progress.
         </p>
       </Card>
     );

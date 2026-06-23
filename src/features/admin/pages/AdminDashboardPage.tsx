@@ -5,7 +5,6 @@ import {
   BookOpen,
   Activity,
   ChevronRight,
-  ShieldAlert,
   BarChart3,
   ClipboardList,
   Newspaper,
@@ -16,8 +15,6 @@ import {
   CalendarCheck,
   Inbox,
   BookOpenCheck,
-  TrendingUp,
-  Flag,
   Library,
   CreditCard,
 } from "lucide-react";
@@ -41,7 +38,6 @@ export function AdminDashboardPage() {
   const pendingRequests = pending?.pendingStudentRequests ?? 0;
   const newTrials = pending?.newTrials ?? 0;
   const newContacts = pending?.newContacts ?? 0;
-  const newConcerns = pending?.newConcernReports ?? 0;
 
   const kpis = [
     {
@@ -84,23 +80,8 @@ export function AdminDashboardPage() {
         pendingRequests > 0 ||
         newTrials > 0 ||
         newContacts > 0 ||
-        newConcerns > 0 ||
         pendingPayments > 0) && (
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-          {newConcerns > 0 ? (
-            <Card className="rounded-2xl border-0 bg-red-50 p-4 shadow-sm">
-              <p className="text-sm font-semibold text-red-900">
-                {newConcerns} new concern report{newConcerns === 1 ? "" : "s"}
-              </p>
-              <button
-                type="button"
-                onClick={() => navigate("/admin/concern-reports")}
-                className="mt-2 text-sm font-semibold text-[#03214F]"
-              >
-                Review reports →
-              </button>
-            </Card>
-          ) : null}
           {newContacts > 0 ? (
             <Card className="rounded-2xl border-0 bg-blue-50 p-4 shadow-sm">
               <p className="text-sm font-semibold text-blue-900">
@@ -273,12 +254,9 @@ export function AdminDashboardPage() {
               { label: "Contact Messages", to: "/admin/contact-messages", icon: Inbox },
               { label: "Student Requests", to: "/admin/student-requests", icon: UserPlus },
               { label: "Homework", to: "/admin/homework", icon: BookOpenCheck },
-              { label: "Monthly Progress", to: "/admin/monthly-progress", icon: TrendingUp },
               { label: "Earnings", to: "/admin/earnings", icon: Banknote },
               { label: "Attendance", to: "/admin/attendance", icon: ClipboardList },
               { label: "Progress", to: "/admin/progress", icon: BarChart3 },
-              { label: "Student Care", to: "/admin/student-care", icon: ShieldAlert },
-              { label: "Concern Reports", to: "/admin/concern-reports", icon: Flag },
               { label: "Blog", to: "/admin/blog", icon: Newspaper },
             ].map((a) => (
               <button
@@ -292,21 +270,6 @@ export function AdminDashboardPage() {
             ))}
           </div>
         </div>
-
-        <Card className="flex flex-col gap-4 rounded-3xl border-0 p-6 shadow-sm">
-          <span className="text-base font-bold text-[#03214F]">Student Care Alerts</span>
-          <p className="text-sm text-zinc-500">
-            Attendance, homework, and progress flags load on the Student Care page.
-          </p>
-          <button
-            type="button"
-            onClick={() => navigate("/admin/student-care")}
-            className="inline-flex items-center gap-2 text-sm font-semibold text-[#C4922B]"
-          >
-            <ShieldAlert className="size-4" />
-            Open Student Care →
-          </button>
-        </Card>
       </div>
     </PageContainer>
   );

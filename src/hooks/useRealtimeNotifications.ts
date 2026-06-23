@@ -45,7 +45,6 @@ function invalidateForRole(qc: ReturnType<typeof useQueryClient>, role: Role) {
     qc.invalidateQueries({ queryKey: adminKeys.payments("pending") });
     qc.invalidateQueries({ queryKey: adminKeys.trialBookings("new") });
     qc.invalidateQueries({ queryKey: adminKeys.contactMessages("new") });
-    qc.invalidateQueries({ queryKey: adminKeys.concernReports("new") });
     qc.invalidateQueries({ queryKey: adminKeys.studentRequests("pending") });
   }
 }

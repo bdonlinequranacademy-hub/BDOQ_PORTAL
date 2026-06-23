@@ -1,6 +1,5 @@
 import { api as apiClient } from "./client";
 import {
-  normalizeAtRiskStudent,
   normalizeClass,
   normalizeNotification,
   normalizeProgressList,
@@ -15,7 +14,6 @@ import type {
   AttendanceRecord,
   AttendanceStatus,
   Progress,
-  AtRiskStudent,
   Grade,
   Notification,
   TodaySchedulePayload,
@@ -24,14 +22,11 @@ import type {
   ClassLogStats,
   ClassLogStatus,
   TeacherEarningsSummary,
-  MonthlyProgressSnapshot,
   TeacherProfile,
   StudentRequestView,
   AvailabilityCheckResult,
   ClassAttendanceEntry,
   WeeklyFamilyReport,
-  ConcernReportView,
-  ConcernCategory,
 } from "@/types/models";
 
 export type { TeacherStudent };
@@ -171,16 +166,6 @@ export const teacherApi = {
       )
       .then((r) => r.data),
 
-  submitConcernReport: (payload: {
-    category: ConcernCategory;
-    message: string;
-    relatedTeacherId?: string;
-    relatedStudentId?: string;
-  }) =>
-    apiClient
-      .post<ApiResponse<ConcernReportView>>("/teacher/concern-reports", payload)
-      .then((r) => r.data),
-
   markAttendance: (
     classId: string,
     date: string,
@@ -251,44 +236,11 @@ export const teacherApi = {
       .post<ApiResponse<ClassLogView>>("/teacher/class-logs", payload)
       .then((r) => r.data),
 
-  getAtRisk: () =>
-    apiClient
-      .get<ApiResponse<unknown[]>>("/ai/at-risk-students")
-      .then((r) => ({
-        ...r.data,
-        data: (r.data.data ?? []).map((item) =>
-          normalizeAtRiskStudent(item as Record<string, unknown>)
-        ) as AtRiskStudent[],
-      })),
-
   getEarnings: (month?: string) =>
     apiClient
       .get<ApiResponse<TeacherEarningsSummary>>("/teacher/earnings", {
         params: month ? { month } : {},
       })
-      .then((r) => r.data),
-
-  getMonthlyProgressQuestions: () =>
-    apiClient
-      .get<ApiResponse<string[]>>("/teacher/monthly-progress/questions")
-      .then((r) => r.data),
-
-  getMonthlyProgress: (month?: string) =>
-    apiClient
-      .get<ApiResponse<MonthlyProgressSnapshot[]>>("/teacher/monthly-progress", {
-        params: month ? { month } : {},
-      })
-      .then((r) => r.data),
-
-  saveMonthlyProgress: (payload: {
-    studentId: string;
-    classId: string;
-    month: string;
-    teacherSummary?: string;
-    qaResponses?: { question: string; answer: string }[];
-  }) =>
-    apiClient
-      .post<ApiResponse<MonthlyProgressSnapshot>>("/teacher/monthly-progress", payload)
       .then((r) => r.data),
 
   getProfile: () =>

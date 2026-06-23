@@ -1,25 +1,18 @@
-import { useStudentProgress, useStudentMonthlyProgress, useStudentCurriculumPlan } from "@/features/student/hooks/useStudent";
+import { useStudentProgress, useStudentCurriculumPlan } from "@/features/student/hooks/useStudent";
 import { PageContainer } from "@/components/layout/PageContainer";
 import { Card } from "@/components/ui/Card";
 import { PageLoading } from "@/components/ui/PageLoading";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { ProgressTimeline } from "@/components/progress/ProgressTimeline";
 import { StudentCurriculumPlan } from "@/components/curriculum/StudentCurriculumPlan";
-import { TrendingUp, Calendar, BookOpen } from "lucide-react";
+import { TrendingUp, BookOpen } from "lucide-react";
 import { classTitle } from "@/lib/utils/class";
 import { formatCurriculumPath } from "@/lib/api/curriculumApi";
 import { MissingCurriculumBadge } from "@/components/curriculum/CurriculumProgramFilter";
-import { currentMonthValue, formatMonthLabel } from "@/lib/utils/month";
-import { formControlClass } from "@/lib/formControl";
-import { useState } from "react";
 
 export function StudentProgressPage() {
-  const [month, setMonth] = useState(currentMonthValue());
   const { data: records = [], isLoading } = useStudentProgress();
   const { data: curriculumPlan = [] } = useStudentCurriculumPlan();
-  const { data: monthly = [] } = useStudentMonthlyProgress(month);
-  const { data: timelineSnapshots = [], isLoading: timelineLoading } =
-    useStudentMonthlyProgress();
 
   return (
     <PageContainer className="flex flex-col gap-6">
@@ -38,50 +31,7 @@ export function StudentProgressPage() {
         </Card>
       ) : null}
 
-      <ProgressTimeline
-        records={records}
-        snapshots={timelineSnapshots}
-        isLoading={isLoading || timelineLoading}
-      />
-
-      <Card className="flex flex-col gap-4 rounded-2xl border-0 p-5 shadow-sm">
-        <div className="flex flex-wrap items-center justify-between gap-3">
-          <div className="flex items-center gap-2">
-            <Calendar className="size-5 text-[#C4922B]" />
-            <span className="font-bold text-[#03214F]">Monthly report</span>
-          </div>
-          <input
-            type="month"
-            value={month}
-            onChange={(e) => setMonth(e.target.value)}
-            className={formControlClass}
-          />
-        </div>
-        <p className="text-xs text-zinc-500">{formatMonthLabel(month)}</p>
-        {monthly.length === 0 ? (
-          <p className="text-sm text-zinc-400">No monthly snapshot from your teacher yet.</p>
-        ) : (
-          monthly.map((snap) => (
-            <div key={snap._id} className="rounded-xl bg-[#F8FAFF] p-4">
-              <p className="font-semibold text-[#03214F]">{snap.class.title}</p>
-              <p className="text-xs text-zinc-500">
-                {snap.sessionsHeld} classes · Tajweed {snap.tajweedScore}%
-              </p>
-              {snap.teacherSummary ? (
-                <p className="mt-2 text-sm text-zinc-600">{snap.teacherSummary}</p>
-              ) : null}
-              {snap.qaResponses.map((qa) =>
-                qa.answer ? (
-                  <div key={qa.question} className="mt-2">
-                    <p className="text-xs font-semibold text-zinc-500">{qa.question}</p>
-                    <p className="text-sm text-[#03214F]">{qa.answer}</p>
-                  </div>
-                ) : null
-              )}
-            </div>
-          ))
-        )}
-      </Card>
+      <ProgressTimeline records={records} isLoading={isLoading} />
 
       {isLoading ? (
         <PageLoading />

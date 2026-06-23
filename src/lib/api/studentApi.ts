@@ -7,11 +7,8 @@ import type {
   StudentProgressRecord,
   Notification,
   TodaySchedulePayload,
-  MonthlyProgressSnapshot,
   StudentProfile,
   WeeklyFamilyReport,
-  ConcernReportView,
-  ConcernCategory,
   StudentBillingView,
   PaymentRecordView,
 } from "@/types/models";
@@ -75,25 +72,9 @@ export const studentApi = {
       .get<ApiResponse<TodaySchedulePayload>>("/student/schedule/today")
       .then((r) => r.data),
 
-  getMonthlyProgress: (month?: string) =>
-    apiClient
-      .get<ApiResponse<MonthlyProgressSnapshot[]>>("/student/monthly-progress", {
-        params: month ? { month } : {},
-      })
-      .then((r) => r.data),
-
   getWeeklyReport: () =>
     apiClient
       .get<ApiResponse<WeeklyFamilyReport>>("/student/weekly-report")
-      .then((r) => r.data),
-
-  submitConcernReport: (payload: {
-    category: ConcernCategory;
-    message: string;
-    relatedTeacherId?: string;
-  }) =>
-    apiClient
-      .post<ApiResponse<ConcernReportView>>("/student/concern-reports", payload)
       .then((r) => r.data),
 
   getProfile: () =>

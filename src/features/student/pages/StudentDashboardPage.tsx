@@ -5,7 +5,6 @@ import {
   TrendingUp,
   Video,
   ChevronRight,
-  ShieldAlert,
   Bell,
   MessageSquare,
 } from "lucide-react";
@@ -247,19 +246,6 @@ export function StudentDashboardPage() {
             <div>
               <p className="font-bold">Weekly Summary</p>
               <p className="text-xs text-white/70">Verified weekly update from portal records</p>
-            </div>
-          </button>
-
-          <button
-            onClick={() => navigate("/student/report-concern")}
-            className="flex items-center gap-4 rounded-3xl bg-gradient-to-br from-[#03214F] to-[#1a4a8a] p-5 text-left text-white"
-          >
-            <div className="flex size-11 items-center justify-center rounded-xl bg-white/15">
-              <ShieldAlert className="size-5 text-[#C4922B]" />
-            </div>
-            <div>
-              <p className="font-bold">Report a Concern</p>
-              <p className="text-xs text-white/70">Flag poaching or safety issues to admin</p>
             </div>
           </button>
 

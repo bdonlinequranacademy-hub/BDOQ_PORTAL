@@ -1,10 +1,7 @@
 import type {
-  AtRiskReason,
-  AtRiskStudent,
   Class,
   Notification,
   Progress,
-  RiskLevel,
   ScheduleEntry,
   Student,
 } from "@/types/models";
@@ -193,49 +190,6 @@ export function normalizeProgressList(raw: unknown): Progress[] {
     return [];
   }
   return raw.map((item) => normalizeProgressRecord(item as RawRecord));
-}
-
-function inferReasonType(message: string): AtRiskReason["type"] {
-  const lower = message.toLowerCase();
-  if (lower.includes("homework") || lower.includes("assignment")) return "homework";
-  if (
-    lower.includes("attend") ||
-    lower.includes("absent") ||
-    lower.includes("miss") ||
-    lower.includes("session log") ||
-    lower.includes("verified session")
-  ) {
-    return "attendance";
-  }
-  return "progress";
-}
-
-export function normalizeAtRiskStudent(raw: RawRecord): AtRiskStudent {
-  const student = (raw.student as RawRecord | undefined) ?? {};
-  const reasonsRaw = Array.isArray(raw.reasons) ? raw.reasons : [];
-
-  const reasons: AtRiskReason[] = reasonsRaw.map((reason) => {
-    if (typeof reason === "string") {
-      return { type: inferReasonType(reason), message: reason };
-    }
-    const record = reason as RawRecord;
-    return {
-      type: (record.type as AtRiskReason["type"]) ?? inferReasonType(asString(record.message)),
-      message: asString(record.message ?? reason),
-    };
-  });
-
-  return {
-    studentId: asId(raw.studentId ?? student._id ?? student.id),
-    studentName: asString(raw.studentName ?? student.name, "Student"),
-    riskLevel: (raw.riskLevel as RiskLevel) ?? "medium",
-    reasons,
-    aiGuidance: asString(raw.aiGuidance ?? raw.aiWarning, "") || undefined,
-    attendanceRate:
-      typeof raw.attendanceRate === "number" ? raw.attendanceRate : undefined,
-    homeworkCompletion:
-      typeof raw.homeworkCompletion === "number" ? raw.homeworkCompletion : undefined,
-  };
 }
 
 export function normalizeNotification(raw: RawRecord): Notification {

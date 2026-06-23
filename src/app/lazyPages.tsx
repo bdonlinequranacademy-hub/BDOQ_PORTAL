@@ -93,11 +93,6 @@ export const StudentProfilePage = lazyNamed(
   () => import("@/features/student/pages/StudentProfilePage"),
   "StudentProfilePage"
 );
-export const StudentReportConcernPage = lazyNamed(
-  () => import("@/features/student/pages/StudentReportConcernPage"),
-  "StudentReportConcernPage"
-);
-
 export const TeacherDashboardPage = lazyNamed(
   () => import("@/features/teacher/pages/TeacherDashboardPage"),
   "TeacherDashboardPage"
@@ -142,10 +137,6 @@ export const TeacherProgressPage = lazyNamed(
   () => import("@/features/teacher/pages/TeacherProgressPage"),
   "TeacherProgressPage"
 );
-export const TeacherAtRiskPage = lazyNamed(
-  () => import("@/features/teacher/pages/TeacherAtRiskPage"),
-  "TeacherAtRiskPage"
-);
 export const TeacherParentSummaryPage = lazyNamed(
   () => import("@/features/teacher/pages/TeacherParentSummaryPage"),
   "TeacherParentSummaryPage"
@@ -174,10 +165,6 @@ export const TeacherEarningsPage = lazyNamed(
   () => import("@/features/teacher/pages/TeacherEarningsPage"),
   "TeacherEarningsPage"
 );
-export const TeacherMonthlyProgressPage = lazyNamed(
-  () => import("@/features/teacher/pages/TeacherMonthlyProgressPage"),
-  "TeacherMonthlyProgressPage"
-);
 export const TeacherAvailabilityPage = lazyNamed(
   () => import("@/features/teacher/pages/TeacherAvailabilityPage"),
   "TeacherAvailabilityPage"
@@ -186,11 +173,6 @@ export const TeacherRequestStudentPage = lazyNamed(
   () => import("@/features/teacher/pages/TeacherRequestStudentPage"),
   "TeacherRequestStudentPage"
 );
-export const TeacherReportConcernPage = lazyNamed(
-  () => import("@/features/teacher/pages/TeacherReportConcernPage"),
-  "TeacherReportConcernPage"
-);
-
 export const AdminDashboardPage = lazyNamed(
   () => import("@/features/admin/pages/AdminDashboardPage"),
   "AdminDashboardPage"
@@ -227,10 +209,6 @@ export const AdminProgressPage = lazyNamed(
   () => import("@/features/admin/pages/AdminProgressPage"),
   "AdminProgressPage"
 );
-export const AdminAtRiskPage = lazyNamed(
-  () => import("@/features/admin/pages/AdminAtRiskPage"),
-  "AdminAtRiskPage"
-);
 export const AdminBlogPage = lazyNamed(
   () => import("@/features/admin/pages/AdminBlogPage"),
   "AdminBlogPage"
@@ -255,17 +233,9 @@ export const AdminContactMessagesPage = lazyNamed(
   () => import("@/features/admin/pages/AdminContactMessagesPage"),
   "AdminContactMessagesPage"
 );
-export const AdminMonthlyProgressPage = lazyNamed(
-  () => import("@/features/admin/pages/AdminMonthlyProgressPage"),
-  "AdminMonthlyProgressPage"
-);
 export const AdminHomeworkPage = lazyNamed(
   () => import("@/features/admin/pages/AdminHomeworkPage"),
   "AdminHomeworkPage"
-);
-export const AdminConcernReportsPage = lazyNamed(
-  () => import("@/features/admin/pages/AdminConcernReportsPage"),
-  "AdminConcernReportsPage"
 );
 export const AdminRoutinePage = lazyNamed(
   () => import("@/features/admin/pages/AdminRoutinePage"),

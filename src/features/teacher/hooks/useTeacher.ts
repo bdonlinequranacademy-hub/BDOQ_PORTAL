@@ -12,15 +12,12 @@ export const teacherKeys = {
   homeworkDetail: (id: string) => ["teacher", "homework", id] as const,
   attendanceReport: (classId?: string, date?: string) =>
     ["teacher", "attendanceReport", classId, date] as const,
-  atRisk: ["ai", "atRisk"] as const,
   notifications: ["teacher", "notifications"] as const,
   todaySchedule: ["teacher", "schedule", "today"] as const,
   weeklyRoutine: ["teacher", "schedule", "routine"] as const,
   classLogs: (status?: string) => ["teacher", "classLogs", status] as const,
   classLogStats: ["teacher", "classLogStats"] as const,
   earnings: (month?: string) => ["teacher", "earnings", month] as const,
-  monthlyProgress: (month?: string) => ["teacher", "monthlyProgress", month] as const,
-  monthlyQuestions: ["teacher", "monthlyQuestions"] as const,
   profile: ["teacher", "profile"] as const,
   studentRequests: ["teacher", "studentRequests"] as const,
   classAttendance: (classId?: string, date?: string) =>
@@ -164,25 +161,6 @@ export function useComplianceScan() {
   });
 }
 
-export function useSubmitConcernReport() {
-  const addToast = useUiStore((s) => s.addToast);
-  return useMutation({
-    mutationFn: teacherApi.submitConcernReport,
-    onSuccess: () => addToast("success", "Concern report submitted"),
-    onError: () => addToast("error", "Failed to submit report"),
-  });
-}
-
-export function useAtRiskStudents() {
-  const locale = useUiStore((s) => s.aiLocale);
-  return useQuery({
-    queryKey: [...teacherKeys.atRisk, locale],
-    queryFn: teacherApi.getAtRisk,
-    select: (r) => r.data ?? [],
-    staleTime: 5 * 60 * 1000,
-  });
-}
-
 export function useTeacherNotifications() {
   return useQuery({
     queryKey: teacherKeys.notifications,
@@ -273,35 +251,6 @@ export function useTeacherEarnings(month?: string) {
     queryKey: teacherKeys.earnings(month),
     queryFn: () => teacherApi.getEarnings(month),
     select: (r) => r.data,
-  });
-}
-
-export function useTeacherMonthlyProgress(month?: string) {
-  return useQuery({
-    queryKey: teacherKeys.monthlyProgress(month),
-    queryFn: () => teacherApi.getMonthlyProgress(month),
-    select: (r) => r.data ?? [],
-  });
-}
-
-export function useMonthlyProgressQuestions() {
-  return useQuery({
-    queryKey: teacherKeys.monthlyQuestions,
-    queryFn: teacherApi.getMonthlyProgressQuestions,
-    select: (r) => r.data ?? [],
-  });
-}
-
-export function useSaveMonthlyProgress() {
-  const qc = useQueryClient();
-  const addToast = useUiStore((s) => s.addToast);
-  return useMutation({
-    mutationFn: teacherApi.saveMonthlyProgress,
-    onSuccess: () => {
-      qc.invalidateQueries({ queryKey: ["teacher", "monthlyProgress"] });
-      addToast("success", "Monthly progress saved");
-    },
-    onError: () => addToast("error", "Failed to save monthly progress"),
   });
 }
 

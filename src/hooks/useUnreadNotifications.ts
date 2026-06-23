@@ -11,7 +11,6 @@ function adminPendingCount(
     newTrials?: number;
     newContacts?: number;
     pendingClassLogs?: number;
-    newConcernReports?: number;
     pendingPayments?: number;
     pendingStudentRequests?: number;
   }
@@ -21,7 +20,6 @@ function adminPendingCount(
     (pending.newTrials ?? 0) +
     (pending.newContacts ?? 0) +
     (pending.pendingClassLogs ?? 0) +
-    (pending.newConcernReports ?? 0) +
     (pending.pendingPayments ?? 0) +
     (pending.pendingStudentRequests ?? 0)
   );
