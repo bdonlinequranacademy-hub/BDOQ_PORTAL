@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
-import { ExternalLink, Video } from "lucide-react";
+import { Link } from "react-router-dom";
+import { ExternalLink, Presentation, Video } from "lucide-react";
 import { ClassScheduleChip } from "@/components/classes/ClassScheduleChip";
 import type { ScheduleLike } from "@/lib/utils/class";
 
@@ -9,6 +10,7 @@ interface ClassHeroProps {
   teacherName?: string;
   schedule?: ScheduleLike;
   meetingLink?: string;
+  classroomHref?: string;
   badge?: ReactNode;
   meta?: ReactNode;
 }
@@ -19,6 +21,7 @@ export function ClassHero({
   teacherName,
   schedule,
   meetingLink,
+  classroomHref,
   badge,
   meta,
 }: ClassHeroProps) {
@@ -42,18 +45,29 @@ export function ClassHero({
         <div className="flex flex-wrap items-center gap-2 pt-1">
           <ClassScheduleChip schedule={schedule} variant="onDark" />
         </div>
-        {meetingLink ? (
-          <a
-            href={meetingLink}
-            target="_blank"
-            rel="noreferrer"
-            className="mt-1 inline-flex w-fit items-center gap-2 rounded-xl bg-white/15 px-4 py-2.5 text-sm font-semibold transition hover:bg-white/25"
-          >
-            <Video className="size-4" />
-            Join class meeting
-            <ExternalLink className="size-3.5 opacity-70" />
-          </a>
-        ) : null}
+        <div className="mt-1 flex flex-wrap gap-2">
+          {classroomHref ? (
+            <Link
+              to={classroomHref}
+              className="inline-flex w-fit items-center gap-2 rounded-xl bg-gold px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-gold-dark"
+            >
+              <Presentation className="size-4" />
+              Enter classroom
+            </Link>
+          ) : null}
+          {meetingLink ? (
+            <a
+              href={meetingLink}
+              target="_blank"
+              rel="noreferrer"
+              className="inline-flex w-fit items-center gap-2 rounded-xl bg-white/15 px-4 py-2.5 text-sm font-semibold transition hover:bg-white/25"
+            >
+              <Video className="size-4" />
+              External meeting
+              <ExternalLink className="size-3.5 opacity-70" />
+            </a>
+          ) : null}
+        </div>
       </div>
     </div>
   );

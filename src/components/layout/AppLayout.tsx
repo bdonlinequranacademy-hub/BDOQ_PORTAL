@@ -24,6 +24,8 @@ import {
   Flag,
   Library,
   CreditCard,
+  Presentation,
+  Radio,
 } from "lucide-react";
 import { useAuthStore } from "@/stores/authStore";
 import { useUnreadNotificationCount } from "@/hooks/useUnreadNotifications";
@@ -58,6 +60,7 @@ function navItemsForRole(role: Role): NavItem[] {
         { label: "Report Concern", icon: <Flag className="size-5" />, path: "/teacher/report-concern" },
         { label: "Students", icon: <Users className="size-5" />, path: "/teacher/students" },
         { label: "Classes", icon: <BookOpen className="size-5" />, path: "/teacher/classes" },
+        { label: "Classroom", icon: <Presentation className="size-5" />, path: "/teacher/whiteboard" },
         { label: "Attendance", icon: <ClipboardCheck className="size-5" />, path: "/teacher/attendance" },
         { label: "Homework", icon: <BookOpenCheck className="size-5" />, path: "/teacher/homework" },
         { label: "Progress", icon: <TrendingUp className="size-5" />, path: "/teacher/progress" },
@@ -67,6 +70,7 @@ function navItemsForRole(role: Role): NavItem[] {
       return [
         { label: "Dashboard", icon: <LayoutDashboard className="size-5" />, path: "/student" },
         { label: "Classes", icon: <BookOpen className="size-5" />, path: "/student/classes" },
+        { label: "Live Class", icon: <Presentation className="size-5" />, path: "/student/classroom" },
         { label: "Homework", icon: <BookOpenCheck className="size-5" />, path: "/student/homework" },
         { label: "Attendance", icon: <ClipboardList className="size-5" />, path: "/student/attendance" },
         { label: "Progress", icon: <TrendingUp className="size-5" />, path: "/student/progress" },
@@ -83,6 +87,7 @@ function navItemsForRole(role: Role): NavItem[] {
         { label: "Payments", icon: <CreditCard className="size-5" />, path: "/admin/payments" },
         { label: "Curriculum", icon: <Library className="size-5" />, path: "/admin/curriculum" },
         { label: "Classes", icon: <BookOpen className="size-5" />, path: "/admin/classes" },
+        { label: "Live Classes", icon: <Radio className="size-5" />, path: "/admin/live-classes" },
         { label: "Routine", icon: <CalendarDays className="size-5" />, path: "/admin/schedule/routine" },
         { label: "Class Logs", icon: <ClipboardCheck className="size-5" />, path: "/admin/class-logs" },
         { label: "Student Care", icon: <ShieldAlert className="size-5" />, path: "/admin/student-care" },

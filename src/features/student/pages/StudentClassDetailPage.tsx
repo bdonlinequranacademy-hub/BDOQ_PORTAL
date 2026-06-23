@@ -6,6 +6,7 @@ import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { ClassHero } from "@/components/classes/ClassHero";
 import { classTitle, formatDuration, teacherName } from "@/lib/utils/class";
+import { buildClassroomRoomName } from "@/lib/utils/classroomRoom";
 import { PageLoading } from "@/components/ui/PageLoading";
 
 export function StudentClassDetailPage() {
@@ -39,6 +40,7 @@ export function StudentClassDetailPage() {
             teacherName={teacherName(typeof cls.teacher === "object" ? cls.teacher : undefined)}
             schedule={cls.schedule}
             meetingLink={cls.meetingLink}
+            classroomHref={`/student/classroom?room=${encodeURIComponent(buildClassroomRoomName(cls._id))}`}
             meta={
               cls.schedule?.duration ? (
                 <p className="text-sm text-white/75">

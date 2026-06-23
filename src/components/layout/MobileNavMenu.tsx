@@ -136,9 +136,9 @@ export function MobileNavMenu({
 export function mobilePrimaryPaths(role: Role): string[] {
   switch (role) {
     case "teacher":
-      return ["/teacher", "/teacher/schedule/today", "/teacher/class-logs", "/teacher/student-care"];
+      return ["/teacher", "/teacher/whiteboard", "/teacher/schedule/today", "/teacher/class-logs"];
     case "student":
-      return ["/student", "/student/classes", "/student/homework", "/student/progress"];
+      return ["/student", "/student/classroom", "/student/classes", "/student/homework"];
     case "admin":
       return ["/admin", "/admin/class-logs", "/admin/users", "/admin/classes"];
     default:
