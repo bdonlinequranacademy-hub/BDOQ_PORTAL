@@ -96,7 +96,7 @@ export function AdminLiveClassesPage() {
                 </p>
               ) : null}
               <Link
-                to={`/teacher/whiteboard?room=${encodeURIComponent(session.sessionId)}`}
+                to={`/admin/live-classes/observe?room=${encodeURIComponent(session.sessionId)}`}
                 className="mt-4 inline-flex rounded-xl bg-navy px-3 py-2 text-xs font-semibold text-white hover:bg-navy-500"
               >
                 Observe

@@ -42,6 +42,7 @@ interface ClassroomControlsProps {
   session: ClassroomSessionSnapshot | null;
   isTeacher: boolean;
   isStudent: boolean;
+  observeOnly?: boolean;
   handRaised: boolean;
   raisedHands: ClassroomParticipant[];
   readOnly: boolean;
@@ -58,6 +59,7 @@ export function ClassroomControls({
   session,
   isTeacher,
   isStudent,
+  observeOnly = false,
   handRaised,
   raisedHands,
   readOnly,
@@ -153,9 +155,11 @@ export function ClassroomControls({
         </div>
       </div>
 
-      {readOnly && isStudent ? (
+      {readOnly && (isStudent || observeOnly) ? (
         <p className="mt-2 text-xs text-gold-dark">
-          Teacher locked the whiteboard — you can watch but not draw.
+          {observeOnly
+            ? "Observer mode — you can watch but not change the board."
+            : "Teacher locked the whiteboard — you can watch but not draw."}
         </p>
       ) : null}
 

@@ -12,6 +12,8 @@ interface ClassroomProps {
   classId?: string;
   roomName?: string;
   className?: string;
+  /** Admin monitor mode — view whiteboard/video only, no teacher controls */
+  observeOnly?: boolean;
 }
 
 function resolveVideoRole(role: UserRole | undefined): ClassroomVideoRole {
@@ -20,7 +22,12 @@ function resolveVideoRole(role: UserRole | undefined): ClassroomVideoRole {
   return "teacher";
 }
 
-export function Classroom({ classId, roomName, className = "" }: ClassroomProps) {
+export function Classroom({
+  classId,
+  roomName,
+  className = "",
+  observeOnly = false,
+}: ClassroomProps) {
   const [searchParams] = useSearchParams();
   const user = useAuthStore((s) => s.user);
   const sessionId =
@@ -28,17 +35,20 @@ export function Classroom({ classId, roomName, className = "" }: ClassroomProps)
   const videoRole = resolveVideoRole(user?.role);
 
   const classroom = useClassroom({ sessionId });
+  const showTeacherControls = classroom.isTeacher && !observeOnly;
+  const boardReadOnly = observeOnly || classroom.readOnly;
 
   return (
     <div className={`flex flex-col gap-3 ${className}`}>
       <ClassroomControls
         connected={classroom.connected}
         session={classroom.session}
-        isTeacher={classroom.isTeacher}
+        isTeacher={showTeacherControls}
         isStudent={classroom.isStudent}
+        observeOnly={observeOnly}
         handRaised={classroom.handRaised}
         raisedHands={classroom.raisedHands}
-        readOnly={classroom.readOnly}
+        readOnly={boardReadOnly}
         onStartClass={classroom.startClass}
         onEndClass={classroom.endClass}
         onToggleLock={classroom.toggleLock}
@@ -56,8 +66,8 @@ export function Classroom({ classId, roomName, className = "" }: ClassroomProps)
           className="xl:sticky xl:top-4"
         />
         <Whiteboard
-          readOnly={classroom.readOnly}
-          onDocumentChange={classroom.handleLocalWhiteboardChange}
+          readOnly={boardReadOnly}
+          onDocumentChange={observeOnly ? undefined : classroom.handleLocalWhiteboardChange}
           remoteWhiteboard={classroom.remoteWhiteboard}
           clearSignal={classroom.clearSignal}
         />

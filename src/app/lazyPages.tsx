@@ -217,6 +217,10 @@ export const AdminLiveClassesPage = lazyNamed(
   () => import("@/features/admin/pages/AdminLiveClassesPage"),
   "AdminLiveClassesPage"
 );
+export const AdminObserveClassroomPage = lazyNamed(
+  () => import("@/features/admin/pages/AdminObserveClassroomPage"),
+  "AdminObserveClassroomPage"
+);
 export const AdminBlogFormPage = lazyNamed(
   () => import("@/features/admin/pages/AdminBlogFormPage"),
   "AdminBlogFormPage"
