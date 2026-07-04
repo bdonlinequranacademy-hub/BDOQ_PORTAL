@@ -1,5 +1,6 @@
 import { Outlet, useLocation, useNavigate } from "react-router-dom";
-import { Bell, Search } from "lucide-react";
+import { useEffect, useState } from "react";
+import { Bell, PanelLeftClose, PanelLeftOpen, Search } from "lucide-react";
 import { BrandLogo } from "@/components/brand/BrandLogo";
 import { GlobalSearch } from "@/components/search/GlobalSearch";
 import { ThemeToggle } from "@/components/theme/ThemeToggle";
@@ -25,6 +26,13 @@ interface IPortalLayoutProps {
   unreadCount: number;
   hasNotifications: boolean;
   onSignOut: () => void;
+}
+
+const SIDEBAR_OPEN_KEY = "bdoq-portal-sidebar-open";
+
+function readSidebarOpenPreference(): boolean {
+  if (typeof window === "undefined") return true;
+  return localStorage.getItem(SIDEBAR_OPEN_KEY) !== "false";
 }
 
 function NavButton({
@@ -86,6 +94,11 @@ export function PortalLayout({
 }: IPortalLayoutProps) {
   const navigate = useNavigate();
   const location = useLocation();
+  const [sidebarOpen, setSidebarOpen] = useState(readSidebarOpenPreference);
+
+  useEffect(() => {
+    localStorage.setItem(SIDEBAR_OPEN_KEY, String(sidebarOpen));
+  }, [sidebarOpen]);
 
   function isActive(path: string) {
     if (path === `/${user.role}`) return location.pathname === path;
@@ -103,7 +116,11 @@ export function PortalLayout({
 
   return (
     <div className="min-h-screen bg-portal text-portal transition-colors duration-200">
-      <aside className="fixed inset-y-0 left-0 z-50 hidden w-64 flex-col bg-portal-sidebar text-white lg:flex">
+      <aside
+        className={`fixed inset-y-0 left-0 z-50 hidden w-64 flex-col bg-portal-sidebar text-white transition-transform duration-300 ease-in-out lg:flex ${
+          sidebarOpen ? "translate-x-0" : "-translate-x-full"
+        }`}
+      >
         <div className="flex flex-col items-center border-b border-white/10 px-5 py-6">
           <BrandLogo subtitle={portalLabel} />
         </div>
@@ -149,13 +166,33 @@ export function PortalLayout({
         </div>
       </aside>
 
-      <div className="flex min-h-screen w-full min-w-0 flex-col lg:pl-64">
+      <div
+        className={`flex min-h-screen w-full min-w-0 flex-col transition-[padding] duration-300 ease-in-out ${
+          sidebarOpen ? "lg:pl-64" : "lg:pl-0"
+        }`}
+      >
         <header className="sticky top-0 z-40 flex items-center justify-between border-b border-portal bg-portal-header px-5 py-3 backdrop-blur-sm sm:px-6 lg:px-8">
-          <div className="min-w-0">
-            <p className="truncate text-xs font-medium uppercase tracking-wider text-portal-muted">
-              {BDOQ_BRAND.shortName}
-            </p>
-            <p className="truncate text-sm font-semibold text-portal-heading">{activePage}</p>
+          <div className="flex min-w-0 items-center gap-2 sm:gap-3">
+            <button
+              type="button"
+              onClick={() => setSidebarOpen((open) => !open)}
+              className="hidden min-h-[44px] min-w-[44px] shrink-0 items-center justify-center rounded-lg text-portal-heading transition hover:bg-portal-surface-muted/30 lg:flex"
+              aria-label={sidebarOpen ? "Close sidebar" : "Open sidebar"}
+              aria-expanded={sidebarOpen}
+              title={sidebarOpen ? "Hide sidebar" : "Show sidebar"}
+            >
+              {sidebarOpen ? (
+                <PanelLeftClose className="size-5" aria-hidden />
+              ) : (
+                <PanelLeftOpen className="size-5" aria-hidden />
+              )}
+            </button>
+            <div className="min-w-0">
+              <p className="truncate text-xs font-medium uppercase tracking-wider text-portal-muted">
+                {BDOQ_BRAND.shortName}
+              </p>
+              <p className="truncate text-sm font-semibold text-portal-heading">{activePage}</p>
+            </div>
           </div>
 
           <div className="flex items-center gap-2 sm:gap-3">
