@@ -16,7 +16,7 @@ export function TeacherEarningsPage() {
     <PageContainer className="flex flex-col gap-6">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-[#03214F]">My Earnings</h1>
+          <h1 className="text-2xl font-bold text-primary-dark">My Earnings</h1>
           <p className="mt-1 text-sm text-zinc-500">
             Verified sessions from approved class logs — {formatMonthLabel(month)}
           </p>
@@ -35,11 +35,11 @@ export function TeacherEarningsPage() {
         <>
           <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
             <Card className="rounded-2xl border-0 p-4 shadow-sm">
-              <div className="flex items-center gap-2 text-[#C4922B]">
+              <div className="flex items-center gap-2 text-gold">
                 <Banknote className="size-4" />
                 <span className="text-xs text-zinc-400">Total verified</span>
               </div>
-              <p className="mt-1 text-2xl font-bold text-[#03214F]">
+              <p className="mt-1 text-2xl font-bold text-primary-dark">
                 {formatBdt(data?.totalBdt ?? 0)}
               </p>
             </Card>
@@ -75,16 +75,16 @@ export function TeacherEarningsPage() {
 
           {(data?.byCourse.length ?? 0) > 0 ? (
             <Card className="rounded-2xl border-0 p-5 shadow-sm">
-              <h2 className="mb-4 font-bold text-[#03214F]">By course</h2>
+              <h2 className="mb-4 font-bold text-primary-dark">By course</h2>
               <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
                 {data!.byCourse.map((row) => (
                   <div
                     key={row.courseType}
                     className="rounded-xl bg-[#F8FAFF] p-4"
                   >
-                    <p className="font-semibold text-[#03214F]">{row.courseType}</p>
+                    <p className="font-semibold text-primary-dark">{row.courseType}</p>
                     <p className="text-sm text-zinc-500">{row.sessions} sessions</p>
-                    <p className="text-lg font-bold text-[#C4922B]">{formatBdt(row.totalBdt)}</p>
+                    <p className="text-lg font-bold text-gold">{formatBdt(row.totalBdt)}</p>
                   </div>
                 ))}
               </div>
@@ -92,7 +92,7 @@ export function TeacherEarningsPage() {
           ) : null}
 
           <Card className="rounded-2xl border-0 p-5 shadow-sm">
-            <h2 className="mb-4 font-bold text-[#03214F]">Session breakdown</h2>
+            <h2 className="mb-4 font-bold text-primary-dark">Session breakdown</h2>
             {(data?.sessions.length ?? 0) === 0 ? (
               <p className="text-sm text-zinc-400">
                 No sessions logged this month. Submit class logs from your schedule.
@@ -123,7 +123,7 @@ export function TeacherEarningsPage() {
                         <td className="py-3 pr-4">
                           <ClassLogStatusBadge status={row.status} />
                         </td>
-                        <td className="py-3 text-right font-semibold text-[#03214F]">
+                        <td className="py-3 text-right font-semibold text-primary-dark">
                           {row.status === "approved" ? formatBdt(row.earningsBdt) : "—"}
                         </td>
                       </tr>

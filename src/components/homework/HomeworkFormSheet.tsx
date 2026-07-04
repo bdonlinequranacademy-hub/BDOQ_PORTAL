@@ -98,7 +98,7 @@ export function HomeworkFormSheet({
       <div className="absolute inset-0" onClick={onClose} aria-hidden />
       <div className="relative z-10 flex max-h-[92vh] w-full flex-col gap-5 overflow-y-auto rounded-t-3xl border-t border-portal-border bg-portal-surface p-6">
         <div className="flex items-center justify-between">
-          <span className="text-lg font-bold text-[#03214F]">
+          <span className="text-lg font-bold text-primary-dark">
             {mode === "create" ? "New Homework" : "Edit Homework"}
           </span>
           <button type="button" onClick={onClose} aria-label="Close">
@@ -170,7 +170,7 @@ export function HomeworkFormSheet({
         <Button
           onClick={handleSubmit}
           disabled={isSubmitting || !canSubmit}
-          className="h-12 w-full rounded-xl bg-[#03214F] font-semibold text-white"
+          className="h-12 w-full rounded-xl bg-primary-dark font-semibold text-white"
         >
           {isSubmitting
             ? mode === "create"

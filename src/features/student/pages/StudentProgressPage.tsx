@@ -2,6 +2,8 @@ import { useStudentProgress, useStudentCurriculumPlan } from "@/features/student
 import { PageContainer } from "@/components/layout/PageContainer";
 import { Card } from "@/components/ui/Card";
 import { PageLoading } from "@/components/ui/PageLoading";
+import { Pagination } from "@/components/ui/Pagination";
+import { usePaginatedList } from "@/lib/hooks/usePaginatedList";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { ProgressTimeline } from "@/components/progress/ProgressTimeline";
 import { StudentCurriculumPlan } from "@/components/curriculum/StudentCurriculumPlan";
@@ -13,19 +15,20 @@ import { MissingCurriculumBadge } from "@/components/curriculum/CurriculumProgra
 export function StudentProgressPage() {
   const { data: records = [], isLoading } = useStudentProgress();
   const { data: curriculumPlan = [] } = useStudentCurriculumPlan();
+  const pagination = usePaginatedList(records);
 
   return (
     <PageContainer className="flex flex-col gap-6">
       <div>
-        <h1 className="text-2xl font-bold text-[#03214F]">My Progress</h1>
+        <h1 className="text-2xl font-bold text-primary-dark">My Progress</h1>
         <p className="text-sm text-zinc-500">Teacher feedback on your learning</p>
       </div>
 
       {curriculumPlan.length > 0 ? (
         <Card className="flex flex-col gap-4 rounded-2xl border-0 p-5 shadow-sm">
           <div className="flex items-center gap-2">
-            <BookOpen className="size-5 text-[#C4922B]" />
-            <span className="font-bold text-[#03214F]">My curriculum plan</span>
+            <BookOpen className="size-5 text-gold" />
+            <span className="font-bold text-primary-dark">My curriculum plan</span>
           </div>
           <StudentCurriculumPlan assignments={curriculumPlan} />
         </Card>
@@ -42,16 +45,17 @@ export function StudentProgressPage() {
           description="Your teacher will update your Tajweed score and surah progress here."
         />
       ) : (
+        <>
         <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
-          {records.map((r) => (
+          {pagination.paginatedItems.map((r) => (
             <Card key={r._id} className="flex flex-col gap-4 rounded-2xl border-0 p-5 shadow-sm">
               <div className="flex items-start justify-between gap-2">
                 <div>
-                  <p className="font-semibold text-[#03214F]">
+                  <p className="font-semibold text-primary-dark">
                     {r.class ? classTitle(r.class) : "Overall progress"}
                   </p>
                   {r.curriculumLabels?.program ? (
-                    <p className="text-xs font-medium text-[#C4922B]">
+                    <p className="text-xs font-medium text-gold">
                       {formatCurriculumPath(r.curriculumLabels)}
                     </p>
                   ) : (
@@ -63,7 +67,7 @@ export function StudentProgressPage() {
                     </p>
                   )}
                 </div>
-                <span className="rounded-full bg-[#EEF2F8] px-3 py-1 text-sm font-bold text-[#03214F]">
+                <span className="rounded-full bg-[#EEF2F8] px-3 py-1 text-sm font-bold text-primary-dark">
                   {r.tajweedScore}%
                 </span>
               </div>
@@ -93,20 +97,22 @@ export function StudentProgressPage() {
 
               {r.memorizedAyahs != null && (
                 <p className="text-sm text-zinc-600">
-                  <span className="font-semibold text-[#03214F]">{r.memorizedAyahs}</span>{" "}
+                  <span className="font-semibold text-primary-dark">{r.memorizedAyahs}</span>{" "}
                   ayahs memorized
                 </p>
               )}
 
               {r.notes && (
                 <div className="rounded-xl bg-[#F8FAFF] px-4 py-3">
-                  <p className="text-xs font-semibold text-[#C4922B]">Notes</p>
+                  <p className="text-xs font-semibold text-gold">Notes</p>
                   <p className="mt-1 text-sm text-zinc-700">{r.notes}</p>
                 </div>
               )}
             </Card>
           ))}
         </div>
+        <Pagination pagination={pagination} itemLabel="records" />
+        </>
       )}
     </PageContainer>
   );

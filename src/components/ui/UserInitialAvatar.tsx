@@ -1,33 +1,34 @@
-function initialsFromName(name: string): string {
-  return name
-    .split(/\s+/)
-    .filter(Boolean)
-    .slice(0, 2)
-    .map((part) => part[0]?.toUpperCase() ?? "")
-    .join("");
-}
+import { UserAvatar } from "@/components/ui/UserAvatar";
 
 interface UserInitialAvatarProps {
   name: string;
+  avatarUrl?: string | null;
+  gender?: "male" | "female";
   size?: "sm" | "md" | "lg";
   className?: string;
 }
 
-const sizeClasses = {
-  sm: "size-9 text-xs",
-  md: "size-11 text-sm",
-  lg: "size-14 text-base",
+const sizeMap = {
+  sm: "sm" as const,
+  md: "md" as const,
+  lg: "lg" as const,
 };
 
-export function UserInitialAvatar({ name, size = "md", className = "" }: UserInitialAvatarProps) {
-  const initials = initialsFromName(name) || "?";
-
+export function UserInitialAvatar({
+  name,
+  avatarUrl,
+  gender,
+  size = "md",
+  className = "",
+}: UserInitialAvatarProps) {
   return (
-    <div
-      className={`flex shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-navy to-[#0a3a7a] font-bold text-white shadow-sm ${sizeClasses[size]} ${className}`}
-      aria-hidden
-    >
-      {initials}
-    </div>
+    <UserAvatar
+      name={name}
+      avatarUrl={avatarUrl}
+      gender={gender}
+      size={sizeMap[size]}
+      shape="rounded"
+      className={className}
+    />
   );
 }

@@ -67,7 +67,7 @@ function CatalogMultiSelect({
   return (
     <div className="flex flex-col gap-2">
       <div>
-        <p className="text-sm font-semibold text-[#03214F]">{label}</p>
+        <p className="text-sm font-semibold text-primary-dark">{label}</p>
         <p className="text-xs text-zinc-500">{hint}</p>
       </div>
       <select
@@ -246,7 +246,7 @@ export function AdminCurriculumPage() {
     <PageContainer className="flex flex-col gap-6">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-[#03214F]">Curriculum</h1>
+          <h1 className="text-2xl font-bold text-primary-dark">Curriculum</h1>
           <p className="text-sm text-zinc-500">
             Pick program → section → manage surahs, tajweed rules, or grammar from dropdowns.
           </p>
@@ -270,7 +270,7 @@ export function AdminCurriculumPage() {
             type="button"
             onClick={handleSave}
             disabled={!dirty || updateCurriculum.isPending}
-            className="gap-2 rounded-xl bg-[#03214F] text-white"
+            className="gap-2 rounded-xl bg-primary-dark text-white"
           >
             <Save className="size-4" />
             {updateCurriculum.isPending ? "Saving…" : "Save changes"}
@@ -288,7 +288,7 @@ export function AdminCurriculumPage() {
         <Card className="flex flex-col gap-5 rounded-2xl border-0 p-5 shadow-sm">
           <div className="grid gap-3 sm:grid-cols-3">
             <label className="flex flex-col gap-1.5">
-              <span className="text-sm font-medium text-[#03214F]">Program</span>
+              <span className="text-sm font-medium text-primary-dark">Program</span>
               <select
                 value={programIdx}
                 onChange={(e) => {
@@ -307,7 +307,7 @@ export function AdminCurriculumPage() {
             </label>
 
             <label className="flex flex-col gap-1.5">
-              <span className="text-sm font-medium text-[#03214F]">Section</span>
+              <span className="text-sm font-medium text-primary-dark">Section</span>
               <select
                 value={sectionIdx === "" ? "" : sectionIdx}
                 onChange={(e) => {
@@ -327,7 +327,7 @@ export function AdminCurriculumPage() {
 
             {!showSurahPicker && !showTajweedPicker && !showGrammarPicker ? (
               <label className="flex flex-col gap-1.5">
-                <span className="text-sm font-medium text-[#03214F]">Topic</span>
+                <span className="text-sm font-medium text-primary-dark">Topic</span>
                 <select
                   value={topicIdx === "" ? "" : topicIdx}
                   onChange={(e) =>
@@ -442,7 +442,7 @@ export function AdminCurriculumPage() {
             <button
               type="button"
               onClick={handleAddSection}
-              className="self-start text-sm font-semibold text-[#C4922B]"
+              className="self-start text-sm font-semibold text-gold"
             >
               + Add section to this program
             </button>

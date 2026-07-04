@@ -247,11 +247,12 @@ export function ClassEnrollmentPanel({
                   <button
                     type="button"
                     onClick={() => onRemove(normalizeId(s._id), s.name)}
-                    className="inline-flex shrink-0 items-center gap-1 rounded-lg border border-transparent px-2 py-1.5 text-xs font-semibold text-red-600 opacity-80 transition hover:border-red-100 hover:bg-red-50 hover:opacity-100 group-hover:opacity-100"
+                    className="inline-flex shrink-0 items-center gap-1.5 rounded-full border border-zinc-200 bg-white px-3 py-1.5 text-xs font-semibold text-zinc-500 shadow-sm transition hover:border-red-200 hover:bg-red-50 hover:text-red-600"
                     aria-label={`Remove ${s.name} from class`}
+                    title={`Remove ${s.name}`}
                   >
                     <UserMinus className="size-3.5" />
-                    <span className="hidden sm:inline">Remove</span>
+                    Remove
                   </button>
                 </li>
               );

@@ -12,6 +12,8 @@ import { formControlClass } from "@/lib/formControl";
 import type { StudentRequestStatus } from "@/types/models";
 
 import { PageLoading } from "@/components/ui/PageLoading";
+import { Pagination } from "@/components/ui/Pagination";
+import { usePaginatedList } from "@/lib/hooks/usePaginatedList";
 const COURSE_TYPES = ["Quran", "Tajweed", "Hifz", "Arabic", "Other"];
 
 function statusStyles(status: StudentRequestStatus) {
@@ -30,6 +32,7 @@ export function TeacherRequestStudentPage() {
   const [preferredCourseType, setPreferredCourseType] = useState("Quran");
   const { data: requests = [], isLoading } = useTeacherStudentRequests();
   const create = useCreateStudentRequest();
+  const pagination = usePaginatedList(requests);
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -50,14 +53,14 @@ export function TeacherRequestStudentPage() {
   return (
     <PageContainer className="flex flex-col gap-6">
       <div>
-        <h1 className="text-2xl font-bold text-[#03214F]">Request a Student</h1>
+        <h1 className="text-2xl font-bold text-primary-dark">Request a Student</h1>
         <p className="mt-1 text-sm text-zinc-500">
           Ask admin to assign a new student when you have availability
         </p>
       </div>
 
       <Card className="rounded-2xl border-0 bg-[#F8FAFF] p-4 shadow-sm">
-        <p className="text-sm font-semibold text-[#03214F]">What happens next</p>
+        <p className="text-sm font-semibold text-primary-dark">What happens next</p>
         <ol className="mt-2 list-decimal space-y-1 pl-5 text-sm text-zinc-600">
           <li>Admin reviews your request (usually within 1–2 business days).</li>
           <li>If approved, admin assigns a matching student to one of your classes.</li>
@@ -105,7 +108,7 @@ export function TeacherRequestStudentPage() {
       </Card>
 
       <div>
-        <h2 className="mb-3 font-bold text-[#03214F]">Your requests</h2>
+        <h2 className="mb-3 font-bold text-primary-dark">Your requests</h2>
         {isLoading ? (
           <PageLoading label="Loading requests…" />
         ) : requests.length === 0 ? (
@@ -115,8 +118,9 @@ export function TeacherRequestStudentPage() {
             description="Submit a request when you are ready to take on a new student."
           />
         ) : (
+          <>
           <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
-            {requests.map((req) => (
+            {pagination.paginatedItems.map((req) => (
               <Card
                 key={req._id}
                 className="flex flex-col gap-3 rounded-2xl border-0 p-5 shadow-sm"
@@ -134,7 +138,7 @@ export function TeacherRequestStudentPage() {
                     {new Date(req.createdAt).toLocaleDateString()}
                   </span>
                 </div>
-                <p className="text-sm text-[#03214F]">{req.message}</p>
+                <p className="text-sm text-primary-dark">{req.message}</p>
                 {req.adminNote ? (
                   <p className="rounded-xl bg-[#F8FAFF] px-3 py-2 text-xs text-zinc-600">
                     Admin: {req.adminNote}
@@ -143,6 +147,8 @@ export function TeacherRequestStudentPage() {
               </Card>
             ))}
           </div>
+          <Pagination pagination={pagination} itemLabel="requests" />
+          </>
         )}
       </div>
     </PageContainer>

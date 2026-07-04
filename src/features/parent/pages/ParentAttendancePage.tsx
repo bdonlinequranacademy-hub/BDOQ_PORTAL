@@ -22,7 +22,7 @@ export function ParentAttendancePage() {
   return (
     <PageContainer className="flex flex-col gap-6">
       <div>
-        <h1 className="text-2xl font-bold text-[#03214F]">Attendance</h1>
+        <h1 className="text-2xl font-bold text-primary-dark">Attendance</h1>
         <p className="text-sm text-zinc-500">Your child&apos;s class attendance</p>
       </div>
 
@@ -36,7 +36,7 @@ export function ParentAttendancePage() {
         <>
           <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
             <Card className="rounded-2xl border-0 p-4 text-center shadow-sm">
-              <p className="text-2xl font-bold text-[#03214F]">{summary?.percentage ?? 0}%</p>
+              <p className="text-2xl font-bold text-primary-dark">{summary?.percentage ?? 0}%</p>
               <p className="text-xs text-zinc-400">Rate</p>
             </Card>
             <Card className="rounded-2xl border-0 p-4 text-center shadow-sm">
@@ -64,7 +64,7 @@ export function ParentAttendancePage() {
                     className="flex items-center justify-between px-5 py-4"
                   >
                     <div>
-                      <p className="font-medium text-[#03214F]">{r.class?.title ?? "Class"}</p>
+                      <p className="font-medium text-primary-dark">{r.class?.title ?? "Class"}</p>
                       <p className="text-xs text-zinc-400">
                         {new Date(r.date).toLocaleDateString()}
                       </p>

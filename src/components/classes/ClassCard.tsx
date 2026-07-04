@@ -2,6 +2,7 @@ import type { ReactNode } from "react";
 import { ChevronRight, Users, GraduationCap, Video } from "lucide-react";
 import { ClassScheduleChip } from "@/components/classes/ClassScheduleChip";
 import type { ScheduleLike } from "@/lib/utils/class";
+import { normalizeMeetingLink } from "@/lib/utils/meetingLink";
 
 interface ClassCardProps {
   title: string;
@@ -28,6 +29,8 @@ export function ClassCard({
   actions,
   footer,
 }: ClassCardProps) {
+  const externalMeetingLink = normalizeMeetingLink(meetingLink);
+
   return (
     <article className="group flex h-full flex-col overflow-hidden rounded-2xl border border-zinc-100 bg-white shadow-sm transition hover:border-gold/25 hover:shadow-md">
       <button
@@ -40,10 +43,14 @@ export function ClassCard({
             <div className="flex flex-wrap items-center gap-2">
               <h3 className="text-base font-bold leading-snug text-navy">{title}</h3>
               {inactive ? (
-                <span className="rounded-full bg-zinc-100 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-zinc-500">
+                <span className="inline-flex items-center rounded-md border border-amber-200 bg-amber-50 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-amber-700">
                   Inactive
                 </span>
-              ) : null}
+              ) : (
+                <span className="inline-flex items-center rounded-md border border-emerald-200 bg-emerald-50 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-emerald-700">
+                  Active
+                </span>
+              )}
             </div>
             {subtitle ? (
               <p className="mt-1 line-clamp-2 text-xs leading-relaxed text-zinc-500">{subtitle}</p>
@@ -70,14 +77,14 @@ export function ClassCard({
         <ClassScheduleChip schedule={schedule} />
       </button>
 
-      {(actions || meetingLink || footer) && (
+      {(actions || externalMeetingLink || footer) && (
         <div className="flex flex-col gap-2 border-t border-zinc-50 px-5 py-3">
           {footer}
           <div className="flex flex-wrap gap-2">
             {actions}
-            {meetingLink ? (
+            {externalMeetingLink ? (
               <a
-                href={meetingLink}
+                href={externalMeetingLink}
                 target="_blank"
                 rel="noreferrer"
                 onClick={(e) => e.stopPropagation()}

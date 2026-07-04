@@ -30,6 +30,8 @@ import { formatCurriculumPath, matchesProgramFilter } from "@/lib/api/curriculum
 import type { Homework } from "@/types/models";
 
 import { PageLoading } from "@/components/ui/PageLoading";
+import { Pagination } from "@/components/ui/Pagination";
+import { usePaginatedList } from "@/lib/hooks/usePaginatedList";
 const BORDER_COLORS = [
   "border-l-teal-500",
   "border-l-blue-500",
@@ -40,7 +42,7 @@ const BORDER_COLORS = [
 const SUBMISSION_BADGE_COLORS = [
   "bg-teal-100 text-teal-700",
   "bg-blue-100 text-blue-700",
-  "bg-[#FDF3E0] text-[#C4922B]",
+  "bg-[#FDF3E0] text-gold",
   "bg-purple-100 text-purple-700",
 ];
 
@@ -92,6 +94,10 @@ export function TeacherHomeworkPage() {
     () => homework.filter((hw) => matchesProgramFilter(hw.curriculumProgram, programFilter)),
     [homework, programFilter]
   );
+
+  const homeworkPagination = usePaginatedList(visibleHomework, {
+    resetDeps: [programFilter],
+  });
 
   useEffect(() => {
     if (searchParams.get("new") === "1") setSheetMode("create");
@@ -163,17 +169,17 @@ export function TeacherHomeworkPage() {
     <PageContainer className="flex flex-col gap-6">
       <div className="flex flex-col gap-1">
         <span className="text-sm text-zinc-500">Assalamu Alaikum,</span>
-        <h1 className="text-2xl font-bold text-[#03214F]">{user?.name ?? "Teacher"}</h1>
+        <h1 className="text-2xl font-bold text-primary-dark">{user?.name ?? "Teacher"}</h1>
       </div>
 
       <div className="flex gap-2">
         <div className="flex items-center gap-2 rounded-full bg-[#EEF2F8] px-4 py-2">
-          <span className="text-sm font-bold text-[#03214F]">{activeCount}</span>
-          <span className="text-xs text-[#03214F]/70">Active Assignments</span>
+          <span className="text-sm font-bold text-primary-dark">{activeCount}</span>
+          <span className="text-xs text-primary-dark/70">Active Assignments</span>
         </div>
         <div className="flex items-center gap-2 rounded-full bg-[#FDF3E0] px-4 py-2">
-          <span className="text-sm font-bold text-[#C4922B]">{pendingCount}</span>
-          <span className="text-xs text-[#C4922B]/80">Pending Reviews</span>
+          <span className="text-sm font-bold text-gold">{pendingCount}</span>
+          <span className="text-xs text-gold/80">Pending Reviews</span>
         </div>
       </div>
 
@@ -186,7 +192,7 @@ export function TeacherHomeworkPage() {
         ].map((k) => (
           <Card key={k.label} className="flex flex-col gap-2 rounded-2xl border-0 p-4 shadow-sm">
             <div className={`flex size-9 items-center justify-center rounded-xl ${k.bg}`}>{k.icon}</div>
-            <span className="text-2xl font-bold text-[#03214F]">{k.value}</span>
+            <span className="text-2xl font-bold text-primary-dark">{k.value}</span>
             <span className="text-xs text-zinc-400">{k.label}</span>
           </Card>
         ))}
@@ -194,7 +200,7 @@ export function TeacherHomeworkPage() {
 
       <Card className="flex flex-col gap-4 rounded-3xl border-0 p-5 shadow-sm">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-          <span className="text-base font-bold text-[#03214F]">Active Assignments</span>
+          <span className="text-base font-bold text-primary-dark">Active Assignments</span>
           <div className="flex flex-wrap items-center gap-2">
             <CurriculumProgramFilter
               tree={allPrograms}
@@ -205,7 +211,7 @@ export function TeacherHomeworkPage() {
             <button
               type="button"
               onClick={openCreate}
-              className="flex items-center gap-1 text-sm font-semibold text-[#C4922B]"
+              className="flex items-center gap-1 text-sm font-semibold text-gold"
             >
               <Plus className="size-4" />
               Assign New
@@ -226,15 +232,16 @@ export function TeacherHomeworkPage() {
             }
           />
         ) : (
+          <>
           <div className="flex flex-col gap-3">
-            {visibleHomework.map((hw, i) => (
+            {homeworkPagination.paginatedItems.map((hw, i) => (
               <div
                 key={hw._id}
                 onClick={() => navigate(`/teacher/homework/${hw._id}/grade`)}
                 className={`flex cursor-pointer items-center gap-3 rounded-2xl border-l-4 bg-[#F8F9FF] p-3 ${BORDER_COLORS[i % BORDER_COLORS.length]}`}
               >
                 <div className="flex flex-1 flex-col gap-1">
-                  <span className="text-sm font-bold text-[#03214F]">{hw.title}</span>
+                  <span className="text-sm font-bold text-primary-dark">{hw.title}</span>
                   <span className="text-xs text-zinc-400">
                     {hw.className ?? "–"} · Due{" "}
                     {new Date(hw.dueDate).toLocaleDateString("en-US", {
@@ -255,7 +262,7 @@ export function TeacherHomeworkPage() {
                   <button
                     type="button"
                     onClick={(e) => openEdit(hw, e)}
-                    className="rounded-lg p-2 text-zinc-400 hover:bg-white hover:text-[#03214F]"
+                    className="rounded-lg p-2 text-zinc-400 hover:bg-white hover:text-primary-dark"
                     aria-label="Edit homework"
                   >
                     <Pencil className="size-4" />
@@ -274,12 +281,14 @@ export function TeacherHomeworkPage() {
               </div>
             ))}
           </div>
+          <Pagination pagination={homeworkPagination} itemLabel="assignments" />
+          </>
         )}
 
         <button
           type="button"
           onClick={openCreate}
-          className="mt-1 flex items-center gap-1 text-sm font-semibold text-[#C4922B]"
+          className="mt-1 flex items-center gap-1 text-sm font-semibold text-gold"
         >
           <Plus className="size-4" />
           Create New Assignment
@@ -288,7 +297,7 @@ export function TeacherHomeworkPage() {
 
       {homework.some((hw) => (hw.submissions?.length ?? 0) > 0) && (
         <Card className="flex flex-col gap-4 rounded-3xl border-0 p-5 shadow-sm">
-          <span className="text-base font-bold text-[#03214F]">Pending Reviews</span>
+          <span className="text-base font-bold text-primary-dark">Pending Reviews</span>
           <div className="flex flex-col gap-3">
             {homework
               .flatMap((hw) =>
@@ -306,7 +315,7 @@ export function TeacherHomeworkPage() {
                     {initials(sub.studentName ?? "?")}
                   </div>
                   <div className="flex flex-1 flex-col gap-0.5">
-                    <span className="text-sm font-bold text-[#03214F]">
+                    <span className="text-sm font-bold text-primary-dark">
                       {sub.studentName ?? "Student"}
                     </span>
                     <span className="text-xs text-zinc-400">
@@ -319,7 +328,7 @@ export function TeacherHomeworkPage() {
                   </div>
                   <Button
                     onClick={() => navigate(`/teacher/homework/${hw._id}/grade`)}
-                    className="h-8 rounded-full bg-[#03214F] px-4 py-0 text-xs text-white"
+                    className="h-8 rounded-full bg-primary-dark px-4 py-0 text-xs text-white"
                   >
                     Review
                   </Button>

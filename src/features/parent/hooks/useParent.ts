@@ -6,6 +6,7 @@ import { useParentStore } from "@/stores/parentStore";
 export const parentKeys = {
   children: ["parent", "children"] as const,
   classes: (childId: string) => ["parent", "classes", childId] as const,
+  scheduleToday: (childId: string) => ["parent", "scheduleToday", childId] as const,
   homework: (childId: string) => ["parent", "homework", childId] as const,
   attendance: (childId: string) => ["parent", "attendance", childId] as const,
   progress: (childId: string) => ["parent", "progress", childId] as const,
@@ -44,6 +45,16 @@ export function useParentChildClasses(childId: string) {
     queryFn: () => parentApi.getChildClasses(childId),
     select: (r) => r.data ?? [],
     enabled: Boolean(childId),
+  });
+}
+
+export function useParentChildTodaySchedule(childId: string) {
+  return useQuery({
+    queryKey: parentKeys.scheduleToday(childId),
+    queryFn: () => parentApi.getChildTodaySchedule(childId),
+    select: (r) => r.data,
+    enabled: Boolean(childId),
+    refetchInterval: 60_000,
   });
 }
 

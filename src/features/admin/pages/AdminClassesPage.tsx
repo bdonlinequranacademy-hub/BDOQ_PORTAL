@@ -1,7 +1,7 @@
 import { useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Search, Plus, Trash2, BookOpen, Users, CalendarDays } from "lucide-react";
-import { useAdminClasses, useDeleteClass } from "@/features/admin/hooks/useAdmin";
+import { Search, Plus, Trash2, BookOpen, Users, CalendarDays, RotateCcw } from "lucide-react";
+import { useAdminClasses, useSetClassActive } from "@/features/admin/hooks/useAdmin";
 import { PageContainer } from "@/components/layout/PageContainer";
 import { ClassCard } from "@/components/classes/ClassCard";
 import { EmptyState } from "@/components/ui/EmptyState";
@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/Button";
 import { classTitle, studentCount, teacherName } from "@/lib/utils/class";
 import { formControlClass } from "@/lib/formControl";
 import { PageLoading } from "@/components/ui/PageLoading";
+import { cn } from "@/lib/utils/cn";
 
 type StatusFilter = "all" | "active" | "inactive";
 
@@ -17,7 +18,7 @@ export function AdminClassesPage() {
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState<StatusFilter>("all");
   const { data: classes = [], isLoading } = useAdminClasses();
-  const deleteClass = useDeleteClass();
+  const setClassActive = useSetClassActive();
 
   const stats = useMemo(() => {
     const active = classes.filter((c) => c.isActive !== false).length;
@@ -34,13 +35,21 @@ export function AdminClassesPage() {
     return matchesSearch && matchesStatus;
   });
 
-  function handleDeactivate(classId: string, title: string) {
+  function handleToggleActive(classId: string, title: string, currentlyInactive: boolean) {
+    if (currentlyInactive) {
+      if (!window.confirm(`Reactivate "${title}"? Students will see this class again.`)) {
+        return;
+      }
+      setClassActive.mutate({ id: classId, isActive: true });
+      return;
+    }
+
     if (
       !window.confirm(`Deactivate "${title}"? Students will no longer see this class.`)
     ) {
       return;
     }
-    deleteClass.mutate(classId);
+    setClassActive.mutate({ id: classId, isActive: false });
   }
 
   const filterTabs: { id: StatusFilter; label: string }[] = [
@@ -143,28 +152,51 @@ export function AdminClassesPage() {
         />
       ) : (
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
-          {filtered.map((cls) => (
-            <ClassCard
-              key={cls._id}
-              title={classTitle(cls)}
-              subtitle={cls.description}
-              teacherName={teacherName(typeof cls.teacher === "object" ? cls.teacher : undefined)}
-              studentCount={studentCount(cls)}
-              schedule={cls.schedule}
-              inactive={cls.isActive === false}
-              onClick={() => navigate(`/admin/classes/${cls._id}`)}
-              actions={
-                <button
-                  type="button"
-                  onClick={() => handleDeactivate(cls._id, classTitle(cls))}
-                  className="inline-flex items-center gap-1 rounded-xl border border-red-100 bg-red-50 px-3 py-2 text-xs font-semibold text-red-600 transition hover:bg-red-100"
-                >
-                  <Trash2 className="size-3.5" />
-                  Deactivate
-                </button>
-              }
-            />
-          ))}
+          {filtered.map((cls) => {
+            const inactive = cls.isActive === false;
+            const title = classTitle(cls);
+            const toggling =
+              setClassActive.isPending &&
+              setClassActive.variables?.id === cls._id;
+
+            return (
+              <ClassCard
+                key={cls._id}
+                title={title}
+                subtitle={cls.description}
+                teacherName={teacherName(typeof cls.teacher === "object" ? cls.teacher : undefined)}
+                studentCount={studentCount(cls)}
+                schedule={cls.schedule}
+                inactive={inactive}
+                onClick={() => navigate(`/admin/classes/${cls._id}`)}
+                actions={
+                  <button
+                    type="button"
+                    disabled={toggling}
+                    onClick={() => handleToggleActive(cls._id, title, inactive)}
+                    className={cn(
+                      "inline-flex items-center gap-1.5 rounded-xl border px-3 py-2 text-xs font-semibold transition disabled:opacity-60",
+                      inactive
+                        ? "border-emerald-200 bg-emerald-50 text-emerald-700 hover:bg-emerald-100"
+                        : "border-red-200 bg-red-50 text-red-600 hover:bg-red-100"
+                    )}
+                  >
+                    {inactive ? (
+                      <>
+                        <RotateCcw className={cn("size-3.5", toggling && "animate-spin")} />
+                        {toggling ? "Reactivating…" : "Reactivate"}
+                      </>
+                    ) : (
+                      <>
+                        <Trash2 className="size-3.5" />
+                        {toggling ? "Deactivating…" : "Deactivate"}
+                      </>
+                    )}
+                  </button>
+                }
+              />
+            );
+          })}
         </div>
       )}
     </PageContainer>

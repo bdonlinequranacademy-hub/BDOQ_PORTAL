@@ -1,5 +1,5 @@
 import { useState, type FormEvent } from "react";
-import { Link, useSearchParams } from "react-router-dom";
+import { Link } from "react-router-dom";
 import {
   ChevronDown,
   Eye,
@@ -12,16 +12,14 @@ import {
 } from "lucide-react";
 import { useRegister } from "@/features/auth/hooks/useRegister";
 import { AuthLayout } from "@/components/layout/AuthLayout";
-import { BrandLogo } from "@/components/brand/BrandLogo";
 import { GoogleAuthButton } from "@/components/auth/GoogleAuthButton";
 import { toast } from "@/stores/uiStore";
 import { formControlLgClass } from "@/lib/formControl";
-import { loginPathForPortal, parsePortalIntent } from "@/lib/portalAuth";
+import { BDOQ_BRAND } from "@/lib/bdoqBrand";
+import { LOGIN_PATH, STAFF_ACCOUNT_NOTICE } from "@/lib/authMessages";
 
 export function RegisterPage() {
   const { mutate: register, isPending } = useRegister();
-  const [searchParams] = useSearchParams();
-  const portal = parsePortalIntent(searchParams.get("portal"));
 
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
@@ -34,11 +32,11 @@ export function RegisterPage() {
   function handleSubmit(e: FormEvent) {
     e.preventDefault();
     if (password !== confirmPassword) {
-      toast.error("Passwords do not match.");
+      toast.error("Passwords do not match. Please type the same password in both fields.");
       return;
     }
     if (!agreed) {
-      toast.error("Please agree to the Terms of Service and Privacy Policy.");
+      toast.error("Please agree to the Terms of Service and Privacy Policy to continue.");
       return;
     }
     register({ name, email, password });
@@ -49,35 +47,22 @@ export function RegisterPage() {
   return (
     <AuthLayout>
       <div className="flex w-full flex-col items-center gap-6 bg-white py-4">
-        {/* Brand */}
-        <BrandLogo size="md" />
+        <h2 className="text-xl font-bold text-navy">{BDOQ_BRAND.shortName}</h2>
 
-        {/* Card */}
         <div className="w-full rounded-3xl border border-zinc-200 bg-white px-6 py-6 shadow-xl shadow-navy/5 flex flex-col gap-6">
-          {/* Heading */}
           <div className="flex flex-col gap-2">
             <h1 className="text-2xl font-bold text-navy">Create Student Account</h1>
             <p className="text-sm leading-relaxed text-zinc-500">
               Public registration is for <strong className="font-semibold text-navy">students only</strong>.
-              Teachers and admins receive accounts from your academy administrator.
+              After you sign up, you can join classes, view homework, and track Quran progress.
             </p>
           </div>
 
-          {portal !== "student" ? (
-            <p className="rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-xs leading-relaxed text-amber-900">
-              You opened the {portal} portal, but this form still creates a{" "}
-              <strong>student</strong> account. For a {portal} login, ask your admin to create one, then
-              use{" "}
-              <Link to={loginPathForPortal(portal)} className="font-semibold text-gold hover:underline">
-                {portal} sign in
-              </Link>
-              .
-            </p>
-          ) : null}
+          <p className="rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-xs leading-relaxed text-amber-900">
+            {STAFF_ACCOUNT_NOTICE}
+          </p>
 
-          {/* Form */}
           <form onSubmit={handleSubmit} className="flex flex-col gap-4" noValidate>
-            {/* Name */}
             <div className="flex flex-col gap-2">
               <label htmlFor="name" className="text-xs font-medium text-navy">
                 Full name
@@ -97,7 +82,6 @@ export function RegisterPage() {
               </div>
             </div>
 
-            {/* Email */}
             <div className="flex flex-col gap-2">
               <label htmlFor="reg-email" className="text-xs font-medium text-navy">
                 Email Address
@@ -117,7 +101,6 @@ export function RegisterPage() {
               </div>
             </div>
 
-            {/* Phone — UI only (not sent to backend yet) */}
             <div className="flex flex-col gap-2">
               <label htmlFor="phone" className="text-xs font-medium text-navy">
                 Phone / WhatsApp Number
@@ -141,7 +124,6 @@ export function RegisterPage() {
               </div>
             </div>
 
-            {/* Password */}
             <div className="flex flex-col gap-2">
               <label htmlFor="reg-password" className="text-xs font-medium text-navy">
                 Password
@@ -170,7 +152,6 @@ export function RegisterPage() {
               </div>
             </div>
 
-            {/* Confirm Password */}
             <div className="flex flex-col gap-2">
               <label htmlFor="confirm-password" className="text-xs font-medium text-navy">
                 Confirm Password
@@ -198,7 +179,6 @@ export function RegisterPage() {
               </div>
             </div>
 
-            {/* Terms */}
             <div className="flex items-start gap-2 pt-1">
               <input
                 id="terms"
@@ -219,17 +199,15 @@ export function RegisterPage() {
               </label>
             </div>
 
-            {/* Submit */}
             <button
               type="submit"
               disabled={isPending}
-              className="h-12 w-full rounded-2xl bg-navy text-sm font-semibold text-white transition hover:bg-navy-500 disabled:cursor-not-allowed disabled:opacity-60"
+              className="h-12 w-full rounded-2xl bg-brand-red text-sm font-semibold text-white transition hover:bg-brand-red-dark disabled:cursor-not-allowed disabled:opacity-60"
             >
-              {isPending ? "Creating account…" : "Create My Account"}
+              {isPending ? "Creating your account…" : "Create My Student Account"}
             </button>
           </form>
 
-          {/* Divider */}
           <div className="flex items-center gap-3">
             <div className="h-px flex-1 bg-zinc-200" />
             <span className="text-xs text-zinc-500">or sign up with</span>
@@ -238,20 +216,22 @@ export function RegisterPage() {
 
           <GoogleAuthButton
             label="Sign up with Google"
-            portal={portal}
             className="flex h-12 w-full items-center justify-center gap-2 rounded-2xl border border-zinc-200 bg-white text-sm font-medium text-navy shadow-sm transition hover:bg-cream"
           />
 
-          {/* Login link */}
+          <p className="text-center text-xs text-zinc-400">
+            Google sign-up also creates a student account. Existing teacher or admin accounts
+            should use Sign In instead.
+          </p>
+
           <p className="pt-1 text-center text-sm text-zinc-500">
             Already have an account?{" "}
-            <Link to={loginPathForPortal(portal)} className="font-bold text-gold hover:underline">
+            <Link to={LOGIN_PATH} className="font-bold text-gold hover:underline">
               Sign In
             </Link>
           </p>
         </div>
 
-        {/* Trust footer */}
         <div className="flex items-center gap-2 text-xs text-zinc-400">
           <ShieldCheck className="size-3.5 text-gold" aria-hidden="true" />
           <span>No credit card required · Free trial included.</span>

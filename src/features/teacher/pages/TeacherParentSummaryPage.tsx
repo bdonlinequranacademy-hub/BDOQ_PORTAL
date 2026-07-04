@@ -34,7 +34,7 @@ export function TeacherParentSummaryPage() {
   return (
     <PageContainer className="flex flex-col gap-6" size="narrow">
       <div>
-        <h1 className="text-2xl font-bold text-[#03214F]">Weekly Family Report</h1>
+        <h1 className="text-2xl font-bold text-primary-dark">Weekly Family Report</h1>
         <p className="text-sm text-zinc-500">
           Built from approved class logs, attendance, and homework — verified portal data only
         </p>
@@ -67,7 +67,7 @@ export function TeacherParentSummaryPage() {
         <Button
           onClick={handleBuild}
           disabled={!studentId || buildReport.isPending}
-          className="h-12 w-full gap-2 rounded-xl bg-[#03214F] font-semibold text-white"
+          className="h-12 w-full gap-2 rounded-xl bg-primary-dark font-semibold text-white"
         >
           <FileText className="size-4" />
           {buildReport.isPending ? "Building report…" : "Build weekly report"}

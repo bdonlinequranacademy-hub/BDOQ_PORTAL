@@ -31,7 +31,7 @@ export function TeacherAvailabilityPage() {
   return (
     <PageContainer className="flex flex-col gap-6" size="narrow">
       <div>
-        <h1 className="text-2xl font-bold text-[#03214F]">Check Availability</h1>
+        <h1 className="text-2xl font-bold text-primary-dark">Check Availability</h1>
         <p className="mt-1 text-sm text-zinc-500">
           See if a proposed slot conflicts with your current routine (academy time, Asia/Dhaka)
         </p>
@@ -116,7 +116,7 @@ export function TeacherAvailabilityPage() {
                   {result.conflicts.map((c) => (
                     <li
                       key={c.slotId}
-                      className="rounded-xl bg-white/80 px-4 py-3 text-sm text-[#03214F]"
+                      className="rounded-xl bg-white/80 px-4 py-3 text-sm text-primary-dark"
                     >
                       <span className="font-semibold">{c.studentName}</span>
                       <span className="text-zinc-500">
@@ -133,7 +133,7 @@ export function TeacherAvailabilityPage() {
       ) : null}
 
       <Card className="flex items-start gap-3 rounded-2xl border border-dashed border-zinc-200 bg-white/80 p-4">
-        <CalendarClock className="size-5 shrink-0 text-[#C4922B]" />
+        <CalendarClock className="size-5 shrink-0 text-gold" />
         <p className="text-sm text-zinc-500">
           Times are checked against your synced weekly routine. Update class schedules in admin if
           something looks wrong.

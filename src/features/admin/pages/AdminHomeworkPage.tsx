@@ -12,6 +12,8 @@ import { formatHomeworkDueLabel, isHomeworkOverdue } from "@/lib/homeworkDue";
 import type { AdminHomeworkItem } from "@/types/models";
 
 import { PageLoading } from "@/components/ui/PageLoading";
+import { Pagination } from "@/components/ui/Pagination";
+import { usePaginatedList } from "@/lib/hooks/usePaginatedList";
 function classTitle(item: AdminHomeworkItem) {
   const cls = item.class;
   if (cls && typeof cls === "object") return cls.title;
@@ -40,11 +42,15 @@ export function AdminHomeworkPage() {
     0
   );
 
+  const pagination = usePaginatedList(visibleHomework, {
+    resetDeps: [programFilter],
+  });
+
   return (
     <PageContainer className="flex flex-col gap-6">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-[#03214F]">Homework</h1>
+          <h1 className="text-2xl font-bold text-primary-dark">Homework</h1>
           <p className="text-sm text-zinc-500">
             Academy-wide assignments · {visibleHomework.length} shown
             {pendingGradeTotal > 0 ? ` · ${pendingGradeTotal} awaiting grade` : ""}
@@ -70,6 +76,7 @@ export function AdminHomeworkPage() {
           }
         />
       ) : (
+        <>
         <Card className="overflow-hidden rounded-2xl border-0 p-0 shadow-sm">
           <div className="hidden border-b border-zinc-100 bg-zinc-50 px-5 py-3 md:grid md:grid-cols-[2fr_1.5fr_1.2fr_1fr_1fr_1fr_0.5fr] md:text-xs md:font-semibold md:uppercase md:text-zinc-500">
             <span>Assignment</span>
@@ -81,7 +88,7 @@ export function AdminHomeworkPage() {
             <span />
           </div>
           <div className="divide-y divide-zinc-100">
-            {visibleHomework.map((hw) => {
+            {pagination.paginatedItems.map((hw) => {
               const overdue = isHomeworkOverdue(hw.dueDate);
               return (
                 <div
@@ -89,14 +96,14 @@ export function AdminHomeworkPage() {
                   className="flex flex-col gap-2 p-4 md:grid md:grid-cols-[2fr_1.5fr_1.2fr_1fr_1fr_1fr_0.5fr] md:items-center md:gap-4"
                 >
                   <div>
-                    <p className="font-semibold text-[#03214F]">{hw.title}</p>
+                    <p className="font-semibold text-primary-dark">{hw.title}</p>
                     {hw.description ? (
                       <p className="line-clamp-1 text-xs text-zinc-500">{hw.description}</p>
                     ) : null}
                   </div>
                   <div className="text-sm">
                     {hw.curriculumLabels?.program ? (
-                      <span className="text-[#C4922B]">
+                      <span className="text-gold">
                         {formatCurriculumPath(hw.curriculumLabels)}
                       </span>
                     ) : (
@@ -145,6 +152,8 @@ export function AdminHomeworkPage() {
             })}
           </div>
         </Card>
+        <Pagination pagination={pagination} itemLabel="assignments" />
+        </>
       )}
     </PageContainer>
   );

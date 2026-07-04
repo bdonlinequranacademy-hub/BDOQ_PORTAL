@@ -1,0 +1,8 @@
+/** Ensures meeting links open externally, not as portal-relative paths. */
+export function normalizeMeetingLink(raw?: string | null): string | undefined {
+  const trimmed = raw?.trim();
+  if (!trimmed) return undefined;
+  if (/^https?:\/\//i.test(trimmed)) return trimmed;
+  if (/^(mailto|tel):/i.test(trimmed)) return trimmed;
+  return `https://${trimmed}`;
+}

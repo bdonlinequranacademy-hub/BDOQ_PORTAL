@@ -1,5 +1,6 @@
 import { useState, useEffect, type FormEvent } from "react";
-import { CreditCard, Upload, Clock, CheckCircle2, AlertCircle } from "lucide-react";
+import { Link } from "react-router-dom";
+import { CreditCard, Upload, Clock, CheckCircle2, AlertCircle, FileText } from "lucide-react";
 import {
   useStudentPaymentStatus,
   useStudentPayments,
@@ -12,6 +13,8 @@ import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { Select } from "@/components/ui/Select";
 import { PageLoading } from "@/components/ui/PageLoading";
+import { Pagination } from "@/components/ui/Pagination";
+import { usePaginatedList } from "@/lib/hooks/usePaginatedList";
 import { CountrySelect } from "@/components/ui/CountrySelect";
 import type { BillingCurrency, PaymentMethod, PaymentStatus } from "@/types/models";
 
@@ -45,6 +48,8 @@ export function StudentPaymentsPage() {
   const submitPayment = useSubmitStudentPayment();
 
   const billing = statusData?.billing;
+
+  const historyPagination = usePaginatedList(payments);
 
   const [amount, setAmount] = useState("");
   const [currency, setCurrency] = useState<BillingCurrency>("USD");
@@ -259,8 +264,9 @@ export function StudentPaymentsPage() {
         ) : payments.length === 0 ? (
           <p className="p-5 text-sm text-zinc-500">No payments submitted yet.</p>
         ) : (
+          <>
           <div className="divide-y divide-zinc-100">
-            {payments.map((p) => (
+            {historyPagination.paginatedItems.map((p) => (
               <div key={p.id} className="flex flex-col gap-2 p-5 md:flex-row md:items-center md:justify-between">
                 <div>
                   <p className="font-semibold text-navy">
@@ -275,12 +281,21 @@ export function StudentPaymentsPage() {
                     <p className="mt-1 text-xs text-red-600">{p.rejectionReason}</p>
                   ) : null}
                 </div>
-                <div className="flex items-center gap-2">
+                <div className="flex flex-wrap items-center gap-2">
                   <span
                     className={`rounded-full px-2.5 py-0.5 text-xs font-semibold capitalize ${statusBadge(p.status)}`}
                   >
                     {p.status}
                   </span>
+                  {p.status === "approved" ? (
+                    <Link
+                      to={`/student/payments/${p.id}/invoice`}
+                      className="inline-flex items-center gap-1 text-xs font-semibold text-primary hover:underline"
+                    >
+                      <FileText className="size-3.5" />
+                      Invoice
+                    </Link>
+                  ) : null}
                   <a
                     href={p.screenshotUrl}
                     target="_blank"
@@ -293,6 +308,10 @@ export function StudentPaymentsPage() {
               </div>
             ))}
           </div>
+          <div className="border-t border-zinc-100 p-3">
+            <Pagination pagination={historyPagination} itemLabel="payments" />
+          </div>
+          </>
         )}
       </Card>
 

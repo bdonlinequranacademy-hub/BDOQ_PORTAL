@@ -8,6 +8,8 @@ import {
 import { PageContainer } from "@/components/layout/PageContainer";
 import { Card } from "@/components/ui/Card";
 import { PageLoading } from "@/components/ui/PageLoading";
+import { Pagination } from "@/components/ui/Pagination";
+import { usePaginatedList } from "@/lib/hooks/usePaginatedList";
 import { Button } from "@/components/ui/Button";
 import { Select } from "@/components/ui/Select";
 import { formControlClass } from "@/lib/formControl";
@@ -34,18 +36,22 @@ export function AdminBlogPage() {
       p.slug.toLowerCase().includes(search.toLowerCase())
   );
 
+  const pagination = usePaginatedList(filtered, {
+    resetDeps: [search, statusFilter],
+  });
+
   return (
     <PageContainer className="flex flex-col gap-6">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-[#03214F]">Blog</h1>
+          <h1 className="text-2xl font-bold text-primary-dark">Blog</h1>
           <p className="text-sm text-zinc-500">
-            Create and publish articles for the public website — admin only
+            Educational articles for the public website — Quran, Tajweed, parenting & learning tips
           </p>
         </div>
         <Button
           onClick={() => navigate("/admin/blog/new")}
-          className="gap-2 rounded-xl bg-[#03214F] text-white"
+          className="gap-2 rounded-xl bg-primary-dark text-white"
         >
           <Plus className="size-4" />
           New post
@@ -82,8 +88,9 @@ export function AdminBlogPage() {
           <p className="text-zinc-400">No blog posts yet. Create your first article.</p>
         </Card>
       ) : (
+        <>
         <div className="flex flex-col gap-3">
-          {filtered.map((post) => (
+          {pagination.paginatedItems.map((post) => (
             <Card
               key={post.id}
               className="flex flex-col gap-4 rounded-2xl border-0 p-5 shadow-sm sm:flex-row sm:items-center sm:justify-between"
@@ -97,10 +104,10 @@ export function AdminBlogPage() {
                   </span>
                   <span className="text-xs text-zinc-400">{post.category}</span>
                   {post.featured && (
-                    <span className="text-xs font-semibold text-[#C4922B]">Featured</span>
+                    <span className="text-xs font-semibold text-gold">Featured</span>
                   )}
                 </div>
-                <h2 className="font-bold text-[#03214F]">{post.title}</h2>
+                <h2 className="font-bold text-primary-dark">{post.title}</h2>
                 <p className="mt-1 line-clamp-2 text-sm text-zinc-500">{post.description}</p>
                 <p className="mt-2 text-xs text-zinc-400">
                   /blog/{post.slug} · {post.author.name}
@@ -121,7 +128,7 @@ export function AdminBlogPage() {
                 <button
                   type="button"
                   onClick={() => navigate(`/admin/blog/${post.id}/edit`)}
-                  className="flex items-center gap-1 rounded-lg border border-zinc-200 px-3 py-2 text-xs font-medium text-[#03214F] hover:bg-zinc-50"
+                  className="flex items-center gap-1 rounded-lg border border-zinc-200 px-3 py-2 text-xs font-medium text-primary-dark hover:bg-zinc-50"
                 >
                   <Pencil className="size-3.5" />
                   Edit
@@ -142,6 +149,8 @@ export function AdminBlogPage() {
             </Card>
           ))}
         </div>
+        <Pagination pagination={pagination} itemLabel="posts" />
+        </>
       )}
     </PageContainer>
   );

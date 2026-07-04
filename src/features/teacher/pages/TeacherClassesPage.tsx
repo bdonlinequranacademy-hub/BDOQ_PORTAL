@@ -73,7 +73,10 @@ export function TeacherClassesPage() {
                 schedule={cls.schedule}
                 studentCount={cls.studentIds?.length ?? cls.students?.length ?? 0}
                 meetingLink={cls.meetingLink}
-                onClick={() => navigate(`/teacher/classes/${cls._id}`)}
+                onClick={() => {
+                  if (!cls._id) return;
+                  navigate(`/teacher/classes/${cls._id}`);
+                }}
                 footer={
                   cls.students && cls.students.length > 0 ? (
                     <div className="flex flex-col gap-1">

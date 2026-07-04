@@ -13,6 +13,8 @@ import { Button } from "@/components/ui/Button";
 import { EmptyState } from "@/components/ui/EmptyState";
 
 import { PageLoading } from "@/components/ui/PageLoading";
+import { Pagination } from "@/components/ui/Pagination";
+import { usePaginatedList } from "@/lib/hooks/usePaginatedList";
 type Filter = "pending" | "all" | StudentRequestStatus;
 
 function statusStyles(status: StudentRequestStatus) {
@@ -36,6 +38,10 @@ export function AdminStudentRequestsPage() {
   const pendingCount =
     filter === "pending" ? requests.length : requests.filter((r) => r.status === "pending").length;
 
+  const pagination = usePaginatedList(requests, {
+    resetDeps: [filter],
+  });
+
   function handleApprove(req: StudentRequestView) {
     const adminNote = window.prompt("Optional note for the teacher:") ?? undefined;
     approve.mutate({ id: req._id, adminNote });
@@ -49,20 +55,20 @@ export function AdminStudentRequestsPage() {
   return (
     <PageContainer className="flex flex-col gap-6">
       <div>
-        <h1 className="text-2xl font-bold text-[#03214F]">Student Requests</h1>
+        <h1 className="text-2xl font-bold text-primary-dark">Student Requests</h1>
         <p className="mt-1 text-sm text-zinc-500">
           Teachers asking for new student assignments
         </p>
       </div>
 
       <Card className="rounded-2xl border-0 bg-[#F8FAFF] p-4 shadow-sm">
-        <p className="text-sm font-semibold text-[#03214F]">How this works</p>
+        <p className="text-sm font-semibold text-primary-dark">How this works</p>
         <ol className="mt-2 list-decimal space-y-1 pl-5 text-sm text-zinc-600">
           <li>Teacher submits a request with availability and course preference.</li>
           <li>You approve or reject with an optional note.</li>
           <li>
             After approval, enroll the student manually in{" "}
-            <Link to="/admin/classes" className="font-semibold text-[#03214F] underline">
+            <Link to="/admin/classes" className="font-semibold text-primary-dark underline">
               Classes
             </Link>{" "}
             and assign them to that teacher.
@@ -93,8 +99,8 @@ export function AdminStudentRequestsPage() {
             onClick={() => setFilter(f.id)}
             className={`shrink-0 rounded-full px-4 py-1.5 text-sm font-medium ${
               filter === f.id
-                ? "bg-[#03214F] text-white"
-                : "border border-zinc-200 bg-white text-[#03214F]"
+                ? "bg-primary-dark text-white"
+                : "border border-zinc-200 bg-white text-primary-dark"
             }`}
           >
             {f.label}
@@ -111,8 +117,9 @@ export function AdminStudentRequestsPage() {
           description="Requests appear when teachers ask for new students from their portal."
         />
       ) : (
+        <>
         <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
-          {requests.map((req) => (
+          {pagination.paginatedItems.map((req) => (
             <Card
               key={req._id}
               className="flex flex-col gap-3 rounded-2xl border-0 p-5 shadow-sm"
@@ -132,7 +139,7 @@ export function AdminStudentRequestsPage() {
               </div>
 
               <div>
-                <p className="font-bold text-[#03214F]">{req.teacher.name}</p>
+                <p className="font-bold text-primary-dark">{req.teacher.name}</p>
                 {req.teacher.email ? (
                   <p className="text-xs text-zinc-500">{req.teacher.email}</p>
                 ) : null}
@@ -169,7 +176,7 @@ export function AdminStudentRequestsPage() {
                   </div>
                   <Link
                     to="/admin/classes"
-                    className="inline-flex items-center gap-1 text-xs font-semibold text-[#03214F]"
+                    className="inline-flex items-center gap-1 text-xs font-semibold text-primary-dark"
                   >
                     Go to Classes to enroll
                     <ArrowRight className="size-3" />
@@ -178,7 +185,7 @@ export function AdminStudentRequestsPage() {
               ) : req.status === "approved" ? (
                 <Link
                   to="/admin/classes"
-                  className="inline-flex items-center gap-1 pt-1 text-xs font-semibold text-[#03214F]"
+                  className="inline-flex items-center gap-1 pt-1 text-xs font-semibold text-primary-dark"
                 >
                   Assign student in Classes
                   <ArrowRight className="size-3" />
@@ -187,6 +194,8 @@ export function AdminStudentRequestsPage() {
             </Card>
           ))}
         </div>
+        <Pagination pagination={pagination} itemLabel="requests" />
+        </>
       )}
     </PageContainer>
   );

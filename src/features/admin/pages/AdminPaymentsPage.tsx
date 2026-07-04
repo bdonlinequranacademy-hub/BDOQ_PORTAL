@@ -1,8 +1,10 @@
 import { useState } from "react";
+import { Link } from "react-router-dom";
 import {
   Banknote,
   Check,
   ExternalLink,
+  FileText,
   X,
 } from "lucide-react";
 import type { BillingCurrency, PaymentRecordView, PaymentStatus } from "@/types/models";
@@ -21,6 +23,8 @@ import { Input } from "@/components/ui/Input";
 import { Select } from "@/components/ui/Select";
 import { PageLoading } from "@/components/ui/PageLoading";
 import { EmptyState } from "@/components/ui/EmptyState";
+import { Pagination } from "@/components/ui/Pagination";
+import { usePaginatedList } from "@/lib/hooks/usePaginatedList";
 import { UserInitialAvatar } from "@/components/ui/UserInitialAvatar";
 
 type PaymentTab = "pending" | "all" | "overdue";
@@ -143,15 +147,26 @@ function PaymentReviewCard({
         ) : null}
 
         <div className="flex flex-col gap-2 border-t border-zinc-100 pt-3 sm:flex-row sm:items-center sm:justify-between">
-          <a
-            href={payment.screenshotUrl}
-            target="_blank"
-            rel="noreferrer"
-            className="inline-flex w-fit items-center gap-1.5 text-xs font-semibold text-gold-dark hover:underline"
-          >
-            View payment proof
-            <ExternalLink className="size-3.5" />
-          </a>
+          <div className="flex flex-wrap items-center gap-3">
+            <a
+              href={payment.screenshotUrl}
+              target="_blank"
+              rel="noreferrer"
+              className="inline-flex w-fit items-center gap-1.5 text-xs font-semibold text-gold-dark hover:underline"
+            >
+              View payment proof
+              <ExternalLink className="size-3.5" />
+            </a>
+            {payment.status === "approved" ? (
+              <Link
+                to={`/admin/payments/${payment.id}/invoice`}
+                className="inline-flex items-center gap-1.5 text-xs font-semibold text-primary hover:underline"
+              >
+                <FileText className="size-3.5" />
+                Invoice
+              </Link>
+            ) : null}
+          </div>
 
           {isPending ? (
             <div className="flex gap-2 sm:justify-end">
@@ -217,6 +232,10 @@ export function AdminPaymentsPage() {
     { id: "all", label: "All payments" },
     { id: "overdue", label: "Overdue", count: overdue.length },
   ];
+
+  const pendingPagination = usePaginatedList(pending, { resetDeps: [tab] });
+  const allPagination = usePaginatedList(all, { resetDeps: [tab] });
+  const overduePagination = usePaginatedList(overdue, { resetDeps: [tab] });
 
   return (
     <PageContainer className="flex flex-col gap-6">
@@ -342,8 +361,9 @@ export function AdminPaymentsPage() {
         ) : pending.length === 0 ? (
           <EmptyState title="No pending payments" description="New submissions will appear here." />
         ) : (
+          <>
           <Card className="overflow-hidden rounded-2xl border border-zinc-100 bg-white p-0 shadow-sm">
-            {pending.map((p) => (
+            {pendingPagination.paginatedItems.map((p) => (
               <PaymentReviewCard
                 key={p.id}
                 payment={p}
@@ -353,6 +373,8 @@ export function AdminPaymentsPage() {
               />
             ))}
           </Card>
+          <Pagination pagination={pendingPagination} itemLabel="payments" />
+          </>
         )
       ) : null}
 
@@ -362,8 +384,9 @@ export function AdminPaymentsPage() {
         ) : all.length === 0 ? (
           <EmptyState title="No payments yet" description="Approved and rejected payments appear here." />
         ) : (
+          <>
           <Card className="overflow-hidden rounded-2xl border border-zinc-100 bg-white p-0 shadow-sm">
-            {all.map((p) => (
+            {allPagination.paginatedItems.map((p) => (
               <PaymentReviewCard
                 key={p.id}
                 payment={p}
@@ -373,6 +396,8 @@ export function AdminPaymentsPage() {
               />
             ))}
           </Card>
+          <Pagination pagination={allPagination} itemLabel="payments" />
+          </>
         )
       ) : null}
 
@@ -382,8 +407,9 @@ export function AdminPaymentsPage() {
         ) : overdue.length === 0 ? (
           <EmptyState title="No overdue students" description="All active billings are current." />
         ) : (
+          <>
           <Card className="overflow-hidden rounded-2xl border border-zinc-100 bg-white p-0 shadow-sm">
-            {overdue.map((row) => (
+            {overduePagination.paginatedItems.map((row) => (
               <article
                 key={row.student.id}
                 className="flex flex-col gap-2 border-b border-zinc-100 px-4 py-4 last:border-b-0 sm:flex-row sm:items-center sm:justify-between sm:px-5"
@@ -402,6 +428,8 @@ export function AdminPaymentsPage() {
               </article>
             ))}
           </Card>
+          <Pagination pagination={overduePagination} itemLabel="students" />
+          </>
         )
       ) : null}
         </>

@@ -37,10 +37,12 @@ function invalidateForRole(qc: ReturnType<typeof useQueryClient>, role: Role) {
   }
   if (role === "parent") {
     qc.invalidateQueries({ queryKey: parentKeys.notifications });
+    qc.invalidateQueries({ queryKey: ["parent", "scheduleToday"] });
     return;
   }
   if (isStaffAdmin(role)) {
     qc.invalidateQueries({ queryKey: adminKeys.stats });
+    qc.invalidateQueries({ queryKey: adminKeys.liveMonitor });
     qc.invalidateQueries({ queryKey: adminKeys.classLogs() });
     qc.invalidateQueries({ queryKey: adminKeys.payments("pending") });
     qc.invalidateQueries({ queryKey: adminKeys.trialBookings("new") });
@@ -84,17 +86,25 @@ export function useRealtimeNotifications() {
       }
     };
 
+    const onLiveMonitorUpdate = () => {
+      if (!active || !role || !isStaffAdmin(role)) return;
+      qc.invalidateQueries({ queryKey: adminKeys.stats });
+      qc.invalidateQueries({ queryKey: adminKeys.liveMonitor });
+    };
+
     void getRealtimeSocket().then((socket) => {
       if (!active || !socket) return;
       socketInstance = socket;
       socket.on("notification:new", onNotification);
       socket.on("admin:pending", onAdminPending);
+      socket.on("admin:live-monitor:update", onLiveMonitorUpdate);
     });
 
     return () => {
       active = false;
       socketInstance?.off("notification:new", onNotification);
       socketInstance?.off("admin:pending", onAdminPending);
+      socketInstance?.off("admin:live-monitor:update", onLiveMonitorUpdate);
       disconnectRealtimeSocket();
     };
   }, [token, role, qc, location.pathname]);

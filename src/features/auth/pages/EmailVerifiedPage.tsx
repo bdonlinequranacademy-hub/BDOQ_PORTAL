@@ -1,9 +1,12 @@
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { BadgeCheck, Calendar, Globe, Shield, Star } from "lucide-react";
 import { useAuthStore } from "@/stores/authStore";
 import { homePathForRole } from "@/lib/utils/roles";
 import { AuthLayout } from "@/components/layout/AuthLayout";
-import { BrandLogo } from "@/components/brand/BrandLogo";
+import { BDOQ_BRAND } from "@/lib/bdoqBrand";
+
+const PUBLIC_SITE_URL =
+  import.meta.env.VITE_PUBLIC_SITE_URL ?? "https://bdonlinequranacademy.com";
 
 export function EmailVerifiedPage() {
   const user = useAuthStore((s) => s.user);
@@ -15,8 +18,8 @@ export function EmailVerifiedPage() {
     <AuthLayout>
       <div className="flex w-full flex-col gap-6 py-4">
         {/* Brand */}
-        <div className="mb-12 flex items-center justify-center">
-          <BrandLogo size="md" />
+        <div className="mb-8 flex items-center justify-center">
+          <p className="text-xl font-bold text-navy">{BDOQ_BRAND.shortName}</p>
         </div>
 
         {/* Main content */}
@@ -46,7 +49,7 @@ export function EmailVerifiedPage() {
             Email Verified!
           </h1>
           <p className="mb-8 px-2 text-center text-sm leading-relaxed text-zinc-500">
-            Welcome to Al Bayaan Academy. Your account is ready and your child's
+            Welcome to BD Online Quran Academy. Your account is ready and your child's
             learning journey begins now.
           </p>
 
@@ -67,18 +70,18 @@ export function EmailVerifiedPage() {
           {/* CTAs */}
           <button
             onClick={() => navigate(dashboardPath, { replace: true })}
-            className="mb-4 flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-navy text-sm font-semibold text-white transition hover:bg-navy-500"
+            className="mb-4 flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-brand-red text-sm font-semibold text-white transition hover:bg-brand-red-dark"
           >
             Go to My Dashboard
             <span aria-hidden="true">→</span>
           </button>
-          <Link
-            to="https://albayaan.com/book-trial"
+          <a
+            href={`${PUBLIC_SITE_URL}/free-class`}
             className="flex h-12 w-full items-center justify-center gap-2 rounded-xl border border-gold text-sm font-semibold text-gold transition hover:bg-gold/5"
           >
             <Calendar className="size-4" aria-hidden="true" />
             Book My Free Trial Class
-          </Link>
+          </a>
         </div>
 
         {/* Trust badges */}

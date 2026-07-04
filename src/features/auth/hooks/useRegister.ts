@@ -7,6 +7,10 @@ import {
   type RegisterPayload,
 } from "@/features/auth/api/authApi";
 import { homePathForRole } from "@/lib/utils/roles";
+import {
+  registerInstantWelcome,
+  registerSuccessMessage,
+} from "@/lib/authMessages";
 
 export function useRegister() {
   const { login } = useAuthStore();
@@ -14,9 +18,11 @@ export function useRegister() {
 
   return useMutation({
     mutationFn: (payload: RegisterPayload) => registerRequest(payload),
-    onSuccess: (data) => {
+    onSuccess: (data, variables) => {
       if ("requiresVerification" in data) {
-        toast.success("Check your email to verify your account.");
+        toast.success(
+          registerSuccessMessage(variables.name, true)
+        );
         navigate(
           `/check-email?email=${encodeURIComponent(data.email)}`,
           { replace: true }
@@ -25,11 +31,18 @@ export function useRegister() {
       }
       const auth = data;
       login(auth.token, auth.user);
-      toast.success("Account created! Welcome to Al Bayaan Academy.");
+      toast.success(registerInstantWelcome(auth.user.name));
       navigate(homePathForRole(auth.user.role), { replace: true });
     },
     onError: (err: Error) => {
-      toast.error(err.message ?? "Registration failed. Please try again.");
+      const message = err.message ?? "";
+      if (message.toLowerCase().includes("already exists")) {
+        toast.error(
+          "An account with this email already exists. Sign in instead, or use Forgot Password if you lost access."
+        );
+        return;
+      }
+      toast.error(message || "Registration failed. Please check your details and try again.");
     },
   });
 }

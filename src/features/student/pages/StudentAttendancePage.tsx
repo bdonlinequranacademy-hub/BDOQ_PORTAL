@@ -2,6 +2,8 @@ import { useStudentAttendance } from "@/features/student/hooks/useStudent";
 import { PageContainer } from "@/components/layout/PageContainer";
 import { Card } from "@/components/ui/Card";
 import { PageLoading } from "@/components/ui/PageLoading";
+import { Pagination } from "@/components/ui/Pagination";
+import { usePaginatedList } from "@/lib/hooks/usePaginatedList";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { PercentageRing } from "@/components/ui/PercentageRing";
 import { ClipboardList } from "lucide-react";
@@ -16,11 +18,12 @@ export function StudentAttendancePage() {
   const { data, isLoading } = useStudentAttendance();
   const summary = data?.summary;
   const records = data?.records ?? [];
+  const pagination = usePaginatedList(records);
 
   return (
     <PageContainer className="flex flex-col gap-6">
       <div>
-        <h1 className="text-2xl font-bold text-[#03214F]">My Attendance</h1>
+        <h1 className="text-2xl font-bold text-primary-dark">My Attendance</h1>
         <p className="text-sm text-zinc-500">Your class attendance history</p>
       </div>
 
@@ -30,7 +33,7 @@ export function StudentAttendancePage() {
         <>
           <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
             <Card className="rounded-2xl border-0 p-4 text-center shadow-sm">
-              <p className="text-2xl font-bold text-[#03214F]">{summary?.percentage ?? 0}%</p>
+              <p className="text-2xl font-bold text-primary-dark">{summary?.percentage ?? 0}%</p>
               <p className="text-xs text-zinc-400">Attendance rate</p>
             </Card>
             <Card className="rounded-2xl border-0 p-4 text-center shadow-sm">
@@ -62,14 +65,15 @@ export function StudentAttendancePage() {
                 />
               </div>
             ) : (
+              <>
               <div className="divide-y divide-zinc-100">
-                {records.map((r) => (
+                {pagination.paginatedItems.map((r) => (
                   <div
                     key={r._id}
                     className="flex items-center justify-between px-5 py-4"
                   >
                     <div>
-                      <p className="font-medium text-[#03214F]">{r.class?.title ?? "Class"}</p>
+                      <p className="font-medium text-primary-dark">{r.class?.title ?? "Class"}</p>
                       <p className="text-xs text-zinc-400">
                         {new Date(r.date).toLocaleDateString()}
                       </p>
@@ -84,6 +88,10 @@ export function StudentAttendancePage() {
                   </div>
                 ))}
               </div>
+              <div className="border-t border-zinc-100 p-3">
+                <Pagination pagination={pagination} itemLabel="records" />
+              </div>
+              </>
             )}
           </Card>
         </>

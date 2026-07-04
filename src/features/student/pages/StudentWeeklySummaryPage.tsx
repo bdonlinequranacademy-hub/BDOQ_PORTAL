@@ -24,7 +24,7 @@ export function StudentWeeklySummaryPage() {
           <MessageSquare className="size-6 text-emerald-700" />
         </div>
         <div>
-          <h1 className="text-2xl font-bold text-[#03214F]">Weekly Summary</h1>
+          <h1 className="text-2xl font-bold text-primary-dark">Weekly Summary</h1>
           <p className="text-sm text-zinc-500">
             Template progress update for learners and guardians on this account
           </p>
@@ -34,7 +34,7 @@ export function StudentWeeklySummaryPage() {
       <Button
         onClick={handleBuild}
         disabled={buildReport.isPending}
-        className="flex h-12 items-center justify-center gap-2 rounded-xl bg-[#03214F] text-white"
+        className="flex h-12 items-center justify-center gap-2 rounded-xl bg-primary-dark text-white"
       >
         <FileText className="size-4" />
         {buildReport.isPending ? "Building report…" : "View this week's report"}
@@ -44,7 +44,7 @@ export function StudentWeeklySummaryPage() {
         <WeeklyReportPanel report={report} />
       ) : user ? (
         <p className="text-sm text-zinc-500">
-          Report for <span className="font-semibold text-[#03214F]">{user.name}</span> will include
+          Report for <span className="font-semibold text-primary-dark">{user.name}</span> will include
           sessions, attendance, and homework from the current week.
         </p>
       ) : null}

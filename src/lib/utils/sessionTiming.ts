@@ -41,9 +41,12 @@ export function resolveSessionPhase(
 export function getSessionCountdownLabel(
   session: Pick<SessionSlotView, "sessionPhase" | "startsAt" | "endsAt" | "day">,
   nowMs: number,
-  options?: { routineView?: boolean }
+  options?: { routineView?: boolean; compact?: boolean }
 ): string {
   if (options?.routineView && !isSessionToday(session, new Date(nowMs))) {
+    if (options.compact) {
+      return session.day.slice(0, 3);
+    }
     return `Weekly · ${session.day}`;
   }
 

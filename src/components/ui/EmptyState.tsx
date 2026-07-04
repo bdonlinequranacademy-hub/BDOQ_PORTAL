@@ -31,7 +31,7 @@ export function EmptyState({
       )}
       {children}
       {actionLabel && onAction && (
-        <Button onClick={onAction} className="mt-6 rounded-xl bg-[#03214F] text-white">
+        <Button onClick={onAction} className="mt-6 rounded-xl bg-primary-dark text-white">
           {actionLabel}
         </Button>
       )}

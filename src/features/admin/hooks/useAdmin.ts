@@ -1,7 +1,8 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { adminApi } from "@/lib/api/adminApi";
 import { useUiStore } from "@/stores/uiStore";
-import type { Role, ClassSchedule, BlogPostStatus, BlogCategory, ClassLogStatus, StudentRequestStatus, TrialBookingStatus, ContactMessageStatus, BillingCurrency } from "@/types/models";
+import { useAuthStore } from "@/stores/authStore";
+import type { Role, ClassSchedule, BlogPostStatus, BlogCategory, ClassLogStatus, StudentRequestStatus, TrialBookingStatus, ContactMessageStatus, StudentAdmissionStatus, TeacherApplicationStatus, BillingCurrency, ResourceType, ResourceStatus } from "@/types/models";
 
 export const adminKeys = {
   stats: ["admin", "stats"] as const,
@@ -14,10 +15,21 @@ export const adminKeys = {
   blogPosts: (status?: BlogPostStatus, category?: BlogCategory) =>
     ["admin", "blog", status, category] as const,
   blogPost: (id: string) => ["admin", "blog", id] as const,
+  resources: (type?: ResourceType, status?: ResourceStatus) =>
+    ["admin", "resources", type, status] as const,
+  resource: (id: string) => ["admin", "resource", id] as const,
+  testimonials: ["admin", "testimonials"] as const,
+  testimonial: (id: string) => ["admin", "testimonial", id] as const,
+  gallery: ["admin", "gallery"] as const,
+  galleryItem: (id: string) => ["admin", "galleryItem", id] as const,
+  pricing: ["admin", "pricing"] as const,
+  pricingPackage: (id: string) => ["admin", "pricingPackage", id] as const,
   classLogs: (status?: string) => ["admin", "classLogs", status] as const,
   earnings: (month?: string) => ["admin", "earnings", month] as const,
   studentRequests: (status?: string) => ["admin", "studentRequests", status] as const,
   trialBookings: (status?: string) => ["admin", "trialBookings", status] as const,
+  studentAdmissions: (status?: string) => ["admin", "studentAdmissions", status] as const,
+  teacherApplications: (status?: string) => ["admin", "teacherApplications", status] as const,
   contactMessages: (status?: string) => ["admin", "contactMessages", status] as const,
   homework: ["admin", "homework"] as const,
   academyRoutine: (teacherId?: string) => ["admin", "academyRoutine", teacherId] as const,
@@ -25,6 +37,11 @@ export const adminKeys = {
   payments: (status?: string) => ["admin", "payments", status] as const,
   overdueBillings: ["admin", "payments", "overdue"] as const,
   studentBilling: (studentId: string) => ["admin", "billing", studentId] as const,
+  whatsappQueue: ["admin", "whatsapp-queue"] as const,
+  liveMonitor: ["admin", "live-monitor"] as const,
+  certificates: ["admin", "certificates"] as const,
+  certificate: (id: string) => ["admin", "certificate", id] as const,
+  profile: ["admin", "profile"] as const,
 };
 
 export function useAdminStats() {
@@ -33,6 +50,25 @@ export function useAdminStats() {
     queryFn: adminApi.getStats,
     select: (r) => r.data,
     staleTime: 120_000,
+  });
+}
+
+export function useAdminWhatsAppQueue() {
+  return useQuery({
+    queryKey: adminKeys.whatsappQueue,
+    queryFn: adminApi.getWhatsAppQueue,
+    select: (r) => r.data ?? [],
+    staleTime: 60_000,
+  });
+}
+
+export function useAdminLiveMonitor() {
+  return useQuery({
+    queryKey: adminKeys.liveMonitor,
+    queryFn: adminApi.getLiveMonitor,
+    select: (r) => r.data,
+    staleTime: 15_000,
+    refetchInterval: 30_000,
   });
 }
 
@@ -186,6 +222,35 @@ export function useDeleteClass() {
   });
 }
 
+export function useSetClassActive() {
+  const qc = useQueryClient();
+  const addToast = useUiStore((s) => s.addToast);
+  return useMutation({
+    mutationFn: async ({ id, isActive }: { id: string; isActive: boolean }) => {
+      if (isActive) {
+        await adminApi.updateClass(id, { isActive: true });
+      } else {
+        await adminApi.deleteClass(id);
+      }
+      return null;
+    },
+    onSuccess: (_data, variables) => {
+      qc.invalidateQueries({ queryKey: adminKeys.classes });
+      qc.invalidateQueries({ queryKey: adminKeys.class(variables.id) });
+      qc.invalidateQueries({ queryKey: adminKeys.stats });
+      addToast(
+        "success",
+        variables.isActive ? "Class reactivated" : "Class deactivated"
+      );
+    },
+    onError: (_err, variables) =>
+      addToast(
+        "error",
+        variables.isActive ? "Failed to reactivate class" : "Failed to deactivate class"
+      ),
+  });
+}
+
 export function useAssignStudent(classId: string) {
   const qc = useQueryClient();
   const addToast = useUiStore((s) => s.addToast);
@@ -255,6 +320,247 @@ export function useDeleteBlogPost() {
       addToast("success", "Blog post deleted");
     },
     onError: () => addToast("error", "Failed to delete blog post"),
+  });
+}
+
+export function useAdminResources(type?: ResourceType, status?: ResourceStatus) {
+  return useQuery({
+    queryKey: adminKeys.resources(type, status),
+    queryFn: () => adminApi.getResources({ type, status }),
+    select: (r) => r.data ?? [],
+  });
+}
+
+export function useAdminResource(id: string) {
+  return useQuery({
+    queryKey: adminKeys.resource(id),
+    queryFn: () => adminApi.getResource(id),
+    select: (r) => r.data,
+    enabled: Boolean(id),
+  });
+}
+
+export function useCreateResource() {
+  const qc = useQueryClient();
+  const addToast = useUiStore((s) => s.addToast);
+  return useMutation({
+    mutationFn: adminApi.createResource,
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["admin", "resources"] });
+      addToast("success", "Resource created");
+    },
+    onError: () => addToast("error", "Failed to create resource"),
+  });
+}
+
+export function useUpdateResource(id: string) {
+  const qc = useQueryClient();
+  const addToast = useUiStore((s) => s.addToast);
+  return useMutation({
+    mutationFn: (payload: Record<string, unknown>) =>
+      adminApi.updateResource(id, payload),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: adminKeys.resource(id) });
+      qc.invalidateQueries({ queryKey: ["admin", "resources"] });
+      addToast("success", "Resource saved");
+    },
+    onError: () => addToast("error", "Failed to save resource"),
+  });
+}
+
+export function useDeleteResource() {
+  const qc = useQueryClient();
+  const addToast = useUiStore((s) => s.addToast);
+  return useMutation({
+    mutationFn: adminApi.deleteResource,
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["admin", "resources"] });
+      addToast("success", "Resource deleted");
+    },
+    onError: () => addToast("error", "Failed to delete resource"),
+  });
+}
+
+export function useUploadResourceFile() {
+  const addToast = useUiStore((s) => s.addToast);
+  return useMutation({
+    mutationFn: ({ file, purpose }: { file: File; purpose?: string }) =>
+      adminApi.uploadResourceFile(file, purpose),
+    onError: () => addToast("error", "File upload failed"),
+  });
+}
+
+export function useAdminTestimonials() {
+  return useQuery({
+    queryKey: adminKeys.testimonials,
+    queryFn: () => adminApi.getTestimonials(),
+    select: (r) => r.data ?? [],
+  });
+}
+
+export function useAdminTestimonial(id: string) {
+  return useQuery({
+    queryKey: adminKeys.testimonial(id),
+    queryFn: () => adminApi.getTestimonial(id),
+    select: (r) => r.data,
+    enabled: Boolean(id),
+  });
+}
+
+export function useCreateTestimonial() {
+  const qc = useQueryClient();
+  const addToast = useUiStore((s) => s.addToast);
+  return useMutation({
+    mutationFn: adminApi.createTestimonial,
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: adminKeys.testimonials });
+      addToast("success", "Review published");
+    },
+    onError: () => addToast("error", "Failed to create review"),
+  });
+}
+
+export function useUpdateTestimonial(id: string) {
+  const qc = useQueryClient();
+  const addToast = useUiStore((s) => s.addToast);
+  return useMutation({
+    mutationFn: (payload: Parameters<typeof adminApi.updateTestimonial>[1]) =>
+      adminApi.updateTestimonial(id, payload),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: adminKeys.testimonial(id) });
+      qc.invalidateQueries({ queryKey: adminKeys.testimonials });
+      addToast("success", "Review saved");
+    },
+    onError: () => addToast("error", "Failed to save review"),
+  });
+}
+
+export function useDeleteTestimonial() {
+  const qc = useQueryClient();
+  const addToast = useUiStore((s) => s.addToast);
+  return useMutation({
+    mutationFn: adminApi.deleteTestimonial,
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: adminKeys.testimonials });
+      addToast("success", "Review deleted");
+    },
+    onError: () => addToast("error", "Failed to delete review"),
+  });
+}
+
+export function useAdminGalleryItems() {
+  return useQuery({
+    queryKey: adminKeys.gallery,
+    queryFn: () => adminApi.getGalleryItems(),
+    select: (r) => r.data ?? [],
+  });
+}
+
+export function useAdminGalleryItem(id: string) {
+  return useQuery({
+    queryKey: adminKeys.galleryItem(id),
+    queryFn: () => adminApi.getGalleryItem(id),
+    select: (r) => r.data,
+    enabled: Boolean(id),
+  });
+}
+
+export function useCreateGalleryItem() {
+  const qc = useQueryClient();
+  const addToast = useUiStore((s) => s.addToast);
+  return useMutation({
+    mutationFn: adminApi.createGalleryItem,
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: adminKeys.gallery });
+      addToast("success", "Gallery item created");
+    },
+    onError: () => addToast("error", "Failed to create gallery item"),
+  });
+}
+
+export function useUpdateGalleryItem(id: string) {
+  const qc = useQueryClient();
+  const addToast = useUiStore((s) => s.addToast);
+  return useMutation({
+    mutationFn: (payload: Parameters<typeof adminApi.updateGalleryItem>[1]) =>
+      adminApi.updateGalleryItem(id, payload),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: adminKeys.galleryItem(id) });
+      qc.invalidateQueries({ queryKey: adminKeys.gallery });
+      addToast("success", "Gallery item saved");
+    },
+    onError: () => addToast("error", "Failed to save gallery item"),
+  });
+}
+
+export function useDeleteGalleryItem() {
+  const qc = useQueryClient();
+  const addToast = useUiStore((s) => s.addToast);
+  return useMutation({
+    mutationFn: adminApi.deleteGalleryItem,
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: adminKeys.gallery });
+      addToast("success", "Gallery item deleted");
+    },
+    onError: () => addToast("error", "Failed to delete gallery item"),
+  });
+}
+
+export function useAdminPricingPackages() {
+  return useQuery({
+    queryKey: adminKeys.pricing,
+    queryFn: () => adminApi.getPricingPackages(),
+    select: (r) => r.data ?? [],
+  });
+}
+
+export function useAdminPricingPackage(id: string) {
+  return useQuery({
+    queryKey: adminKeys.pricingPackage(id),
+    queryFn: () => adminApi.getPricingPackage(id),
+    select: (r) => r.data,
+    enabled: Boolean(id),
+  });
+}
+
+export function useCreatePricingPackage() {
+  const qc = useQueryClient();
+  const addToast = useUiStore((s) => s.addToast);
+  return useMutation({
+    mutationFn: adminApi.createPricingPackage,
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: adminKeys.pricing });
+      addToast("success", "Pricing package created");
+    },
+    onError: () => addToast("error", "Failed to create pricing package"),
+  });
+}
+
+export function useUpdatePricingPackage(id: string) {
+  const qc = useQueryClient();
+  const addToast = useUiStore((s) => s.addToast);
+  return useMutation({
+    mutationFn: (payload: Parameters<typeof adminApi.updatePricingPackage>[1]) =>
+      adminApi.updatePricingPackage(id, payload),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: adminKeys.pricing });
+      qc.invalidateQueries({ queryKey: adminKeys.pricingPackage(id) });
+      addToast("success", "Pricing package saved");
+    },
+    onError: () => addToast("error", "Failed to save pricing package"),
+  });
+}
+
+export function useDeletePricingPackage() {
+  const qc = useQueryClient();
+  const addToast = useUiStore((s) => s.addToast);
+  return useMutation({
+    mutationFn: adminApi.deletePricingPackage,
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: adminKeys.pricing });
+      addToast("success", "Pricing package deleted");
+    },
+    onError: () => addToast("error", "Failed to delete pricing package"),
   });
 }
 
@@ -394,6 +700,64 @@ export function useUpdateTrialBookingStatus() {
       addToast("success", "Trial booking updated");
     },
     onError: () => addToast("error", "Failed to update trial booking"),
+  });
+}
+
+export function useAdminStudentAdmissions(status?: StudentAdmissionStatus) {
+  return useQuery({
+    queryKey: adminKeys.studentAdmissions(status),
+    queryFn: () => adminApi.getStudentAdmissions(status),
+    select: (r) => r.data ?? [],
+  });
+}
+
+export function useUpdateStudentAdmissionStatus() {
+  const qc = useQueryClient();
+  const addToast = useUiStore((s) => s.addToast);
+  return useMutation({
+    mutationFn: ({
+      id,
+      status,
+      adminNote,
+    }: {
+      id: string;
+      status: StudentAdmissionStatus;
+      adminNote?: string;
+    }) => adminApi.updateStudentAdmissionStatus(id, status, adminNote),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["admin", "studentAdmissions"] });
+      addToast("success", "Admission application updated");
+    },
+    onError: () => addToast("error", "Failed to update admission application"),
+  });
+}
+
+export function useAdminTeacherApplications(status?: TeacherApplicationStatus) {
+  return useQuery({
+    queryKey: adminKeys.teacherApplications(status),
+    queryFn: () => adminApi.getTeacherApplications(status),
+    select: (r) => r.data ?? [],
+  });
+}
+
+export function useUpdateTeacherApplicationStatus() {
+  const qc = useQueryClient();
+  const addToast = useUiStore((s) => s.addToast);
+  return useMutation({
+    mutationFn: ({
+      id,
+      status,
+      adminNote,
+    }: {
+      id: string;
+      status: TeacherApplicationStatus;
+      adminNote?: string;
+    }) => adminApi.updateTeacherApplicationStatus(id, status, adminNote),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["admin", "teacherApplications"] });
+      addToast("success", "Teacher application updated");
+    },
+    onError: () => addToast("error", "Failed to update teacher application"),
   });
 }
 
@@ -567,5 +931,75 @@ export function useUpsertStudentBilling() {
       addToast("success", "Billing plan saved");
     },
     onError: () => addToast("error", "Failed to save billing plan"),
+  });
+}
+
+export function useAdminCertificates() {
+  return useQuery({
+    queryKey: adminKeys.certificates,
+    queryFn: adminApi.getCertificates,
+    select: (r) => r.data ?? [],
+  });
+}
+
+export function useAdminCertificate(id: string) {
+  return useQuery({
+    queryKey: adminKeys.certificate(id),
+    queryFn: () => adminApi.getCertificate(id),
+    select: (r) => r.data,
+    enabled: Boolean(id),
+  });
+}
+
+export function useCreateCertificate() {
+  const qc = useQueryClient();
+  const addToast = useUiStore((s) => s.addToast);
+  return useMutation({
+    mutationFn: adminApi.createCertificate,
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: adminKeys.certificates });
+      addToast("success", "Certificate generated");
+    },
+    onError: () => addToast("error", "Failed to generate certificate"),
+  });
+}
+
+export function useAdminProfile() {
+  return useQuery({
+    queryKey: adminKeys.profile,
+    queryFn: adminApi.getProfile,
+    select: (r) => r.data,
+  });
+}
+
+export function useUpdateAdminProfile() {
+  const qc = useQueryClient();
+  const addToast = useUiStore((s) => s.addToast);
+  const updateUser = useAuthStore((s) => s.updateUser);
+  return useMutation({
+    mutationFn: adminApi.updateProfile,
+    onSuccess: (res) => {
+      qc.invalidateQueries({ queryKey: adminKeys.profile });
+      if (res.data?.name) {
+        updateUser({ name: res.data.name });
+      }
+      if (res.data?.avatarUrl) {
+        updateUser({ avatarUrl: res.data.avatarUrl });
+      }
+      if (res.data?.gender) {
+        updateUser({ gender: res.data.gender });
+      }
+      addToast("success", "Profile updated");
+    },
+    onError: () => addToast("error", "Failed to update profile"),
+  });
+}
+
+export function useChangeAdminPassword() {
+  const addToast = useUiStore((s) => s.addToast);
+  return useMutation({
+    mutationFn: adminApi.changePassword,
+    onSuccess: () => addToast("success", "Password changed"),
+    onError: () => addToast("error", "Failed to change password"),
   });
 }

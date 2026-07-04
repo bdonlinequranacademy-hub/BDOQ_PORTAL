@@ -11,6 +11,7 @@ import type {
   WeeklyFamilyReport,
   StudentBillingView,
   PaymentRecordView,
+  PaymentInvoiceView,
 } from "@/types/models";
 import { normalizeCurriculumAssignments } from "@/lib/utils/normalize";
 
@@ -80,7 +81,12 @@ export const studentApi = {
   getProfile: () =>
     apiClient.get<ApiResponse<StudentProfile>>("/student/profile").then((r) => r.data),
 
-  updateProfile: (payload: { name?: string; timezone?: string; country?: string }) =>
+  updateProfile: (payload: {
+    name?: string;
+    timezone?: string;
+    country?: string;
+    whatsapp?: string;
+  }) =>
     apiClient.patch<ApiResponse<StudentProfile>>("/student/profile", payload).then((r) => r.data),
 
   changePassword: (payload: { currentPassword: string; newPassword: string }) =>
@@ -108,5 +114,10 @@ export const studentApi = {
       .post<ApiResponse<PaymentRecordView>>("/student/payments", formData, {
         headers: { "Content-Type": "multipart/form-data" },
       })
+      .then((r) => r.data),
+
+  getPaymentInvoice: (paymentId: string) =>
+    apiClient
+      .get<ApiResponse<PaymentInvoiceView>>(`/student/payments/${paymentId}/invoice`)
       .then((r) => r.data),
 };

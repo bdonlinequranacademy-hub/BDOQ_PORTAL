@@ -27,7 +27,7 @@ export function CheckEmailPage() {
     <AuthLayout>
       <div className="flex w-full flex-col items-center gap-6 py-8 text-center">
         <div className="flex size-16 items-center justify-center rounded-2xl bg-[#EEF2F8]">
-          <Mail className="size-8 text-[#03214F]" />
+          <Mail className="size-8 text-primary-dark" />
         </div>
         <h1 className="text-2xl font-bold text-navy">Check your email</h1>
         <p className="max-w-sm text-sm leading-relaxed text-zinc-500">

@@ -5,6 +5,7 @@ import type {
   ScheduleEntry,
   Student,
 } from "@/types/models";
+import { normalizeMeetingLink } from "@/lib/utils/meetingLink";
 
 type RawRecord = Record<string, unknown>;
 
@@ -70,7 +71,9 @@ export function normalizeClass(raw: RawRecord): Class {
     students,
     studentCount: studentIds.length,
     schedule: normalizeSchedule(raw.schedule),
-    meetingLink: raw.meetingLink ? asString(raw.meetingLink) : undefined,
+    meetingLink: raw.meetingLink
+      ? normalizeMeetingLink(asString(raw.meetingLink))
+      : undefined,
     description: raw.description ? asString(raw.description) : undefined,
     level: raw.level ? asString(raw.level) : undefined,
     createdAt: raw.createdAt ? asString(raw.createdAt) : undefined,
@@ -81,6 +84,7 @@ export interface TeacherStudent extends Student {
   studentId?: string;
   country?: string;
   timezone?: string;
+  whatsapp?: string;
   classes: { _id: string; title: string }[];
   curriculumAssignments?: import("@/lib/api/curriculumApi").CurriculumAssignment[];
 }
@@ -137,6 +141,7 @@ export function normalizeTeacherStudent(raw: RawRecord): TeacherStudent {
     studentId: raw.studentId ? asString(raw.studentId) : undefined,
     country: raw.country ? asString(raw.country) : undefined,
     timezone: raw.timezone ? asString(raw.timezone) : undefined,
+    whatsapp: raw.whatsapp ? asString(raw.whatsapp) : undefined,
     classes,
     curriculumAssignments,
   };

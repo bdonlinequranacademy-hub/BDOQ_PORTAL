@@ -100,9 +100,9 @@ export function StudentHomeworkDetailPage() {
           className="flex size-9 items-center justify-center rounded-full bg-zinc-100"
           aria-label="Back to homework"
         >
-          <ArrowLeft className="size-5 text-[#03214F]" />
+          <ArrowLeft className="size-5 text-primary-dark" />
         </button>
-        <h1 className="text-xl font-bold text-[#03214F]">Homework</h1>
+        <h1 className="text-xl font-bold text-primary-dark">Homework</h1>
       </div>
 
       {isLoading ? (
@@ -112,10 +112,10 @@ export function StudentHomeworkDetailPage() {
       ) : (
         <>
           <div>
-            <h2 className="text-xl font-bold text-[#03214F]">{hw.title}</h2>
+            <h2 className="text-xl font-bold text-primary-dark">{hw.title}</h2>
             <p className="text-sm text-zinc-400">{classLabel}</p>
             {hw.curriculumLabels?.program ? (
-              <p className="mt-1 text-xs font-medium text-[#C4922B]">
+              <p className="mt-1 text-xs font-medium text-gold">
                 Assigned topic: {formatCurriculumPath(hw.curriculumLabels)}
               </p>
             ) : null}
@@ -146,7 +146,7 @@ export function StudentHomeworkDetailPage() {
                 </span>
               </div>
               {hw.submission.curriculumLabels?.program ? (
-                <p className="text-xs font-medium text-[#C4922B]">
+                <p className="text-xs font-medium text-gold">
                   Your topic: {formatCurriculumPath(hw.submission.curriculumLabels)}
                 </p>
               ) : null}
@@ -199,7 +199,7 @@ export function StudentHomeworkDetailPage() {
                 <span className="font-semibold">Submitted</span>
               </div>
               {hw.submission.curriculumLabels?.program ? (
-                <p className="text-xs font-medium text-[#C4922B]">
+                <p className="text-xs font-medium text-gold">
                   Topic: {formatCurriculumPath(hw.submission.curriculumLabels)}
                 </p>
               ) : null}
@@ -216,7 +216,7 @@ export function StudentHomeworkDetailPage() {
               ) : null}
 
               <div>
-                <span className="font-semibold text-[#03214F]">Lesson topic</span>
+                <span className="font-semibold text-primary-dark">Lesson topic</span>
                 <p className="mt-1 text-xs text-zinc-500">
                   Select the exact lesson from your study plan that this homework covers.
                 </p>
@@ -233,7 +233,7 @@ export function StudentHomeworkDetailPage() {
                 />
               )}
 
-              <span className="font-semibold text-[#03214F]">Your submission</span>
+              <span className="font-semibold text-primary-dark">Your submission</span>
               <Textarea
                 value={content}
                 onChange={(e) => setContent(e.target.value)}
@@ -250,7 +250,7 @@ export function StudentHomeworkDetailPage() {
               <Button
                 onClick={handleSubmit}
                 disabled={!content.trim() || !curriculumReady || submit.isPending}
-                className="flex h-12 items-center justify-center gap-2 rounded-xl bg-[#03214F] text-white"
+                className="flex h-12 items-center justify-center gap-2 rounded-xl bg-primary-dark text-white"
               >
                 <Send className="size-4" />
                 {submit.isPending

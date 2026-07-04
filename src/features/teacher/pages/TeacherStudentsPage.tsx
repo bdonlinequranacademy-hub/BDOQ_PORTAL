@@ -1,12 +1,17 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Search, ChevronRight } from "lucide-react";
+import { WhatsAppLinkButton } from "@/components/whatsapp/WhatsAppLinkButton";
+import { waMeUrlFromRaw } from "@/lib/whatsapp";
+import { studentCheckInMessage } from "@/lib/whatsappMessageTemplates";
 import { useTeacherStudents } from "@/features/teacher/hooks/useTeacher";
 import { formatCurriculumPath } from "@/lib/api/curriculumApi";
 import { CountryLabel } from "@/components/ui/CountryLabel";
 import { PageContainer } from "@/components/layout/PageContainer";
 import { formControlClass } from "@/lib/formControl";
 import { PageLoading } from "@/components/ui/PageLoading";
+import { Pagination } from "@/components/ui/Pagination";
+import { usePaginatedList } from "@/lib/hooks/usePaginatedList";
 
 const AVATAR_COLORS = [
   "bg-teal-100 text-teal-700",
@@ -34,10 +39,14 @@ export function TeacherStudentsPage() {
     s.name.toLowerCase().includes(search.toLowerCase())
   );
 
+  const pagination = usePaginatedList(filtered, {
+    resetDeps: [search],
+  });
+
   return (
     <PageContainer className="flex flex-col gap-6">
       <div>
-        <h1 className="font-bold text-[#03214F] text-2xl leading-8">Student Directory</h1>
+        <h1 className="font-bold text-primary-dark text-2xl leading-8">Student Directory</h1>
         <p className="text-zinc-500 text-sm mt-0.5">
           {students.length} students in your classes
         </p>
@@ -56,12 +65,20 @@ export function TeacherStudentsPage() {
       {isLoading ? (
         <PageLoading label="Loading students…" />
       ) : (
+        <>
         <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
-          {filtered.map((student, i) => (
+          {pagination.paginatedItems.map((student, i) => {
+            const wa = student.whatsapp
+              ? waMeUrlFromRaw(
+                  student.whatsapp,
+                  student.country,
+                  studentCheckInMessage(student.name)
+                )
+              : null;
+            return (
             <div
               key={student._id}
-              className="shadow-sm rounded-2xl bg-white border border-zinc-200 flex items-center gap-3 p-4 cursor-pointer"
-              onClick={() => navigate(`/teacher/progress?studentId=${student._id}`)}
+              className="shadow-sm rounded-2xl bg-white border border-zinc-200 flex items-center gap-3 p-4"
             >
               <div
                 className={`size-11 shrink-0 font-semibold rounded-full flex items-center justify-center ${avatarColor(i)}`}
@@ -70,7 +87,7 @@ export function TeacherStudentsPage() {
               </div>
               <div className="min-w-0 flex-1">
                 <div className="flex justify-between items-center gap-2">
-                  <span className="truncate font-semibold text-[#03214F]">{student.name}</span>
+                  <span className="truncate font-semibold text-primary-dark">{student.name}</span>
                   <span className="shrink-0 font-medium rounded-full bg-emerald-100 text-emerald-700 text-[11px] px-2 py-0.5">
                     Active
                   </span>
@@ -103,10 +120,28 @@ export function TeacherStudentsPage() {
                   <p className="mt-1 text-[10px] text-zinc-400">All programs (none assigned)</p>
                 )}
               </div>
-              <ChevronRight className="size-5 shrink-0 text-zinc-300" />
+              <div className="flex shrink-0 flex-col items-end gap-2">
+                <WhatsAppLinkButton
+                  href={wa}
+                  label="WhatsApp"
+                  size="sm"
+                  disabledReason="Student has no WhatsApp on profile"
+                />
+                <button
+                  type="button"
+                  onClick={() => navigate(`/teacher/progress?studentId=${student._id}`)}
+                  className="rounded-lg p-2 text-zinc-400 hover:bg-zinc-50 hover:text-primary-dark"
+                  aria-label={`View progress for ${student.name}`}
+                >
+                  <ChevronRight className="size-5" />
+                </button>
+              </div>
             </div>
-          ))}
+          );
+          })}
         </div>
+        <Pagination pagination={pagination} itemLabel="students" />
+        </>
       )}
     </PageContainer>
   );

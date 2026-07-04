@@ -20,7 +20,7 @@ export function TeacherAttendanceSuccessPage() {
           <CheckCircle className="size-10 text-emerald-600" />
         </div>
         <div className="text-center flex flex-col gap-1">
-          <h1 className="font-bold text-[#03214F] text-2xl">
+          <h1 className="font-bold text-primary-dark text-2xl">
             Attendance Saved!
           </h1>
           <p className="text-zinc-500 text-sm">
@@ -36,8 +36,8 @@ export function TeacherAttendanceSuccessPage() {
       {/* Summary */}
       <div className="flex w-full max-w-md flex-col gap-4 rounded-3xl bg-white p-6 shadow-[0_10px_30px_-12px_rgba(3,33,79,0.15)] lg:max-w-lg">
         <div className="flex items-center gap-3">
-          <Users className="size-5 text-[#03214F]" />
-          <span className="font-bold text-[#03214F] text-base">Session Summary</span>
+          <Users className="size-5 text-primary-dark" />
+          <span className="font-bold text-primary-dark text-base">Session Summary</span>
         </div>
 
         <div className="grid grid-cols-3 gap-3">
@@ -59,8 +59,8 @@ export function TeacherAttendanceSuccessPage() {
         </div>
 
         <div className="rounded-xl bg-[#EEF2F8] flex items-center justify-between px-4 py-3">
-          <span className="text-[#03214F] text-sm font-medium">Attendance rate</span>
-          <span className="font-bold text-[#03214F] text-sm">
+          <span className="text-primary-dark text-sm font-medium">Attendance rate</span>
+          <span className="font-bold text-primary-dark text-sm">
             {total > 0 ? Math.round((present / total) * 100) : 0}%
           </span>
         </div>
@@ -70,7 +70,7 @@ export function TeacherAttendanceSuccessPage() {
       <div className="w-full max-w-sm flex flex-col gap-3">
         <Button
           onClick={() => navigate("/teacher")}
-          className="rounded-xl bg-[#03214F] text-white font-semibold w-full h-12"
+          className="rounded-xl bg-primary-dark text-white font-semibold w-full h-12"
         >
           Back to Dashboard
         </Button>

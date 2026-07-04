@@ -30,7 +30,7 @@ export function AdminEarningsPage() {
     <PageContainer className="flex flex-col gap-6">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-[#03214F]">Earnings Overview</h1>
+          <h1 className="text-2xl font-bold text-primary-dark">Earnings Overview</h1>
           <p className="mt-1 text-sm text-zinc-500">
             Verified pay comes from approved class logs — {formatMonthLabel(month)}
           </p>
@@ -74,11 +74,11 @@ export function AdminEarningsPage() {
         <>
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
             <Card className="rounded-2xl border-0 p-5 shadow-sm">
-              <div className="flex items-center gap-2 text-[#C4922B]">
+              <div className="flex items-center gap-2 text-gold">
                 <Banknote className="size-5" />
                 <span className="text-xs text-zinc-400">Total verified</span>
               </div>
-              <p className="mt-2 text-3xl font-bold text-[#03214F]">
+              <p className="mt-2 text-3xl font-bold text-primary-dark">
                 {formatBdt(data?.totalBdt ?? 0)}
               </p>
             </Card>
@@ -97,7 +97,7 @@ export function AdminEarningsPage() {
           </div>
 
           <Card className="rounded-2xl border-0 p-5 shadow-sm">
-            <h2 className="mb-4 font-bold text-[#03214F]">By teacher</h2>
+            <h2 className="mb-4 font-bold text-primary-dark">By teacher</h2>
             {(data?.teachers.length ?? 0) === 0 ? (
               <p className="text-sm text-zinc-400">No earnings data for this month.</p>
             ) : (
@@ -115,12 +115,12 @@ export function AdminEarningsPage() {
                   <tbody>
                     {data!.teachers.map((row) => (
                       <tr key={row.teacherId} className="border-b border-portal last:border-b-0">
-                        <td className="py-3 pr-4 font-medium text-[#03214F]">
+                        <td className="py-3 pr-4 font-medium text-primary-dark">
                           {row.teacherName}
                         </td>
                         <td className="py-3 pr-4">{row.verifiedSessions}</td>
                         <td className="py-3 pr-4">{row.pendingSessions}</td>
-                        <td className="py-3 text-right font-semibold text-[#C4922B]">
+                        <td className="py-3 text-right font-semibold text-gold">
                           {formatBdt(row.totalBdt)}
                         </td>
                         <td className="py-3 text-right text-zinc-500">
@@ -139,11 +139,11 @@ export function AdminEarningsPage() {
       {!pendingLoading && pendingLogs.length > 0 ? (
         <div>
           <div className="mb-3 flex items-center justify-between">
-            <h2 className="font-bold text-[#03214F]">Approve for earnings</h2>
+            <h2 className="font-bold text-primary-dark">Approve for earnings</h2>
             <button
               type="button"
               onClick={() => navigate("/admin/class-logs")}
-              className="text-xs font-semibold text-[#C4922B]"
+              className="text-xs font-semibold text-gold"
             >
               Open class logs →
             </button>

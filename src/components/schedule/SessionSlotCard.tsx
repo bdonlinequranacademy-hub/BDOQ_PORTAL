@@ -4,10 +4,13 @@ import { Card } from "@/components/ui/Card";
 import { CountryLabel } from "@/components/ui/CountryLabel";
 import { SessionActionButtons } from "@/components/schedule/SessionActionButtons";
 import { SessionStatusBadge } from "@/components/schedule/SessionStatusBadge";
+import { useSessionJoin } from "@/hooks/useSessionJoin";
+import { normalizeMeetingLink } from "@/lib/utils/meetingLink";
 
 interface SessionSlotCardProps {
   session: SessionSlotView;
   showStudentMeta?: boolean;
+  joinRole?: "teacher" | "student";
   onMarkAttendance?: (session: SessionSlotView) => void;
   onLogSession?: (session: SessionSlotView) => void;
 }
@@ -16,48 +19,64 @@ interface SessionSlotCardProps {
 export function SessionSlotCard({
   session,
   showStudentMeta = true,
+  joinRole,
   onMarkAttendance,
   onLogSession,
 }: SessionSlotCardProps) {
+  const { trackAndOpenMeeting } = useSessionJoin(joinRole ?? "student");
+  const meetingHref = normalizeMeetingLink(session.meetingLink);
+
   return (
-    <Card className="flex flex-col gap-3 rounded-2xl border border-zinc-100 bg-white p-4 shadow-sm">
+    <Card className="flex flex-col gap-3 rounded-2xl border border-portal p-4 shadow-sm">
       <div className="flex items-start justify-between gap-2">
         <div className="min-w-0">
-          <p className="text-sm font-bold text-[#2b7fff]">{session.times.academy.time} BD</p>
+          <p className="text-sm font-bold text-primary">{session.times.academy.time} BD</p>
           {showStudentMeta ? (
             <>
-              <p className="truncate font-semibold text-[#03214F]">{session.student.name}</p>
+              <p className="truncate font-semibold text-portal-heading">{session.student.name}</p>
               <CountryLabel country={session.student.country} className="text-xs" showFallback />
             </>
           ) : (
-            <p className="font-semibold text-[#03214F]">{session.classTitle}</p>
+            <p className="font-semibold text-portal-heading">{session.classTitle}</p>
           )}
         </div>
         <SessionStatusBadge session={session} compact />
       </div>
 
-      {(onLogSession || onMarkAttendance || session.meetingLink) && (
+      {(onLogSession || onMarkAttendance || meetingHref) && (
         <SessionActionButtons
           session={session}
           onLogSession={onLogSession}
           onMarkAttendance={onMarkAttendance}
+          joinRole={joinRole}
           compact
         />
       )}
 
-      <div className="flex items-center gap-1.5 text-xs text-zinc-400">
+      <div className="flex items-center gap-1.5 text-xs text-portal-muted">
         <Clock className="size-3" />
         <span className="truncate">{session.classTitle}</span>
-        {session.meetingLink ? (
-          <a
-            href={session.meetingLink}
-            target="_blank"
-            rel="noreferrer"
-            className="ml-auto inline-flex items-center gap-1 text-[#2b7fff]"
-          >
-            <Video className="size-3" />
-            Join
-          </a>
+        {meetingHref ? (
+          joinRole ? (
+            <button
+              type="button"
+              onClick={() => trackAndOpenMeeting(session._id, meetingHref)}
+              className="ml-auto inline-flex items-center gap-1 text-primary"
+            >
+              <Video className="size-3" />
+              Join
+            </button>
+          ) : (
+            <a
+              href={meetingHref}
+              target="_blank"
+              rel="noreferrer"
+              className="ml-auto inline-flex items-center gap-1 text-primary"
+            >
+              <Video className="size-3" />
+              Join
+            </a>
+          )
         ) : null}
       </div>
     </Card>

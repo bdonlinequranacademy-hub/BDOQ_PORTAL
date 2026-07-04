@@ -16,6 +16,8 @@ import { formControlClass } from "@/lib/formControl";
 import { ClipboardList, Search } from "lucide-react";
 
 import { PageLoading } from "@/components/ui/PageLoading";
+import { Pagination } from "@/components/ui/Pagination";
+import { usePaginatedList } from "@/lib/hooks/usePaginatedList";
 type Filter = "all" | ClassLogStatus;
 
 export function TeacherClassLogsPage() {
@@ -52,10 +54,14 @@ export function TeacherClassLogsPage() {
     });
   }, [logs, programFilter, search]);
 
+  const pagination = usePaginatedList(visibleLogs, {
+    resetDeps: [filter, programFilter, search],
+  });
+
   return (
     <PageContainer className="flex flex-col gap-6">
       <div>
-        <h1 className="text-2xl font-bold text-[#03214F]">My Class Logs</h1>
+        <h1 className="text-2xl font-bold text-primary-dark">My Class Logs</h1>
         <p className="mt-1 text-sm text-zinc-500">
           Session logs with lesson reports — pending admin approval
         </p>
@@ -108,8 +114,8 @@ export function TeacherClassLogsPage() {
             onClick={() => setFilter(f.id)}
             className={`shrink-0 rounded-full px-4 py-1.5 text-sm font-medium ${
               filter === f.id
-                ? "bg-[#03214F] text-white"
-                : "border border-zinc-200 bg-white text-[#03214F]"
+                ? "bg-primary-dark text-white"
+                : "border border-zinc-200 bg-white text-primary-dark"
             }`}
           >
             {f.label}
@@ -123,7 +129,7 @@ export function TeacherClassLogsPage() {
       ) : visibleLogs.length === 0 ? (
         <Card className="flex flex-col items-center gap-3 rounded-2xl border border-dashed border-zinc-200 p-10 text-center">
           <ClipboardList className="size-10 text-zinc-300" />
-          <p className="font-semibold text-[#03214F]">
+          <p className="font-semibold text-primary-dark">
             {logs.length === 0 ? "No class logs yet" : "No logs match your filters"}
           </p>
           <p className="text-sm text-zinc-400">
@@ -133,11 +139,14 @@ export function TeacherClassLogsPage() {
           </p>
         </Card>
       ) : (
+        <>
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-          {visibleLogs.map((log) => (
+          {pagination.paginatedItems.map((log) => (
             <ClassLogCard key={log._id} log={log} />
           ))}
         </div>
+        <Pagination pagination={pagination} itemLabel="logs" />
+        </>
       )}
     </PageContainer>
   );

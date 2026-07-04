@@ -98,12 +98,12 @@ export function TeacherHomeworkGradePage() {
         <div className="mx-auto flex h-14 max-w-6xl items-center px-4 sm:px-6 lg:px-8">
           <button
             onClick={() => navigate(-1)}
-            className="size-9 rounded-full bg-zinc-100 text-[#03214F] flex items-center justify-center"
+            className="size-9 rounded-full bg-zinc-100 text-primary-dark flex items-center justify-center"
           >
             <ArrowLeft className="size-5" />
           </button>
           <div className="flex flex-col items-center mx-auto">
-            <span className="brand-wordmark text-2xl text-[#03214F]">Al-bayaan</span>
+            <span className="brand-wordmark text-2xl text-primary-dark">BDOQ Academy</span>
             <span className="font-bold text-zinc-900 text-xs">Homework Review</span>
           </div>
           <div className="size-9" />
@@ -117,10 +117,10 @@ export function TeacherHomeworkGradePage() {
       ) : (
         <PageContainer className="flex flex-col gap-6 pb-8">
           <div className="flex flex-col gap-1">
-            <h1 className="font-bold text-[#03214F] text-xl">{homework.title}</h1>
+            <h1 className="font-bold text-primary-dark text-xl">{homework.title}</h1>
             {homework.className && <p className="text-zinc-400 text-sm">{homework.className}</p>}
             {homework.curriculumLabels?.program ? (
-              <p className="text-xs font-medium text-[#C4922B]">
+              <p className="text-xs font-medium text-gold">
                 {formatCurriculumPath(homework.curriculumLabels)}
               </p>
             ) : null}
@@ -139,13 +139,13 @@ export function TeacherHomeworkGradePage() {
           {pendingReview.length === 0 && readyToGrade.length === 0 ? (
             <Card className="rounded-2xl border-0 shadow-sm p-6 text-center">
               <Check className="size-8 text-emerald-500 mx-auto mb-2" />
-              <p className="font-semibold text-[#03214F] text-base">All caught up</p>
+              <p className="font-semibold text-primary-dark text-base">All caught up</p>
               <p className="text-zinc-400 text-sm mt-1">No submissions waiting for review or grading.</p>
             </Card>
           ) : (
             <div className="grid grid-cols-1 gap-6 lg:grid-cols-2 lg:items-start">
               <Card className="flex flex-col gap-3 rounded-3xl border-0 p-5 shadow-sm">
-                <span className="font-bold text-[#03214F] text-base">
+                <span className="font-bold text-primary-dark text-base">
                   {pendingReview.length > 0 ? "Awaiting your review" : "Ready to grade"}
                 </span>
                 {activeList.map((sub) => (
@@ -158,7 +158,7 @@ export function TeacherHomeworkGradePage() {
                         : "hover:bg-zinc-50"
                     }`}
                   >
-                    <div className="size-10 font-bold rounded-full bg-[#2b7fff]/10 text-[#2b7fff] text-xs flex items-center justify-center">
+                    <div className="size-10 font-bold rounded-full bg-primary/10 text-primary text-xs flex items-center justify-center">
                       {initials(sub.studentName ?? "?")}
                     </div>
                     <div className="flex flex-col flex-1 gap-0.5">
@@ -179,7 +179,7 @@ export function TeacherHomeworkGradePage() {
                 <Card className="flex flex-col gap-4 rounded-3xl border-0 p-5 shadow-sm lg:sticky lg:top-20">
                   <div className="rounded-2xl bg-[#EEF2F8] p-4">
                     {activeSub.curriculumLabels?.program ? (
-                      <p className="mb-2 text-xs font-medium text-[#C4922B]">
+                      <p className="mb-2 text-xs font-medium text-gold">
                         Student topic: {formatCurriculumPath(activeSub.curriculumLabels)}
                       </p>
                     ) : null}
@@ -203,7 +203,7 @@ export function TeacherHomeworkGradePage() {
                         <Button
                           onClick={handleApprove}
                           disabled={reviewSubmission.isPending}
-                          className="flex-1 rounded-xl bg-[#03214F] text-white"
+                          className="flex-1 rounded-xl bg-primary-dark text-white"
                         >
                           Approve submission
                         </Button>
@@ -255,7 +255,7 @@ export function TeacherHomeworkGradePage() {
                       <Button
                         onClick={handleGrade}
                         disabled={gradeSubmission.isPending}
-                        className="rounded-xl bg-[#03214F] text-white"
+                        className="rounded-xl bg-primary-dark text-white"
                       >
                         Submit grade
                       </Button>

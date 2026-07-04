@@ -8,15 +8,25 @@ import {
 } from "@/lib/api/curriculumApi";
 import { formControlClass } from "@/lib/formControl";
 
+import { normalizeProgramId } from "@/lib/curriculumCatalog";
+
 function fieldLabels(programId: string) {
-  switch (programId) {
-    case "quran-memorisation":
+  const id = normalizeProgramId(programId);
+  switch (id) {
+    case "hifz":
+    case "surah-memorization":
     case "quran-recitation":
-      return { unit: "Track", topic: "Surah" };
+      return { unit: "Track", topic: "Surah / Lesson" };
     case "tajweed":
       return { unit: "Category", topic: "Tajweed rule" };
-    case "arabic-language":
+    case "arabic":
       return { unit: "Area", topic: "Grammar / lesson" };
+    case "quran-education":
+      return { unit: "Stage", topic: "Lesson" };
+    case "islamic-studies":
+    case "seerah-history":
+    case "tafsir":
+      return { unit: "Section", topic: "Topic" };
     default:
       return { unit: "Section", topic: "Topic" };
   }
@@ -77,7 +87,7 @@ export function NestedCurriculumSelect({
   return (
     <div className="flex flex-col gap-3">
       <label className="flex flex-col gap-1.5">
-        <span className="text-sm font-medium text-[#03214F]">
+        <span className="text-sm font-medium text-primary-dark">
           Program {required ? "*" : ""}
         </span>
         <select
@@ -100,7 +110,7 @@ export function NestedCurriculumSelect({
 
       {value.programId && units.length > 0 ? (
         <label className="flex flex-col gap-1.5">
-          <span className="text-sm font-medium text-[#03214F]">
+          <span className="text-sm font-medium text-primary-dark">
             {labels.unit} {unitRequired ? "*" : ""}
           </span>
           <select
@@ -128,7 +138,7 @@ export function NestedCurriculumSelect({
 
       {value.unitId && topics.length > 0 ? (
         <label className="flex flex-col gap-1.5">
-          <span className="text-sm font-medium text-[#03214F]">
+          <span className="text-sm font-medium text-primary-dark">
             {labels.topic} {topicRequired ? "*" : ""}
           </span>
           <select
@@ -193,7 +203,7 @@ export function CurriculumAssignmentEditor({
   return (
     <div className="flex flex-col gap-3 rounded-xl border border-zinc-200 bg-zinc-50/80 p-4">
       <div>
-        <p className="text-sm font-semibold text-[#03214F]">Study programs</p>
+        <p className="text-sm font-semibold text-primary-dark">Study programs</p>
         <p className="text-xs text-zinc-500">
           Add one path per item — e.g. Surah Al-Fatiha (Hifz), a Tajweed rule, or a Grammar lesson.
           Homework options follow these assignments.
@@ -214,7 +224,7 @@ export function CurriculumAssignmentEditor({
                 key={`${a.programId}-${a.unitId ?? ""}-${a.topicId ?? ""}-${i}`}
                 className="flex items-center justify-between gap-2 rounded-lg bg-white px-3 py-2 text-sm"
               >
-                <span className="text-[#03214F]">{label || a.programId}</span>
+                <span className="text-primary-dark">{label || a.programId}</span>
                 <button
                   type="button"
                   onClick={() => onChange(assignments.filter((_, idx) => idx !== i))}
@@ -237,7 +247,7 @@ export function CurriculumAssignmentEditor({
         type="button"
         onClick={addAssignment}
         disabled={!pathReadyToSave(draft, tree)}
-        className="self-start rounded-lg bg-[#03214F] px-3 py-1.5 text-xs font-semibold text-white disabled:opacity-50"
+        className="self-start rounded-lg bg-primary-dark px-3 py-1.5 text-xs font-semibold text-white disabled:opacity-50"
       >
         Add program path
       </button>

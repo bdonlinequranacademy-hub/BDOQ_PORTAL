@@ -13,7 +13,7 @@ import { Button } from "@/components/ui/Button";
 import type { AttendanceStatus } from "@/types/models";
 
 const AVATAR_COLORS = [
-  "bg-[#03214F]",
+  "bg-primary-dark",
   "bg-teal-600",
   "bg-blue-500",
   "bg-amber-500",
@@ -89,14 +89,14 @@ export function TeacherAttendanceSheetPage() {
         <div className="mx-auto flex max-w-6xl items-center justify-between px-5 py-4 sm:px-6 lg:px-8">
         <button
           onClick={() => navigate(-1)}
-          className="size-10 rounded-full bg-zinc-100 text-[#03214F] flex items-center justify-center"
+          className="size-10 rounded-full bg-zinc-100 text-primary-dark flex items-center justify-center"
         >
           <ArrowLeft className="size-5" />
         </button>
-        <h1 className="font-bold text-[#03214F] text-lg">Mark Attendance</h1>
+        <h1 className="font-bold text-primary-dark text-lg">Mark Attendance</h1>
         <button
           onClick={handleSubmit}
-          className="font-semibold text-[#C4922B] text-sm px-2"
+          className="font-semibold text-gold text-sm px-2"
         >
           Save
         </button>
@@ -135,7 +135,7 @@ export function TeacherAttendanceSheetPage() {
         {/* Progress */}
         <Card className="rounded-3xl border-0 shadow-sm p-5 flex flex-col gap-3">
           <div className="flex justify-between items-center">
-            <span className="font-semibold text-[#03214F] text-sm">
+            <span className="font-semibold text-primary-dark text-sm">
               Marked: {markedCount} of {total}
             </span>
             <span className="font-bold text-teal-600 text-sm">{pct}%</span>
@@ -197,7 +197,7 @@ export function TeacherAttendanceSheetPage() {
                     {initials(student.name)}
                   </div>
                   <div className="min-w-0 flex-1">
-                    <p className="truncate font-bold text-[#03214F] text-sm">
+                    <p className="truncate font-bold text-primary-dark text-sm">
                       {student.name}
                     </p>
                     <p className="text-zinc-400 text-xs">{student.email}</p>
@@ -229,7 +229,7 @@ export function TeacherAttendanceSheetPage() {
           <Button
             onClick={handleSubmit}
             disabled={markAttendance.isPending}
-            className="rounded-xl bg-[#03214F] text-white font-semibold gap-2 w-full h-12 mt-2"
+            className="rounded-xl bg-primary-dark text-white font-semibold gap-2 w-full h-12 mt-2"
           >
             <CheckCircle className="size-5" />
             {markAttendance.isPending ? "Saving…" : "Submit Attendance"}

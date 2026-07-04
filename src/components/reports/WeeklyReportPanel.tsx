@@ -91,7 +91,7 @@ export function WeeklyReportPanel({ report }: { report: WeeklyFamilyReport }) {
             {report.sessionHighlights.map((note, i) => (
               <li
                 key={i}
-                className="rounded-xl border border-portal bg-portal-muted/50 px-3 py-2 text-sm leading-relaxed text-portal"
+                className="rounded-xl border border-portal bg-portal-surface-muted/50 px-3 py-2 text-sm leading-relaxed text-portal"
               >
                 {note}
               </li>
@@ -109,7 +109,7 @@ export function WeeklyReportPanel({ report }: { report: WeeklyFamilyReport }) {
         <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-portal-muted">
           Message preview
         </p>
-        <pre className="max-h-80 overflow-y-auto whitespace-pre-wrap rounded-xl border border-portal bg-portal-muted/40 p-4 text-sm leading-relaxed text-portal">
+        <pre className="max-h-80 overflow-y-auto whitespace-pre-wrap rounded-xl border border-portal bg-portal-surface-muted/40 p-4 text-sm leading-relaxed text-portal">
           {report.text}
         </pre>
       </div>
@@ -136,7 +136,7 @@ function StatCell({
           : "text-portal-heading";
 
   return (
-    <div className="rounded-xl border border-portal bg-portal-muted/50 px-3 py-2.5 text-center">
+    <div className="rounded-xl border border-portal bg-portal-surface-muted/50 px-3 py-2.5 text-center">
       <p className={`text-lg font-bold tabular-nums ${valueClass}`}>{value}</p>
       <p className="text-[10px] font-medium uppercase tracking-wide text-portal-muted">
         {label}

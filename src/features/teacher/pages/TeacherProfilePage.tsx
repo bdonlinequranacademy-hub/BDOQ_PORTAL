@@ -7,11 +7,16 @@ import {
 import { PageContainer } from "@/components/layout/PageContainer";
 import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
-import { BrandLogo } from "@/components/brand/BrandLogo";
 import { formControlClass } from "@/lib/formControl";
+import { CountrySelect } from "@/components/ui/CountrySelect";
+import { WhatsAppPhoneField } from "@/components/whatsapp/WhatsAppPhoneField";
 import { toast } from "@/stores/uiStore";
 
 import { PageLoading } from "@/components/ui/PageLoading";
+import { ProfileAvatarUpload } from "@/components/profile/ProfileAvatarUpload";
+import { useUploadProfileAvatar } from "@/hooks/useUploadProfileAvatar";
+import { useAuthStore } from "@/stores/authStore";
+
 const TIMEZONES = [
   "Asia/Dhaka",
   "Asia/Riyadh",
@@ -26,13 +31,16 @@ const TIMEZONES = [
 ];
 
 export function TeacherProfilePage() {
+  const authUser = useAuthStore((s) => s.user);
   const { data: profile, isLoading } = useTeacherProfile();
   const updateProfile = useUpdateTeacherProfile();
   const changePassword = useChangeTeacherPassword();
+  const uploadAvatar = useUploadProfileAvatar("teacher");
 
   const [name, setName] = useState("");
   const [timezone, setTimezone] = useState("Asia/Dhaka");
-  const [country, setCountry] = useState("");
+  const [country, setCountry] = useState("Bangladesh");
+  const [whatsapp, setWhatsapp] = useState("");
   const [meetingLink, setMeetingLink] = useState("");
   const [bankName, setBankName] = useState("");
   const [bankAccount, setBankAccount] = useState("");
@@ -46,7 +54,8 @@ export function TeacherProfilePage() {
     if (!profile) return;
     setName(profile.name);
     setTimezone(profile.timezone || "Asia/Dhaka");
-    setCountry(profile.country || "");
+    setCountry(profile.country || "Bangladesh");
+    setWhatsapp(profile.whatsapp || "");
     setMeetingLink(profile.meetingLink || "");
     setBankName(profile.bankName || "");
     setBankAccount(profile.bankAccount || "");
@@ -59,6 +68,7 @@ export function TeacherProfilePage() {
       name,
       timezone,
       country,
+      whatsapp,
       meetingLink,
       bankName,
       bankAccount,
@@ -94,14 +104,22 @@ export function TeacherProfilePage() {
   return (
     <PageContainer className="flex flex-col gap-6" size="narrow">
       <div>
-        <h1 className="text-2xl font-bold text-[#03214F]">My Profile</h1>
+        <h1 className="text-2xl font-bold text-primary-dark">My Profile</h1>
         <p className="text-sm text-zinc-500">Timezone, meeting link, payout details, and password</p>
       </div>
 
       <Card className="flex flex-col items-center gap-3 rounded-3xl border-0 p-8 shadow-sm">
-        <BrandLogo size="lg" />
+        <ProfileAvatarUpload
+          name={(profile?.name ?? name) || "?"}
+          avatarUrl={profile?.avatarUrl ?? authUser?.avatarUrl}
+          gender={profile?.gender ?? authUser?.gender}
+          isUploading={uploadAvatar.isPending}
+          onUpload={async (file) => {
+            await uploadAvatar.mutateAsync(file);
+          }}
+        />
         <div className="text-center">
-          <p className="text-xl font-bold text-[#03214F]">
+          <p className="text-xl font-bold text-primary-dark">
             {(profile?.name ?? name) || "—"}
           </p>
           <p className="text-sm text-zinc-500">{profile?.email ?? "—"}</p>
@@ -113,7 +131,7 @@ export function TeacherProfilePage() {
       ) : (
         <>
           <Card className="rounded-3xl border-0 p-6 shadow-sm">
-            <h2 className="mb-4 font-bold text-[#03214F]">Account & schedule</h2>
+            <h2 className="mb-4 font-bold text-primary-dark">Account & schedule</h2>
             <form onSubmit={handleProfileSubmit} className="flex flex-col gap-4">
               <label className="flex flex-col gap-1.5">
                 <span className="text-xs font-medium text-zinc-500">Display name</span>
@@ -140,15 +158,14 @@ export function TeacherProfilePage() {
                 </select>
               </label>
 
-              <label className="flex flex-col gap-1.5">
-                <span className="text-xs font-medium text-zinc-500">Country</span>
-                <input
-                  value={country}
-                  onChange={(e) => setCountry(e.target.value)}
-                  placeholder="e.g. Bangladesh"
-                  className={formControlClass}
-                />
-              </label>
+              <CountrySelect value={country} onChange={setCountry} />
+
+              <WhatsAppPhoneField
+                country={country}
+                value={whatsapp}
+                onChange={setWhatsapp}
+                required
+              />
 
               <label className="flex flex-col gap-1.5">
                 <span className="text-xs font-medium text-zinc-500">Class meeting link</span>
@@ -160,7 +177,7 @@ export function TeacherProfilePage() {
                 />
               </label>
 
-              <h3 className="pt-2 font-semibold text-[#03214F]">Payout details</h3>
+              <h3 className="pt-2 font-semibold text-primary-dark">Payout details</h3>
 
               <label className="flex flex-col gap-1.5">
                 <span className="text-xs font-medium text-zinc-500">Bank name</span>
@@ -200,7 +217,7 @@ export function TeacherProfilePage() {
           </Card>
 
           <Card className="rounded-3xl border-0 p-6 shadow-sm">
-            <h2 className="mb-4 font-bold text-[#03214F]">Change password</h2>
+            <h2 className="mb-4 font-bold text-primary-dark">Change password</h2>
             <form onSubmit={handlePasswordSubmit} className="flex flex-col gap-4">
               <label className="flex flex-col gap-1.5">
                 <span className="text-xs font-medium text-zinc-500">Current password</span>

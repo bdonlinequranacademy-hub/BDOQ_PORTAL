@@ -1,9 +1,8 @@
-import { Link } from "react-router-dom";
+import { Link, Navigate } from "react-router-dom";
 import {
   ArrowRight,
   BookOpen,
   GraduationCap,
-  LayoutDashboard,
   LogIn,
   Shield,
   Sparkles,
@@ -12,14 +11,12 @@ import {
 import type { LucideIcon } from "lucide-react";
 import { useAuthStore } from "@/stores/authStore";
 import { Button } from "@/components/ui/Button";
-import { BrandLogo } from "@/components/brand/BrandLogo";
-import { homePathForRole, matchesAdminRoute } from "@/lib/utils/roles";
-import { loginPathForPortal, registerPathForPortal, type PortalIntent } from "@/lib/portalAuth";
-import type { Role } from "@/types/models";
+import { homePathForRole } from "@/lib/utils/roles";
+import { LOGIN_PATH, REGISTER_PATH } from "@/lib/authMessages";
+import { BDOQ_BRAND } from "@/lib/bdoqBrand";
 import { cn } from "@/lib/utils/cn";
 
 type PortalCardConfig = {
-  role: PortalIntent;
   label: string;
   tagline: string;
   desc: string;
@@ -32,71 +29,43 @@ type PortalCardConfig = {
 
 const PORTALS: PortalCardConfig[] = [
   {
-    role: "student",
     label: "Student",
     tagline: "Learners & guardians",
     desc: "One account for classes, homework, Quran progress, and weekly family reports.",
     icon: GraduationCap,
     features: ["Live classes", "Homework & curriculum", "Progress tracking"],
-    accentBar: "from-teal-500 to-emerald-600",
-    iconWrap: "bg-teal-50 text-teal-700 ring-teal-100",
-    ringHover: "group-hover:ring-teal-200/80",
+    accentBar: "from-primary to-teal",
+    iconWrap: "bg-bg-light text-primary ring-primary/20",
+    ringHover: "group-hover:ring-primary/30",
   },
   {
-    role: "teacher",
     label: "Teacher",
     tagline: "Academy staff",
     desc: "Manage classes, attendance, grading, and verified weekly reports.",
     icon: BookOpen,
     features: ["Class management", "Attendance & logs", "Weekly family reports"],
-    accentBar: "from-blue-500 to-indigo-600",
-    iconWrap: "bg-blue-50 text-blue-700 ring-blue-100",
-    ringHover: "group-hover:ring-blue-200/80",
+    accentBar: "from-teal to-teal-accent",
+    iconWrap: "bg-teal/10 text-teal ring-teal/20",
+    ringHover: "group-hover:ring-teal/30",
   },
   {
-    role: "admin",
     label: "Admin",
     tagline: "Academy operations",
     desc: "Users, curriculum, classes, trial leads, and academy-wide analytics.",
     icon: Shield,
     features: ["User management", "Curriculum & classes", "Analytics & reports"],
-    accentBar: "from-[#03214F] to-[#1A4A8A]",
-    iconWrap: "bg-navy-50 text-navy ring-navy-100",
-    ringHover: "group-hover:ring-navy-200/80",
+    accentBar: "from-brand-red to-brand-red-dark",
+    iconWrap: "bg-brand-red/10 text-brand-red ring-brand-red/20",
+    ringHover: "group-hover:ring-brand-red/30",
   },
 ];
 
-function portalLinkForUser(
-  portal: PortalIntent,
-  isAuthenticated: boolean,
-  user: { role: Role } | null
-): { href: string; cta: string } {
-  const matches =
-    isAuthenticated &&
-    user &&
-    (portal === "admin" ? matchesAdminRoute(user.role) : user.role === portal);
-
-  if (matches && user) {
-    return { href: homePathForRole(user.role), cta: "Open dashboard" };
-  }
-  return { href: loginPathForPortal(portal), cta: "Sign in" };
-}
-
-function PortalCard({
-  config,
-  isAuthenticated,
-  user,
-}: {
-  config: PortalCardConfig;
-  isAuthenticated: boolean;
-  user: { role: Role } | null;
-}) {
+function PortalCard({ config }: { config: PortalCardConfig }) {
   const Icon = config.icon;
-  const { href, cta } = portalLinkForUser(config.role, isAuthenticated, user);
 
   return (
     <Link
-      to={href}
+      to={LOGIN_PATH}
       className={cn(
         "group relative flex h-full flex-col overflow-hidden rounded-2xl border border-zinc-200/80 bg-white p-6 shadow-[var(--portal-card-shadow)] transition-all duration-300",
         "hover:-translate-y-1 hover:border-gold/30 hover:shadow-[var(--portal-card-shadow-hover)]",
@@ -148,7 +117,7 @@ function PortalCard({
           "dark:bg-gold dark:text-navy dark:group-hover:bg-gold-light"
         )}
       >
-        {cta}
+        Sign in
         <ArrowRight className="size-4 transition-transform group-hover:translate-x-0.5" aria-hidden />
       </span>
     </Link>
@@ -158,7 +127,10 @@ function PortalCard({
 export function PortalHomePage() {
   const user = useAuthStore((s) => s.user);
   const token = useAuthStore((s) => s.token);
-  const isAuthenticated = Boolean(token && user);
+
+  if (token && user) {
+    return <Navigate to={homePathForRole(user.role)} replace />;
+  }
 
   return (
     <div className="relative min-h-screen overflow-hidden bg-portal">
@@ -177,31 +149,19 @@ export function PortalHomePage() {
 
       <header className="relative border-b border-portal bg-portal-header/90 px-6 py-4 backdrop-blur-md">
         <div className="mx-auto flex max-w-6xl items-center justify-between gap-4">
-          <div className="flex items-center gap-3">
-            <BrandLogo size="md" />
-            <div className="hidden sm:block">
-              <p className="text-sm font-semibold text-portal-heading">Al Bayaan Academy</p>
-              <p className="text-xs text-zinc-500">Secure learning portal</p>
-            </div>
+          <div>
+            <p className="text-sm font-semibold text-portal-heading">{BDOQ_BRAND.shortName}</p>
+            <p className="text-xs text-zinc-500">{BDOQ_BRAND.tagline}</p>
           </div>
-          {isAuthenticated && user ? (
-            <Link to={homePathForRole(user.role)}>
-              <Button className="gap-2 rounded-xl bg-navy px-5 text-white shadow-sm hover:bg-[#021a3d]">
-                <LayoutDashboard className="size-4" />
-                My dashboard
-              </Button>
-            </Link>
-          ) : (
-            <Link to={loginPathForPortal("student")}>
-              <Button
-                variant="ghost"
-                className="gap-2 rounded-xl border border-zinc-200 bg-white text-navy shadow-sm hover:border-gold/40 hover:bg-cream"
-              >
-                <LogIn className="size-4" />
-                Quick sign in
-              </Button>
-            </Link>
-          )}
+          <Link to={LOGIN_PATH}>
+            <Button
+              variant="ghost"
+              className="gap-2 border border-gray-200 bg-white text-primary-dark shadow-sm hover:border-primary/30 hover:bg-bg-light"
+            >
+              <LogIn className="size-4" />
+              Quick sign in
+            </Button>
+          </Link>
         </div>
       </header>
 
@@ -212,22 +172,17 @@ export function PortalHomePage() {
             Choose your portal
           </span>
           <h1 className="mt-5 text-3xl font-bold tracking-tight text-portal-heading sm:text-4xl lg:text-[2.75rem] lg:leading-tight">
-            Welcome to your academy portal
+            Welcome to {BDOQ_BRAND.shortName}
           </h1>
           <p className="mx-auto mt-4 max-w-2xl text-base leading-relaxed text-zinc-600 dark:text-zinc-400">
-            Select the role that matches your account. Students and guardians share one login;
-            teachers and admins use credentials issued by the academy.
+            {BDOQ_BRAND.portalTagline}. Students and guardians share one login; teachers and
+            admins use credentials issued by BDOQ Academy.
           </p>
         </div>
 
         <div className="mt-12 grid grid-cols-1 gap-6 md:grid-cols-2 lg:mt-14 lg:grid-cols-3">
           {PORTALS.map((portal) => (
-            <PortalCard
-              key={portal.role}
-              config={portal}
-              isAuthenticated={isAuthenticated}
-              user={user}
-            />
+            <PortalCard key={portal.label} config={portal} />
           ))}
         </div>
 
@@ -235,7 +190,7 @@ export function PortalHomePage() {
           <p className="text-sm text-zinc-500">
             New student?{" "}
             <Link
-              to={registerPathForPortal("student")}
+              to={REGISTER_PATH}
               className="font-semibold text-gold hover:text-gold-dark hover:underline"
             >
               Create a student account

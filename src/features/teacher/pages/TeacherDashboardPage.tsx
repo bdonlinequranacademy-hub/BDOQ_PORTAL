@@ -9,6 +9,7 @@ import {
   MessageSquare,
   MessageCircle,
   FileText,
+  BookOpenCheck,
 } from "lucide-react";
 import { useAuthStore } from "@/stores/authStore";
 import {
@@ -20,16 +21,23 @@ import {
 } from "@/features/teacher/hooks/useTeacher";
 import { useLogSessionFlow } from "@/features/teacher/hooks/useLogSessionFlow";
 import { PageContainer } from "@/components/layout/PageContainer";
-import { Card } from "@/components/ui/Card";
 import { SessionSlotCard } from "@/components/schedule/SessionSlotCard";
 import { LogSessionSheet } from "@/components/schedule/LogSessionSheet";
 import { sortSessionsByAcademyTime } from "@/lib/utils/schedule";
 import type { SessionSlotView } from "@/types/models";
-
+import { StatCard } from "@/components/ui/shared/StatCard";
+import { BDOQ_BRAND } from "@/lib/bdoqBrand";
 import { PageLoading } from "@/components/ui/PageLoading";
+import { EmptyState } from "@/components/ui/EmptyState";
+import { DashboardHero } from "@/components/dashboard/DashboardHero";
+import { DashboardSection } from "@/components/dashboard/DashboardSection";
+import { DashboardTwoColumn } from "@/components/dashboard/DashboardTwoColumn";
+import { QuickActionGrid } from "@/components/dashboard/QuickActionGrid";
+import { DashboardNotificationFeed } from "@/components/dashboard/DashboardNotificationFeed";
+
 function todayLabel() {
   return new Date().toLocaleDateString("en-US", {
-    weekday: "short",
+    weekday: "long",
     month: "short",
     day: "numeric",
   });
@@ -68,201 +76,190 @@ export function TeacherDashboardPage() {
     0
   );
 
-  const dashboardNotifications = [
+  const notificationItems = [
     ...notifications.slice(0, 3).map((n) => ({
-      icon: <MessageCircle className="size-4 text-[#2b7fff]" />,
-      bg: "bg-[#2b7fff]/10",
+      id: n._id,
       title: n.title,
-      time: new Date(n.createdAt).toLocaleDateString(),
+      subtitle: new Date(n.createdAt).toLocaleDateString(),
+      icon: <MessageCircle className="size-4 text-primary" />,
+      iconBg: "bg-primary/10",
+      onClick: () => navigate("/teacher/notifications"),
     })),
     ...(pendingGrades > 0
       ? [
           {
-            icon: <FileText className="size-4 text-amber-600" />,
-            bg: "bg-amber-50",
+            id: "hw-pending",
             title: `${pendingGrades} homework submission${pendingGrades > 1 ? "s" : ""} to review`,
-            time: "Homework",
+            subtitle: "Tap to grade",
+            icon: <FileText className="size-4 text-amber-600" />,
+            iconBg: "bg-amber-50",
+            onClick: () => navigate("/teacher/homework"),
           },
         ]
       : []),
-  ].slice(0, 3);
+  ].slice(0, 4);
+
+  const quickActions = [
+    {
+      icon: <ClipboardCheck className="size-5 text-teal-600" />,
+      bg: "bg-teal-50",
+      label: "Mark attendance",
+      to: "/teacher/attendance",
+    },
+    {
+      icon: <FilePlus className="size-5 text-primary" />,
+      bg: "bg-primary/10",
+      label: "Assign homework",
+      to: "/teacher/homework?new=1",
+    },
+    {
+      icon: <Star className="size-5 text-amber-500" />,
+      bg: "bg-amber-50",
+      label: "Grade homework",
+      to: "/teacher/homework",
+    },
+    {
+      icon: <TrendingUp className="size-5 text-emerald-600" />,
+      bg: "bg-emerald-50",
+      label: "Update progress",
+      to: "/teacher/progress",
+    },
+    {
+      icon: <MessageSquare className="size-5 text-emerald-600" />,
+      bg: "bg-emerald-50",
+      label: "Weekly report",
+      to: "/teacher/weekly-report",
+    },
+    {
+      icon: <Calendar className="size-5 text-primary-dark" />,
+      bg: "bg-bg-light",
+      label: "Today's schedule",
+      to: "/teacher/schedule/today",
+    },
+  ];
 
   return (
     <>
-    <PageContainer className="flex flex-col gap-6 lg:gap-8">
-      <div className="flex flex-col gap-1 sm:flex-row sm:items-end sm:justify-between">
-        <div>
-          <span className="text-sm text-zinc-500">Assalamu Alaikum,</span>
-          <h1 className="text-2xl font-bold leading-8 text-[#2b7fff] lg:text-3xl">
-            {user?.name ?? "Teacher"}
-          </h1>
-        </div>
-        <span className="text-sm text-zinc-500">{todayLabel()}</span>
-      </div>
+      <PageContainer className="flex flex-col gap-6 lg:gap-8">
+        <DashboardHero
+          name={user?.name ?? "Teacher"}
+          subtitle={`${BDOQ_BRAND.shortName} — Quran teaching portal`}
+          dateLabel={todayLabel()}
+          roleBadge="Teacher"
+        />
 
-      <div className="flex flex-wrap items-center gap-2">
-        <div className="flex items-center gap-2 rounded-full bg-[#2b7fff]/10 px-4 py-2">
-          <Calendar className="size-4 text-[#2b7fff]" />
-          <span className="text-sm font-semibold text-[#2b7fff]">
-            {isLoading ? "–" : `${classes.length} Classes`}
-          </span>
+        <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
+          <StatCard
+            label="Today's classes"
+            value={scheduleLoading ? "…" : todaySessions.length}
+            icon={<Calendar className="size-5" />}
+            iconBg="bg-primary/10"
+            hint="Scheduled sessions"
+            onClick={() => navigate("/teacher/schedule/today")}
+          />
+          <StatCard
+            label="My students"
+            value={isLoading ? "…" : studentCount}
+            icon={<Users className="size-5" />}
+            iconBg="bg-gold/15"
+            hint="Across all classes"
+            onClick={() => navigate("/teacher/students")}
+          />
+          <StatCard
+            label="Homework to grade"
+            value={pendingGrades}
+            icon={<BookOpenCheck className="size-5" />}
+            iconBg="bg-amber-50"
+            hint="Pending submissions"
+            onClick={() => navigate("/teacher/homework")}
+          />
+          <StatCard
+            label="Logs pending"
+            value={logStats?.pending ?? 0}
+            icon={<FileText className="size-5" />}
+            iconBg="bg-teal/10"
+            hint="Awaiting admin review"
+            onClick={() => navigate("/teacher/class-logs")}
+          />
         </div>
-        <div className="flex items-center gap-2 rounded-full bg-[#C4922B]/12 px-4 py-2">
-          <Users className="size-4 text-[#C4922B]" />
-          <span className="text-sm font-semibold text-[#C4922B]">
-            {isLoading ? "–" : `${studentCount} Students`}
-          </span>
-        </div>
-        <button
-          type="button"
-          onClick={() => navigate("/teacher/class-logs")}
-          className="flex items-center gap-2 rounded-full bg-amber-50 px-4 py-2"
-        >
-          <FileText className="size-4 text-amber-600" />
-          <span className="text-sm font-semibold text-amber-700">
-            {logStats?.pending ?? 0} logs pending
-          </span>
-        </button>
-      </div>
 
-      <div className="grid grid-cols-1 gap-6 lg:grid-cols-3 lg:gap-8">
-        <div className="flex flex-col gap-6 lg:col-span-2">
-          <Card className="flex flex-col gap-4 rounded-3xl border-0 p-6 shadow-[0_10px_30px_-12px_rgba(3,33,79,0.18)]">
-            <div className="flex items-center justify-between">
-              <span className="text-base font-bold text-[#2b7fff]">
-                Today&apos;s Schedule
-                {todaySchedule?.day ? (
-                  <span className="ml-2 text-xs font-normal text-zinc-400">
-                    ({todaySchedule.day})
-                  </span>
-                ) : null}
-              </span>
-              <button
-                type="button"
-                onClick={() => navigate("/teacher/schedule/today")}
-                className="rounded-full bg-zinc-100 px-3 py-1 text-xs font-medium text-zinc-700 hover:bg-zinc-200"
+        <DashboardTwoColumn
+          main={
+            <>
+              <DashboardSection
+                title="Today's schedule"
+                badge={
+                  scheduleLoading
+                    ? "…"
+                    : `${todaySessions.length} session${todaySessions.length === 1 ? "" : "s"}`
+                }
+                subtitle={todaySchedule?.day ? `Academy day: ${todaySchedule.day}` : undefined}
+                actionLabel="Full schedule"
+                onAction={() => navigate("/teacher/schedule/today")}
+                elevated
               >
-                View all
-              </button>
-            </div>
-
-            {scheduleLoading ? (
-              <PageLoading />
-            ) : todaySessions.length === 0 ? (
-              <p className="text-sm text-zinc-400">No classes scheduled today.</p>
-            ) : (
-              <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-                {todaySessions.slice(0, 4).map((session) => (
-                  <SessionSlotCard
-                    key={session._id}
-                    session={session}
-                    onMarkAttendance={(s: SessionSlotView) =>
-                      navigate(
-                        `/teacher/attendance/sheet?classId=${s.classId}&date=${todayIsoDate()}`
-                      )
-                    }
-                    onLogSession={openLogSession}
+                {scheduleLoading ? (
+                  <PageLoading />
+                ) : todaySessions.length === 0 ? (
+                  <EmptyState
+                    icon={Calendar}
+                    title="No classes today"
+                    description="Use this time for lesson prep or update student progress."
+                    actionLabel="View routine"
+                    onAction={() => navigate("/teacher/schedule/routine")}
                   />
-                ))}
-              </div>
-            )}
-          </Card>
-
-          <div className="flex flex-col gap-3">
-            <span className="text-base font-bold text-[#2b7fff]">Quick Actions</span>
-            <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-3">
-              {[
-                {
-                  icon: <ClipboardCheck className="size-5 text-teal-600" />,
-                  bg: "bg-teal-50",
-                  label: "Mark Attendance",
-                  to: "/teacher/attendance",
-                },
-                {
-                  icon: <FilePlus className="size-5 text-[#2b7fff]" />,
-                  bg: "bg-[#2b7fff]/10",
-                  label: "Assign Homework",
-                  to: "/teacher/homework?new=1",
-                },
-                {
-                  icon: <Star className="size-5 text-amber-500" />,
-                  bg: "bg-amber-50",
-                  label: "Grade Homework",
-                  to: "/teacher/homework",
-                },
-                {
-                  icon: <TrendingUp className="size-5 text-emerald-600" />,
-                  bg: "bg-emerald-50",
-                  label: "Update Progress",
-                  to: "/teacher/progress",
-                },
-                {
-                  icon: <MessageSquare className="size-5 text-emerald-600" />,
-                  bg: "bg-emerald-50",
-                  label: "Weekly Report",
-                  to: "/teacher/weekly-report",
-                },
-              ].map((a) => (
-                <button
-                  key={a.label}
-                  onClick={() => navigate(a.to)}
-                  className="flex flex-col gap-3 rounded-2xl bg-white p-4 text-left shadow-[0_6px_18px_-12px_rgba(3,33,79,0.2)] transition hover:shadow-md"
-                >
-                  <div className={`flex size-10 items-center justify-center rounded-xl ${a.bg}`}>
-                    {a.icon}
+                ) : (
+                  <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                    {todaySessions.slice(0, 4).map((session) => (
+                      <SessionSlotCard
+                        key={session._id}
+                        session={session}
+                        joinRole="teacher"
+                        onMarkAttendance={(s: SessionSlotView) =>
+                          navigate(
+                            `/teacher/attendance/sheet?classId=${s.classId}&date=${todayIsoDate()}`
+                          )
+                        }
+                        onLogSession={openLogSession}
+                      />
+                    ))}
                   </div>
-                  <span className="text-sm font-semibold leading-5 text-zinc-900">
-                    {a.label}
-                  </span>
-                </button>
-              ))}
-            </div>
-          </div>
-        </div>
+                )}
+              </DashboardSection>
 
-        <div className="flex flex-col gap-6">
-          <Card className="flex flex-col gap-4 rounded-3xl border-0 p-6 shadow-[0_10px_30px_-12px_rgba(3,33,79,0.18)]">
-            <div className="flex items-center justify-between">
-              <span className="text-base font-bold text-[#2b7fff]">Notifications</span>
-              <button
-                type="button"
-                onClick={() => navigate("/teacher/notifications")}
-                className="text-xs font-semibold text-[#C4922B]"
-              >
-                View all
-              </button>
-            </div>
-            <div className="flex flex-col gap-4">
-              {dashboardNotifications.length === 0 ? (
-                <p className="text-sm text-zinc-400">No new notifications.</p>
-              ) : (
-                dashboardNotifications.map((n) => (
-                  <div key={`${n.title}-${n.time}`} className="flex items-center gap-3">
-                    <div
-                      className={`flex size-9 shrink-0 items-center justify-center rounded-lg ${n.bg}`}
-                    >
-                      {n.icon}
-                    </div>
-                    <div className="flex flex-1 flex-col">
-                      <span className="text-sm font-medium text-zinc-900">{n.title}</span>
-                      <span className="text-xs text-zinc-400">{n.time}</span>
-                    </div>
-                  </div>
-                ))
-              )}
-            </div>
-          </Card>
-        </div>
-      </div>
-    </PageContainer>
+              <DashboardSection title="Quick actions" subtitle="Common tasks for today's teaching">
+                <QuickActionGrid
+                  columns={3}
+                  actions={quickActions.map((a) => ({
+                    label: a.label,
+                    icon: a.icon,
+                    iconBg: a.bg,
+                    onClick: () => navigate(a.to),
+                  }))}
+                />
+              </DashboardSection>
+            </>
+          }
+          aside={
+            <DashboardSection
+              title="Notifications"
+              actionLabel="View all"
+              onAction={() => navigate("/teacher/notifications")}
+              elevated
+            >
+              <DashboardNotificationFeed items={notificationItems} />
+            </DashboardSection>
+          }
+        />
+      </PageContainer>
 
-    <LogSessionSheet
-      session={logSession}
-      open={logSheetOpen}
-      onClose={closeLogSession}
-      onSubmit={submitLogSession}
-      isSubmitting={isSubmittingLog}
-    />
+      <LogSessionSheet
+        session={logSession}
+        open={logSheetOpen}
+        onClose={closeLogSession}
+        onSubmit={submitLogSession}
+        isSubmitting={isSubmittingLog}
+      />
     </>
   );
 }

@@ -14,7 +14,7 @@ export function ThemeToggle({
 
   const compactClass = inverted
     ? "rounded-lg p-1.5 text-white/80 transition hover:bg-white/10"
-    : "rounded-lg p-1.5 text-portal-heading transition hover:bg-portal-muted/40";
+    : "rounded-lg p-1.5 text-portal-heading transition hover:bg-portal-surface-muted/40";
 
   return (
     <button
@@ -23,7 +23,7 @@ export function ThemeToggle({
       className={
         compact
           ? compactClass
-          : "inline-flex items-center gap-2 rounded-xl border border-portal-border bg-portal-surface px-3 py-1.5 text-sm text-portal-heading transition hover:bg-portal-muted/30"
+          : "inline-flex items-center gap-2 rounded-xl border border-portal-border bg-portal-surface px-3 py-1.5 text-sm text-portal-heading transition hover:bg-portal-surface-muted/30"
       }
       aria-label={isDark ? "Switch to light mode" : "Switch to dark mode"}
       title={isDark ? "Light mode" : "Dark mode"}

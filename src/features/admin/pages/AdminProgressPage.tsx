@@ -8,6 +8,8 @@ import { formatCurriculumPath, matchesProgramFilter } from "@/lib/api/curriculum
 import { MissingCurriculumBadge } from "@/components/curriculum/CurriculumProgramFilter";
 
 import { PageLoading } from "@/components/ui/PageLoading";
+import { Pagination } from "@/components/ui/Pagination";
+import { usePaginatedList } from "@/lib/hooks/usePaginatedList";
 export function AdminProgressPage() {
   const [programFilter, setProgramFilter] = useState("");
   const { data: records = [], isLoading } = useAdminProgress();
@@ -30,11 +32,15 @@ export function AdminProgressPage() {
         )
       : 0;
 
+  const pagination = usePaginatedList(visibleRecords, {
+    resetDeps: [programFilter],
+  });
+
   return (
     <PageContainer className="flex flex-col gap-6">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-[#03214F]">
+          <h1 className="text-2xl font-bold text-primary-dark">
             Progress Analytics
           </h1>
           <p className="text-sm text-zinc-500">Student Quran progress across the academy</p>
@@ -58,11 +64,11 @@ export function AdminProgressPage() {
       <div className="grid grid-cols-2 gap-4 lg:grid-cols-3">
         <Card className="rounded-2xl border-0 p-4 shadow-sm">
           <span className="text-xs text-zinc-400">Records</span>
-          <p className="text-2xl font-bold text-[#03214F]">{visibleRecords.length}</p>
+          <p className="text-2xl font-bold text-primary-dark">{visibleRecords.length}</p>
         </Card>
         <Card className="rounded-2xl border-0 p-4 shadow-sm">
           <span className="text-xs text-zinc-400">Avg. Tajweed</span>
-          <p className="text-2xl font-bold text-[#C4922B]">{avgTajweed}%</p>
+          <p className="text-2xl font-bold text-gold">{avgTajweed}%</p>
         </Card>
       </div>
 
@@ -75,6 +81,7 @@ export function AdminProgressPage() {
           </p>
         </Card>
       ) : (
+        <>
         <Card className="overflow-hidden rounded-2xl border-0 p-0 shadow-sm">
           <div className="hidden border-b border-zinc-100 bg-zinc-50 px-5 py-3 md:grid md:grid-cols-[1.5fr_1.5fr_1.5fr_1fr_1fr] md:text-xs md:font-semibold md:uppercase md:text-zinc-500">
             <span>Student</span>
@@ -84,13 +91,13 @@ export function AdminProgressPage() {
             <span>Surahs</span>
           </div>
           <div className="divide-y divide-zinc-100">
-            {visibleRecords.map((r) => (
+            {pagination.paginatedItems.map((r) => (
               <div
                 key={r._id}
                 className="flex flex-col gap-2 p-4 md:grid md:grid-cols-[1.5fr_1.5fr_1.5fr_1fr_1fr] md:items-center"
               >
                 <div>
-                  <p className="font-semibold text-[#03214F]">{r.student?.name ?? "—"}</p>
+                  <p className="font-semibold text-primary-dark">{r.student?.name ?? "—"}</p>
                   <p className="text-xs text-zinc-400 md:hidden">{r.class?.title}</p>
                 </div>
                 <p className="hidden text-sm text-zinc-600 md:block">
@@ -98,7 +105,7 @@ export function AdminProgressPage() {
                 </p>
                 <div className="text-sm">
                   {r.curriculumLabels?.program ? (
-                    <span className="text-[#C4922B]">
+                    <span className="text-gold">
                       {formatCurriculumPath(r.curriculumLabels)}
                     </span>
                   ) : (
@@ -112,7 +119,7 @@ export function AdminProgressPage() {
                       style={{ width: `${r.tajweedScore ?? 0}%` }}
                     />
                   </div>
-                  <span className="text-sm font-bold text-[#03214F]">
+                  <span className="text-sm font-bold text-primary-dark">
                     {r.tajweedScore ?? 0}%
                   </span>
                 </div>
@@ -123,6 +130,8 @@ export function AdminProgressPage() {
             ))}
           </div>
         </Card>
+        <Pagination pagination={pagination} itemLabel="records" />
+        </>
       )}
     </PageContainer>
   );

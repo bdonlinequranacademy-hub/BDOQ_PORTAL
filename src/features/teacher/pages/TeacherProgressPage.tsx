@@ -123,7 +123,7 @@ export function TeacherProgressPage() {
   return (
     <PageContainer className="flex flex-col gap-6" size="narrow">
       <div>
-        <h1 className="text-2xl font-bold text-[#03214F]">Progress Management</h1>
+        <h1 className="text-2xl font-bold text-primary-dark">Progress Management</h1>
         <p className="text-sm text-zinc-500">
           Mark surah completion and update Tajweed notes for your students
         </p>
@@ -158,7 +158,7 @@ export function TeacherProgressPage() {
         {studentId ? (
           <Card className="rounded-2xl border-0 shadow-sm p-5 flex flex-col gap-3">
             <div>
-              <span className="font-bold text-[#03214F] text-sm">Assigned curriculum</span>
+              <span className="font-bold text-primary-dark text-sm">Assigned curriculum</span>
               <p className="text-xs text-zinc-500 mt-0.5">
                 When a surah or topic is finished, mark it complete — the student sees it everywhere.
               </p>
@@ -182,7 +182,7 @@ export function TeacherProgressPage() {
                 {savedProgress?.curriculumLabels?.program ? (
                   <p className="text-xs text-zinc-500">
                     Last class log program:{" "}
-                    <span className="font-medium text-[#C4922B]">
+                    <span className="font-medium text-gold">
                       {formatCurriculumPath(savedProgress.curriculumLabels)}
                     </span>
                   </p>
@@ -205,8 +205,8 @@ export function TeacherProgressPage() {
 
               <Card className="rounded-2xl border-0 shadow-sm p-5 flex flex-col gap-4">
                 <div className="flex justify-between items-center">
-                  <span className="font-bold text-[#03214F] text-sm">Tajweed Score</span>
-                  <span className="font-bold text-[#2b7fff] text-2xl">{tajweed}%</span>
+                  <span className="font-bold text-primary-dark text-sm">Tajweed Score</span>
+                  <span className="font-bold text-primary text-2xl">{tajweed}%</span>
                 </div>
                 <div className="rounded-full bg-zinc-100 w-full h-3 relative">
                   <div
@@ -255,7 +255,7 @@ export function TeacherProgressPage() {
               <Button
                 onClick={handleSave}
                 disabled={updateProgress.isPending || !curriculum.programId}
-                className="rounded-xl bg-[#03214F] text-white font-semibold w-full h-12"
+                className="rounded-xl bg-primary-dark text-white font-semibold w-full h-12"
               >
                 {updateProgress.isPending ? "Saving…" : "Save Progress"}
               </Button>

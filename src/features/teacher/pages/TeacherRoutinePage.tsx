@@ -18,7 +18,7 @@ function todayIsoDate() {
 
 export function TeacherRoutinePage() {
   const navigate = useNavigate();
-  const [view, setView] = useState<ScheduleViewMode>("timeline");
+  const [view, setView] = useState<ScheduleViewMode>("table");
   const { data: sessions = [], isLoading } = useTeacherWeeklyRoutine();
   const {
     logSession,
@@ -39,12 +39,17 @@ export function TeacherRoutinePage() {
     );
   }
 
+  function handleViewClass(session: SessionSlotView) {
+    if (!session.classId) return;
+    navigate(`/teacher/classes/${session.classId}`);
+  }
+
   return (
     <>
       <PageContainer className="flex flex-col gap-6">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
           <div>
-            <h1 className="text-2xl font-bold text-[#03214F]">My Routine</h1>
+            <h1 className="text-2xl font-bold text-primary-dark">My Routine</h1>
             <p className="mt-1 text-sm text-zinc-500">
               Weekly teaching schedule — {totalSessions} session
               {totalSessions === 1 ? "" : "s"} per week
@@ -55,9 +60,9 @@ export function TeacherRoutinePage() {
           ) : null}
         </div>
 
-        <div className="flex items-center gap-2 rounded-2xl bg-[#C4922B]/12 px-4 py-3">
-          <CalendarDays className="size-5 text-[#C4922B]" />
-          <span className="text-sm font-semibold text-[#03214F]">
+        <div className="flex items-center gap-2 rounded-2xl border border-primary/15 bg-primary/5 px-4 py-3">
+          <CalendarDays className="size-5 shrink-0 text-primary" />
+          <span className="text-sm text-portal-heading">
             Academy week: Saturday → Friday · live timer only on today&apos;s sessions
           </span>
         </div>
@@ -66,7 +71,7 @@ export function TeacherRoutinePage() {
           <PageLoading label="Loading routine…" />
         ) : totalSessions === 0 ? (
           <div className="rounded-2xl border border-dashed border-zinc-200 bg-white p-10 text-center">
-            <p className="font-semibold text-[#03214F]">No routine yet</p>
+            <p className="font-semibold text-primary-dark">No routine yet</p>
             <p className="mt-1 text-sm text-zinc-400">
               Sessions appear when admin assigns students to your classes with a schedule.
             </p>
@@ -75,16 +80,18 @@ export function TeacherRoutinePage() {
           <SessionScheduleTable
             sessions={tableSessions}
             routineView
+            joinRole="teacher"
             onLogSession={openLogSession}
             onMarkAttendance={handleMarkAttendance}
+            onViewClass={handleViewClass}
           />
         ) : (
-          <div className="flex flex-col gap-8">
+          <div className="flex flex-col gap-5">
             {grouped.map(({ day, sessions: daySessions }) =>
               daySessions.length === 0 ? null : (
                 <section key={day} className="flex flex-col gap-3">
                   <div className="flex items-center gap-3 border-b border-zinc-100 pb-2">
-                    <h2 className="text-sm font-bold uppercase tracking-wide text-[#03214F]">
+                    <h2 className="text-sm font-bold uppercase tracking-wide text-primary-dark">
                       {day}
                     </h2>
                     <span className="rounded-full bg-zinc-100 px-2.5 py-0.5 text-xs font-medium text-zinc-600">
@@ -97,8 +104,10 @@ export function TeacherRoutinePage() {
                         key={session._id}
                         session={session}
                         routineView
+                        joinRole="teacher"
                         onLogSession={openLogSession}
                         onMarkAttendance={handleMarkAttendance}
+                        onViewClass={handleViewClass}
                       />
                     ))}
                   </div>

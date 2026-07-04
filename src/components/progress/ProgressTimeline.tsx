@@ -68,7 +68,7 @@ function buildTimelineEvents(records: StudentProgressRecord[]): TimelineEvent[] 
 }
 
 const kindMeta: Record<TimelineKind, { icon: LucideIcon; accent: string }> = {
-  progress: { icon: TrendingUp, accent: "text-[#2b7fff] bg-[#EEF2F8]" },
+  progress: { icon: TrendingUp, accent: "text-primary bg-[#EEF2F8]" },
   milestone: { icon: Award, accent: "text-emerald-600 bg-emerald-50" },
 };
 

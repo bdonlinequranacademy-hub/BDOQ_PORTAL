@@ -21,6 +21,8 @@ export interface AuthUser {
   name: string;
   email: string;
   role: Role;
+  avatarUrl?: string;
+  gender?: "male" | "female";
 }
 
 export interface ScheduleEntry {
@@ -223,35 +225,6 @@ export interface StudentProgressRecord {
   updatedBy?: PopulatedUserRef;
 }
 
-export interface StudyPlanResult {
-  studyPlan: string;
-  studentName?: string;
-  currentLevel?: string;
-  locale?: string;
-  generatedAt: string;
-}
-
-export interface AIProgressReport {
-  report: string;
-  studentName?: string;
-  locale?: string;
-  stats?: {
-    tajweedScore: number;
-    memorizedAyahs: number;
-    attendancePercentage: number;
-    homeworkCompletionRate: number;
-    verifiedSessions?: number;
-    pendingLogs?: number;
-    rejectedLogs?: number;
-  };
-  generatedAt: string;
-}
-
-export interface AIStudyPlan {
-  plan: string;
-  generatedAt: string;
-}
-
 export interface AdminUser {
   id: string;
   name: string;
@@ -263,6 +236,7 @@ export interface AdminUser {
   gender?: "male" | "female";
   timezone?: string;
   country?: string;
+  whatsapp?: string;
   curriculumAssignments?: CurriculumAssignment[];
   createdAt?: string;
 }
@@ -470,10 +444,13 @@ export interface TeacherProfile {
   role: string;
   timezone: string;
   country: string;
+  whatsapp: string;
   meetingLink: string;
   bankName: string;
   bankAccount: string;
   bKashNumber: string;
+  avatarUrl?: string;
+  gender?: "male" | "female";
 }
 
 export interface StudentProfile {
@@ -484,6 +461,43 @@ export interface StudentProfile {
   studentId?: string;
   timezone: string;
   country: string;
+  whatsapp: string;
+  avatarUrl?: string;
+  gender?: "male" | "female";
+}
+
+export interface AdminProfile {
+  _id: string;
+  name: string;
+  email: string;
+  role: string;
+  avatarUrl?: string;
+  gender?: "male" | "female";
+}
+
+export type WhatsAppQueueCategory =
+  | "payment_overdue"
+  | "payment_due_soon"
+  | "class_reminder"
+  | "new_trial"
+  | "new_admission"
+  | "missing_whatsapp";
+
+export interface WhatsAppQueueItem {
+  id: string;
+  category: WhatsAppQueueCategory;
+  title: string;
+  subtitle: string;
+  recipientName: string;
+  recipientRole: "student" | "teacher" | "parent" | "lead";
+  phoneRaw: string;
+  phoneDisplay: string;
+  phoneValid: boolean;
+  phoneError?: string;
+  waUrl: string | null;
+  message: string;
+  userId?: string;
+  createdAt?: string;
 }
 
 export type StudentRequestStatus = "pending" | "approved" | "rejected";
@@ -528,6 +542,49 @@ export interface TrialBookingView {
   utmCampaign?: string;
   utmContent?: string;
   status: TrialBookingStatus;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export type StudentAdmissionStatus = "new" | "reviewing" | "approved" | "closed";
+
+export interface StudentAdmissionView {
+  _id: string;
+  fullName: string;
+  email: string;
+  whatsapp: string;
+  formData: Record<string, unknown>;
+  locale?: "en" | "bn";
+  status: StudentAdmissionStatus;
+  adminNote?: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export type TeacherApplicationStatus =
+  | "new"
+  | "reviewing"
+  | "approved"
+  | "rejected"
+  | "closed";
+
+export interface TeacherApplicationFilesView {
+  certificateUrl?: string;
+  cvUrl?: string;
+  profilePhotoUrl?: string;
+  screenshotUrl?: string;
+}
+
+export interface TeacherApplicationView {
+  _id: string;
+  fullName: string;
+  email: string;
+  phone: string;
+  formData: Record<string, unknown>;
+  files: TeacherApplicationFilesView;
+  locale?: "en" | "bn";
+  status: TeacherApplicationStatus;
+  adminNote?: string;
   createdAt: string;
   updatedAt: string;
 }
@@ -610,12 +667,15 @@ export interface AdminStats {
   totalTeachers: number;
   totalClasses: number;
   activeClasses: number;
-  todaysClasses?: AdminClass[];
+  todaysClasses?: TodaySessionDashboardItem[];
+  liveSummary?: LiveMonitorSummary;
   attendanceRate?: number;
   homeworkCompletion?: number;
   pendingActions?: {
     newTrials: number;
     newContacts: number;
+    newStudentAdmissions?: number;
+    newTeacherApplications?: number;
     pendingClassLogs: number;
     pendingPayments?: number;
     pendingStudentRequests?: number;
@@ -625,6 +685,75 @@ export interface AdminStats {
     totalStudents: number;
     progressMissingProgram: number;
     logsMissingProgram: number;
+  };
+}
+
+export type LiveMonitorJoinStatus = "joined" | "not_joined" | "late";
+
+export interface LiveMonitorSummary {
+  sessionDate: string;
+  day: string;
+  liveCount: number;
+  upcomingCount: number;
+  completedCount: number;
+  teacherLateCount: number;
+  studentNoShowCount: number;
+  teacherNoShowCount: number;
+  totalToday: number;
+}
+
+export interface LiveMonitorSession {
+  _id: string;
+  classId: string;
+  classTitle: string;
+  courseType: string;
+  durationMinutes: number;
+  durationLabel: string;
+  day: string;
+  meetingLink?: string;
+  sessionPhase: SessionPhase;
+  startsAt: string;
+  endsAt: string;
+  startTimeLabel: string;
+  minutesUntilStart: number;
+  minutesSinceStart: number;
+  student: { _id: string; name: string; studentId?: string };
+  teacher: { _id: string; name: string };
+  joins: {
+    teacherJoinedAt?: string;
+    studentJoinedAt?: string;
+    teacherStatus: LiveMonitorJoinStatus;
+    studentStatus: LiveMonitorJoinStatus;
+  };
+  alerts: {
+    teacherLate: boolean;
+    studentNoShow: boolean;
+    teacherNoShow: boolean;
+  };
+}
+
+export interface LiveMonitorPayload {
+  summary: LiveMonitorSummary;
+  sessions: LiveMonitorSession[];
+  updatedAt: string;
+}
+
+export interface TodaySessionDashboardItem {
+  _id: string;
+  classId: string;
+  classTitle: string;
+  teacherName: string;
+  studentName: string;
+  startTimeLabel: string;
+  sessionPhase: SessionPhase;
+  startsAt: string;
+  meetingLink?: string;
+  teacherJoined: boolean;
+  studentJoined: boolean;
+  alerts?: {
+    teacherLate: boolean;
+    studentNoShow: boolean;
+    teacherNoShow: boolean;
   };
 }
 
@@ -665,14 +794,92 @@ export interface PaymentRecordView {
   status: PaymentStatus;
   rejectionReason?: string;
   paidUntilAfter?: string;
-  reviewedAt?: string;
-  createdAt: string;
+    reviewedAt?: string;
+    invoiceNumber?: string;
+    createdAt: string;
   student?: {
     id: string;
     name: string;
     email: string;
     country?: string;
   };
+}
+
+export interface PaymentInvoiceCourseLine {
+  title: string;
+  teacherName: string;
+  schedule?: string;
+}
+
+export interface PaymentInvoiceView {
+  invoiceNumber: string;
+  paymentId: string;
+  issuedAt: string;
+  student: {
+    name: string;
+    email: string;
+    studentId?: string;
+    country: string;
+  };
+  academy: {
+    name: string;
+    shortName: string;
+    tagline: string;
+    website: string;
+    email: string;
+    contactBD: string;
+    contactEG: string;
+    address: string;
+  };
+  description: string;
+  monthsCovered: number;
+  amount: number;
+  currency: string;
+  transactionFee?: number;
+  netAmount?: number;
+  method: string;
+  reference: string;
+  paymentDate: string;
+  paidUntilAfter?: string;
+  note?: string;
+  courses: PaymentInvoiceCourseLine[];
+}
+
+export interface CertificateAcademyView {
+  name: string;
+  shortName: string;
+  tagline: string;
+  website: string;
+  email: string;
+  contactBD: string;
+  contactEG: string;
+  address: string;
+  founderName: string;
+  founderTitle: string;
+  sinceYear: string;
+}
+
+export interface CertificateView {
+  id: string;
+  certificateId: string;
+  studentName: string;
+  studentNameBn: string;
+  courseName: string;
+  courseNameBn: string;
+  studentPortalId: string;
+  issueDate: string;
+  courseDuration: string;
+  grade: string;
+  showExcellentBadge: boolean;
+  performanceTextEn: string;
+  performanceTextBn: string;
+  verifyUrl: string;
+  academy: CertificateAcademyView;
+  createdAt: string;
+}
+
+export interface CertificateVerifyView extends CertificateView {
+  valid: boolean;
 }
 
 export interface OverdueBillingView {
@@ -720,6 +927,113 @@ export interface AdminBlogPost {
   featured: boolean;
   status: BlogPostStatus;
   faqs: BlogFaq[];
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+export type ResourceType = "ebook" | "audio" | "video";
+export type ResourceStatus = "draft" | "published";
+export type ResourceSection =
+  | "default"
+  | "featured"
+  | "verses"
+  | "recitation"
+  | "gallery"
+  | "playlist";
+export type EbookCategory = "tajweed" | "islamic-history" | "religious";
+export type EbookLanguage = "en" | "bn" | "both";
+
+export interface AudioVerseEntry {
+  arabic: string;
+  translation: string;
+}
+
+export interface AdminResource {
+  id: string;
+  type: ResourceType;
+  section: ResourceSection;
+  title: string;
+  slug: string;
+  description?: string;
+  status: ResourceStatus;
+  featured: boolean;
+  sortOrder: number;
+  category?: EbookCategory;
+  coverGradient?: string;
+  coverUrl?: string;
+  coverPublicId?: string;
+  pdfUrl?: string;
+  pdfPublicId?: string;
+  fileSize?: string;
+  pageCount?: number;
+  language?: EbookLanguage;
+  author?: string;
+  audioUrl?: string;
+  audioPublicId?: string;
+  duration?: string;
+  paraInfo?: string;
+  surahName?: string;
+  progress?: number;
+  verses?: AudioVerseEntry[];
+  youtubeId?: string;
+  startSeconds?: number;
+  publishedAt?: string;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+export type TestimonialMediaType = "text" | "audio" | "video";
+
+export type GalleryAlbumType = "gallery-01" | "gallery-02" | "gallery-03";
+export type GalleryMediaType = "photo" | "video" | "audio";
+
+export interface AdminGalleryItem {
+  id: string;
+  externalId: string;
+  title: string;
+  description?: string;
+  album: GalleryAlbumType;
+  mediaType: GalleryMediaType;
+  mediaUrl?: string;
+  mediaPublicId?: string;
+  youtubeId?: string;
+  coverGradient: string;
+  heightClass: string;
+  sortOrder: number;
+  showOnWebsite: boolean;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+export interface AdminPricingPackage {
+  id: string;
+  slug: string;
+  name: string;
+  priceBdt: number;
+  priceUsd: number;
+  period: string;
+  features: string[];
+  popular: boolean;
+  sortOrder: number;
+  showOnWebsite: boolean;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+export interface AdminTestimonial {
+  id: string;
+  externalId: string;
+  name: string;
+  role: string;
+  location: string;
+  content: string;
+  rating: number;
+  image?: string;
+  mediaType: TestimonialMediaType;
+  mediaUrl?: string;
+  youtubeId?: string;
+  sortOrder: number;
+  showOnWebsite: boolean;
   createdAt?: string;
   updatedAt?: string;
 }

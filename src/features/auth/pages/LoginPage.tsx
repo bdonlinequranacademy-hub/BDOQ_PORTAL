@@ -10,47 +10,36 @@ import {
 } from "lucide-react";
 import { useLogin } from "@/features/auth/hooks/useLogin";
 import { AuthLayout } from "@/components/layout/AuthLayout";
-import { BrandLogo } from "@/components/brand/BrandLogo";
 import { GoogleAuthButton } from "@/components/auth/GoogleAuthButton";
 import { formControlLgClass } from "@/lib/formControl";
+import { BDOQ_BRAND } from "@/lib/bdoqBrand";
 import { toast } from "@/stores/uiStore";
 import {
-  PORTAL_COPY,
-  loginPathForPortal,
-  parsePortalIntent,
-  registerPathForPortal,
-} from "@/lib/portalAuth";
+  REGISTER_PATH,
+  STAFF_ACCOUNT_NOTICE,
+  authErrorMessage,
+} from "@/lib/authMessages";
 
 export function LoginPage() {
   const { mutate: login, isPending } = useLogin();
   const [searchParams, setSearchParams] = useSearchParams();
-  const portal = parsePortalIntent(searchParams.get("portal"));
-  const copy = PORTAL_COPY[portal];
-  const [email, setEmail] = useState("");
+  const [email, setEmail] = useState(() => searchParams.get("email") ?? "");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+
+  useEffect(() => {
+    const emailFromUrl = searchParams.get("email");
+    if (emailFromUrl) setEmail(emailFromUrl);
+  }, [searchParams]);
 
   useEffect(() => {
     const error = searchParams.get("error");
     if (!error) return;
 
-    if (error === "oauth") {
-      toast.error("Google sign-in failed. Please try again or use email.");
-    } else if (error === "oauth_role") {
-      toast.error(
-        `This Google account is not a ${portal} account. Use the correct portal or contact your admin.`
-      );
-    } else if (error === "oauth_account_required") {
-      toast.error(
-        `${portal === "admin" ? "Admin" : "Teacher"} accounts must be created by your academy admin before Google sign-in.`
-      );
-    } else if (error === "deactivated") {
-      toast.error("This account has been deactivated. Contact support.");
-    }
-
+    toast.error(authErrorMessage(error) ?? "Sign-in failed. Please try again.");
     searchParams.delete("error");
     setSearchParams(searchParams, { replace: true });
-  }, [searchParams, setSearchParams, portal]);
+  }, [searchParams, setSearchParams]);
 
   function handleSubmit(e: FormEvent) {
     e.preventDefault();
@@ -60,29 +49,25 @@ export function LoginPage() {
   return (
     <AuthLayout>
       <div className="flex w-full flex-col gap-6">
-        {/* Brand header */}
-        <div className="mb-8 flex flex-col items-center gap-2">
-          <BrandLogo size="lg" />
-          <p className="text-xs text-zinc-500">Secure portal for students, teachers &amp; admins</p>
+        <div className="mb-8 flex flex-col items-center gap-2 text-center">
+          <h2 className="text-2xl font-bold text-navy">{BDOQ_BRAND.shortName}</h2>
+          <p className="text-xs text-zinc-500">One sign-in for students, teachers &amp; admins</p>
         </div>
 
-        {/* Card */}
         <div className="rounded-3xl bg-white px-8 py-8 shadow-xl shadow-navy/5 flex flex-col gap-6">
-          {/* Heading */}
           <div className="text-center flex flex-col gap-2">
-            <h1 className="text-3xl font-bold text-navy">{copy.signInTitle}</h1>
-            <p className="text-sm text-zinc-500">{copy.signInSubtitle}</p>
+            <h1 className="text-3xl font-bold text-navy">Sign in to {BDOQ_BRAND.shortName}</h1>
+            <p className="text-sm text-zinc-500">
+              Use the email and password your academy gave you. After sign-in, we open the right
+              dashboard for your role automatically.
+            </p>
           </div>
 
-          {copy.registerNote ? (
-            <p className="rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-center text-xs leading-relaxed text-amber-900">
-              {copy.registerNote}
-            </p>
-          ) : null}
+          <p className="rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-center text-xs leading-relaxed text-amber-900">
+            {STAFF_ACCOUNT_NOTICE}
+          </p>
 
-          {/* Form */}
           <form onSubmit={handleSubmit} className="flex flex-col gap-4" noValidate>
-            {/* Email */}
             <div className="flex flex-col gap-2">
               <label htmlFor="email" className="text-sm font-medium text-navy">
                 Email Address
@@ -102,7 +87,6 @@ export function LoginPage() {
               </div>
             </div>
 
-            {/* Password */}
             <div className="flex flex-col gap-2">
               <label htmlFor="password" className="text-sm font-medium text-navy">
                 Password
@@ -133,48 +117,36 @@ export function LoginPage() {
               </Link>
             </div>
 
-            {/* Submit */}
             <button
               type="submit"
               disabled={isPending}
-              className="mt-2 h-12 w-full rounded-2xl bg-navy text-sm font-semibold text-white transition hover:bg-navy-500 disabled:cursor-not-allowed disabled:opacity-60"
+              className="mt-2 h-12 w-full rounded-2xl bg-brand-red text-sm font-semibold text-white transition hover:bg-brand-red-dark disabled:cursor-not-allowed disabled:opacity-60"
             >
               {isPending ? "Signing in…" : "Sign In"}
             </button>
           </form>
 
-          {/* Divider */}
           <div className="flex items-center gap-4">
             <div className="h-px flex-1 bg-zinc-200" />
             <span className="text-xs text-zinc-500">or continue with</span>
             <div className="h-px flex-1 bg-zinc-200" />
           </div>
 
-          <GoogleAuthButton label="Continue with Google" portal={portal} />
+          <GoogleAuthButton label="Continue with Google" />
 
-          {/* Footer link */}
-          {portal === "student" ? (
-            <p className="text-center text-sm text-zinc-500">
-              New to Al Bayaan?{" "}
-              <Link to={registerPathForPortal("student")} className="font-bold text-gold hover:underline">
-                Create student account
-              </Link>
-            </p>
-          ) : (
-            <p className="text-center text-sm text-zinc-500">
-              Need a student account instead?{" "}
-              <Link to={loginPathForPortal("student")} className="font-bold text-gold hover:underline">
-                Student sign in
-              </Link>
-              {" · "}
-              <Link to={registerPathForPortal("student")} className="font-bold text-gold hover:underline">
-                Create student account
-              </Link>
-            </p>
-          )}
+          <p className="text-center text-xs text-zinc-400">
+            Google creates a <strong className="font-medium text-zinc-500">student</strong> account
+            only. Teachers and admins must use credentials from your administrator.
+          </p>
+
+          <p className="text-center text-sm text-zinc-500">
+            New student?{" "}
+            <Link to={REGISTER_PATH} className="font-bold text-gold hover:underline">
+              Create student account
+            </Link>
+          </p>
         </div>
 
-        {/* Trust badges */}
         <div className="mt-8 flex items-center justify-center gap-6">
           <div className="flex items-center gap-1.5">
             <Shield className="size-3.5 text-zinc-400" aria-hidden="true" />

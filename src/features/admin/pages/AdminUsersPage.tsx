@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Search, Plus, Trash2, X, Pencil } from "lucide-react";
+import { Search, Plus, Trash2, Pencil } from "lucide-react";
 import {
   useAdminUsers,
   useCreateUser,
@@ -9,21 +9,27 @@ import {
 import { PageContainer } from "@/components/layout/PageContainer";
 import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
-import { Input } from "@/components/ui/Input";
-import { Select } from "@/components/ui/Select";
 import { formControlClass } from "@/lib/formControl";
-import { ASSIGNABLE_ROLES, assignableRolesFor, canManageUserAccount, displayRole, isSuperAdmin, roleLabel } from "@/lib/assignableRoles";
-import { useAuthStore } from "@/stores/authStore";
-import { PROFILE_TIMEZONES } from "@/lib/profileTimezones";
 import {
-  CurriculumAssignmentEditor,
-  useCurriculumTree,
-} from "@/components/curriculum/NestedCurriculumSelect";
-import { CountrySelect } from "@/components/ui/CountrySelect";
+  ASSIGNABLE_ROLES,
+  assignableRolesFor,
+  canManageUserAccount,
+  displayRole,
+  isSuperAdmin,
+  roleLabel,
+} from "@/lib/assignableRoles";
+import { useAuthStore } from "@/stores/authStore";
+import { useCurriculumTree } from "@/components/curriculum/NestedCurriculumSelect";
 import { formatCountryWithFlag } from "@/lib/utils/countryDisplay";
+import { AdminCreateUserModal } from "@/features/admin/components/AdminCreateUserModal";
+import { AdminEditUserModal } from "@/features/admin/components/AdminEditUserModal";
 import type { CurriculumAssignment, Role } from "@/types/models";
 
 import { PageLoading } from "@/components/ui/PageLoading";
+import { EmptyState } from "@/components/ui/EmptyState";
+import { Pagination } from "@/components/ui/Pagination";
+import { usePaginatedList } from "@/lib/hooks/usePaginatedList";
+
 const ROLE_COLORS: Record<Role, string> = {
   student: "bg-teal-100 text-teal-700",
   teacher: "bg-blue-100 text-blue-700",
@@ -52,14 +58,6 @@ export function AdminUsersPage() {
   const [genderFilter, setGenderFilter] = useState<GenderFilter>("all");
   const [search, setSearch] = useState("");
   const [showForm, setShowForm] = useState(false);
-  const [name, setName] = useState("");
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [role, setRole] = useState<(typeof creatableRoles)[number]>("student");
-  const [gender, setGender] = useState<"" | "male" | "female">("");
-  const [timezone, setTimezone] = useState("Asia/Dhaka");
-  const [country, setCountry] = useState("Bangladesh");
-  const [curriculumAssignments, setCurriculumAssignments] = useState<CurriculumAssignment[]>([]);
 
   const [editUserId, setEditUserId] = useState<string | null>(null);
   const [editName, setEditName] = useState("");
@@ -69,6 +67,7 @@ export function AdminUsersPage() {
   const [editGender, setEditGender] = useState<"" | "male" | "female">("");
   const [editTimezone, setEditTimezone] = useState("Asia/Dhaka");
   const [editCountry, setEditCountry] = useState("");
+  const [editWhatsapp, setEditWhatsapp] = useState("");
   const [editCurriculumAssignments, setEditCurriculumAssignments] = useState<
     CurriculumAssignment[]
   >([]);
@@ -86,6 +85,8 @@ export function AdminUsersPage() {
   const deleteUser = useDeleteUser();
   const updateUser = useUpdateUser(editUserId ?? "");
 
+  const editingUser = users.find((user) => user.id === editUserId) ?? null;
+
   function openEditUser(user: (typeof users)[number]) {
     setEditUserId(user.id);
     setEditName(user.name);
@@ -95,7 +96,12 @@ export function AdminUsersPage() {
     setEditGender(user.gender ?? "");
     setEditTimezone(user.timezone ?? "Asia/Dhaka");
     setEditCountry(user.country ?? "");
+    setEditWhatsapp(user.whatsapp ?? "");
     setEditCurriculumAssignments(user.curriculumAssignments ?? []);
+  }
+
+  function closeEditUser() {
+    setEditUserId(null);
   }
 
   function handleDeactivate(user: (typeof users)[number]) {
@@ -110,49 +116,25 @@ export function AdminUsersPage() {
   }
 
   const filtered = users.filter(
-    (u) =>
-      u.name.toLowerCase().includes(search.toLowerCase()) ||
-      u.email.toLowerCase().includes(search.toLowerCase())
+    (user) =>
+      user.name.toLowerCase().includes(search.toLowerCase()) ||
+      user.email.toLowerCase().includes(search.toLowerCase())
   );
 
-  async function handleCreate() {
-    if (!name || !email || !password) return;
-    if ((role === "student" || role === "teacher") && !country) return;
-    await createUser.mutateAsync({
-      name,
-      email,
-      password,
-      role,
-      ...(role === "teacher" && gender ? { gender } : {}),
-      ...(role === "student" || role === "teacher" ? { country } : {}),
-      ...(role === "student"
-        ? {
-            timezone,
-            curriculumAssignments,
-          }
-        : {}),
-    });
-    setName("");
-    setEmail("");
-    setPassword("");
-    setRole("student");
-    setGender("");
-    setTimezone("Asia/Dhaka");
-    setCountry("Bangladesh");
-    setCurriculumAssignments([]);
-    setShowForm(false);
-  }
+  const pagination = usePaginatedList(filtered, {
+    resetDeps: [search, roleFilter, genderFilter],
+  });
 
   return (
     <PageContainer className="flex flex-col gap-6">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-[#03214F]">User Management</h1>
+          <h1 className="text-2xl font-bold text-primary-dark">User Management</h1>
           <p className="text-sm text-zinc-500">{users.length} users</p>
         </div>
         <Button
           onClick={() => setShowForm(true)}
-          className="gap-2 rounded-xl bg-[#03214F] text-white"
+          className="gap-2 rounded-xl bg-primary-dark text-white"
         >
           <Plus className="size-4" />
           Add User
@@ -165,40 +147,40 @@ export function AdminUsersPage() {
           className={`${formControlClass} py-3 pl-10`}
           placeholder="Search users…"
           value={search}
-          onChange={(e) => setSearch(e.target.value)}
+          onChange={(event) => setSearch(event.target.value)}
         />
       </div>
 
       <div className="flex flex-wrap gap-2">
-        {roleFilterOptions.map((r) => (
+        {roleFilterOptions.map((role) => (
           <button
-            key={r}
-            onClick={() => setRoleFilter(r)}
+            key={role}
+            onClick={() => setRoleFilter(role)}
             className={`rounded-full px-4 py-1.5 text-sm font-medium capitalize ${
-              roleFilter === r
-                ? "bg-[#03214F] text-white"
-                : "border border-zinc-200 bg-white text-[#03214F]"
+              roleFilter === role
+                ? "bg-primary-dark text-white"
+                : "border border-zinc-200 bg-white text-primary-dark"
             }`}
           >
-            {r === "all" ? "all" : roleLabel(r as Role)}
+            {role === "all" ? "all" : roleLabel(role as Role)}
           </button>
         ))}
       </div>
 
       {roleFilter === "teacher" ? (
         <div className="flex flex-wrap gap-2">
-          {(["all", "female", "male"] as const).map((g) => (
+          {(["all", "female", "male"] as const).map((gender) => (
             <button
-              key={g}
+              key={gender}
               type="button"
-              onClick={() => setGenderFilter(g)}
+              onClick={() => setGenderFilter(gender)}
               className={`rounded-full px-4 py-1.5 text-sm font-medium capitalize ${
-                genderFilter === g
+                genderFilter === gender
                   ? "bg-[#C4922B] text-white"
-                  : "border border-zinc-200 bg-white text-[#03214F]"
+                  : "border border-zinc-200 bg-white text-primary-dark"
               }`}
             >
-              {g === "all" ? "All teachers" : g}
+              {gender === "all" ? "All teachers" : gender}
             </button>
           ))}
         </div>
@@ -206,7 +188,17 @@ export function AdminUsersPage() {
 
       {isLoading ? (
         <PageLoading label="Loading users…" />
+      ) : filtered.length === 0 ? (
+        <EmptyState
+          title="No users found"
+          description={
+            search
+              ? "Try a different name or email."
+              : "No users match the selected filters."
+          }
+        />
       ) : (
+        <>
         <Card className="overflow-hidden rounded-2xl border-0 p-0 shadow-sm">
           <div className="hidden md:grid md:grid-cols-[2fr_2fr_1fr_80px] md:gap-4 md:border-b md:border-zinc-100 md:bg-zinc-50 md:px-5 md:py-3 md:text-xs md:font-semibold md:uppercase md:tracking-wide md:text-zinc-500">
             <span>Name</span>
@@ -215,64 +207,64 @@ export function AdminUsersPage() {
             <span className="text-right">Actions</span>
           </div>
           <div className="divide-y divide-zinc-100">
-            {filtered.map((u) => {
-              const shownRole = displayRole(u.role);
-              const manageable = canManageUserAccount(actorRole, u.role);
+            {pagination.paginatedItems.map((user) => {
+              const shownRole = displayRole(user.role);
+              const manageable = canManageUserAccount(actorRole, user.role);
               return (
                 <div
-                  key={u.id}
+                  key={user.id}
                   className={`flex flex-col gap-2 p-4 md:grid md:grid-cols-[2fr_2fr_1fr_80px] md:items-center md:gap-4 ${
-                    u.isActive === false ? "opacity-60" : ""
+                    user.isActive === false ? "opacity-60" : ""
                   }`}
                 >
                   <div>
                     <div className="flex flex-wrap items-center gap-2">
-                      <p className="font-semibold text-[#03214F]">{u.name}</p>
-                      {u.isActive === false ? (
+                      <p className="font-semibold text-primary-dark">{user.name}</p>
+                      {user.isActive === false ? (
                         <span className="rounded-full bg-zinc-200 px-2 py-0.5 text-[10px] font-semibold uppercase text-zinc-600">
                           Inactive
                         </span>
                       ) : null}
-                      {genderLabel(u.gender) ? (
+                      {genderLabel(user.gender) ? (
                         <span className="rounded-full bg-blue-50 px-2 py-0.5 text-[10px] font-semibold text-blue-700">
-                          {genderLabel(u.gender)}
+                          {genderLabel(user.gender)}
                         </span>
                       ) : null}
                     </div>
-                    <p className="text-xs text-zinc-400 md:hidden">{u.email}</p>
-                    {displayRole(u.role) === "student" && (u.timezone || u.country) ? (
+                    <p className="text-xs text-zinc-400 md:hidden">{user.email}</p>
+                    {displayRole(user.role) === "student" && (user.timezone || user.country) ? (
                       <p className="text-[10px] text-zinc-400">
-                        {u.timezone ? `${u.timezone}` : ""}
-                        {u.timezone && u.country ? " · " : ""}
-                        {u.country ? formatCountryWithFlag(u.country) : ""}
+                        {user.timezone ? `${user.timezone}` : ""}
+                        {user.timezone && user.country ? " · " : ""}
+                        {user.country ? formatCountryWithFlag(user.country) : ""}
                       </p>
                     ) : null}
-                    {displayRole(u.role) === "teacher" && u.country ? (
+                    {displayRole(user.role) === "teacher" && user.country ? (
                       <p className="text-[10px] text-zinc-400">
-                        {formatCountryWithFlag(u.country)}
+                        {formatCountryWithFlag(user.country)}
                       </p>
                     ) : null}
                   </div>
-                  <p className="hidden text-sm text-zinc-600 md:block">{u.email}</p>
+                  <p className="hidden text-sm text-zinc-600 md:block">{user.email}</p>
                   <span
                     className={`w-fit rounded-full px-2.5 py-0.5 text-xs font-medium ${ROLE_COLORS[shownRole]}`}
                   >
-                    {roleLabel(u.role)}
+                    {roleLabel(user.role)}
                   </span>
                   <div className="flex justify-end gap-1">
                     {manageable ? (
                       <>
                         <button
-                          onClick={() => openEditUser(u)}
-                          className="rounded-lg p-2 text-[#03214F] hover:bg-zinc-100"
+                          onClick={() => openEditUser(user)}
+                          className="rounded-lg p-2 text-primary-dark hover:bg-zinc-100"
                           aria-label="Edit user"
                           title="Edit user"
                         >
                           <Pencil className="size-4" />
                         </button>
-                        {u.isActive !== false ? (
+                        {user.isActive !== false ? (
                           <button
-                            onClick={() => handleDeactivate(u)}
+                            onClick={() => handleDeactivate(user)}
                             className="rounded-lg p-2 text-red-500 hover:bg-red-50"
                             aria-label="Deactivate user"
                             title="Deactivate user"
@@ -292,212 +284,57 @@ export function AdminUsersPage() {
             })}
           </div>
         </Card>
+        <Pagination pagination={pagination} itemLabel="users" />
+        </>
       )}
 
-      {editUserId && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
-          <Card className="flex w-full max-w-md flex-col gap-4 rounded-2xl border-0 p-6 shadow-xl">
-            <div className="flex items-center justify-between">
-              <span className="text-lg font-bold text-[#03214F]">
-                Edit User
-              </span>
-              <button onClick={() => setEditUserId(null)}>
-                <X className="size-5 text-zinc-400" />
-              </button>
-            </div>
-            <Input
-              placeholder="Full name"
-              value={editName}
-              onChange={(e) => setEditName(e.target.value)}
-            />
-            <Input
-              type="email"
-              placeholder="Email"
-              value={editEmail}
-              onChange={(e) => setEditEmail(e.target.value)}
-            />
-            <Select
-              value={editRole}
-              onChange={(e) =>
-                setEditRole(e.target.value as (typeof ASSIGNABLE_ROLES)[number])
-              }
-              label="Role"
-            >
-              {[...new Set([editRole, ...creatableRoles])].map((r) => (
-                <option key={r} value={r}>
-                  {roleLabel(r)}
-                </option>
-              ))}
-            </Select>
-            {editRole === "teacher" ? (
-              <Select
-                value={editGender}
-                onChange={(e) =>
-                  setEditGender(e.target.value as "" | "male" | "female")
-                }
-                label="Gender"
-              >
-                <option value="">Not set</option>
-                <option value="female">Female</option>
-                <option value="male">Male</option>
-              </Select>
-            ) : null}
-            {editRole === "student" || editRole === "teacher" ? (
-              <CountrySelect value={editCountry} onChange={setEditCountry} />
-            ) : null}
-            {editRole === "student" ? (
-              <>
-                <Select
-                  value={editTimezone}
-                  onChange={(e) => setEditTimezone(e.target.value)}
-                  label="Timezone"
-                >
-                  {PROFILE_TIMEZONES.map((tz) => (
-                    <option key={tz} value={tz}>
-                      {tz.replace("_", " ")}
-                    </option>
-                  ))}
-                </Select>
-                <CurriculumAssignmentEditor
-                  tree={curriculumTree}
-                  assignments={editCurriculumAssignments}
-                  onChange={setEditCurriculumAssignments}
-                />
-              </>
-            ) : null}
-            <label className="flex cursor-pointer items-center gap-3 rounded-xl border border-zinc-100 px-4 py-3">
-              <input
-                type="checkbox"
-                checked={editActive}
-                onChange={(e) => setEditActive(e.target.checked)}
-              />
-              <span className="text-sm font-medium text-[#03214F]">Account active</span>
-            </label>
-            <Button
-              onClick={async () => {
-                if (!editName || !editEmail) return;
-                if (
-                  (editRole === "student" || editRole === "teacher") &&
-                  !editCountry
-                ) {
-                  return;
-                }
-                await updateUser.mutateAsync({
-                  name: editName,
-                  email: editEmail,
-                  role: editRole,
-                  isActive: editActive,
-                  ...(editRole === "teacher" ? { gender: editGender } : {}),
-                  ...(editRole === "student" || editRole === "teacher"
-                    ? { country: editCountry }
-                    : {}),
-                  ...(editRole === "student"
-                    ? {
-                        timezone: editTimezone,
-                        curriculumAssignments: editCurriculumAssignments,
-                      }
-                    : {}),
-                });
-                setEditUserId(null);
-              }}
-              disabled={
-                updateUser.isPending ||
-                ((editRole === "student" || editRole === "teacher") &&
-                  !editCountry)
-              }
-              className="h-11 rounded-xl bg-[#03214F] text-white"
-            >
-              {updateUser.isPending ? "Saving…" : "Save changes"}
-            </Button>
-          </Card>
-        </div>
-      )}
+      <AdminEditUserModal
+        user={editingUser}
+        creatableRoles={creatableRoles}
+        curriculumTree={curriculumTree}
+        isPending={updateUser.isPending}
+        form={{
+          name: editName,
+          email: editEmail,
+          role: editRole,
+          isActive: editActive,
+          gender: editGender,
+          timezone: editTimezone,
+          country: editCountry,
+          whatsapp: editWhatsapp,
+          curriculumAssignments: editCurriculumAssignments,
+        }}
+        onChange={(key, value) => {
+          if (key === "name") setEditName(value as string);
+          if (key === "email") setEditEmail(value as string);
+          if (key === "role") setEditRole(value as (typeof ASSIGNABLE_ROLES)[number]);
+          if (key === "isActive") setEditActive(value as boolean);
+          if (key === "gender") setEditGender(value as "" | "male" | "female");
+          if (key === "timezone") setEditTimezone(value as string);
+          if (key === "country") setEditCountry(value as string);
+          if (key === "whatsapp") setEditWhatsapp(value as string);
+          if (key === "curriculumAssignments") {
+            setEditCurriculumAssignments(value as CurriculumAssignment[]);
+          }
+        }}
+        onClose={closeEditUser}
+        onSubmit={async (payload) => {
+          await updateUser.mutateAsync(payload);
+          closeEditUser();
+        }}
+      />
 
-      {showForm && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
-          <Card className="flex w-full max-w-md flex-col gap-4 rounded-2xl border-0 p-6 shadow-xl">
-            <div className="flex items-center justify-between">
-              <span className="text-lg font-bold text-[#03214F]">
-                New User
-              </span>
-              <button onClick={() => setShowForm(false)}>
-                <X className="size-5 text-zinc-400" />
-              </button>
-            </div>
-            <Input placeholder="Full name" value={name} onChange={(e) => setName(e.target.value)} />
-            <Input
-              type="email"
-              placeholder="Email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-            />
-            <Input
-              type="password"
-              placeholder="Password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-            />
-            <Select
-              value={role}
-              onChange={(e) => setRole(e.target.value as (typeof creatableRoles)[number])}
-              label="Role"
-            >
-              {creatableRoles.map((r) => (
-                <option key={r} value={r}>
-                  {roleLabel(r)}
-                </option>
-              ))}
-            </Select>
-            {role === "teacher" ? (
-              <Select
-                value={gender}
-                onChange={(e) => setGender(e.target.value as "" | "male" | "female")}
-                label="Gender"
-              >
-                <option value="">Select gender…</option>
-                <option value="female">Female</option>
-                <option value="male">Male</option>
-              </Select>
-            ) : null}
-            {role === "student" || role === "teacher" ? (
-              <CountrySelect value={country} onChange={setCountry} />
-            ) : null}
-            {role === "student" ? (
-              <>
-                <Select
-                  value={timezone}
-                  onChange={(e) => setTimezone(e.target.value)}
-                  label="Timezone"
-                >
-                  {PROFILE_TIMEZONES.map((tz) => (
-                    <option key={tz} value={tz}>
-                      {tz.replace("_", " ")}
-                    </option>
-                  ))}
-                </Select>
-                <CurriculumAssignmentEditor
-                  tree={curriculumTree}
-                  assignments={curriculumAssignments}
-                  onChange={setCurriculumAssignments}
-                />
-              </>
-            ) : null}
-            <p className="text-xs text-zinc-500">
-              Student accounts cover learners and guardians in one portal.
-            </p>
-            <Button
-              onClick={handleCreate}
-              disabled={
-                createUser.isPending ||
-                ((role === "student" || role === "teacher") && !country)
-              }
-              className="h-11 rounded-xl bg-[#03214F] text-white"
-            >
-              {createUser.isPending ? "Creating…" : "Create User"}
-            </Button>
-          </Card>
-        </div>
-      )}
+      <AdminCreateUserModal
+        open={showForm}
+        onClose={() => setShowForm(false)}
+        creatableRoles={creatableRoles}
+        curriculumTree={curriculumTree}
+        isPending={createUser.isPending}
+        onSubmit={async (payload) => {
+          await createUser.mutateAsync(payload);
+          setShowForm(false);
+        }}
+      />
     </PageContainer>
   );
 }

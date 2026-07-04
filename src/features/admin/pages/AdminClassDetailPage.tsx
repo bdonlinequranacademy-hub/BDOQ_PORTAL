@@ -133,7 +133,7 @@ export function AdminClassDetailPage() {
               href={cls.meetingLink}
               target="_blank"
               rel="noreferrer"
-              className="flex items-center justify-center gap-2 rounded-2xl border border-[#2b7fff]/20 bg-[#2b7fff]/5 px-4 py-3 text-sm font-semibold text-[#2b7fff] transition hover:bg-[#2b7fff]/10"
+              className="flex items-center justify-center gap-2 rounded-2xl border border-[#2b7fff]/20 bg-[#2b7fff]/5 px-4 py-3 text-sm font-semibold text-primary transition hover:bg-primary/10"
             >
               <ExternalLink className="size-4" />
               Open meeting link

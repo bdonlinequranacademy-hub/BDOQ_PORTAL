@@ -134,9 +134,9 @@ export function AdminClassFormPage() {
           className="flex size-9 items-center justify-center rounded-full bg-zinc-100"
           aria-label="Go back"
         >
-          <ArrowLeft className="size-5 text-[#03214F]" />
+          <ArrowLeft className="size-5 text-primary-dark" />
         </button>
-        <h1 className="text-xl font-bold text-[#03214F]">
+        <h1 className="text-xl font-bold text-primary-dark">
           {isEdit ? "Edit Class" : "Create Class"}
         </h1>
       </div>
@@ -171,7 +171,7 @@ export function AdminClassFormPage() {
           </div>
 
           <div className="rounded-xl border border-[#C4922B]/25 bg-[#FDF3E0]/40 p-4">
-            <p className="text-sm font-semibold text-[#03214F]">Class schedule</p>
+            <p className="text-sm font-semibold text-primary-dark">Class schedule</p>
             <p className="mt-1 text-xs leading-relaxed text-zinc-600">
               Pick the day and time for this class (Bangladesh time). This appears on the
               Routine page for each enrolled student.
@@ -223,7 +223,7 @@ export function AdminClassFormPage() {
                 onChange={(e) => setScheduleRepeatWeekly(e.target.checked)}
                 className="mt-0.5 rounded border-zinc-300"
               />
-              <span className="text-sm text-[#03214F]">
+              <span className="text-sm text-primary-dark">
                 Repeat every {scheduleDay}
                 <span className="mt-0.5 block text-xs font-normal text-zinc-500">
                   When checked, the class runs every week on this day. When unchecked, only
@@ -239,10 +239,14 @@ export function AdminClassFormPage() {
           </div>
 
           <Input
-            placeholder="Meeting link (Zoom, etc.)"
+            placeholder="https://meet.google.com/abc-defg-hij"
             value={meetingLink}
             onChange={(e) => setMeetingLink(e.target.value)}
           />
+          <p className="text-xs text-zinc-500">
+            Use a full URL starting with https:// (Zoom, Google Meet, etc.). Links without https://
+            may open incorrectly inside the portal.
+          </p>
           <Input
             type="number"
             min={0}
@@ -253,7 +257,7 @@ export function AdminClassFormPage() {
         </Card>
 
         <Card className="flex flex-col gap-3 rounded-2xl border-0 p-5 shadow-sm">
-          <span className="font-bold text-[#03214F] text-sm">Enroll Students</span>
+          <span className="font-bold text-primary-dark text-sm">Enroll Students</span>
           <p className="-mt-1 text-xs text-zinc-500">
             {scheduleRepeatWeekly
               ? `Each student gets a routine slot every ${scheduleDay} at ${scheduleTime}.`
@@ -271,7 +275,7 @@ export function AdminClassFormPage() {
                   onChange={() => toggleStudent(s.id)}
                   className="rounded border-zinc-300"
                 />
-                <span className="text-sm text-[#03214F]">{s.name}</span>
+                <span className="text-sm text-primary-dark">{s.name}</span>
               </label>
             ))}
           </div>
@@ -289,7 +293,7 @@ export function AdminClassFormPage() {
             createClass.isPending ||
             updateClass.isPending
           }
-          className="h-12 rounded-xl bg-[#03214F] text-white"
+          className="h-12 rounded-xl bg-primary-dark text-white"
         >
           {isEdit ? "Save Changes" : "Create Class"}
         </Button>

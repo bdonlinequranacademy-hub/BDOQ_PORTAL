@@ -1,4 +1,5 @@
-@import url("https://fonts.googleapis.com/css2?family=Allura&family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Amiri:wght@400;700&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Allura&family=Amiri:wght@400;700&family=Cinzel:wght@500;600;700&family=Great+Vibes&family=Inter:wght@400;500;600;700&family=Noto+Sans+Bengali:wght@400;500;600;700&display=swap");
+@import "./styles/tokens.css";
 
 @tailwind base;
 @tailwind components;
@@ -8,29 +9,29 @@
   :root,
   [data-theme="light"] {
     color-scheme: light;
-    --portal-bg: #f8faff;
+    --portal-bg: #f0fbf6;
     --portal-surface: #ffffff;
-    --portal-surface-muted: #f4f7fb;
-    --portal-heading: #03214f;
-    --portal-text: #18181b;
-    --portal-muted: #71717a;
-    --portal-border: #e4e4e7;
+    --portal-surface-muted: #e8f5ee;
+    --portal-heading: #0d4a2f;
+    --portal-text: #1a1a2e;
+    --portal-muted: #6b7280;
+    --portal-border: #e5e7eb;
     --portal-header: rgba(255, 255, 255, 0.95);
-    --portal-sidebar: #03214f;
-    --portal-ring-offset: #f8faff;
+    --portal-sidebar: #0a1628;
+    --portal-ring-offset: #f0fbf6;
     --portal-card-shadow:
-      0 1px 2px rgb(3 33 79 / 0.08),
-      0 4px 14px -2px rgb(3 33 79 / 0.14),
-      0 12px 32px -6px rgb(3 33 79 / 0.12);
+      0 1px 2px rgb(13 74 47 / 0.06),
+      0 4px 14px -2px rgb(13 74 47 / 0.1),
+      0 12px 32px -6px rgb(13 74 47 / 0.08);
     --portal-card-shadow-hover:
-      0 2px 4px rgb(3 33 79 / 0.1),
-      0 8px 22px -2px rgb(3 33 79 / 0.18),
-      0 18px 44px -8px rgb(3 33 79 / 0.16);
+      0 2px 4px rgb(13 74 47 / 0.08),
+      0 8px 22px -2px rgb(13 74 47 / 0.14),
+      0 18px 44px -8px rgb(13 74 47 / 0.12);
 
-    --background: 240 33% 99%;
-    --foreground: 216 93% 16%;
-    --primary: 216 93% 16%;
-    --secondary: 40 65% 47%;
+    --background: 152 60% 97%;
+    --foreground: 155 78% 18%;
+    --primary: 152 59% 26%;
+    --secondary: 42 55% 58%;
     --muted: 240 20% 96%;
     --muted-foreground: 215 16% 47%;
     --border: 214 32% 91%;
@@ -113,9 +114,21 @@
     background-color: var(--portal-header);
   }
 
+  .bg-portal-sidebar {
+    background-color: var(--portal-sidebar);
+  }
+
+  .portal-nav-item--active {
+    @apply relative bg-white/10 font-semibold text-white;
+  }
+
+  .portal-nav-item--active::before {
+    content: "";
+    @apply absolute left-0 top-1/2 h-7 w-1 -translate-y-1/2 rounded-r bg-brand-red;
+  }
+
   .form-control {
-    @apply flex w-full min-h-10 rounded-md border px-3 py-2 text-sm shadow-sm outline-none transition disabled:cursor-not-allowed disabled:opacity-60;
-    border-color: var(--portal-border);
+    @apply flex w-full min-h-[44px] rounded-xl border border-gray-200 px-4 py-2.5 text-sm outline-none transition disabled:cursor-not-allowed disabled:opacity-60;
     background-color: var(--portal-surface);
     color: var(--portal-heading);
   }
@@ -125,13 +138,17 @@
   }
 
   .form-control:focus-visible {
-    @apply border-gold ring-2 ring-gold/55 ring-offset-2;
+    @apply border-primary ring-2 ring-primary/20 ring-offset-2;
     --tw-ring-offset-color: var(--portal-ring-offset);
   }
 
   .form-label {
     @apply text-sm font-medium leading-none;
-    color: var(--portal-heading);
+    color: var(--portal-text);
+  }
+
+  .form-error {
+    @apply mt-1 text-xs text-red-500;
   }
 
   .portal-card {
@@ -292,6 +309,140 @@
     color: rgb(147 197 253);
   }
 
+  /* Brand greens & grays — unreadable on dark surfaces without remapping */
+  .dark .text-primary-dark {
+    color: var(--portal-heading);
+  }
+
+  .dark .text-text-gray {
+    color: var(--portal-muted);
+  }
+
+  .dark .text-text-dark {
+    color: var(--portal-text);
+  }
+
+  .dark .text-primary {
+    color: #34d399;
+  }
+
+  .dark .text-gray-700 {
+    color: var(--portal-text);
+  }
+
+  .dark .text-zinc-600 {
+    color: var(--portal-muted);
+  }
+
+  .dark .border-gray-100,
+  .dark .border-gray-200 {
+    border-color: var(--portal-border);
+  }
+
+  .dark .bg-bg-light {
+    background-color: var(--portal-bg);
+  }
+
+  .dark .bg-blue-50 {
+    background-color: rgb(59 130 246 / 0.12);
+  }
+
+  .dark .border-blue-100 {
+    border-color: rgb(59 130 246 / 0.22);
+  }
+
+  .dark .text-blue-900 {
+    color: rgb(147 197 253);
+  }
+
+  .dark .bg-violet-50 {
+    background-color: rgb(139 92 246 / 0.12);
+  }
+
+  .dark .border-violet-100 {
+    border-color: rgb(139 92 246 / 0.22);
+  }
+
+  .dark .text-violet-900 {
+    color: rgb(196 181 253);
+  }
+
+  .dark .bg-indigo-50 {
+    background-color: rgb(99 102 241 / 0.12);
+  }
+
+  .dark .border-indigo-100 {
+    border-color: rgb(99 102 241 / 0.22);
+  }
+
+  .dark .text-indigo-900 {
+    color: rgb(165 180 252);
+  }
+
+  .dark .text-emerald-900 {
+    color: rgb(110 231 183);
+  }
+
+  .dark .border-emerald-100 {
+    border-color: rgb(16 185 129 / 0.22);
+  }
+
+  .dark .border-amber-100 {
+    border-color: rgb(245 158 11 / 0.22);
+  }
+
+  .dark .bg-gold\/5 {
+    background-color: rgb(232 75 58 / 0.1);
+  }
+
+  .dark .bg-gold\/15 {
+    background-color: rgb(232 75 58 / 0.16);
+  }
+
+  .dark .bg-red-50\/50 {
+    background-color: rgb(239 68 68 / 0.1);
+  }
+
+  .dark .text-teal-600 {
+    color: rgb(45 212 191);
+  }
+
+  .dark .text-gold {
+    color: rgb(251 146 131);
+  }
+
+  .dark .bg-teal-50 {
+    background-color: rgb(20 184 166 / 0.12);
+  }
+
+  .dark .text-emerald-600 {
+    color: rgb(110 231 183);
+  }
+
+  .dark .text-emerald-800 {
+    color: rgb(110 231 183);
+  }
+
+  .dark .text-amber-600 {
+    color: rgb(251 191 36);
+  }
+
+  .dark .border-emerald-200 {
+    border-color: rgb(16 185 129 / 0.25);
+  }
+
+  .dark .bg-emerald-50\/80 {
+    background-color: rgb(16 185 129 / 0.12);
+  }
+
+  .dark .border-zinc-200 {
+    border-color: var(--portal-border);
+  }
+
+  .dark .bg-zinc-200 {
+    background-color: rgb(148 163 184 / 0.2);
+  }
+
   .brand-logo {
     line-height: 0;
   }
@@ -341,6 +492,11 @@
 }
 
 @layer utilities {
+  /* Text muted — separate from bg surface-muted (Tailwind portal.surface-muted) */
+  .text-portal-muted {
+    color: var(--portal-muted);
+  }
+
   @keyframes page-in {
     from {
       opacity: 0;
@@ -376,5 +532,150 @@
     .animate-sheet-up {
       animation: none;
     }
+  }
+
+  @media print {
+    body {
+      background: #fff !important;
+    }
+
+    .no-print {
+      display: none !important;
+    }
+
+    aside,
+    header,
+    nav {
+      display: none !important;
+    }
+
+    main {
+      padding: 0 !important;
+      margin: 0 !important;
+    }
+
+    #payment-invoice-document {
+      box-shadow: none !important;
+      border: none !important;
+    }
+
+    .certificate-preview-wrap,
+    .certificate-preview-scaler,
+    .no-print {
+      display: none !important;
+    }
+
+    .certificate-capture-host,
+    .certificate-print-host {
+      display: block !important;
+      position: static !important;
+      left: auto !important;
+      top: auto !important;
+      width: auto !important;
+      height: auto !important;
+      padding: 0 !important;
+      margin: 0 !important;
+      background: white !important;
+    }
+
+    .certificate-document {
+      box-shadow: none !important;
+      page-break-inside: avoid;
+    }
+
+    @page {
+      size: A4 landscape;
+      margin: 0;
+    }
+  }
+
+  .certificate-document {
+    font-family: Inter, system-ui, sans-serif;
+  }
+
+  .cert-bento-root {
+    display: grid;
+    position: relative;
+    overflow: hidden;
+    background-repeat: no-repeat;
+    background-position: 0 0;
+  }
+
+  .cert-bento-sidebar,
+  .cert-bento-aside {
+    display: grid;
+    min-height: 0;
+  }
+
+  .cert-bento-main {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-height: 0;
+    overflow: hidden;
+  }
+
+  .cert-bento-slot {
+    width: 100%;
+  }
+
+  .cert-bento-course {
+    width: 620px;
+    min-height: 52px;
+  }
+
+  .cert-bento-card {
+    border: 1.5px solid #c9a227;
+    background: rgb(255 255 255 / 0.72);
+  }
+
+  .cert-bento-footer {
+    align-self: stretch;
+  }
+
+  .cert-bento-debug .cert-bento-slot,
+  .cert-bento-debug .cert-bento-card,
+  .cert-bento-debug .cert-bento-verify,
+  .cert-bento-debug .cert-bento-footer {
+    outline: 1px dashed rgb(239 68 68 / 0.45);
+    outline-offset: -1px;
+  }
+
+  .certificate-capture-host {
+    position: fixed;
+    top: 0;
+    left: -10000px;
+    z-index: -1;
+    pointer-events: none;
+    overflow: hidden;
+    width: 1492px;
+    height: 1054px;
+  }
+
+  .cert-font-script {
+    font-family: "Great Vibes", Allura, cursive;
+    font-weight: 400;
+    letter-spacing: 0.01em;
+  }
+
+  .cert-font-sans {
+    font-family: Inter, Arial, sans-serif;
+  }
+
+  .cert-font-bengali {
+    font-family: "Noto Sans Bengali", Inter, system-ui, sans-serif;
+  }
+
+  .cert-font-arabic {
+    font-family: Amiri, "Noto Naskh Arabic", serif;
+  }
+
+  .cert-font-display {
+    font-family: Cinzel, Georgia, "Times New Roman", serif;
+  }
+
+  .cert-debug-box {
+    outline: 1px dashed rgb(239 68 68 / 0.55);
+    outline-offset: -1px;
   }
 }

@@ -36,7 +36,7 @@ export function PercentageRing({
         />
       </svg>
       <div className="absolute inset-0 flex flex-col items-center justify-center">
-        <span className="text-2xl font-bold text-[#03214F]">{clamped}%</span>
+        <span className="text-2xl font-bold text-primary-dark">{clamped}%</span>
         {label && <span className="text-xs text-zinc-400">{label}</span>}
       </div>
     </div>

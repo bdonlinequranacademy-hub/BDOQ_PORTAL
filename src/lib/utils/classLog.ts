@@ -34,7 +34,7 @@ export function printClassLogReport(log: {
   </style>
 </head>
 <body>
-  <h1>Al Bayaan Academy — Class Log</h1>
+  <h1>BDOQ Academy — Class Log</h1>
   <p class="meta">${log.sessionDate} · ${log.courseType} · ${log.durationLabel} · ${log.status}</p>
   <p><strong>Student:</strong> ${log.student.name}${log.student.studentId ? ` (${log.student.studentId})` : ""}</p>
   <p><strong>Teacher:</strong> ${log.teacher.name}</p>

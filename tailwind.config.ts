@@ -6,44 +6,64 @@ export default {
   theme: {
     extend: {
       colors: {
-        navy: {
-          DEFAULT: "#03214F",
-          50: "#E8EDF5",
-          100: "#C5D0E6",
-          500: "#1A4A8A",
-          900: "#03214F",
+        primary: {
+          DEFAULT: "#1B6B44",
+          dark: "#0D4A2F",
+          light: "#E8F5EE",
+          mint: "#ADEBB3",
         },
+        "brand-red": {
+          DEFAULT: "#E84B3A",
+          light: "#FFDDD6",
+          dark: "#C62828",
+        },
+        teal: {
+          DEFAULT: "#0D9488",
+          accent: "#2DD4BF",
+        },
+        /** Accent / links — aligned with public-site --brand-red */
         gold: {
-          DEFAULT: "#C4922B",
-          light: "#D9A94A",
-          dark: "#A57820",
+          DEFAULT: "#E84B3A",
+          light: "#FFDDD6",
+          dark: "#C62828",
+        },
+        "bg-light": "#F0FBF6",
+        "text-dark": "#1A1A2E",
+        "text-gray": "#6B7280",
+        /** @deprecated use primary-dark — kept for gradual migration */
+        navy: {
+          DEFAULT: "#0D4A2F",
+          50: "#F0FBF6",
+          100: "#E8F5EE",
+          500: "#1B6B44",
+          900: "#0D4A2F",
         },
         cream: {
-          DEFAULT: "#F8F9FF",
+          DEFAULT: "#FDF6E3",
         },
         surface: {
-          DEFAULT: "#FCFBFA",
+          DEFAULT: "#FFFFFF",
         },
-        success: "#1F9D63",
-        warning: "#C4922B",
+        success: "#1B6B44",
+        warning: "#D4A853",
         danger: "#D14343",
-        info: "#1A4A8A",
+        info: "#0D9488",
+        portal: {
+          bg: "var(--portal-bg)",
+          surface: "var(--portal-surface)",
+          /** Background tint — use bg-portal-surface-muted, NOT text-portal-muted */
+          "surface-muted": "var(--portal-surface-muted)",
+          heading: "var(--portal-heading)",
+          text: "var(--portal-text)",
+          border: "var(--portal-border)",
+        },
       },
       fontFamily: {
-        sans: [
-          "Plus Jakarta Sans",
-          "ui-sans-serif",
-          "system-ui",
-          "sans-serif",
-        ],
-        display: [
-          "Plus Jakarta Sans",
-          "ui-sans-serif",
-          "system-ui",
-          "sans-serif",
-        ],
-        brand: ["Allura", "cursive"],
+        sans: ["Inter", "ui-sans-serif", "system-ui", "sans-serif"],
+        display: ["Inter", "ui-sans-serif", "system-ui", "sans-serif"],
         arabic: ["Amiri", "serif"],
+        certificate: ["Cinzel", "Times New Roman", "serif"],
+        bengali: ["Noto Sans Bengali", "Inter", "sans-serif"],
       },
       spacing: {
         "18": "4.5rem",

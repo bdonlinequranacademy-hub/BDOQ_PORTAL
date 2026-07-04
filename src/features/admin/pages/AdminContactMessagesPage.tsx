@@ -11,6 +11,8 @@ import { Button } from "@/components/ui/Button";
 import { EmptyState } from "@/components/ui/EmptyState";
 
 import { PageLoading } from "@/components/ui/PageLoading";
+import { Pagination } from "@/components/ui/Pagination";
+import { usePaginatedList } from "@/lib/hooks/usePaginatedList";
 type Filter = "new" | "all" | ContactMessageStatus;
 
 function statusStyles(status: ContactMessageStatus) {
@@ -42,9 +44,9 @@ function localeLabel(locale?: ContactMessageView["locale"]) {
 }
 
 function replyViaEmailHref(message: ContactMessageView): string {
-  const subject = encodeURIComponent("Re: Your message to Al Bayaan Academy");
+  const subject = encodeURIComponent("Re: Your message to BDOQ Academy");
   const body = encodeURIComponent(
-    `Assalamu alaikum ${message.name},\n\nThank you for contacting Al Bayaan Academy.\n\n---\nYour message:\n${message.message}\n---\n\n`
+    `Assalamu alaikum ${message.name},\n\nThank you for contacting BD Online Quran Academy.\n\n---\nYour message:\n${message.message}\n---\n\n`
   );
   return `mailto:${message.email}?subject=${subject}&body=${body}`;
 }
@@ -58,10 +60,14 @@ export function AdminContactMessagesPage() {
   const newCount =
     filter === "new" ? messages.length : messages.filter((m) => m.status === "new").length;
 
+  const pagination = usePaginatedList(messages, {
+    resetDeps: [filter],
+  });
+
   return (
     <PageContainer className="flex flex-col gap-6">
       <div>
-        <h1 className="text-2xl font-bold text-[#03214F]">Contact Messages</h1>
+        <h1 className="text-2xl font-bold text-primary-dark">Contact Messages</h1>
         <p className="mt-1 text-sm text-zinc-500">
           Enquiries from the website contact form — reply within 24 hours
         </p>
@@ -90,8 +96,8 @@ export function AdminContactMessagesPage() {
             onClick={() => setFilter(f.id)}
             className={`shrink-0 rounded-full px-4 py-1.5 text-sm font-medium capitalize ${
               filter === f.id
-                ? "bg-[#03214F] text-white"
-                : "border border-zinc-200 bg-white text-[#03214F]"
+                ? "bg-primary-dark text-white"
+                : "border border-zinc-200 bg-white text-primary-dark"
             }`}
           >
             {f.label}
@@ -108,8 +114,9 @@ export function AdminContactMessagesPage() {
           description="Messages appear here when visitors submit the contact form on your website."
         />
       ) : (
+        <>
         <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
-          {messages.map((message) => {
+          {pagination.paginatedItems.map((message) => {
             const actions = nextActions(message.status);
             const lang = localeLabel(message.locale);
 
@@ -135,10 +142,10 @@ export function AdminContactMessagesPage() {
                 </div>
 
                 <div>
-                  <p className="font-bold text-[#03214F]">{message.name}</p>
+                  <p className="font-bold text-primary-dark">{message.name}</p>
                   <a
                     href={`mailto:${message.email}`}
-                    className="mt-1 inline-flex items-center gap-2 text-sm text-zinc-600 hover:text-[#03214F]"
+                    className="mt-1 inline-flex items-center gap-2 text-sm text-zinc-600 hover:text-primary-dark"
                   >
                     <Mail className="size-4 shrink-0 text-zinc-400" />
                     {message.email}
@@ -153,7 +160,7 @@ export function AdminContactMessagesPage() {
                   <div className="flex flex-wrap gap-2 pt-1">
                     <a
                       href={replyViaEmailHref(message)}
-                      className="inline-flex h-9 items-center rounded-xl border border-[#03214F]/20 bg-white px-4 text-sm font-semibold text-[#03214F] transition hover:border-[#03214F]/40 hover:bg-[#03214F]/5"
+                      className="inline-flex h-9 items-center rounded-xl border border-[#03214F]/20 bg-white px-4 text-sm font-semibold text-primary-dark transition hover:border-[#03214F]/40 hover:bg-primary-dark/5"
                     >
                       Reply via email
                     </a>
@@ -165,7 +172,7 @@ export function AdminContactMessagesPage() {
                           updateStatus.mutate({ id: message._id, status: action.status })
                         }
                         disabled={updateStatus.isPending}
-                        className="h-9 rounded-xl bg-[#03214F] px-4 text-sm text-white"
+                        className="h-9 rounded-xl bg-primary-dark px-4 text-sm text-white"
                       >
                         {action.label}
                       </Button>
@@ -176,6 +183,8 @@ export function AdminContactMessagesPage() {
             );
           })}
         </div>
+        <Pagination pagination={pagination} itemLabel="messages" />
+        </>
       )}
     </PageContainer>
   );

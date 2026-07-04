@@ -31,7 +31,7 @@ export function ParentHomeworkPage() {
   return (
     <PageContainer className="flex flex-col gap-6">
       <div>
-        <h1 className="text-2xl font-bold text-[#03214F]">Homework</h1>
+        <h1 className="text-2xl font-bold text-primary-dark">Homework</h1>
         <p className="text-sm text-zinc-500">Track assignments and completion</p>
       </div>
 
@@ -45,7 +45,7 @@ export function ParentHomeworkPage() {
         <>
           <div className="grid grid-cols-3 gap-3">
             <Card className="rounded-2xl border-0 p-4 text-center shadow-sm">
-              <p className="text-2xl font-bold text-[#03214F]">{homework.length}</p>
+              <p className="text-2xl font-bold text-primary-dark">{homework.length}</p>
               <p className="text-xs text-zinc-400">Total</p>
             </Card>
             <Card className="rounded-2xl border-0 p-4 text-center shadow-sm">
@@ -60,8 +60,8 @@ export function ParentHomeworkPage() {
 
           <Card className="rounded-2xl border-0 p-5 shadow-sm">
             <div className="mb-2 flex justify-between text-sm">
-              <span className="font-semibold text-[#03214F]">Completion rate</span>
-              <span className="font-bold text-[#03214F]">{completion}%</span>
+              <span className="font-semibold text-primary-dark">Completion rate</span>
+              <span className="font-bold text-primary-dark">{completion}%</span>
             </div>
             <div className="h-2 overflow-hidden rounded-full bg-zinc-100">
               <div
@@ -90,7 +90,7 @@ export function ParentHomeworkPage() {
                   >
                     <div className="flex items-start justify-between gap-2">
                       <div>
-                        <p className="font-semibold text-[#03214F]">{hw.title}</p>
+                        <p className="font-semibold text-primary-dark">{hw.title}</p>
                         <p className="text-xs text-zinc-400">{hwClassTitle(hw)}</p>
                         <p className="text-xs text-zinc-500">
                           Due {new Date(hw.dueDate).toLocaleDateString()}

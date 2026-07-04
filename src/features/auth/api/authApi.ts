@@ -56,6 +56,18 @@ export async function loginRequest(payload: LoginPayload): Promise<AuthData> {
   }
 }
 
+export interface OAuthProviders {
+  google: boolean;
+}
+
+export async function fetchOAuthProviders(): Promise<OAuthProviders> {
+  const res = await api.get<ApiResponse<OAuthProviders>>("/auth/oauth-providers");
+  if (!res.data.success || !res.data.data) {
+    return { google: false };
+  }
+  return res.data.data;
+}
+
 export async function registerRequest(
   payload: RegisterPayload
 ): Promise<RegisterResult> {

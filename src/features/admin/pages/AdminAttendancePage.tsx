@@ -42,7 +42,7 @@ export function AdminAttendancePage() {
   return (
     <PageContainer className="flex flex-col gap-6">
       <div>
-        <h1 className="text-2xl font-bold text-[#03214F]">
+        <h1 className="text-2xl font-bold text-primary-dark">
           Attendance Analytics
         </h1>
         <p className="text-sm text-zinc-500">Academy-wide attendance overview</p>
@@ -66,7 +66,7 @@ export function AdminAttendancePage() {
       <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
         <Card className="rounded-2xl border-0 p-4 shadow-sm">
           <span className="text-xs text-zinc-400">Classes tracked</span>
-          <p className="text-2xl font-bold text-[#03214F]">{overview.length}</p>
+          <p className="text-2xl font-bold text-primary-dark">{overview.length}</p>
         </Card>
         <Card className="rounded-2xl border-0 p-4 shadow-sm">
           <span className="text-xs text-zinc-400">Avg. attendance</span>
@@ -74,7 +74,7 @@ export function AdminAttendancePage() {
         </Card>
         <Card className="rounded-2xl border-0 p-4 shadow-sm">
           <span className="text-xs text-zinc-400">Total classes</span>
-          <p className="text-2xl font-bold text-[#03214F]">{classes.length}</p>
+          <p className="text-2xl font-bold text-primary-dark">{classes.length}</p>
         </Card>
       </div>
 
@@ -95,7 +95,7 @@ export function AdminAttendancePage() {
           {overview.map((row, i) => (
             <Card key={i} className="flex flex-col gap-3 rounded-2xl border-0 p-5 shadow-sm">
               <div className="flex items-center justify-between">
-                <span className="font-bold text-[#03214F]">{row.class.title}</span>
+                <span className="font-bold text-primary-dark">{row.class.title}</span>
                 <span className="font-bold text-teal-600">{row.percentage}%</span>
               </div>
               <div className="h-2 overflow-hidden rounded-full bg-zinc-100">
@@ -114,7 +114,7 @@ export function AdminAttendancePage() {
                   <p className="text-zinc-400">Absent</p>
                 </div>
                 <div className="rounded-lg bg-zinc-50 py-2">
-                  <p className="font-bold text-[#03214F]">{row.total}</p>
+                  <p className="font-bold text-primary-dark">{row.total}</p>
                   <p className="text-zinc-400">Total</p>
                 </div>
               </div>

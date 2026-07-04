@@ -16,7 +16,7 @@ export function ParentProgressPage() {
   return (
     <PageContainer className="flex flex-col gap-6">
       <div>
-        <h1 className="text-2xl font-bold text-[#03214F]">Progress</h1>
+        <h1 className="text-2xl font-bold text-primary-dark">Progress</h1>
         <p className="text-sm text-zinc-500">Quran learning milestones</p>
       </div>
 
@@ -36,16 +36,16 @@ export function ParentProgressPage() {
             <Card key={r._id} className="flex flex-col gap-4 rounded-2xl border-0 p-5 shadow-sm">
               <div className="flex items-start justify-between">
                 <div>
-                  <p className="font-semibold text-[#03214F]">
+                  <p className="font-semibold text-primary-dark">
                     {r.class ? classTitle(r.class) : "Overall"}
                   </p>
                   {r.curriculumLabels?.program ? (
-                    <p className="text-xs font-medium text-[#C4922B]">
+                    <p className="text-xs font-medium text-gold">
                       {formatCurriculumPath(r.curriculumLabels)}
                     </p>
                   ) : null}
                 </div>
-                <span className="rounded-full bg-[#EEF2F8] px-3 py-1 text-sm font-bold text-[#03214F]">
+                <span className="rounded-full bg-[#EEF2F8] px-3 py-1 text-sm font-bold text-primary-dark">
                   {r.tajweedScore}%
                 </span>
               </div>

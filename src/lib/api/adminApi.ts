@@ -7,10 +7,20 @@ import type {
   Role,
   ClassSchedule,
   AdminBlogPost,
+  AdminResource,
+  AdminTestimonial,
+  AdminGalleryItem,
+  AdminPricingPackage,
+  GalleryAlbumType,
+  GalleryMediaType,
   BlogCategory,
   BlogPostStatus,
   BlogAuthor,
   BlogFaq,
+  TestimonialMediaType,
+  ResourceType,
+  ResourceStatus,
+  ResourceSection,
   ClassLogView,
   ClassLogStatus,
   AdminEarningsOverview,
@@ -21,12 +31,21 @@ import type {
   ContactMessageStatus,
   TrialBookingView,
   TrialBookingStatus,
+  StudentAdmissionView,
+  StudentAdmissionStatus,
+  TeacherApplicationView,
+  TeacherApplicationStatus,
   SessionSlotView,
   CurriculumAssignment,
   StudentBillingView,
   PaymentRecordView,
+  PaymentInvoiceView,
+  CertificateView,
+  AdminProfile,
   OverdueBillingView,
   BillingCurrency,
+  WhatsAppQueueItem,
+  LiveMonitorPayload,
 } from "@/types/models";
 import type { CurriculumNode } from "@/lib/api/curriculumApi";
 import { api as apiClient } from "./client";
@@ -35,6 +54,16 @@ import type { ApiResponse } from "@/types/api";
 export const adminApi = {
   getStats: () =>
     apiClient.get<ApiResponse<AdminStats>>("/admin/stats").then((r) => r.data),
+
+  getLiveMonitor: () =>
+    apiClient
+      .get<ApiResponse<LiveMonitorPayload>>("/admin/live-monitor")
+      .then((r) => r.data),
+
+  getWhatsAppQueue: () =>
+    apiClient
+      .get<ApiResponse<WhatsAppQueueItem[]>>("/admin/whatsapp-queue")
+      .then((r) => r.data),
 
   getUsers: (role?: Role, gender?: "male" | "female") =>
     apiClient
@@ -57,6 +86,7 @@ export const adminApi = {
     gender?: "male" | "female";
     timezone?: string;
     country?: string;
+    whatsapp?: string;
     curriculumAssignments?: CurriculumAssignment[];
   }) =>
     apiClient.post<ApiResponse<AdminUser>>("/admin/users", payload).then((r) => r.data),
@@ -72,6 +102,7 @@ export const adminApi = {
       gender: "male" | "female" | "";
       timezone: string;
       country: string;
+      whatsapp: string;
       curriculumAssignments: CurriculumAssignment[];
     }>
   ) =>
@@ -210,6 +241,44 @@ export const adminApi = {
       })
       .then((r) => r.data),
 
+  getStudentAdmissions: (status?: StudentAdmissionStatus) =>
+    apiClient
+      .get<ApiResponse<StudentAdmissionView[]>>("/admin/student-admissions", {
+        params: status ? { status } : {},
+      })
+      .then((r) => r.data),
+
+  updateStudentAdmissionStatus: (
+    id: string,
+    status: StudentAdmissionStatus,
+    adminNote?: string
+  ) =>
+    apiClient
+      .patch<ApiResponse<StudentAdmissionView>>(
+        `/admin/student-admissions/${id}/status`,
+        { status, adminNote }
+      )
+      .then((r) => r.data),
+
+  getTeacherApplications: (status?: TeacherApplicationStatus) =>
+    apiClient
+      .get<ApiResponse<TeacherApplicationView[]>>("/admin/teacher-applications", {
+        params: status ? { status } : {},
+      })
+      .then((r) => r.data),
+
+  updateTeacherApplicationStatus: (
+    id: string,
+    status: TeacherApplicationStatus,
+    adminNote?: string
+  ) =>
+    apiClient
+      .patch<ApiResponse<TeacherApplicationView>>(
+        `/admin/teacher-applications/${id}/status`,
+        { status, adminNote }
+      )
+      .then((r) => r.data),
+
   getContactMessages: (status?: ContactMessageStatus) =>
     apiClient
       .get<ApiResponse<ContactMessageView[]>>("/admin/contact-messages", {
@@ -290,6 +359,205 @@ export const adminApi = {
       .delete<ApiResponse<null>>(`/admin/blog/posts/${id}`)
       .then((r) => r.data),
 
+  getResources: (params?: {
+    type?: ResourceType;
+    status?: ResourceStatus;
+    section?: ResourceSection;
+  }) =>
+    apiClient
+      .get<ApiResponse<AdminResource[]>>("/admin/resources", { params })
+      .then((r) => r.data),
+
+  getResource: (id: string) =>
+    apiClient
+      .get<ApiResponse<AdminResource>>(`/admin/resources/${id}`)
+      .then((r) => r.data),
+
+  createResource: (payload: Record<string, unknown>) =>
+    apiClient
+      .post<ApiResponse<AdminResource>>("/admin/resources", payload)
+      .then((r) => r.data),
+
+  updateResource: (id: string, payload: Record<string, unknown>) =>
+    apiClient
+      .put<ApiResponse<AdminResource>>(`/admin/resources/${id}`, payload)
+      .then((r) => r.data),
+
+  deleteResource: (id: string) =>
+    apiClient
+      .delete<ApiResponse<null>>(`/admin/resources/${id}`)
+      .then((r) => r.data),
+
+  uploadResourceFile: (file: File, purpose?: string) => {
+    const form = new FormData();
+    form.append("file", file);
+    if (purpose) form.append("purpose", purpose);
+    return apiClient
+      .post<
+        ApiResponse<{
+          url: string;
+          publicId: string;
+          fileSize: string;
+          mimeType: string;
+        }>
+      >("/admin/resources/upload", form, {
+        headers: { "Content-Type": "multipart/form-data" },
+      })
+      .then((r) => r.data);
+  },
+
+  getTestimonials: () =>
+    apiClient
+      .get<ApiResponse<AdminTestimonial[]>>("/admin/testimonials")
+      .then((r) => r.data),
+
+  getTestimonial: (id: string) =>
+    apiClient
+      .get<ApiResponse<AdminTestimonial>>(`/admin/testimonials/${id}`)
+      .then((r) => r.data),
+
+  createTestimonial: (payload: {
+    name: string;
+    role: string;
+    location: string;
+    content: string;
+    rating?: number;
+    image?: string;
+    mediaType?: TestimonialMediaType;
+    mediaUrl?: string;
+    youtubeId?: string;
+    sortOrder?: number;
+    showOnWebsite?: boolean;
+  }) =>
+    apiClient
+      .post<ApiResponse<AdminTestimonial>>("/admin/testimonials", payload)
+      .then((r) => r.data),
+
+  updateTestimonial: (
+    id: string,
+    payload: Partial<{
+      name: string;
+      role: string;
+      location: string;
+      content: string;
+      rating: number;
+      image: string;
+      mediaType: TestimonialMediaType;
+      mediaUrl: string;
+      youtubeId: string;
+      sortOrder: number;
+      showOnWebsite: boolean;
+    }>
+  ) =>
+    apiClient
+      .put<ApiResponse<AdminTestimonial>>(`/admin/testimonials/${id}`, payload)
+      .then((r) => r.data),
+
+  deleteTestimonial: (id: string) =>
+    apiClient
+      .delete<ApiResponse<null>>(`/admin/testimonials/${id}`)
+      .then((r) => r.data),
+
+  getGalleryItems: () =>
+    apiClient
+      .get<ApiResponse<AdminGalleryItem[]>>("/admin/gallery")
+      .then((r) => r.data),
+
+  getGalleryItem: (id: string) =>
+    apiClient
+      .get<ApiResponse<AdminGalleryItem>>(`/admin/gallery/${id}`)
+      .then((r) => r.data),
+
+  createGalleryItem: (payload: {
+    title: string;
+    description?: string;
+    album: GalleryAlbumType;
+    mediaType: GalleryMediaType;
+    mediaUrl?: string;
+    mediaPublicId?: string;
+    youtubeId?: string;
+    coverGradient?: string;
+    heightClass?: string;
+    sortOrder?: number;
+    showOnWebsite?: boolean;
+  }) =>
+    apiClient
+      .post<ApiResponse<AdminGalleryItem>>("/admin/gallery", payload)
+      .then((r) => r.data),
+
+  updateGalleryItem: (
+    id: string,
+    payload: Partial<{
+      title: string;
+      description: string;
+      album: GalleryAlbumType;
+      mediaType: GalleryMediaType;
+      mediaUrl: string;
+      mediaPublicId: string;
+      youtubeId: string;
+      coverGradient: string;
+      heightClass: string;
+      sortOrder: number;
+      showOnWebsite: boolean;
+    }>
+  ) =>
+    apiClient
+      .put<ApiResponse<AdminGalleryItem>>(`/admin/gallery/${id}`, payload)
+      .then((r) => r.data),
+
+  deleteGalleryItem: (id: string) =>
+    apiClient
+      .delete<ApiResponse<null>>(`/admin/gallery/${id}`)
+      .then((r) => r.data),
+
+  getPricingPackages: () =>
+    apiClient
+      .get<ApiResponse<AdminPricingPackage[]>>("/admin/pricing")
+      .then((r) => r.data),
+
+  getPricingPackage: (id: string) =>
+    apiClient
+      .get<ApiResponse<AdminPricingPackage>>(`/admin/pricing/${id}`)
+      .then((r) => r.data),
+
+  createPricingPackage: (payload: {
+    slug?: string;
+    name: string;
+    priceBdt: number;
+    priceUsd: number;
+    period?: string;
+    features: string[];
+    popular?: boolean;
+    sortOrder?: number;
+    showOnWebsite?: boolean;
+  }) =>
+    apiClient
+      .post<ApiResponse<AdminPricingPackage>>("/admin/pricing", payload)
+      .then((r) => r.data),
+
+  updatePricingPackage: (
+    id: string,
+    payload: Partial<{
+      slug: string;
+      name: string;
+      priceBdt: number;
+      priceUsd: number;
+      period: string;
+      features: string[];
+      popular: boolean;
+      sortOrder: number;
+      showOnWebsite: boolean;
+    }>
+  ) =>
+    apiClient
+      .put<ApiResponse<AdminPricingPackage>>(`/admin/pricing/${id}`, payload)
+      .then((r) => r.data),
+
+  deletePricingPackage: (id: string) =>
+    apiClient
+      .delete<ApiResponse<null>>(`/admin/pricing/${id}`)
+      .then((r) => r.data),
+
   getCurriculum: () =>
     apiClient.get<ApiResponse<CurriculumNode[]>>("/admin/curriculum").then((r) => r.data),
 
@@ -325,6 +593,11 @@ export const adminApi = {
       .patch<ApiResponse<PaymentRecordView>>(`/admin/payments/${id}/reject`, { reason })
       .then((r) => r.data),
 
+  getPaymentInvoice: (paymentId: string) =>
+    apiClient
+      .get<ApiResponse<PaymentInvoiceView>>(`/admin/payments/${paymentId}/invoice`)
+      .then((r) => r.data),
+
   getStudentBilling: (studentId: string) =>
     apiClient
       .get<ApiResponse<StudentBillingView | null>>(`/admin/students/${studentId}/billing`)
@@ -343,4 +616,51 @@ export const adminApi = {
     apiClient
       .put<ApiResponse<StudentBillingView>>(`/admin/students/${studentId}/billing`, payload)
       .then((r) => r.data),
+
+  getCertificates: () =>
+    apiClient
+      .get<ApiResponse<CertificateView[]>>("/admin/certificates")
+      .then((r) => r.data),
+
+  previewCertificate: (payload: CertificateFormPayload) =>
+    apiClient
+      .post<ApiResponse<CertificateView>>("/admin/certificates/preview", payload)
+      .then((r) => r.data),
+
+  createCertificate: (payload: CertificateFormPayload) =>
+    apiClient
+      .post<ApiResponse<CertificateView>>("/admin/certificates", payload)
+      .then((r) => r.data),
+
+  getCertificate: (id: string) =>
+    apiClient
+      .get<ApiResponse<CertificateView>>(`/admin/certificates/${id}`)
+      .then((r) => r.data),
+
+  getProfile: () =>
+    apiClient.get<ApiResponse<AdminProfile>>("/admin/profile").then((r) => r.data),
+
+  updateProfile: (payload: { name?: string }) =>
+    apiClient
+      .patch<ApiResponse<AdminProfile>>("/admin/profile", payload)
+      .then((r) => r.data),
+
+  changePassword: (payload: { currentPassword: string; newPassword: string }) =>
+    apiClient
+      .patch<ApiResponse<null>>("/admin/profile/password", payload)
+      .then((r) => r.data),
 };
+
+export interface CertificateFormPayload {
+  studentName: string;
+  studentNameBn?: string;
+  courseName: string;
+  courseNameBn?: string;
+  studentPortalId?: string;
+  issueDate?: string;
+  courseDuration: string;
+  grade: string;
+  showExcellentBadge?: boolean;
+  performanceTextEn?: string;
+  performanceTextBn?: string;
+}

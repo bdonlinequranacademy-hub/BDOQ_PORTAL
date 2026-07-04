@@ -25,7 +25,7 @@ export function ChildSelector() {
     const child = children[0];
     return (
       <p className="text-sm text-zinc-600">
-        Viewing: <span className="font-semibold text-[#03214F]">{child.name}</span>
+        Viewing: <span className="font-semibold text-primary-dark">{child.name}</span>
       </p>
     );
   }

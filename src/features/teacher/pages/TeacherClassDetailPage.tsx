@@ -6,7 +6,6 @@ import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { ClassHero } from "@/components/classes/ClassHero";
 import { CountryLabel } from "@/components/ui/CountryLabel";
-import { buildClassroomRoomName } from "@/lib/utils/classroomRoom";
 import { formatDuration } from "@/lib/utils/class";
 import { PageLoading } from "@/components/ui/PageLoading";
 
@@ -42,7 +41,6 @@ export function TeacherClassDetailPage() {
             description={cls.description ?? cls.subject}
             schedule={cls.schedule}
             meetingLink={cls.meetingLink}
-            classroomHref={`/teacher/whiteboard?room=${encodeURIComponent(buildClassroomRoomName(cls._id))}`}
             badge={
               cls.level ? (
                 <span className="w-fit rounded-full bg-white/15 px-3 py-1 text-xs font-medium">

@@ -35,7 +35,7 @@ export function StudentHomeworkListPane() {
   return (
     <div className="flex flex-col gap-4 p-4 lg:max-h-[calc(100vh-8rem)] lg:overflow-y-auto lg:p-5">
       <div>
-        <h1 className="text-xl font-bold text-[#03214F] lg:text-lg">Homework</h1>
+        <h1 className="text-xl font-bold text-primary-dark lg:text-lg">Homework</h1>
         <p className="text-xs text-zinc-500">{homework.length} assignments</p>
       </div>
 
@@ -46,8 +46,8 @@ export function StudentHomeworkListPane() {
             onClick={() => setFilter(f)}
             className={`rounded-full px-3 py-1 text-xs font-medium capitalize ${
               filter === f
-                ? "bg-[#03214F] text-white"
-                : "border border-zinc-200 bg-white text-[#03214F]"
+                ? "bg-primary-dark text-white"
+                : "border border-zinc-200 bg-white text-primary-dark"
             }`}
           >
             {f === "review" ? "In review" : f}
@@ -90,7 +90,7 @@ export function StudentHomeworkListPane() {
                 }`}
               >
                 <div className="min-w-0 flex-1">
-                  <p className="truncate font-semibold text-sm text-[#03214F]">{hw.title}</p>
+                  <p className="truncate font-semibold text-sm text-primary-dark">{hw.title}</p>
                   <p className="truncate text-xs text-zinc-400">
                     {hwClassTitle(hw)}
                     {hw.curriculumLabels?.program

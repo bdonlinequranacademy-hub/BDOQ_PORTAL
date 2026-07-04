@@ -46,12 +46,17 @@ export function TeacherTodaySchedulePage() {
     );
   }
 
+  function handleViewClass(session: SessionSlotView) {
+    if (!session.classId) return;
+    navigate(`/teacher/classes/${session.classId}`);
+  }
+
   return (
     <>
       <PageContainer className="flex flex-col gap-6">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
           <div>
-            <h1 className="text-2xl font-bold text-[#03214F]">
+            <h1 className="text-2xl font-bold text-primary-dark">
               Today&apos;s Schedule
             </h1>
             <p className="mt-1 text-sm text-zinc-500">
@@ -77,8 +82,8 @@ export function TeacherTodaySchedulePage() {
 
         <div className="grid grid-cols-3 gap-3">
           {[
-            { label: "Total sessions", value: stats.total, tone: "text-[#03214F]" },
-            { label: "Remaining", value: stats.upcoming, tone: "text-[#2b7fff]" },
+            { label: "Total sessions", value: stats.total, tone: "text-primary-dark" },
+            { label: "Remaining", value: stats.upcoming, tone: "text-primary" },
             { label: "Completed", value: stats.completed, tone: "text-zinc-500" },
           ].map((item) => (
             <div
@@ -99,9 +104,9 @@ export function TeacherTodaySchedulePage() {
             {stats.live} session{stats.live === 1 ? "" : "s"} live right now
           </div>
         ) : (
-          <div className="flex items-center gap-2 rounded-2xl bg-[#2b7fff]/10 px-4 py-3">
-            <Calendar className="size-5 text-[#2b7fff]" />
-            <span className="text-sm font-semibold text-[#2b7fff]">
+          <div className="flex items-center gap-2 rounded-2xl bg-primary/10 px-4 py-3">
+            <Calendar className="size-5 text-primary" />
+            <span className="text-sm font-semibold text-primary">
               {isLoading
                 ? "Loading…"
                 : `${sessions.length} session${sessions.length === 1 ? "" : "s"} on ${day}`}
@@ -113,7 +118,7 @@ export function TeacherTodaySchedulePage() {
           <PageLoading label="Loading schedule…" />
         ) : sessions.length === 0 ? (
           <div className="rounded-2xl border border-dashed border-zinc-200 bg-white p-10 text-center">
-            <p className="font-semibold text-[#03214F]">No classes scheduled today</p>
+            <p className="font-semibold text-primary-dark">No classes scheduled today</p>
             <p className="mt-1 text-sm text-zinc-400">
               Check your weekly routine or ask admin to update class schedules.
             </p>
@@ -129,8 +134,10 @@ export function TeacherTodaySchedulePage() {
         ) : view === "table" ? (
           <SessionScheduleTable
             sessions={sessions}
+            joinRole="teacher"
             onLogSession={openLogSession}
             onMarkAttendance={handleMarkAttendance}
+            onViewClass={handleViewClass}
           />
         ) : (
           <div className="flex flex-col gap-3">
@@ -138,8 +145,10 @@ export function TeacherTodaySchedulePage() {
               <SessionTimelineRow
                 key={session._id}
                 session={session}
+                joinRole="teacher"
                 onLogSession={openLogSession}
                 onMarkAttendance={handleMarkAttendance}
+                onViewClass={handleViewClass}
               />
             ))}
           </div>

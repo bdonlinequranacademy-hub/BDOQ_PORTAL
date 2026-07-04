@@ -17,7 +17,6 @@ const CATEGORIES: BlogCategory[] = [
   "Quran & Tajweed",
   "Parent Guides",
   "Learning Tips",
-  "Platform & AI",
 ];
 
 export function AdminBlogFormPage() {
@@ -37,7 +36,7 @@ export function AdminBlogFormPage() {
   const [category, setCategory] = useState<BlogCategory>("Parent Guides");
   const [tags, setTags] = useState("");
   const [authorName, setAuthorName] = useState("");
-  const [authorRole, setAuthorRole] = useState("Al Bayaan Academy");
+  const [authorRole, setAuthorRole] = useState("BDOQ Academy Team");
   const [readMinutes, setReadMinutes] = useState("");
   const [featured, setFeatured] = useState(false);
   const [status, setStatus] = useState<BlogPostStatus>("draft");
@@ -103,23 +102,26 @@ export function AdminBlogFormPage() {
       <button
         type="button"
         onClick={() => navigate("/admin/blog")}
-        className="flex w-fit items-center gap-2 text-sm text-zinc-500 hover:text-[#03214F]"
+        className="flex w-fit items-center gap-2 text-sm text-zinc-500 hover:text-primary-dark"
       >
         <ArrowLeft className="size-4" />
         Back to blog
       </button>
 
       <div>
-        <h1 className="text-2xl font-bold text-[#03214F]">
+        <h1 className="text-2xl font-bold text-primary-dark">
           {isEdit ? "Edit post" : "New blog post"}
         </h1>
-        <p className="text-sm text-zinc-500">Only admins can create or edit articles.</p>
+        <p className="text-sm text-zinc-500">
+          Publish educational articles only — Quran, Tajweed, Hifz, parenting, and learning tips.
+          Payment or portal guides do not appear on the public blog.
+        </p>
       </div>
 
       <form onSubmit={handleSubmit} className="flex flex-col gap-6">
         <Card className="flex flex-col gap-4 rounded-2xl border-0 p-6 shadow-sm">
           <label className="flex flex-col gap-1.5 text-sm">
-            <span className="font-semibold text-[#03214F]">Title</span>
+            <span className="font-semibold text-primary-dark">Title</span>
             <input
               required
               className="rounded-xl border border-zinc-200 px-4 py-2.5 outline-none focus:border-[#03214F]"
@@ -129,7 +131,7 @@ export function AdminBlogFormPage() {
           </label>
 
           <label className="flex flex-col gap-1.5 text-sm">
-            <span className="font-semibold text-[#03214F]">URL slug (optional)</span>
+            <span className="font-semibold text-primary-dark">URL slug (optional)</span>
             <input
               className="rounded-xl border border-zinc-200 px-4 py-2.5 outline-none focus:border-[#03214F]"
               placeholder="auto-generated-from-title"
@@ -139,7 +141,7 @@ export function AdminBlogFormPage() {
           </label>
 
           <label className="flex flex-col gap-1.5 text-sm">
-            <span className="font-semibold text-[#03214F]">Short description</span>
+            <span className="font-semibold text-primary-dark">Short description</span>
             <textarea
               required
               rows={2}
@@ -151,7 +153,7 @@ export function AdminBlogFormPage() {
 
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <label className="flex flex-col gap-1.5 text-sm">
-              <span className="font-semibold text-[#03214F]">Category</span>
+              <span className="font-semibold text-primary-dark">Category</span>
               <select
                 className="rounded-xl border border-zinc-200 px-4 py-2.5 outline-none focus:border-[#03214F]"
                 value={category}
@@ -166,7 +168,7 @@ export function AdminBlogFormPage() {
             </label>
 
             <label className="flex flex-col gap-1.5 text-sm">
-              <span className="font-semibold text-[#03214F]">Status</span>
+              <span className="font-semibold text-primary-dark">Status</span>
               <select
                 className="rounded-xl border border-zinc-200 px-4 py-2.5 outline-none focus:border-[#03214F]"
                 value={status}
@@ -179,7 +181,7 @@ export function AdminBlogFormPage() {
           </div>
 
           <label className="flex flex-col gap-1.5 text-sm">
-            <span className="font-semibold text-[#03214F]">Tags (comma-separated)</span>
+            <span className="font-semibold text-primary-dark">Tags (comma-separated)</span>
             <input
               className="rounded-xl border border-zinc-200 px-4 py-2.5 outline-none focus:border-[#03214F]"
               value={tags}
@@ -189,7 +191,7 @@ export function AdminBlogFormPage() {
 
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <label className="flex flex-col gap-1.5 text-sm">
-              <span className="font-semibold text-[#03214F]">Author name</span>
+              <span className="font-semibold text-primary-dark">Author name</span>
               <input
                 required
                 className="rounded-xl border border-zinc-200 px-4 py-2.5 outline-none focus:border-[#03214F]"
@@ -198,7 +200,7 @@ export function AdminBlogFormPage() {
               />
             </label>
             <label className="flex flex-col gap-1.5 text-sm">
-              <span className="font-semibold text-[#03214F]">Author role</span>
+              <span className="font-semibold text-primary-dark">Author role</span>
               <input
                 className="rounded-xl border border-zinc-200 px-4 py-2.5 outline-none focus:border-[#03214F]"
                 value={authorRole}
@@ -209,7 +211,7 @@ export function AdminBlogFormPage() {
 
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <label className="flex flex-col gap-1.5 text-sm">
-              <span className="font-semibold text-[#03214F]">Publish date</span>
+              <span className="font-semibold text-primary-dark">Publish date</span>
               <input
                 type="date"
                 className="rounded-xl border border-zinc-200 px-4 py-2.5 outline-none focus:border-[#03214F]"
@@ -218,7 +220,7 @@ export function AdminBlogFormPage() {
               />
             </label>
             <label className="flex flex-col gap-1.5 text-sm">
-              <span className="font-semibold text-[#03214F]">Read time (minutes)</span>
+              <span className="font-semibold text-primary-dark">Read time (minutes)</span>
               <input
                 type="number"
                 min={1}
@@ -235,13 +237,13 @@ export function AdminBlogFormPage() {
               checked={featured}
               onChange={(e) => setFeatured(e.target.checked)}
             />
-            <span className="font-medium text-[#03214F]">Featured on homepage (future)</span>
+            <span className="font-medium text-primary-dark">Featured on homepage (future)</span>
           </label>
         </Card>
 
         <Card className="flex flex-col gap-2 rounded-2xl border-0 p-6 shadow-sm">
           <label className="flex flex-col gap-1.5 text-sm">
-            <span className="font-semibold text-[#03214F]">Article body (Markdown)</span>
+            <span className="font-semibold text-primary-dark">Article body (Markdown)</span>
             <textarea
               required
               rows={18}
@@ -256,7 +258,7 @@ export function AdminBlogFormPage() {
         <div className="flex flex-wrap gap-3">
           <Button
             type="submit"
-            className="rounded-xl bg-[#03214F] text-white"
+            className="rounded-xl bg-primary-dark text-white"
             disabled={createPost.isPending || updatePost.isPending}
           >
             {status === "published" ? "Save & publish" : "Save draft"}

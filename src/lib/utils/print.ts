@@ -24,7 +24,7 @@ export function printHtmlContent(title: string, bodyHtml: string) {
       </head>
       <body>
         <h1>${safeTitle}</h1>
-        <p class="meta">Al Bayaan Academy · ${new Date().toLocaleString()}</p>
+        <p class="meta">BDOQ Academy · ${new Date().toLocaleString()}</p>
         <div class="content">${bodyHtml}</div>
         <p class="meta no-print" style="margin-top:2rem">Use your browser print dialog to save as PDF.</p>
       </body>

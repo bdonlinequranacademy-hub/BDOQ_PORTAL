@@ -33,7 +33,7 @@ export function ClassLogCard({
             <ClassLogStatusBadge status={log.status} />
             <span className="text-xs text-zinc-400">{log.sessionDate}</span>
           </div>
-          <p className="mt-1 font-bold text-[#03214F]">
+          <p className="mt-1 font-bold text-primary-dark">
             {showTeacher ? log.teacher.name : log.student.name}
           </p>
           <p className="text-xs text-zinc-500">
@@ -45,7 +45,7 @@ export function ClassLogCard({
             )}
           </p>
           {log.curriculumLabels?.program ? (
-            <p className="mt-1 text-xs font-medium text-[#C4922B]">
+            <p className="mt-1 text-xs font-medium text-gold">
               {formatCurriculumPath(log.curriculumLabels)}
             </p>
           ) : (
@@ -54,8 +54,8 @@ export function ClassLogCard({
             </div>
           )}
         </div>
-        <div className="rounded-xl bg-[#2b7fff]/10 px-3 py-2 text-center">
-          <p className="text-sm font-bold text-[#2b7fff]">{log.times.academy.time}</p>
+        <div className="rounded-xl bg-primary/10 px-3 py-2 text-center">
+          <p className="text-sm font-bold text-primary">{log.times.academy.time}</p>
           <p className="text-[10px] font-medium uppercase text-zinc-400">BD</p>
         </div>
       </div>
@@ -63,27 +63,27 @@ export function ClassLogCard({
       <div className="grid grid-cols-3 gap-2 rounded-xl bg-[#F8FAFF] p-3 text-center">
         <div>
           <p className="text-[10px] font-semibold uppercase text-zinc-400">Stu</p>
-          <p className="text-xs font-semibold text-[#03214F]">{log.times.student.time}</p>
+          <p className="text-xs font-semibold text-primary-dark">{log.times.student.time}</p>
         </div>
         <div>
           <p className="text-[10px] font-semibold uppercase text-zinc-400">Tea</p>
-          <p className="text-xs font-semibold text-[#03214F]">{log.times.teacher.time}</p>
+          <p className="text-xs font-semibold text-primary-dark">{log.times.teacher.time}</p>
         </div>
         <div>
           <p className="text-[10px] font-semibold uppercase text-zinc-400">BD</p>
-          <p className="text-xs font-semibold text-[#03214F]">{log.times.academy.time}</p>
+          <p className="text-xs font-semibold text-primary-dark">{log.times.academy.time}</p>
         </div>
       </div>
 
       <div className="rounded-xl bg-zinc-50 p-3">
         <p className="text-xs font-semibold uppercase text-zinc-400">Lesson report</p>
-        <p className="mt-1 whitespace-pre-wrap text-sm text-[#03214F]">{log.lessonReport}</p>
+        <p className="mt-1 whitespace-pre-wrap text-sm text-primary-dark">{log.lessonReport}</p>
         {log.topicsCovered.length > 0 ? (
           <div className="mt-2 flex flex-wrap gap-1">
             {log.topicsCovered.map((topic) => (
               <span
                 key={topic}
-                className="rounded-full bg-[#03214F]/8 px-2 py-0.5 text-[10px] font-medium text-[#03214F]"
+                className="rounded-full bg-primary-dark/8 px-2 py-0.5 text-[10px] font-medium text-primary-dark"
               >
                 {topic}
               </span>
@@ -91,7 +91,7 @@ export function ClassLogCard({
           </div>
         ) : null}
         {log.status === "approved" && log.earningsBdt != null ? (
-          <p className="text-sm font-semibold text-[#C4922B]">
+          <p className="text-sm font-semibold text-gold">
             Earnings: ৳{log.earningsBdt.toLocaleString("en-BD")}
           </p>
         ) : null}

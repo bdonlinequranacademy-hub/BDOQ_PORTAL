@@ -7,22 +7,26 @@ import { PageContainer } from "@/components/layout/PageContainer";
 import { Card } from "@/components/ui/Card";
 
 import { PageLoading } from "@/components/ui/PageLoading";
+import { Pagination } from "@/components/ui/Pagination";
+import { usePaginatedList } from "@/lib/hooks/usePaginatedList";
+
 export function StudentNotificationsPage() {
   const { data: notifications = [], isLoading } = useStudentNotifications();
   const markRead = useMarkNotificationRead();
 
   const unread = notifications.filter((n) => !n.isRead);
+  const pagination = usePaginatedList(notifications);
 
   return (
     <PageContainer className="flex flex-col gap-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-[#03214F]">Notifications</h1>
+          <h1 className="text-2xl font-bold text-primary-dark">Notifications</h1>
           <p className="text-sm text-zinc-500">
             {unread.length} unread of {notifications.length}
           </p>
         </div>
-        <Bell className="size-6 text-[#C4922B]" />
+        <Bell className="size-6 text-gold" />
       </div>
 
       {isLoading ? (
@@ -32,8 +36,9 @@ export function StudentNotificationsPage() {
           <p className="text-sm text-zinc-400">No notifications yet.</p>
         </Card>
       ) : (
+        <>
         <div className="flex flex-col gap-3">
-          {notifications.map((n) => (
+          {pagination.paginatedItems.map((n) => (
             <Card
               key={n._id}
               className={`flex items-start gap-4 rounded-2xl border-0 p-4 shadow-sm ${
@@ -41,7 +46,7 @@ export function StudentNotificationsPage() {
               }`}
             >
               <div className="flex flex-1 flex-col gap-1">
-                <p className="font-semibold text-[#03214F]">{n.title}</p>
+                <p className="font-semibold text-primary-dark">{n.title}</p>
                 <p className="text-sm text-zinc-600">{n.message}</p>
                 <p className="text-xs text-zinc-400">
                   {new Date(n.createdAt).toLocaleString()}
@@ -51,7 +56,7 @@ export function StudentNotificationsPage() {
                 <button
                   onClick={() => markRead.mutate(n._id)}
                   disabled={markRead.isPending}
-                  className="flex size-8 shrink-0 items-center justify-center rounded-full bg-[#03214F] text-white"
+                  className="flex size-8 shrink-0 items-center justify-center rounded-full bg-primary-dark text-white"
                   title="Mark as read"
                 >
                   <Check className="size-4" />
@@ -60,6 +65,8 @@ export function StudentNotificationsPage() {
             </Card>
           ))}
         </div>
+        <Pagination pagination={pagination} itemLabel="notifications" />
+        </>
       )}
     </PageContainer>
   );

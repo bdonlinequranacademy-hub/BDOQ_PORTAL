@@ -17,7 +17,7 @@ export function SessionTimeRow({
   return (
     <div className={compact ? "text-right" : "rounded-lg bg-[#F8FAFF] px-2.5 py-2"}>
       <p className="text-[10px] font-semibold uppercase text-zinc-400">{label}</p>
-      <p className={`font-semibold text-[#03214F] ${compact ? "text-xs" : "text-sm"}`}>
+      <p className={`font-semibold text-primary-dark ${compact ? "text-xs" : "text-sm"}`}>
         {time.time}
       </p>
       {country ? (

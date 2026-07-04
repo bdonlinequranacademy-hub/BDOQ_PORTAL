@@ -1,5 +1,6 @@
 import { api as apiClient } from "./client";
 import type { ApiResponse } from "@/types/api";
+import { normalizeProgramId } from "@/lib/curriculumCatalog";
 
 export interface CurriculumNode {
   id: string;
@@ -53,5 +54,6 @@ export function matchesProgramFilter(
   filterProgramId: string
 ) {
   if (!filterProgramId) return true;
-  return programId === filterProgramId;
+  if (!programId) return false;
+  return normalizeProgramId(programId) === normalizeProgramId(filterProgramId);
 }

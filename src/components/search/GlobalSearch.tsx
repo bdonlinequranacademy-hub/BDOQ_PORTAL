@@ -126,7 +126,7 @@ export function GlobalSearch({ role }: { role: Role }) {
           <button
             type="button"
             onClick={() => setOpen(false)}
-            className="rounded-lg p-1 text-portal-muted hover:bg-portal-muted/30"
+            className="rounded-lg p-1 text-portal-muted hover:bg-portal-surface-muted/30"
             aria-label="Close search"
           >
             <X className="size-4" />
@@ -145,7 +145,7 @@ export function GlobalSearch({ role }: { role: Role }) {
                     <button
                       type="button"
                       onClick={() => go(page.path)}
-                      className="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-left text-sm transition hover:bg-portal-muted/40"
+                      className="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-left text-sm transition hover:bg-portal-surface-muted/40"
                     >
                       <Search className="size-4 text-gold" />
                       <span className="font-medium text-portal-heading">{page.label}</span>
@@ -167,9 +167,9 @@ export function GlobalSearch({ role }: { role: Role }) {
                     <button
                       type="button"
                       onClick={() => go(programLink)}
-                      className="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-left text-sm transition hover:bg-portal-muted/40"
+                      className="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-left text-sm transition hover:bg-portal-surface-muted/40"
                     >
-                      <Library className="size-4 shrink-0 text-[#C4922B]" />
+                      <Library className="size-4 shrink-0 text-gold" />
                       <div className="min-w-0">
                         <p className="truncate font-medium text-portal-heading">{program.label}</p>
                         <p className="truncate text-xs text-portal-muted">Open progress & curriculum</p>
@@ -199,7 +199,7 @@ export function GlobalSearch({ role }: { role: Role }) {
                         <button
                           type="button"
                           onClick={() => go(item.path)}
-                          className="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-left transition hover:bg-portal-muted/40"
+                          className="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-left transition hover:bg-portal-surface-muted/40"
                         >
                           <Icon className="size-4 shrink-0 text-portal-heading" />
                           <div className="min-w-0">
@@ -210,7 +210,7 @@ export function GlobalSearch({ role }: { role: Role }) {
                               <p className="truncate text-xs text-portal-muted">{item.subtitle}</p>
                             ) : null}
                           </div>
-                          <span className="ml-auto shrink-0 rounded-full bg-portal-muted/50 px-2 py-0.5 text-[10px] capitalize text-portal-muted">
+                          <span className="ml-auto shrink-0 rounded-full bg-portal-surface-muted/50 px-2 py-0.5 text-[10px] capitalize text-portal-muted">
                             {item.type}
                           </span>
                         </button>

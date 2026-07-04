@@ -1,8 +1,8 @@
 import type { ReactNode } from "react";
-import { Link } from "react-router-dom";
-import { ExternalLink, Presentation, Video } from "lucide-react";
+import { ExternalLink, Video } from "lucide-react";
 import { ClassScheduleChip } from "@/components/classes/ClassScheduleChip";
 import type { ScheduleLike } from "@/lib/utils/class";
+import { normalizeMeetingLink } from "@/lib/utils/meetingLink";
 
 interface ClassHeroProps {
   title: string;
@@ -10,7 +10,6 @@ interface ClassHeroProps {
   teacherName?: string;
   schedule?: ScheduleLike;
   meetingLink?: string;
-  classroomHref?: string;
   badge?: ReactNode;
   meta?: ReactNode;
 }
@@ -21,10 +20,11 @@ export function ClassHero({
   teacherName,
   schedule,
   meetingLink,
-  classroomHref,
   badge,
   meta,
 }: ClassHeroProps) {
+  const externalMeetingLink = normalizeMeetingLink(meetingLink);
+
   return (
     <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-navy to-[#0a3a7a] p-6 text-white shadow-lg">
       <div className="pointer-events-none absolute -right-10 -top-10 size-32 rounded-full bg-white/10" />
@@ -46,18 +46,9 @@ export function ClassHero({
           <ClassScheduleChip schedule={schedule} variant="onDark" />
         </div>
         <div className="mt-1 flex flex-wrap gap-2">
-          {classroomHref ? (
-            <Link
-              to={classroomHref}
-              className="inline-flex w-fit items-center gap-2 rounded-xl bg-gold px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-gold-dark"
-            >
-              <Presentation className="size-4" />
-              Enter classroom
-            </Link>
-          ) : null}
-          {meetingLink ? (
+          {externalMeetingLink ? (
             <a
-              href={meetingLink}
+              href={externalMeetingLink}
               target="_blank"
               rel="noreferrer"
               className="inline-flex w-fit items-center gap-2 rounded-xl bg-white/15 px-4 py-2.5 text-sm font-semibold transition hover:bg-white/25"

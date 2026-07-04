@@ -1,4 +1,5 @@
 import { LayoutList, Rows3 } from "lucide-react";
+import { cn } from "@/lib/utils/cn";
 
 export type ScheduleViewMode = "timeline" | "table";
 
@@ -15,7 +16,7 @@ export function ScheduleViewToggle({ value, onChange }: ScheduleViewToggleProps)
 
   return (
     <div
-      className="inline-flex rounded-xl border border-zinc-200 bg-zinc-50 p-1"
+      className="inline-flex rounded-xl border border-portal bg-portal-surface p-1 shadow-sm"
       role="tablist"
       aria-label="Schedule view"
     >
@@ -28,11 +29,12 @@ export function ScheduleViewToggle({ value, onChange }: ScheduleViewToggleProps)
             role="tab"
             aria-selected={active}
             onClick={() => onChange(id)}
-            className={`inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-semibold transition ${
+            className={cn(
+              "inline-flex items-center gap-1.5 rounded-lg px-3.5 py-2 text-xs font-semibold transition",
               active
-                ? "bg-white text-[#03214F] shadow-sm"
-                : "text-zinc-500 hover:text-[#03214F]"
-            }`}
+                ? "bg-primary-dark text-white shadow-sm"
+                : "text-portal-muted hover:bg-portal-muted/50 hover:text-portal-heading"
+            )}
           >
             <Icon className="size-3.5" />
             {label}

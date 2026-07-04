@@ -29,33 +29,40 @@ export function portalPagesForRole(role: Role): PortalPageLink[] {
     case "student":
       return [
         { label: "Dashboard", path: "/student", keywords: "home" },
-        { label: "Classes", path: "/student/classes", keywords: "courses schedule" },
-        { label: "Homework", path: "/student/homework", keywords: "assignments" },
-        { label: "Attendance", path: "/student/attendance", keywords: "present absent" },
-        { label: "Progress", path: "/student/progress", keywords: "tajweed hifz" },
-        { label: "Weekly Summary", path: "/student/summary", keywords: "weekly report template" },
-        { label: "Payments", path: "/student/payments", keywords: "tuition fee zelle wise proof" },
+        { label: "My Classes", path: "/student/classes", keywords: "quran courses tajweed hifz" },
+        { label: "Homework", path: "/student/homework", keywords: "assignments tajweed practice" },
+        { label: "Attendance", path: "/student/attendance", keywords: "present absent class" },
+        { label: "Progress", path: "/student/progress", keywords: "tajweed hifz noorani qaida" },
+        { label: "Weekly Summary", path: "/student/summary", keywords: "weekly report parent" },
+        { label: "Payments", path: "/student/payments", keywords: "tuition fee bdt monthly package" },
+        { label: "Notifications", path: "/student/notifications", keywords: "alerts class reminder" },
         { label: "Profile", path: "/student/profile", keywords: "account settings" },
-        { label: "Notifications", path: "/student/notifications", keywords: "alerts" },
       ];
     case "super_admin":
     case "admin":
       return [
         { label: "Dashboard", path: "/admin", keywords: "home overview" },
+        { label: "WhatsApp queue", path: "/admin/whatsapp-queue", keywords: "whatsapp payment reminder leads" },
         { label: "Users", path: "/admin/users", keywords: "students teachers" },
         { label: "Payments", path: "/admin/payments", keywords: "tuition billing zelle wise approve" },
         { label: "Curriculum", path: "/admin/curriculum", keywords: "programs quran tajweed tree" },
         { label: "Classes", path: "/admin/classes", keywords: "courses schedule" },
         { label: "Academy Routine", path: "/admin/schedule/routine", keywords: "weekly slots" },
         { label: "Class Logs", path: "/admin/class-logs", keywords: "approve sessions" },
-        { label: "Trial Bookings", path: "/admin/trial-bookings", keywords: "leads website form" },
-        { label: "Contact Messages", path: "/admin/contact-messages", keywords: "contact enquiry email" },
-        { label: "Student Requests", path: "/admin/student-requests", keywords: "assign student" },
+        { label: "Free Class Leads", path: "/admin/trial-bookings", keywords: "free trial website form" },
+        { label: "Contact Inbox", path: "/admin/contact-messages", keywords: "contact enquiry email" },
+        { label: "Student Admissions", path: "/admin/student-admissions", keywords: "public admission form website" },
+        { label: "Teacher Applications", path: "/admin/teacher-applications", keywords: "teacher registration cv" },
+        { label: "Teacher Requests", path: "/admin/student-requests", keywords: "teacher request student assign" },
         { label: "Homework", path: "/admin/homework", keywords: "assignments" },
         { label: "Earnings", path: "/admin/earnings", keywords: "pay verify bdt" },
         { label: "Attendance", path: "/admin/attendance", keywords: "present absent" },
         { label: "Progress", path: "/admin/progress", keywords: "reports" },
         { label: "Blog", path: "/admin/blog", keywords: "posts cms" },
+        { label: "Student Reviews", path: "/admin/testimonials", keywords: "testimonials reviews video audio text homepage" },
+        { label: "Resources", path: "/admin/resources", keywords: "ebooks audio videos cms" },
+        { label: "Certificates", path: "/admin/certificates", keywords: "certificate achievement generate pdf" },
+        { label: "Profile", path: "/admin/profile", keywords: "account settings password" },
       ];
     default:
       return [];
@@ -71,4 +78,18 @@ export function filterPortalPages(role: Role, query: string): PortalPageLink[] {
       p.path.toLowerCase().includes(q) ||
       (p.keywords?.toLowerCase().includes(q) ?? false)
   );
+}
+
+export function profilePathForRole(role: Role): string | null {
+  switch (role) {
+    case "student":
+      return "/student/profile";
+    case "teacher":
+      return "/teacher/profile";
+    case "admin":
+    case "super_admin":
+      return "/admin/profile";
+    default:
+      return null;
+  }
 }

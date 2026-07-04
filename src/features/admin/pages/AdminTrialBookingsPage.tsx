@@ -1,5 +1,8 @@
 import { useState } from "react";
-import { CalendarCheck, ExternalLink, Mail, Phone } from "lucide-react";
+import { CalendarCheck, Mail, Phone } from "lucide-react";
+import { WhatsAppLinkButton } from "@/components/whatsapp/WhatsAppLinkButton";
+import { waMeUrlFromRaw } from "@/lib/whatsapp";
+import { trialLeadFollowUpMessage } from "@/lib/whatsappMessageTemplates";
 import type { TrialBookingStatus, TrialBookingView } from "@/types/models";
 import {
   useAdminTrialBookings,
@@ -11,6 +14,8 @@ import { Button } from "@/components/ui/Button";
 import { EmptyState } from "@/components/ui/EmptyState";
 
 import { PageLoading } from "@/components/ui/PageLoading";
+import { Pagination } from "@/components/ui/Pagination";
+import { usePaginatedList } from "@/lib/hooks/usePaginatedList";
 type Filter = "new" | "all" | TrialBookingStatus;
 
 function statusStyles(status: TrialBookingStatus) {
@@ -26,11 +31,6 @@ function statusStyles(status: TrialBookingStatus) {
   }
 }
 
-function whatsappHref(number: string) {
-  const digits = number.replace(/\D/g, "");
-  if (!digits) return null;
-  return `https://wa.me/${digits}`;
-}
 
 function formatTimeSlot(slot?: TrialBookingView["timeSlot"]) {
   if (!slot) return null;
@@ -73,10 +73,14 @@ export function AdminTrialBookingsPage() {
   const newCount =
     filter === "new" ? bookings.length : bookings.filter((b) => b.status === "new").length;
 
+  const pagination = usePaginatedList(bookings, {
+    resetDeps: [filter],
+  });
+
   return (
     <PageContainer className="flex flex-col gap-6">
       <div>
-        <h1 className="text-2xl font-bold text-[#03214F]">Trial Bookings</h1>
+        <h1 className="text-2xl font-bold text-primary-dark">Trial Bookings</h1>
         <p className="mt-1 text-sm text-zinc-500">
           Free trial requests from the public website — contact via WhatsApp within 24 hours
         </p>
@@ -106,8 +110,8 @@ export function AdminTrialBookingsPage() {
             onClick={() => setFilter(f.id)}
             className={`shrink-0 rounded-full px-4 py-1.5 text-sm font-medium capitalize ${
               filter === f.id
-                ? "bg-[#03214F] text-white"
-                : "border border-zinc-200 bg-white text-[#03214F]"
+                ? "bg-primary-dark text-white"
+                : "border border-zinc-200 bg-white text-primary-dark"
             }`}
           >
             {f.label}
@@ -124,9 +128,14 @@ export function AdminTrialBookingsPage() {
           description="Leads appear here when visitors submit the form on your website."
         />
       ) : (
+        <>
         <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
-          {bookings.map((booking) => {
-            const wa = whatsappHref(booking.whatsapp);
+          {pagination.paginatedItems.map((booking) => {
+            const wa = waMeUrlFromRaw(
+              booking.whatsapp,
+              booking.country,
+              trialLeadFollowUpMessage(booking.parentName)
+            );
             const actions = nextActions(booking.status);
 
             return (
@@ -146,7 +155,7 @@ export function AdminTrialBookingsPage() {
                 </div>
 
                 <div>
-                  <p className="font-bold text-[#03214F]">{booking.parentName}</p>
+                  <p className="font-bold text-primary-dark">{booking.parentName}</p>
                   <p className="text-xs text-zinc-500">{formatLearner(booking.learnerType)}</p>
                 </div>
 
@@ -154,7 +163,7 @@ export function AdminTrialBookingsPage() {
                   {booking.email ? (
                     <a
                       href={`mailto:${booking.email}`}
-                      className="inline-flex items-center gap-2 hover:text-[#03214F]"
+                      className="inline-flex items-center gap-2 hover:text-primary-dark"
                     >
                       <Mail className="size-4 shrink-0 text-zinc-400" />
                       {booking.email}
@@ -165,23 +174,11 @@ export function AdminTrialBookingsPage() {
                       No email provided
                     </span>
                   )}
-                  {wa ? (
-                    <a
-                      href={wa}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="inline-flex items-center gap-2 font-medium text-emerald-700 hover:underline"
-                    >
-                      <Phone className="size-4 shrink-0" />
-                      {booking.whatsapp}
-                      <ExternalLink className="size-3.5 opacity-60" aria-hidden="true" />
-                    </a>
-                  ) : (
-                    <span className="inline-flex items-center gap-2">
-                      <Phone className="size-4 shrink-0 text-zinc-400" />
-                      {booking.whatsapp}
-                    </span>
-                  )}
+                  <span className="inline-flex items-center gap-2">
+                    <Phone className="size-4 shrink-0 text-zinc-400" />
+                    {booking.whatsapp}
+                  </span>
+                  <WhatsAppLinkButton href={wa} label="Send WhatsApp" size="sm" />
                 </div>
 
                 <ul className="space-y-1 text-xs text-zinc-500">
@@ -210,7 +207,7 @@ export function AdminTrialBookingsPage() {
                           updateStatus.mutate({ id: booking._id, status: action.status })
                         }
                         disabled={updateStatus.isPending}
-                        className="h-9 rounded-xl bg-[#03214F] px-4 text-sm text-white"
+                        className="h-9 rounded-xl bg-primary-dark px-4 text-sm text-white"
                       >
                         {action.label}
                       </Button>
@@ -221,6 +218,8 @@ export function AdminTrialBookingsPage() {
             );
           })}
         </div>
+        <Pagination pagination={pagination} itemLabel="bookings" />
+        </>
       )}
     </PageContainer>
   );

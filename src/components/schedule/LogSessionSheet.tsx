@@ -135,8 +135,8 @@ export function LogSessionSheet({
         <div className="flex items-start justify-between gap-3">
           <div>
             <div className="flex items-center gap-2">
-              <ClipboardList className="size-5 text-[#C4922B]" />
-              <h2 className="text-lg font-bold text-[#03214F]">Log Session</h2>
+              <ClipboardList className="size-5 text-gold" />
+              <h2 className="text-lg font-bold text-primary-dark">Log Session</h2>
             </div>
             <p className="mt-1 text-sm text-zinc-500">
               {session.student.name} · {session.classTitle}
@@ -153,7 +153,7 @@ export function LogSessionSheet({
         </div>
 
         <label className="flex flex-col gap-1.5">
-          <span className="text-sm font-medium text-[#03214F]">Session date</span>
+          <span className="text-sm font-medium text-primary-dark">Session date</span>
           <input
             type="date"
             value={sessionDate}
@@ -175,7 +175,7 @@ export function LogSessionSheet({
         )}
 
         <div className="flex flex-col gap-1.5">
-          <span className="text-sm font-medium text-[#03214F]">Lesson report</span>
+          <span className="text-sm font-medium text-primary-dark">Lesson report</span>
           <Textarea
             placeholder="What was covered in today's class? Tajweed corrections, surahs revised, homework assigned…"
             value={lessonReport}
@@ -197,7 +197,7 @@ export function LogSessionSheet({
         ) : null}
 
         <label className="flex flex-col gap-1.5">
-          <span className="text-sm font-medium text-[#03214F]">Topics covered (optional)</span>
+          <span className="text-sm font-medium text-primary-dark">Topics covered (optional)</span>
           <input
             type="text"
             placeholder="e.g. Surah Al-Mulk, Madd rules, homework review"
@@ -211,15 +211,15 @@ export function LogSessionSheet({
         <div className="grid grid-cols-3 gap-2 rounded-xl bg-[#F8FAFF] p-3 text-center text-xs">
           <div>
             <p className="text-[10px] uppercase text-zinc-400">Stu</p>
-            <p className="font-semibold text-[#03214F]">{session.times.student.time}</p>
+            <p className="font-semibold text-primary-dark">{session.times.student.time}</p>
           </div>
           <div>
             <p className="text-[10px] uppercase text-zinc-400">Tea</p>
-            <p className="font-semibold text-[#03214F]">{session.times.teacher.time}</p>
+            <p className="font-semibold text-primary-dark">{session.times.teacher.time}</p>
           </div>
           <div>
             <p className="text-[10px] uppercase text-zinc-400">BD</p>
-            <p className="font-semibold text-[#03214F]">{session.times.academy.time}</p>
+            <p className="font-semibold text-primary-dark">{session.times.academy.time}</p>
           </div>
         </div>
 
@@ -235,7 +235,7 @@ export function LogSessionSheet({
               !curriculum.programId ||
               Boolean(scanBlock)
             }
-            className="flex-1 rounded-xl bg-[#03214F] text-white"
+            className="flex-1 rounded-xl bg-primary-dark text-white"
           >
             {isSubmitting ? "Submitting…" : "Submit for Approval"}
           </Button>

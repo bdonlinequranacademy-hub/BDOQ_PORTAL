@@ -76,7 +76,7 @@ export function MobileNavMenu({
               <button
                 type="button"
                 onClick={() => setOpen(false)}
-                className="rounded-lg p-2 text-portal-muted hover:bg-portal-muted/20"
+                className="rounded-lg p-2 text-portal-muted hover:bg-portal-surface-muted/20"
                 aria-label="Close menu"
               >
                 <X className="size-5" />
@@ -92,7 +92,7 @@ export function MobileNavMenu({
                   className={`flex items-center gap-3 rounded-xl px-4 py-3 text-left text-sm transition ${
                     isActive(item.path)
                       ? "bg-navy/10 font-semibold text-portal-heading dark:bg-white/10"
-                      : "text-portal-heading hover:bg-portal-muted/20"
+                      : "text-portal-heading hover:bg-portal-surface-muted/20"
                   }`}
                 >
                   {item.icon}
@@ -103,7 +103,7 @@ export function MobileNavMenu({
               <button
                 type="button"
                 onClick={() => go(`/${role}/notifications`)}
-                className="flex items-center gap-3 rounded-xl px-4 py-3 text-left text-sm text-portal-heading hover:bg-portal-muted/20"
+                className="flex items-center gap-3 rounded-xl px-4 py-3 text-left text-sm text-portal-heading hover:bg-portal-surface-muted/20"
               >
                 Notifications
               </button>
@@ -136,11 +136,13 @@ export function MobileNavMenu({
 export function mobilePrimaryPaths(role: Role): string[] {
   switch (role) {
     case "teacher":
-      return ["/teacher", "/teacher/whiteboard", "/teacher/schedule/today", "/teacher/class-logs"];
+      return ["/teacher", "/teacher/schedule/today", "/teacher/class-logs", "/teacher/classes"];
     case "student":
-      return ["/student", "/student/classroom", "/student/classes", "/student/homework"];
+      return ["/student", "/student/classes", "/student/homework", "/student/attendance"];
     case "admin":
-      return ["/admin", "/admin/class-logs", "/admin/users", "/admin/classes"];
+      return ["/admin", "/admin/live-monitor", "/admin/class-logs", "/admin/users"];
+    case "parent":
+      return ["/parent", "/parent/homework", "/parent/attendance", "/parent/progress"];
     default:
       return [];
   }

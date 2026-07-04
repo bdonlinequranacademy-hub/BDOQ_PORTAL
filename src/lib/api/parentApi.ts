@@ -7,6 +7,7 @@ import type {
   StudentAttendanceData,
   StudentProgressRecord,
   Notification,
+  TodaySchedulePayload,
 } from "@/types/models";
 
 export const parentApi = {
@@ -16,6 +17,11 @@ export const parentApi = {
   getChildClasses: (childId: string) =>
     apiClient
       .get<ApiResponse<StudentClass[]>>(`/parent/child/${childId}/classes`)
+      .then((r) => r.data),
+
+  getChildTodaySchedule: (childId: string) =>
+    apiClient
+      .get<ApiResponse<TodaySchedulePayload>>(`/parent/child/${childId}/schedule/today`)
       .then((r) => r.data),
 
   getChildHomework: (childId: string) =>

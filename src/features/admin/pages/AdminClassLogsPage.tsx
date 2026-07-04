@@ -16,6 +16,8 @@ import { formControlClass } from "@/lib/formControl";
 import { ClipboardCheck, Search } from "lucide-react";
 
 import { PageLoading } from "@/components/ui/PageLoading";
+import { Pagination } from "@/components/ui/Pagination";
+import { usePaginatedList } from "@/lib/hooks/usePaginatedList";
 type Filter = "pending" | "all" | ClassLogStatus;
 
 const TABS: { id: Filter; label: string }[] = [
@@ -75,6 +77,10 @@ export function AdminClassLogsPage() {
     });
   }, [filteredByStatus, programFilter, search]);
 
+  const pagination = usePaginatedList(visibleLogs, {
+    resetDeps: [filter, programFilter, search],
+  });
+
   function handleApprove(log: ClassLogView) {
     approve.mutate(log._id);
   }
@@ -87,7 +93,7 @@ export function AdminClassLogsPage() {
   return (
     <PageContainer className="flex flex-col gap-6">
       <div>
-        <h1 className="text-2xl font-bold text-[#03214F]">Class Log Approval</h1>
+        <h1 className="text-2xl font-bold text-primary-dark">Class Log Approval</h1>
         <p className="mt-1 text-sm text-zinc-500">
           Review teacher session logs before they count toward verified sessions
         </p>
@@ -135,8 +141,8 @@ export function AdminClassLogsPage() {
             onClick={() => setFilter(f.id)}
             className={`shrink-0 rounded-full px-4 py-1.5 text-sm font-medium ${
               filter === f.id
-                ? "bg-[#03214F] text-white"
-                : "border border-zinc-200 bg-white text-[#03214F]"
+                ? "bg-primary-dark text-white"
+                : "border border-zinc-200 bg-white text-primary-dark"
             }`}
           >
             {f.label}
@@ -168,8 +174,9 @@ export function AdminClassLogsPage() {
           }
         />
       ) : (
+        <>
         <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
-          {visibleLogs.map((log) => (
+          {pagination.paginatedItems.map((log) => (
             <ClassLogCard
               key={log._id}
               log={log}
@@ -185,6 +192,8 @@ export function AdminClassLogsPage() {
             />
           ))}
         </div>
+        <Pagination pagination={pagination} itemLabel="logs" />
+        </>
       )}
     </PageContainer>
   );
