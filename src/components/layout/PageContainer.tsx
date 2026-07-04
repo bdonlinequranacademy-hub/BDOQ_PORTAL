@@ -3,9 +3,9 @@ import type { ReactNode } from "react";
 type PageSize = "default" | "narrow" | "wide";
 
 const maxWidth: Record<PageSize, string> = {
-  default: "max-w-6xl",
+  default: "max-w-none",
   narrow: "max-w-3xl",
-  wide: "max-w-[90rem]",
+  wide: "max-w-none",
 };
 
 interface PageContainerProps {
@@ -14,7 +14,7 @@ interface PageContainerProps {
   size?: PageSize;
 }
 
-/** Centers portal page content on tablet/desktop; full width on small phones. */
+/** Full-width portal page shell with responsive horizontal padding. */
 export function PageContainer({
   children,
   className = "",
@@ -22,7 +22,7 @@ export function PageContainer({
 }: PageContainerProps) {
   return (
     <div
-      className={`mx-auto w-full ${maxWidth[size]} px-5 py-6 sm:px-6 lg:px-8 lg:py-8 ${className}`}
+      className={`w-full ${maxWidth[size]} px-4 py-5 sm:px-6 lg:px-8 lg:py-8 ${className}`}
     >
       {children}
     </div>

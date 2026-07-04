@@ -43,7 +43,7 @@ function NavButton({
       <button
         type="button"
         onClick={onClick}
-        className={`flex w-full min-h-[44px] items-center gap-3 rounded-xl px-4 py-3 text-left text-sm transition ${
+        className={`flex w-full min-h-[44px] items-center gap-3 rounded-xl px-3 py-2.5 text-left text-sm transition ${
           active
             ? "portal-nav-item--active"
             : "text-white/75 hover:bg-white/10 hover:text-white"
@@ -108,7 +108,7 @@ export function PortalLayout({
           <BrandLogo subtitle={portalLabel} />
         </div>
 
-        <nav className="flex flex-1 flex-col gap-1 overflow-y-auto px-4 py-6">
+        <nav className="portal-sidebar-nav flex flex-1 flex-col gap-1 overflow-y-auto px-4 py-4">
           {navItems.map((item) => (
             <NavButton
               key={item.path}
@@ -149,7 +149,7 @@ export function PortalLayout({
         </div>
       </aside>
 
-      <div className="flex min-h-screen flex-col lg:pl-64">
+      <div className="flex min-h-screen w-full min-w-0 flex-col lg:pl-64">
         <header className="sticky top-0 z-40 flex items-center justify-between border-b border-portal bg-portal-header px-5 py-3 backdrop-blur-sm sm:px-6 lg:px-8">
           <div className="min-w-0">
             <p className="truncate text-xs font-medium uppercase tracking-wider text-portal-muted">
@@ -213,7 +213,7 @@ export function PortalLayout({
           </div>
         </header>
 
-        <main className="flex-1 animate-page-in pb-[calc(5.5rem+env(safe-area-inset-bottom))] lg:pb-8">
+        <main className="flex-1 w-full min-w-0 animate-page-in pb-[calc(5.5rem+env(safe-area-inset-bottom))] lg:pb-8">
           <Outlet />
         </main>
 
