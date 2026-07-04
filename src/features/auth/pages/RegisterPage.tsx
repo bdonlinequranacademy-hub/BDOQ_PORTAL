@@ -46,14 +46,18 @@ export function RegisterPage() {
 
   return (
     <AuthLayout>
-      <div className="flex w-full flex-col items-center gap-6 bg-white py-4">
-        <h2 className="text-xl font-bold text-navy">{BDOQ_BRAND.shortName}</h2>
+      <div className="flex w-full flex-col items-center gap-6">
+        <div className="flex flex-col items-center gap-1 text-center">
+          <h2 className="font-display text-xl font-bold text-primary-dark">{BDOQ_BRAND.shortName}</h2>
+          <p className="text-xs text-portal-muted">Begin your Quran learning journey</p>
+        </div>
 
-        <div className="w-full rounded-3xl border border-zinc-200 bg-white px-6 py-6 shadow-xl shadow-navy/5 flex flex-col gap-6">
+        <div className="portal-auth-card w-full px-6 py-6 flex flex-col gap-6">
           <div className="flex flex-col gap-2">
-            <h1 className="text-2xl font-bold text-navy">Create Student Account</h1>
-            <p className="text-sm leading-relaxed text-zinc-500">
-              Public registration is for <strong className="font-semibold text-navy">students only</strong>.
+            <h1 className="font-display text-2xl font-bold text-primary-dark">Create Student Account</h1>
+            <p className="text-sm leading-relaxed text-portal-muted">
+              Public registration is for{" "}
+              <strong className="font-semibold text-primary-dark">students only</strong>.
               After you sign up, you can join classes, view homework, and track Quran progress.
             </p>
           </div>
@@ -64,7 +68,7 @@ export function RegisterPage() {
 
           <form onSubmit={handleSubmit} className="flex flex-col gap-4" noValidate>
             <div className="flex flex-col gap-2">
-              <label htmlFor="name" className="text-xs font-medium text-navy">
+              <label htmlFor="name" className="text-xs font-medium text-primary-dark">
                 Full name
               </label>
               <div className="relative">
@@ -83,7 +87,7 @@ export function RegisterPage() {
             </div>
 
             <div className="flex flex-col gap-2">
-              <label htmlFor="reg-email" className="text-xs font-medium text-navy">
+              <label htmlFor="reg-email" className="text-xs font-medium text-primary-dark">
                 Email Address
               </label>
               <div className="relative">
@@ -102,13 +106,13 @@ export function RegisterPage() {
             </div>
 
             <div className="flex flex-col gap-2">
-              <label htmlFor="phone" className="text-xs font-medium text-navy">
+              <label htmlFor="phone" className="text-xs font-medium text-primary-dark">
                 Phone / WhatsApp Number
               </label>
               <div className="flex items-center gap-2">
                 <div className="flex h-11 shrink-0 items-center gap-1 rounded-xl border border-zinc-200 bg-zinc-100 px-3">
                   <span className="text-base leading-none">🇬🇧</span>
-                  <span className="text-sm font-medium text-navy">+44</span>
+                  <span className="text-sm font-medium text-primary-dark">+44</span>
                   <ChevronDown className="size-3 text-zinc-400" aria-hidden="true" />
                 </div>
                 <div className="relative flex-1">
@@ -125,7 +129,7 @@ export function RegisterPage() {
             </div>
 
             <div className="flex flex-col gap-2">
-              <label htmlFor="reg-password" className="text-xs font-medium text-navy">
+              <label htmlFor="reg-password" className="text-xs font-medium text-primary-dark">
                 Password
               </label>
               <div className="relative">
@@ -144,7 +148,7 @@ export function RegisterPage() {
                 <button
                   type="button"
                   onClick={() => setShowPassword((v) => !v)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-400 hover:text-navy"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-400 hover:text-primary-dark"
                   aria-label={showPassword ? "Hide password" : "Show password"}
                 >
                   {showPassword ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
@@ -153,7 +157,7 @@ export function RegisterPage() {
             </div>
 
             <div className="flex flex-col gap-2">
-              <label htmlFor="confirm-password" className="text-xs font-medium text-navy">
+              <label htmlFor="confirm-password" className="text-xs font-medium text-primary-dark">
                 Confirm Password
               </label>
               <div className="relative">
@@ -171,7 +175,7 @@ export function RegisterPage() {
                 <button
                   type="button"
                   onClick={() => setShowConfirm((v) => !v)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-400 hover:text-navy"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-400 hover:text-primary-dark"
                   aria-label={showConfirm ? "Hide password" : "Show password"}
                 >
                   {showConfirm ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
@@ -202,7 +206,7 @@ export function RegisterPage() {
             <button
               type="submit"
               disabled={isPending}
-              className="h-12 w-full rounded-2xl bg-brand-red text-sm font-semibold text-white transition hover:bg-brand-red-dark disabled:cursor-not-allowed disabled:opacity-60"
+              className="h-12 w-full rounded-2xl bg-primary text-sm font-semibold text-white transition hover:bg-primary-dark disabled:cursor-not-allowed disabled:opacity-60"
             >
               {isPending ? "Creating your account…" : "Create My Student Account"}
             </button>
@@ -216,7 +220,7 @@ export function RegisterPage() {
 
           <GoogleAuthButton
             label="Sign up with Google"
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-2xl border border-zinc-200 bg-white text-sm font-medium text-navy shadow-sm transition hover:bg-cream"
+            className="flex h-12 w-full items-center justify-center gap-2 rounded-2xl border border-zinc-200 bg-white text-sm font-medium text-primary-dark shadow-sm transition hover:bg-cream"
           />
 
           <p className="text-center text-xs text-zinc-400">
@@ -226,7 +230,7 @@ export function RegisterPage() {
 
           <p className="pt-1 text-center text-sm text-zinc-500">
             Already have an account?{" "}
-            <Link to={LOGIN_PATH} className="font-bold text-gold hover:underline">
+            <Link to={LOGIN_PATH} className="font-bold text-primary hover:underline">
               Sign In
             </Link>
           </p>

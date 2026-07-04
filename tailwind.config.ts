@@ -21,11 +21,11 @@ export default {
           DEFAULT: "#0D9488",
           accent: "#2DD4BF",
         },
-        /** Accent / links — aligned with public-site --brand-red */
+        /** BOQ gold accent — highlights, nav active, borders */
         gold: {
-          DEFAULT: "#E84B3A",
-          light: "#FFDDD6",
-          dark: "#C62828",
+          DEFAULT: "#D4A853",
+          light: "#E8C97A",
+          dark: "#B8923F",
         },
         "bg-light": "#F0FBF6",
         "text-dark": "#1A1A2E",
@@ -60,8 +60,8 @@ export default {
       },
       fontFamily: {
         sans: ["Inter", "ui-sans-serif", "system-ui", "sans-serif"],
-        display: ["Inter", "ui-sans-serif", "system-ui", "sans-serif"],
-        arabic: ["Amiri", "serif"],
+        display: ["Amiri", "Georgia", "Times New Roman", "serif"],
+        arabic: ["Amiri", "Noto Naskh Arabic", "serif"],
         certificate: ["Cinzel", "Times New Roman", "serif"],
         bengali: ["Noto Sans Bengali", "Inter", "sans-serif"],
       },

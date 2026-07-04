@@ -1,63 +1,39 @@
 /**
-
  * BDOQ Academy — portal design tokens (aligned with public-site)
-
  */
-
 :root,
-
 [data-theme="light"] {
-
   --boq-brand-mint: #adebb3;
-
   --boq-primary: #1b6b44;
-
   --boq-primary-dark: #0d4a2f;
-
   --boq-brand-red: #e84b3a;
-
   --boq-brand-red-light: #ffddd6;
-
   --boq-brand-red-dark: #c62828;
-
   --boq-teal: #0d9488;
-
   --boq-teal-accent: #2dd4bf;
-
-  --boq-gold: #e84b3a;
-
+  --boq-gold: #d4a853;
+  --boq-gold-light: #e8c97a;
+  --boq-gold-dark: #b8923f;
   --boq-bg-light: #f0fbf6;
-
   --boq-text-dark: #1a1a2e;
-
   --boq-text-gray: #6b7280;
-
   --boq-border: #e5e7eb;
+  --boq-sidebar: #0d4a2f;
+  --boq-sidebar-deep: #0a3d27;
 
-  --boq-sidebar: #0a1628;
-
+  --islamic-pattern: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='60' height='60' viewBox='0 0 60 60'%3E%3Cpath fill='rgba(255,255,255,0.05)' d='M30 0 L36.5 23.5 L60 30 L36.5 36.5 L30 60 L23.5 36.5 L0 30 L23.5 23.5 Z'/%3E%3Ccircle cx='30' cy='30' r='3' fill='rgba(255,255,255,0.04)'/%3E%3C/svg%3E");
+  --islamic-pattern-light: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='60' height='60' viewBox='0 0 60 60'%3E%3Cpath fill='rgba(27,107,68,0.07)' d='M30 0 L36.5 23.5 L60 30 L36.5 36.5 L30 60 L23.5 36.5 L0 30 L23.5 23.5 Z'/%3E%3Ccircle cx='30' cy='30' r='3' fill='rgba(27,107,68,0.05)'/%3E%3C/svg%3E");
 }
-
-
 
 .dark,
-
 [data-theme="dark"] {
-
   --boq-primary: #2dd4bf;
-
   --boq-primary-dark: #a7f3d0;
-
+  --boq-gold: #e8c97a;
   --boq-bg-light: #0f172a;
-
   --boq-text-dark: #f1f5f9;
-
   --boq-text-gray: #8b9cb3;
-
   --boq-border: rgba(148, 163, 184, 0.14);
-
-  --boq-sidebar: #070e1a;
-
+  --boq-sidebar: #0a3d27;
+  --boq-sidebar-deep: #071f14;
 }
-
-

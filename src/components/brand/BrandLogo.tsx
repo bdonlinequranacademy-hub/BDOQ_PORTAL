@@ -43,7 +43,7 @@ export function BrandLogo({
         className="mx-auto w-full max-h-[140px] object-contain"
       />
       {subtitle ? (
-        <span className="text-[10px] font-semibold uppercase tracking-[0.2em] text-white/80">
+        <span className="text-[10px] font-semibold uppercase tracking-[0.18em] text-gold/90">
           {subtitle}
         </span>
       ) : null}

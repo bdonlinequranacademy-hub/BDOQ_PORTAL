@@ -6,7 +6,6 @@ import {
   LogIn,
   Shield,
   Sparkles,
-  Users,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import { useAuthStore } from "@/stores/authStore";
@@ -54,9 +53,9 @@ const PORTALS: PortalCardConfig[] = [
     desc: "Users, curriculum, classes, trial leads, and academy-wide analytics.",
     icon: Shield,
     features: ["User management", "Curriculum & classes", "Analytics & reports"],
-    accentBar: "from-brand-red to-brand-red-dark",
-    iconWrap: "bg-brand-red/10 text-brand-red ring-brand-red/20",
-    ringHover: "group-hover:ring-brand-red/30",
+    accentBar: "from-primary-dark to-primary",
+    iconWrap: "bg-primary/10 text-primary ring-primary/20",
+    ringHover: "group-hover:ring-primary/30",
   },
 ];
 
@@ -113,8 +112,8 @@ function PortalCard({ config }: { config: PortalCardConfig }) {
       <span
         className={cn(
           "mt-6 inline-flex w-full items-center justify-center gap-2 rounded-xl px-4 py-3 text-sm font-semibold transition-colors",
-          "bg-navy text-white group-hover:bg-[#021a3d]",
-          "dark:bg-gold dark:text-navy dark:group-hover:bg-gold-light"
+          "bg-primary text-white group-hover:bg-primary-dark",
+          "dark:bg-gold dark:text-primary-dark dark:group-hover:bg-gold-light"
         )}
       >
         Sign in
@@ -133,7 +132,7 @@ export function PortalHomePage() {
   }
 
   return (
-    <div className="relative min-h-screen overflow-hidden bg-portal">
+    <div className="relative min-h-screen overflow-hidden portal-page-bg">
       <div
         className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_80%_50%_at_50%_-20%,rgba(196,146,43,0.12),transparent)]"
         aria-hidden
@@ -167,11 +166,11 @@ export function PortalHomePage() {
 
       <main className="relative mx-auto max-w-6xl px-6 py-12 sm:py-16 lg:py-20">
         <div className="mx-auto max-w-3xl text-center">
-          <span className="inline-flex items-center gap-1.5 rounded-full border border-gold/25 bg-gold/10 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-gold-dark">
-            <Users className="size-3.5" aria-hidden />
-            Choose your portal
+          <span className="inline-flex items-center gap-1.5 rounded-full border border-gold/30 bg-gold/10 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-primary-dark">
+            <Sparkles className="size-3.5 text-gold" aria-hidden />
+            Assalamu Alaikum
           </span>
-          <h1 className="mt-5 text-3xl font-bold tracking-tight text-portal-heading sm:text-4xl lg:text-[2.75rem] lg:leading-tight">
+          <h1 className="mt-5 font-display text-3xl font-bold tracking-tight text-portal-heading sm:text-4xl lg:text-[2.75rem] lg:leading-tight">
             Welcome to {BDOQ_BRAND.shortName}
           </h1>
           <p className="mx-auto mt-4 max-w-2xl text-base leading-relaxed text-zinc-600 dark:text-zinc-400">

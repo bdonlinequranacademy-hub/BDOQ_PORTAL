@@ -49,27 +49,33 @@ export function LoginPage() {
   return (
     <AuthLayout>
       <div className="flex w-full flex-col gap-6">
-        <div className="mb-8 flex flex-col items-center gap-2 text-center">
-          <h2 className="text-2xl font-bold text-navy">{BDOQ_BRAND.shortName}</h2>
-          <p className="text-xs text-zinc-500">One sign-in for students, teachers &amp; admins</p>
+        <div className="mb-2 flex flex-col items-center gap-2 text-center lg:mb-4">
+          <img
+            src={BDOQ_BRAND.logoSrc}
+            alt=""
+            aria-hidden
+            className="h-16 w-auto object-contain lg:hidden"
+          />
+          <h2 className="font-display text-2xl font-bold text-primary-dark">{BDOQ_BRAND.shortName}</h2>
+          <p className="text-xs text-portal-muted">Assalamu Alaikum — sign in to continue your Quran journey</p>
         </div>
 
-        <div className="rounded-3xl bg-white px-8 py-8 shadow-xl shadow-navy/5 flex flex-col gap-6">
-          <div className="text-center flex flex-col gap-2">
-            <h1 className="text-3xl font-bold text-navy">Sign in to {BDOQ_BRAND.shortName}</h1>
-            <p className="text-sm text-zinc-500">
-              Use the email and password your academy gave you. After sign-in, we open the right
-              dashboard for your role automatically.
+        <div className="portal-auth-card flex flex-col gap-6 px-8 py-8">
+          <div className="flex flex-col gap-2 text-center">
+            <h1 className="font-display text-3xl font-bold text-primary-dark">Welcome back</h1>
+            <p className="text-sm text-portal-muted">
+              Use the email and password your academy gave you. We open the right dashboard for your
+              role automatically.
             </p>
           </div>
 
-          <p className="rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-center text-xs leading-relaxed text-amber-900">
+          <p className="rounded-xl border border-gold/30 bg-gold/10 px-4 py-3 text-center text-xs leading-relaxed text-primary-dark">
             {STAFF_ACCOUNT_NOTICE}
           </p>
 
           <form onSubmit={handleSubmit} className="flex flex-col gap-4" noValidate>
             <div className="flex flex-col gap-2">
-              <label htmlFor="email" className="text-sm font-medium text-navy">
+              <label htmlFor="email" className="text-sm font-medium text-primary-dark">
                 Email Address
               </label>
               <div className="relative">
@@ -88,7 +94,7 @@ export function LoginPage() {
             </div>
 
             <div className="flex flex-col gap-2">
-              <label htmlFor="password" className="text-sm font-medium text-navy">
+              <label htmlFor="password" className="text-sm font-medium text-primary-dark">
                 Password
               </label>
               <div className="relative">
@@ -106,13 +112,13 @@ export function LoginPage() {
                 <button
                   type="button"
                   onClick={() => setShowPassword((v) => !v)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-400 hover:text-navy"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-400 hover:text-primary-dark"
                   aria-label={showPassword ? "Hide password" : "Show password"}
                 >
                   {showPassword ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
                 </button>
               </div>
-              <Link to="/forgot-password" className="mt-1 self-end text-xs font-medium text-gold hover:underline">
+              <Link to="/forgot-password" className="mt-1 self-end text-xs font-medium text-primary hover:underline">
                 Forgot Password?
               </Link>
             </div>
@@ -120,7 +126,7 @@ export function LoginPage() {
             <button
               type="submit"
               disabled={isPending}
-              className="mt-2 h-12 w-full rounded-2xl bg-brand-red text-sm font-semibold text-white transition hover:bg-brand-red-dark disabled:cursor-not-allowed disabled:opacity-60"
+              className="mt-2 h-12 w-full rounded-2xl bg-primary text-sm font-semibold text-white transition hover:bg-primary-dark disabled:cursor-not-allowed disabled:opacity-60"
             >
               {isPending ? "Signing in…" : "Sign In"}
             </button>
@@ -141,7 +147,7 @@ export function LoginPage() {
 
           <p className="text-center text-sm text-zinc-500">
             New student?{" "}
-            <Link to={REGISTER_PATH} className="font-bold text-gold hover:underline">
+            <Link to={REGISTER_PATH} className="font-bold text-primary hover:underline">
               Create student account
             </Link>
           </p>

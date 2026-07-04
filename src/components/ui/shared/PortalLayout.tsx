@@ -81,7 +81,7 @@ function NavButton({
       onClick={onClick}
       className={`flex min-h-[44px] flex-col items-center justify-center gap-1 rounded-xl px-2 py-1 transition sm:px-3 ${
         active
-          ? "bg-brand-red/10 text-brand-red dark:bg-white/10 dark:text-white"
+          ? "bg-primary/10 text-primary dark:bg-white/10 dark:text-white"
           : "text-portal-muted hover:text-portal-heading"
       }`}
     >
@@ -127,13 +127,13 @@ export function PortalLayout({
   }
 
   return (
-    <div className="min-h-screen bg-portal text-portal transition-colors duration-200">
+    <div className="portal-page-bg min-h-screen text-portal transition-colors duration-200">
       <aside
-        className={`fixed inset-y-0 left-0 z-50 hidden flex-col bg-portal-sidebar text-white transition-[width] duration-300 ease-in-out lg:flex ${
+        className={`bg-portal-sidebar fixed inset-y-0 left-0 z-50 hidden flex-col text-white transition-[width] duration-300 ease-in-out lg:flex ${
           sidebarOpen ? "w-64" : "w-[4.5rem]"
         }`}
       >
-        <div className="border-b border-white/10">
+        <div className="border-b border-gold/20">
           {sidebarOpen ? (
             <div className="flex items-start gap-2 px-4 py-4">
               <div className="min-w-0 flex-1">
@@ -183,8 +183,13 @@ export function PortalLayout({
         </nav>
 
         <div
-          className={`border-t border-white/10 py-4 ${sidebarOpen ? "px-4" : "px-2"}`}
+          className={`border-t border-gold/20 py-4 ${sidebarOpen ? "px-4" : "px-2"}`}
         >
+          {sidebarOpen ? (
+            <p className="mb-3 px-1 text-center text-[10px] leading-relaxed text-white/50">
+              {BDOQ_BRAND.portalTagline}
+            </p>
+          ) : null}
           <button
             type="button"
             onClick={goToProfile}
@@ -232,12 +237,12 @@ export function PortalLayout({
           sidebarOpen ? SIDEBAR_EXPANDED_CLASS : SIDEBAR_COLLAPSED_CLASS
         }`}
       >
-        <header className="sticky top-0 z-40 flex items-center justify-between border-b border-portal bg-portal-header px-5 py-3 backdrop-blur-sm sm:px-6 lg:px-8">
+        <header className="sticky top-0 z-40 flex items-center justify-between border-b border-primary/10 bg-portal-header px-5 py-3 backdrop-blur-sm sm:px-6 lg:px-8">
           <div className="min-w-0">
-            <p className="truncate text-xs font-medium uppercase tracking-wider text-portal-muted">
+            <p className="truncate text-xs font-medium uppercase tracking-wider text-gold-dark dark:text-gold">
               {BDOQ_BRAND.shortName}
             </p>
-            <p className="truncate text-sm font-semibold text-portal-heading">{activePage}</p>
+            <p className="truncate font-display text-sm font-semibold text-portal-heading">{activePage}</p>
           </div>
 
           <div className="flex items-center gap-2 sm:gap-3">
