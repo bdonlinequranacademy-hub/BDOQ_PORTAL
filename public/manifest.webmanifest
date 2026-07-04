@@ -1,0 +1,26 @@
+{
+  "name": "BDOQ Academy Portal",
+  "short_name": "BDOQ Academy",
+  "description": "BD Online Quran Academy — classes, Tajweed, Hifz & progress",
+  "start_url": "/",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#F0FBF6",
+  "theme_color": "#0D4A2F",
+  "lang": "en",
+  "categories": ["education", "productivity"],
+  "icons": [
+    {
+      "src": "/brand/bdoq-logo.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/brand/bdoq-logo.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

@@ -9,6 +9,7 @@ import { BDOQ_BRAND, BDOQ_ROLE_PORTAL_LABEL } from "@/lib/bdoqBrand";
 import { isStaffAdmin } from "@/lib/assignableRoles";
 import { profilePathForRole } from "@/lib/portalNav";
 import { UserAvatar } from "@/components/ui/UserAvatar";
+import { cn } from "@/lib/utils/cn";
 import type { Role } from "@/types/models";
 import type { ReactNode } from "react";
 
@@ -79,15 +80,27 @@ function NavButton({
     <button
       type="button"
       onClick={onClick}
-      className={`flex min-h-[44px] flex-col items-center justify-center gap-1 rounded-xl px-2 py-1 transition sm:px-3 ${
+      className={cn(
+        "portal-mobile-tab",
+        active && "portal-mobile-tab--active",
         active
-          ? "bg-primary/10 text-primary dark:bg-white/10 dark:text-white"
-          : "text-portal-muted hover:text-portal-heading"
-      }`}
+          ? "lg:bg-primary/10 lg:text-primary dark:lg:bg-white/10 dark:lg:text-white"
+          : "lg:text-portal-muted lg:hover:text-portal-heading"
+      )}
     >
-      {item.icon}
       <span
-        className={`max-w-[4.5rem] truncate text-[10px] ${active ? "font-semibold" : "font-medium"}`}
+        className={cn(
+          "[&>svg]:size-[22px] lg:[&>svg]:size-5",
+          active && "scale-105 transition-transform"
+        )}
+      >
+        {item.icon}
+      </span>
+      <span
+        className={cn(
+          "max-w-[4.25rem] truncate text-[10px] leading-tight lg:max-w-[4.5rem]",
+          active ? "font-semibold" : "font-medium"
+        )}
       >
         {item.label}
       </span>
@@ -233,95 +246,158 @@ export function PortalLayout({
       </aside>
 
       <div
-        className={`flex min-h-screen w-full min-w-0 flex-col transition-[padding] duration-300 ease-in-out ${
+        className={`portal-mobile-shell flex min-h-screen w-full min-w-0 flex-col transition-[padding] duration-300 ease-in-out ${
           sidebarOpen ? SIDEBAR_EXPANDED_CLASS : SIDEBAR_COLLAPSED_CLASS
         }`}
       >
-        <header className="sticky top-0 z-40 flex items-center justify-between border-b border-primary/10 bg-portal-header px-5 py-3 backdrop-blur-sm sm:px-6 lg:px-8">
-          <div className="min-w-0">
-            <p className="truncate text-xs font-medium uppercase tracking-wider text-gold-dark dark:text-gold">
-              {BDOQ_BRAND.shortName}
-            </p>
-            <p className="truncate font-display text-sm font-semibold text-portal-heading">{activePage}</p>
+        <header className="portal-mobile-header sticky top-0 z-40 lg:border-b lg:border-primary/10 lg:bg-portal-header lg:px-8 lg:py-3 lg:backdrop-blur-sm lg:shadow-none">
+          {/* Mobile app bar */}
+          <div className="flex items-center gap-2 px-3 sm:px-4 lg:hidden">
+            <img
+              src={BDOQ_BRAND.logoSrc}
+              alt=""
+              aria-hidden
+              decoding="async"
+              className="size-9 shrink-0 rounded-xl object-contain"
+            />
+            <div className="min-w-0 flex-1 text-center">
+              <p className="truncate font-display text-base font-bold text-portal-heading">
+                {activePage}
+              </p>
+              <p className="truncate text-[10px] font-medium uppercase tracking-wider text-gold-dark dark:text-gold">
+                {portalLabel}
+              </p>
+            </div>
+            <div className="flex shrink-0 items-center gap-0.5">
+              <button
+                type="button"
+                onClick={() => window.dispatchEvent(new Event("portal:open-search"))}
+                className="flex size-10 items-center justify-center rounded-xl text-portal-heading active:bg-primary/10"
+                aria-label="Search"
+              >
+                <Search className="size-5" />
+              </button>
+              {hasNotifications ? (
+                <button
+                  type="button"
+                  className="relative flex size-10 items-center justify-center rounded-xl active:bg-primary/10"
+                  aria-label="Notifications"
+                  onClick={() =>
+                    navigate(
+                      isStaffAdmin(user.role)
+                        ? "/admin"
+                        : `/${user.role}/notifications`
+                    )
+                  }
+                >
+                  <Bell className="size-5 text-portal-heading" />
+                  {unreadCount > 0 ? (
+                    <span className="absolute right-1 top-1 flex size-4 min-w-4 items-center justify-center rounded-full bg-brand-red px-0.5 text-[9px] font-bold text-white ring-2 ring-[var(--portal-header)]">
+                      {unreadCount > 9 ? "9+" : unreadCount}
+                    </span>
+                  ) : null}
+                </button>
+              ) : null}
+              {profilePath ? (
+                <button
+                  type="button"
+                  onClick={goToProfile}
+                  className="flex size-10 items-center justify-center rounded-xl active:bg-primary/10"
+                  aria-label="Open profile"
+                >
+                  <UserAvatar
+                    name={user.name}
+                    avatarUrl={user.avatarUrl}
+                    gender={user.gender}
+                    size="sm"
+                    shape="circle"
+                  />
+                </button>
+              ) : null}
+            </div>
           </div>
 
-          <div className="flex items-center gap-2 sm:gap-3">
-            <GlobalSearch role={user.role} />
-            <div className="hidden sm:block">
-              <ThemeToggle compact />
+          {/* Desktop header */}
+          <div className="hidden w-full items-center justify-between px-6 lg:flex">
+            <div className="min-w-0">
+              <p className="truncate text-xs font-medium uppercase tracking-wider text-gold-dark dark:text-gold">
+                {BDOQ_BRAND.shortName}
+              </p>
+              <p className="truncate font-display text-sm font-semibold text-portal-heading">{activePage}</p>
             </div>
-            <button
-              type="button"
-              onClick={() => window.dispatchEvent(new Event("portal:open-search"))}
-              className="rounded-lg p-1.5 text-portal-heading hover:bg-portal-surface-muted/30 sm:hidden"
-              aria-label="Search"
-            >
-              <Search className="size-5" />
-            </button>
-            {hasNotifications && (
-              <button
-                type="button"
-                className="relative min-h-[44px] min-w-[44px] rounded-lg p-1 hover:bg-portal-surface-muted/30"
-                aria-label="Notifications"
-                onClick={() =>
-                  navigate(
-                    isStaffAdmin(user.role)
-                      ? "/admin"
-                      : `/${user.role}/notifications`
-                  )
-                }
-              >
-                <Bell className="size-6 text-portal-heading" />
-                {unreadCount > 0 ? (
-                  <span className="absolute -right-0.5 -top-0.5 flex size-4 min-w-4 items-center justify-center rounded-full bg-red-500 px-0.5 text-[9px] font-bold text-white ring-2 ring-[var(--portal-surface)]">
-                    {unreadCount > 9 ? "9+" : unreadCount}
-                  </span>
-                ) : null}
-              </button>
-            )}
 
-            {profilePath ? (
-              <button
-                type="button"
-                onClick={goToProfile}
-                className="hidden cursor-pointer sm:flex"
-                aria-label="Open profile"
-                title="My profile"
-              >
-                <UserAvatar
-                  name={user.name}
-                  avatarUrl={user.avatarUrl}
-                  gender={user.gender}
-                  size="sm"
-                  shape="circle"
-                />
-              </button>
-            ) : null}
+            <div className="flex items-center gap-2 sm:gap-3">
+              <GlobalSearch role={user.role} />
+              <div className="hidden sm:block">
+                <ThemeToggle compact />
+              </div>
+              {hasNotifications && (
+                <button
+                  type="button"
+                  className="relative min-h-[44px] min-w-[44px] rounded-lg p-1 hover:bg-portal-surface-muted/30"
+                  aria-label="Notifications"
+                  onClick={() =>
+                    navigate(
+                      isStaffAdmin(user.role)
+                        ? "/admin"
+                        : `/${user.role}/notifications`
+                    )
+                  }
+                >
+                  <Bell className="size-6 text-portal-heading" />
+                  {unreadCount > 0 ? (
+                    <span className="absolute -right-0.5 -top-0.5 flex size-4 min-w-4 items-center justify-center rounded-full bg-red-500 px-0.5 text-[9px] font-bold text-white ring-2 ring-[var(--portal-surface)]">
+                      {unreadCount > 9 ? "9+" : unreadCount}
+                    </span>
+                  ) : null}
+                </button>
+              )}
+
+              {profilePath ? (
+                <button
+                  type="button"
+                  onClick={goToProfile}
+                  className="hidden cursor-pointer sm:flex"
+                  aria-label="Open profile"
+                  title="My profile"
+                >
+                  <UserAvatar
+                    name={user.name}
+                    avatarUrl={user.avatarUrl}
+                    gender={user.gender}
+                    size="sm"
+                    shape="circle"
+                  />
+                </button>
+              ) : null}
+            </div>
           </div>
         </header>
 
-        <main className="flex-1 w-full min-w-0 animate-page-in pb-[calc(5.5rem+env(safe-area-inset-bottom))] lg:pb-8">
+        <main className="portal-mobile-content flex-1 w-full min-w-0 animate-page-in lg:pb-8">
           <Outlet />
         </main>
 
-        <nav className="fixed inset-x-0 bottom-0 z-40 flex items-center justify-around border-t border-portal bg-portal-header px-1 pb-[max(1.25rem,env(safe-area-inset-bottom))] pt-2 backdrop-blur-sm lg:hidden">
-          {mobileTabs.map((item) => (
-            <NavButton
-              key={item.path}
-              item={item}
-              active={isActive(item.path)}
-              onClick={() => navigate(item.path)}
-              layout="tab"
+        <nav className="portal-mobile-tabbar fixed inset-x-0 bottom-0 z-40 lg:hidden">
+          <div className="flex items-stretch justify-around gap-0.5 px-1.5 pt-1.5">
+            {mobileTabs.map((item) => (
+              <NavButton
+                key={item.path}
+                item={item}
+                active={isActive(item.path)}
+                onClick={() => navigate(item.path)}
+                layout="tab"
+              />
+            ))}
+            <MobileNavMenu
+              role={user.role}
+              navItems={navItems}
+              primaryPaths={primaryPaths}
+              isActive={isActive}
+              userName={user.name}
+              onSignOut={onSignOut}
             />
-          ))}
-          <MobileNavMenu
-            role={user.role}
-            navItems={navItems}
-            primaryPaths={primaryPaths}
-            isActive={isActive}
-            userName={user.name}
-            onSignOut={onSignOut}
-          />
+          </div>
         </nav>
       </div>
     </div>
