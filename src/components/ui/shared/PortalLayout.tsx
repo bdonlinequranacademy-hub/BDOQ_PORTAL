@@ -1,6 +1,6 @@
 import { Outlet, useLocation, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
-import { Bell, PanelLeftClose, PanelLeftOpen, Search } from "lucide-react";
+import { Bell, ChevronLeft, ChevronRight, LogOut, Search } from "lucide-react";
 import { BrandLogo } from "@/components/brand/BrandLogo";
 import { GlobalSearch } from "@/components/search/GlobalSearch";
 import { ThemeToggle } from "@/components/theme/ThemeToggle";
@@ -29,6 +29,8 @@ interface IPortalLayoutProps {
 }
 
 const SIDEBAR_OPEN_KEY = "bdoq-portal-sidebar-open";
+const SIDEBAR_EXPANDED_CLASS = "lg:pl-64";
+const SIDEBAR_COLLAPSED_CLASS = "lg:pl-[4.5rem]";
 
 function readSidebarOpenPreference(): boolean {
   if (typeof window === "undefined") return true;
@@ -40,25 +42,35 @@ function NavButton({
   active,
   onClick,
   layout,
+  collapsed = false,
 }: {
   item: IPortalNavItem;
   active: boolean;
   onClick: () => void;
   layout: "sidebar" | "tab";
+  collapsed?: boolean;
 }) {
   if (layout === "sidebar") {
     return (
       <button
         type="button"
         onClick={onClick}
-        className={`flex w-full min-h-[44px] items-center gap-3 rounded-xl px-3 py-2.5 text-left text-sm transition ${
+        title={collapsed ? item.label : undefined}
+        aria-label={item.label}
+        className={`relative flex w-full min-h-[44px] items-center rounded-xl text-sm transition ${
+          collapsed
+            ? "justify-center px-2 py-2.5"
+            : "gap-3 px-3 py-2.5 text-left"
+        } ${
           active
-            ? "portal-nav-item--active"
+            ? collapsed
+              ? "portal-nav-item--active portal-nav-item--active-collapsed"
+              : "portal-nav-item--active"
             : "text-white/75 hover:bg-white/10 hover:text-white"
         }`}
       >
-        {item.icon}
-        {item.label}
+        <span className="shrink-0 [&>svg]:size-5">{item.icon}</span>
+        {!collapsed ? <span className="truncate">{item.label}</span> : null}
       </button>
     );
   }
@@ -117,15 +129,47 @@ export function PortalLayout({
   return (
     <div className="min-h-screen bg-portal text-portal transition-colors duration-200">
       <aside
-        className={`fixed inset-y-0 left-0 z-50 hidden w-64 flex-col bg-portal-sidebar text-white transition-transform duration-300 ease-in-out lg:flex ${
-          sidebarOpen ? "translate-x-0" : "-translate-x-full"
+        className={`fixed inset-y-0 left-0 z-50 hidden flex-col bg-portal-sidebar text-white transition-[width] duration-300 ease-in-out lg:flex ${
+          sidebarOpen ? "w-64" : "w-[4.5rem]"
         }`}
       >
-        <div className="flex flex-col items-center border-b border-white/10 px-5 py-6">
-          <BrandLogo subtitle={portalLabel} />
+        <div className="border-b border-white/10">
+          {sidebarOpen ? (
+            <div className="flex items-start gap-2 px-4 py-4">
+              <div className="min-w-0 flex-1">
+                <BrandLogo subtitle={portalLabel} />
+              </div>
+              <button
+                type="button"
+                onClick={() => setSidebarOpen(false)}
+                className="mt-1 flex size-9 shrink-0 items-center justify-center rounded-lg text-white/70 transition hover:bg-white/10 hover:text-white"
+                aria-label="Collapse sidebar"
+                title="Collapse sidebar"
+              >
+                <ChevronLeft className="size-5" aria-hidden />
+              </button>
+            </div>
+          ) : (
+            <div className="flex flex-col items-center gap-2 px-2 py-4">
+              <BrandLogo compact />
+              <button
+                type="button"
+                onClick={() => setSidebarOpen(true)}
+                className="flex size-9 items-center justify-center rounded-lg text-white/70 transition hover:bg-white/10 hover:text-white"
+                aria-label="Expand sidebar"
+                title="Expand sidebar"
+              >
+                <ChevronRight className="size-5" aria-hidden />
+              </button>
+            </div>
+          )}
         </div>
 
-        <nav className="portal-sidebar-nav flex flex-1 flex-col gap-1 overflow-y-auto px-4 py-4">
+        <nav
+          className={`portal-sidebar-nav flex flex-1 flex-col gap-1 overflow-y-auto py-4 ${
+            sidebarOpen ? "px-4" : "px-2"
+          }`}
+        >
           {navItems.map((item) => (
             <NavButton
               key={item.path}
@@ -133,16 +177,23 @@ export function PortalLayout({
               active={isActive(item.path)}
               onClick={() => navigate(item.path)}
               layout="sidebar"
+              collapsed={!sidebarOpen}
             />
           ))}
         </nav>
 
-        <div className="border-t border-white/10 px-4 py-4">
+        <div
+          className={`border-t border-white/10 py-4 ${sidebarOpen ? "px-4" : "px-2"}`}
+        >
           <button
             type="button"
             onClick={goToProfile}
             disabled={!profilePath}
-            className="flex w-full items-center gap-3 rounded-xl bg-white/10 px-3 py-3 text-left transition hover:bg-white/15 disabled:cursor-default"
+            title={!sidebarOpen ? user.name : undefined}
+            aria-label={!sidebarOpen ? `Profile: ${user.name}` : undefined}
+            className={`flex w-full items-center rounded-xl bg-white/10 transition hover:bg-white/15 disabled:cursor-default ${
+              sidebarOpen ? "gap-3 px-3 py-3 text-left" : "justify-center p-2"
+            }`}
           >
             <UserAvatar
               name={user.name}
@@ -151,48 +202,42 @@ export function PortalLayout({
               size="sm"
               shape="circle"
             />
-            <div className="min-w-0 flex-1">
-              <p className="truncate text-sm font-semibold">{user.name}</p>
-              <p className="truncate text-xs text-white/60">{user.email}</p>
-            </div>
+            {sidebarOpen ? (
+              <div className="min-w-0 flex-1">
+                <p className="truncate text-sm font-semibold">{user.name}</p>
+                <p className="truncate text-xs text-white/60">{user.email}</p>
+              </div>
+            ) : null}
           </button>
           <button
             type="button"
             onClick={onSignOut}
-            className="mt-3 w-full min-h-[44px] rounded-xl px-3 py-2 text-left text-sm text-white/70 transition hover:bg-white/10 hover:text-white"
+            title={!sidebarOpen ? "Sign out" : undefined}
+            aria-label="Sign out"
+            className={`mt-3 flex w-full min-h-[44px] items-center rounded-xl text-sm text-white/70 transition hover:bg-white/10 hover:text-white ${
+              sidebarOpen ? "px-3 py-2 text-left" : "justify-center p-2"
+            }`}
           >
-            Sign out
+            {sidebarOpen ? (
+              "Sign out"
+            ) : (
+              <LogOut className="size-5" aria-hidden />
+            )}
           </button>
         </div>
       </aside>
 
       <div
         className={`flex min-h-screen w-full min-w-0 flex-col transition-[padding] duration-300 ease-in-out ${
-          sidebarOpen ? "lg:pl-64" : "lg:pl-0"
+          sidebarOpen ? SIDEBAR_EXPANDED_CLASS : SIDEBAR_COLLAPSED_CLASS
         }`}
       >
         <header className="sticky top-0 z-40 flex items-center justify-between border-b border-portal bg-portal-header px-5 py-3 backdrop-blur-sm sm:px-6 lg:px-8">
-          <div className="flex min-w-0 items-center gap-2 sm:gap-3">
-            <button
-              type="button"
-              onClick={() => setSidebarOpen((open) => !open)}
-              className="hidden min-h-[44px] min-w-[44px] shrink-0 items-center justify-center rounded-lg text-portal-heading transition hover:bg-portal-surface-muted/30 lg:flex"
-              aria-label={sidebarOpen ? "Close sidebar" : "Open sidebar"}
-              aria-expanded={sidebarOpen}
-              title={sidebarOpen ? "Hide sidebar" : "Show sidebar"}
-            >
-              {sidebarOpen ? (
-                <PanelLeftClose className="size-5" aria-hidden />
-              ) : (
-                <PanelLeftOpen className="size-5" aria-hidden />
-              )}
-            </button>
-            <div className="min-w-0">
-              <p className="truncate text-xs font-medium uppercase tracking-wider text-portal-muted">
-                {BDOQ_BRAND.shortName}
-              </p>
-              <p className="truncate text-sm font-semibold text-portal-heading">{activePage}</p>
-            </div>
+          <div className="min-w-0">
+            <p className="truncate text-xs font-medium uppercase tracking-wider text-portal-muted">
+              {BDOQ_BRAND.shortName}
+            </p>
+            <p className="truncate text-sm font-semibold text-portal-heading">{activePage}</p>
           </div>
 
           <div className="flex items-center gap-2 sm:gap-3">

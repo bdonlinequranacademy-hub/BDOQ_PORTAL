@@ -144,6 +144,14 @@
     @apply absolute left-0 top-1/2 h-7 w-1 -translate-y-1/2 rounded-r bg-brand-red;
   }
 
+  .portal-nav-item--active-collapsed::before {
+    display: none;
+  }
+
+  .portal-nav-item--active-collapsed {
+    @apply bg-white/15 ring-1 ring-brand-red/40;
+  }
+
   .form-control {
     @apply flex w-full min-h-[44px] rounded-xl border border-gray-200 px-4 py-2.5 text-sm outline-none transition disabled:cursor-not-allowed disabled:opacity-60;
     background-color: var(--portal-surface);
