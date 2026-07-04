@@ -258,7 +258,7 @@ export function PortalLayout({
               alt=""
               aria-hidden
               decoding="async"
-              className="size-9 shrink-0 rounded-xl object-contain"
+              className="h-14 w-14 shrink-0 rounded-xl object-contain"
             />
             <div className="min-w-0 flex-1 text-center">
               <p className="truncate font-display text-lg font-bold text-portal-heading">

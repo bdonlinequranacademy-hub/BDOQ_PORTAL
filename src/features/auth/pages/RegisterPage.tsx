@@ -47,7 +47,13 @@ export function RegisterPage() {
   return (
     <AuthLayout>
       <div className="flex w-full flex-col items-center gap-6">
-        <div className="flex flex-col items-center gap-1 text-center">
+        <div className="flex flex-col items-center gap-2 text-center">
+          <img
+            src={BDOQ_BRAND.logoSrc}
+            alt=""
+            aria-hidden
+            className="h-20 w-auto max-w-[240px] object-contain lg:hidden"
+          />
           <h2 className="font-display text-xl font-bold text-primary-dark">{BDOQ_BRAND.shortName}</h2>
           <p className="text-xs text-portal-muted">Begin your Quran learning journey</p>
         </div>

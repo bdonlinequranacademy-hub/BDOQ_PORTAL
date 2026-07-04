@@ -54,7 +54,7 @@ export function LoginPage() {
             src={BDOQ_BRAND.logoSrc}
             alt=""
             aria-hidden
-            className="h-16 w-auto object-contain lg:hidden"
+            className="h-20 w-auto max-w-[240px] object-contain lg:hidden"
           />
           <h2 className="font-display text-2xl font-bold text-primary-dark">{BDOQ_BRAND.shortName}</h2>
           <p className="text-xs text-portal-muted">Assalamu Alaikum — sign in to continue your Quran journey</p>
