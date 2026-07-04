@@ -242,12 +242,7 @@
     }
 
     .portal-mobile-tab--active {
-      @apply bg-primary/10 text-primary;
-    }
-
-    .portal-mobile-tab--active::before {
-      content: "";
-      @apply absolute top-1 left-1/2 h-0.5 w-6 -translate-x-1/2 rounded-full bg-gold;
+      @apply bg-primary/10 font-semibold text-primary;
     }
 
     .portal-mobile-tab:not(.portal-mobile-tab--active) {
@@ -280,30 +275,17 @@
       flex: none;
     }
 
-    .portal-mobile-tab::before {
-      display: none;
-    }
-
     .portal-mobile-tab--active {
       background-color: transparent;
     }
   }
 
   .portal-nav-item--active {
-    @apply relative bg-white/10 font-semibold text-white;
-  }
-
-  .portal-nav-item--active::before {
-    content: "";
-    @apply absolute left-0 top-1/2 h-7 w-1 -translate-y-1/2 rounded-r bg-gold;
-  }
-
-  .portal-nav-item--active-collapsed::before {
-    display: none;
+    @apply bg-white/10 font-semibold text-white;
   }
 
   .portal-nav-item--active-collapsed {
-    @apply bg-white/15 ring-1 ring-gold/50;
+    @apply bg-white/15 text-white ring-1 ring-white/20;
   }
 
   .form-control {
