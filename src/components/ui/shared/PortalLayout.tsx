@@ -250,7 +250,7 @@ export function PortalLayout({
           sidebarOpen ? SIDEBAR_EXPANDED_CLASS : SIDEBAR_COLLAPSED_CLASS
         }`}
       >
-        <header className="portal-mobile-header sticky top-0 z-40 lg:border-b lg:border-primary/10 lg:bg-portal-header lg:px-8 lg:py-3 lg:backdrop-blur-sm lg:shadow-none">
+        <header className="portal-mobile-header sticky top-0 z-40 lg:border-b lg:border-portal lg:bg-portal-header lg:px-8 lg:py-3 lg:shadow-sm">
           {/* Mobile app bar */}
           <div className="flex items-center gap-2 px-3 sm:px-4 lg:hidden">
             <img
@@ -374,7 +374,7 @@ export function PortalLayout({
           </div>
         </header>
 
-        <main className="portal-mobile-content flex-1 w-full min-w-0 animate-page-in lg:pb-8">
+        <main className="portal-mobile-content flex-1 w-full min-w-0 bg-portal animate-page-in lg:pb-8">
           <Outlet />
         </main>
 

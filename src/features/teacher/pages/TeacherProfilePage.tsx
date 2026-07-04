@@ -114,7 +114,7 @@ export function TeacherProfilePage() {
         <PageLoading label="Loading profile…" />
       ) : (
         <div className="grid gap-6 lg:grid-cols-2 lg:items-start">
-          <Card className="flex flex-col items-center gap-3 border-0 p-6 shadow-sm lg:row-span-2 lg:sticky lg:top-24">
+          <Card className="flex flex-col items-center gap-3 p-6 lg:row-span-2 lg:sticky lg:top-24">
             <ProfileAvatarUpload
               name={(profile?.name ?? name) || "?"}
               avatarUrl={profile?.avatarUrl ?? authUser?.avatarUrl}
@@ -132,7 +132,7 @@ export function TeacherProfilePage() {
             </div>
           </Card>
 
-          <Card className="border-0 shadow-sm">
+          <Card>
             <h2 className="mb-4 font-bold text-primary-dark">Account & schedule</h2>
             <form onSubmit={handleProfileSubmit} className="flex flex-col gap-4">
               <label className="flex flex-col gap-1.5">
@@ -218,7 +218,7 @@ export function TeacherProfilePage() {
             </form>
           </Card>
 
-          <Card className="border-0 shadow-sm">
+          <Card>
             <h2 className="mb-4 font-bold text-primary-dark">Change password</h2>
             <form onSubmit={handlePasswordSubmit} className="flex flex-col gap-4">
               <label className="flex flex-col gap-1.5">

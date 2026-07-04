@@ -60,7 +60,7 @@ export function TeacherRequestStudentPage() {
       />
 
       <div className="grid gap-6 lg:grid-cols-2 lg:items-start">
-        <Card className="border-0 bg-portal-surface-muted/50 shadow-sm">
+        <Card className="bg-portal-surface-muted">
           <p className="text-sm font-semibold text-primary-dark">What happens next</p>
           <ol className="mt-3 list-decimal space-y-2 pl-5 text-sm leading-relaxed text-portal-muted">
             <li>Admin reviews your request (usually within 1–2 business days).</li>
@@ -69,7 +69,7 @@ export function TeacherRequestStudentPage() {
           </ol>
         </Card>
 
-        <Card className="border-0 shadow-sm">
+        <Card>
           <form onSubmit={handleSubmit} className="flex flex-col gap-4">
             <label className="flex flex-col gap-1.5">
               <span className="form-label">Preferred course</span>
@@ -125,7 +125,7 @@ export function TeacherRequestStudentPage() {
           <>
             <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
               {pagination.paginatedItems.map((req) => (
-                <Card key={req._id} className="flex flex-col gap-3 border-0 shadow-sm">
+                <Card key={req._id} className="flex flex-col gap-3">
                   <div className="flex flex-wrap items-center gap-2">
                     <span
                       className={`rounded-full px-2.5 py-0.5 text-xs font-semibold capitalize ${statusStyles(req.status)}`}
@@ -141,7 +141,7 @@ export function TeacherRequestStudentPage() {
                   </div>
                   <p className="text-sm text-primary-dark">{req.message}</p>
                   {req.adminNote ? (
-                    <p className="rounded-xl bg-portal-surface-muted/50 px-3 py-2 text-xs text-portal-muted">
+                    <p className="rounded-xl border border-portal bg-portal-surface-muted px-3 py-2 text-xs text-portal-muted">
                       Admin: {req.adminNote}
                     </p>
                   ) : null}

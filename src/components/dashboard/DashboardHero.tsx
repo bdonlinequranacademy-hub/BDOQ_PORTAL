@@ -27,20 +27,11 @@ export function DashboardHero({
   return (
     <div
       className={cn(
-        "portal-islamic-hero relative overflow-hidden rounded-xl border border-primary/15 p-4 shadow-sm dark:border-portal-border sm:rounded-2xl sm:p-6",
+        "portal-islamic-hero rounded-xl border border-portal p-4 shadow-sm sm:rounded-2xl sm:p-6",
         className
       )}
     >
-      <div
-        className="pointer-events-none absolute -right-10 -top-10 size-36 rounded-full bg-gold/15 blur-2xl"
-        aria-hidden
-      />
-      <div
-        className="pointer-events-none absolute -bottom-8 left-1/3 size-28 rounded-full bg-primary/10 blur-2xl"
-        aria-hidden
-      />
-
-      <div className="relative flex flex-col gap-3 sm:gap-4 lg:flex-row lg:items-start lg:justify-between">
+      <div className="flex flex-col gap-3 sm:gap-4 lg:flex-row lg:items-start lg:justify-between">
         <div className="min-w-0 flex-1">
           <div className="flex flex-wrap items-center gap-2">
             <span className="text-sm font-medium text-primary dark:text-gold">{eyebrow}</span>
@@ -66,7 +57,7 @@ export function DashboardHero({
       </div>
 
       {showQuote ? (
-        <div className="relative mt-3 border-t border-primary/10 pt-3 dark:border-portal-border sm:mt-4 sm:pt-4">
+        <div className="mt-3 border-t border-portal pt-3 sm:mt-4 sm:pt-4">
           <p className="font-arabic text-base leading-loose text-primary-dark dark:text-gold/90 sm:text-lg">
             {quote.arabic}
           </p>
