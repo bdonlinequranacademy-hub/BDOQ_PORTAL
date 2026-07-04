@@ -33,17 +33,17 @@ export function QuickActionGrid({
           key={action.label}
           type="button"
           onClick={action.onClick}
-          className="group flex flex-col gap-3 rounded-2xl border border-portal bg-portal-surface p-4 text-left shadow-sm transition hover:-translate-y-0.5 hover:border-primary/20 hover:shadow-md"
+          className="group flex min-h-[5.5rem] flex-col gap-2.5 rounded-xl border border-portal bg-portal-surface p-4 text-left shadow-sm transition active:scale-[0.98] sm:min-h-0 sm:gap-3 sm:rounded-2xl sm:p-4 sm:hover:-translate-y-0.5 sm:hover:border-primary/20 sm:hover:shadow-md"
         >
           <div
             className={cn(
-              "flex size-10 items-center justify-center rounded-xl transition group-hover:scale-105",
+              "flex size-11 items-center justify-center rounded-xl transition sm:size-10 sm:group-hover:scale-105",
               action.iconBg ?? "bg-primary/10"
             )}
           >
             {action.icon}
           </div>
-          <span className="text-sm font-semibold leading-snug text-portal-heading">
+          <span className="text-[15px] font-semibold leading-snug text-portal-heading sm:text-sm">
             {action.label}
           </span>
         </button>

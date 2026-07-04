@@ -7,6 +7,7 @@ import {
   useUpdateUser,
 } from "@/features/admin/hooks/useAdmin";
 import { PageContainer } from "@/components/layout/PageContainer";
+import { PageHeader } from "@/components/layout/PageHeader";
 import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { formControlClass } from "@/lib/formControl";
@@ -126,20 +127,20 @@ export function AdminUsersPage() {
   });
 
   return (
-    <PageContainer className="flex flex-col gap-6">
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <div>
-          <h1 className="text-2xl font-bold text-primary-dark">User Management</h1>
-          <p className="text-sm text-zinc-500">{users.length} users</p>
-        </div>
-        <Button
-          onClick={() => setShowForm(true)}
-          className="gap-2 rounded-xl bg-primary-dark text-white"
-        >
-          <Plus className="size-4" />
-          Add User
-        </Button>
-      </div>
+    <PageContainer>
+      <PageHeader
+        title="User Management"
+        subtitle={`${users.length} users`}
+        action={
+          <Button
+            onClick={() => setShowForm(true)}
+            className="gap-2 rounded-xl bg-primary-dark text-white"
+          >
+            <Plus className="size-4" />
+            Add User
+          </Button>
+        }
+      />
 
       <div className="relative">
         <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-zinc-400" />
@@ -213,13 +214,13 @@ export function AdminUsersPage() {
               return (
                 <div
                   key={user.id}
-                  className={`flex flex-col gap-2 p-4 md:grid md:grid-cols-[2fr_2fr_1fr_80px] md:items-center md:gap-4 ${
+                  className={`flex flex-col gap-2.5 p-4 sm:gap-2 md:grid md:grid-cols-[2fr_2fr_1fr_80px] md:items-center md:gap-4 md:p-4 ${
                     user.isActive === false ? "opacity-60" : ""
                   }`}
                 >
                   <div>
                     <div className="flex flex-wrap items-center gap-2">
-                      <p className="font-semibold text-primary-dark">{user.name}</p>
+                      <p className="text-base font-semibold text-primary-dark sm:text-sm">{user.name}</p>
                       {user.isActive === false ? (
                         <span className="rounded-full bg-zinc-200 px-2 py-0.5 text-[10px] font-semibold uppercase text-zinc-600">
                           Inactive
@@ -231,7 +232,7 @@ export function AdminUsersPage() {
                         </span>
                       ) : null}
                     </div>
-                    <p className="text-xs text-zinc-400 md:hidden">{user.email}</p>
+                    <p className="text-sm text-zinc-500 md:hidden">{user.email}</p>
                     {displayRole(user.role) === "student" && (user.timezone || user.country) ? (
                       <p className="text-[10px] text-zinc-400">
                         {user.timezone ? `${user.timezone}` : ""}

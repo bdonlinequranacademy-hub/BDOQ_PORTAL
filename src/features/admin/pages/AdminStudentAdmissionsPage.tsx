@@ -9,6 +9,7 @@ import {
   useUpdateStudentAdmissionStatus,
 } from "@/features/admin/hooks/useAdmin";
 import { PageContainer } from "@/components/layout/PageContainer";
+import { PageHeader } from "@/components/layout/PageHeader";
 import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { EmptyState } from "@/components/ui/EmptyState";
@@ -112,13 +113,11 @@ export function AdminStudentAdmissionsPage() {
   });
 
   return (
-    <PageContainer className="flex flex-col gap-6">
-      <div>
-        <h1 className="text-2xl font-bold text-primary-dark">Student Admissions</h1>
-        <p className="mt-1 text-sm text-zinc-500">
-          Applications from the public website — review and create portal accounts when approved
-        </p>
-      </div>
+    <PageContainer>
+      <PageHeader
+        title="Student Admissions"
+        subtitle="Applications from the public website — review and create portal accounts when approved"
+      />
 
       {filter === "new" && newCount > 0 ? (
         <Card className="rounded-2xl border-0 bg-amber-50 p-4 shadow-sm">
@@ -201,10 +200,10 @@ function AdmissionCard({
   const actions = nextActions(app.status);
 
   return (
-    <Card className="flex flex-col gap-3 rounded-2xl border-0 p-5 shadow-sm">
+    <Card className="flex flex-col gap-3 border-0 shadow-sm sm:gap-4">
       <div className="flex flex-wrap items-center gap-2">
         <span
-          className={`rounded-full px-2.5 py-0.5 text-xs font-semibold capitalize ${statusStyles(app.status)}`}
+          className={`rounded-full px-3 py-1 text-xs font-semibold capitalize sm:px-2.5 sm:py-0.5 ${statusStyles(app.status)}`}
         >
           {app.status}
         </span>
@@ -219,10 +218,10 @@ function AdmissionCard({
       </div>
 
       <div>
-        <p className="font-bold text-primary-dark">{app.fullName}</p>
+        <p className="text-lg font-bold text-primary-dark sm:text-base">{app.fullName}</p>
       </div>
 
-      <div className="flex flex-col gap-1 text-sm text-zinc-600">
+      <div className="flex flex-col gap-2 text-[15px] text-zinc-600 sm:gap-1 sm:text-sm">
         <a
           href={`mailto:${app.email}`}
           className="inline-flex items-center gap-2 hover:text-primary-dark"
@@ -240,14 +239,14 @@ function AdmissionCard({
       <AdmissionDetails formData={app.formData} />
 
       {actions.length > 0 ? (
-        <div className="flex flex-wrap gap-2 pt-1">
+        <div className="flex flex-col gap-2 pt-1 sm:flex-row sm:flex-wrap">
           {actions.map((action) => (
             <Button
               key={action.status}
               type="button"
               onClick={() => onUpdate(action.status)}
               disabled={updating}
-              className="h-9 rounded-xl bg-primary-dark px-4 text-sm text-white"
+              className="rounded-xl bg-primary-dark text-white sm:h-9 sm:w-auto sm:px-4 sm:text-sm"
             >
               {action.label}
             </Button>

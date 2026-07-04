@@ -251,6 +251,91 @@
 
     .portal-mobile-content {
       padding-bottom: calc(4.75rem + env(safe-area-inset-bottom));
+      font-size: 1rem;
+      line-height: 1.6;
+    }
+
+    .portal-mobile-content h1 {
+      font-size: 1.375rem;
+      line-height: 1.25;
+      font-weight: 700;
+    }
+
+    .portal-mobile-content .portal-islamic-hero h1 {
+      font-size: 1.25rem;
+      line-height: 1.25;
+    }
+
+    .portal-mobile-content h2 {
+      font-size: 1.125rem;
+      line-height: 1.3;
+      font-weight: 700;
+    }
+
+    .portal-mobile-content h3 {
+      font-size: 1rem;
+      line-height: 1.35;
+      font-weight: 600;
+    }
+
+    .portal-page-title {
+      font-size: 1.375rem;
+      line-height: 1.25;
+    }
+
+    .portal-page-subtitle {
+      font-size: 0.9375rem;
+      line-height: 1.5;
+    }
+
+    .portal-mobile-content .text-xs {
+      font-size: 0.8125rem;
+    }
+
+    .portal-mobile-content .text-sm {
+      font-size: 0.9375rem;
+    }
+
+    .portal-mobile-content .text-\[10px\] {
+      font-size: 0.6875rem;
+    }
+
+    .portal-mobile-content .flex.flex-wrap.gap-2 > button,
+    .portal-mobile-content .flex.gap-2.overflow-x-auto > button {
+      min-height: 2.75rem;
+      padding: 0.625rem 1.125rem;
+      font-size: 0.9375rem;
+    }
+
+    .portal-mobile-content .flex.gap-2.overflow-x-auto {
+      -webkit-overflow-scrolling: touch;
+      scrollbar-width: none;
+    }
+
+    .portal-mobile-content .flex.gap-2.overflow-x-auto::-webkit-scrollbar {
+      display: none;
+    }
+
+    .portal-mobile-content button.rounded-lg.p-2,
+    .portal-mobile-content button.rounded-xl.p-2 {
+      min-height: 2.75rem;
+      min-width: 2.75rem;
+    }
+
+    .portal-card {
+      padding: 1rem;
+      border-radius: 1rem;
+    }
+
+    .form-control {
+      min-height: 3rem;
+      font-size: 1rem;
+      padding: 0.75rem 1rem;
+    }
+
+    .form-label {
+      font-size: 0.9375rem;
+      line-height: 1.4;
     }
 
     .portal-mobile-page {

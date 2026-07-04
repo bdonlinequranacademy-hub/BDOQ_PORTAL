@@ -53,7 +53,7 @@ export function Pagination<T>({
   return (
     <div
       className={cn(
-        "flex flex-col gap-3 rounded-2xl border border-portal bg-portal-surface px-4 py-3 sm:flex-row sm:items-center sm:justify-between",
+        "flex flex-col gap-4 rounded-xl border border-portal bg-portal-surface px-4 py-4 sm:flex-row sm:items-center sm:justify-between sm:rounded-2xl sm:gap-3 sm:py-3",
         className
       )}
       role="navigation"
@@ -74,7 +74,7 @@ export function Pagination<T>({
           <select
             value={pageSize}
             onChange={(event) => setPageSize(Number(event.target.value) as PageSizeOption)}
-            className="min-h-9 rounded-lg border border-portal bg-portal-surface px-2.5 text-sm text-portal-heading outline-none focus-visible:ring-2 focus-visible:ring-primary/25"
+            className="min-h-11 rounded-lg border border-portal bg-portal-surface px-3 text-base text-portal-heading outline-none focus-visible:ring-2 focus-visible:ring-primary/25 sm:min-h-9 sm:px-2.5 sm:text-sm"
             aria-label="Rows per page"
           >
             {PAGE_SIZE_OPTIONS.map((size) => (
@@ -90,7 +90,7 @@ export function Pagination<T>({
             type="button"
             onClick={goToPrevPage}
             disabled={!hasPrevPage}
-            className="inline-flex min-h-9 min-w-9 items-center justify-center rounded-lg border border-portal text-portal-heading transition hover:bg-portal-muted disabled:cursor-not-allowed disabled:opacity-40"
+            className="inline-flex min-h-11 min-w-11 items-center justify-center rounded-lg border border-portal text-portal-heading transition hover:bg-portal-muted active:scale-95 disabled:cursor-not-allowed disabled:opacity-40 sm:min-h-9 sm:min-w-9"
             aria-label="Previous page"
           >
             <ChevronLeft className="size-4" aria-hidden />
@@ -112,7 +112,7 @@ export function Pagination<T>({
                   onClick={() => setPage(pageNumber)}
                   aria-current={pageNumber === page ? "page" : undefined}
                   className={cn(
-                    "inline-flex min-h-9 min-w-9 items-center justify-center rounded-lg border text-sm font-medium transition",
+                    "inline-flex min-h-11 min-w-11 items-center justify-center rounded-lg border text-base font-medium transition active:scale-95 sm:min-h-9 sm:min-w-9 sm:text-sm",
                     pageNumber === page
                       ? "border-primary bg-primary text-white"
                       : "border-portal text-portal-heading hover:bg-portal-muted"
@@ -128,7 +128,7 @@ export function Pagination<T>({
             type="button"
             onClick={goToNextPage}
             disabled={!hasNextPage}
-            className="inline-flex min-h-9 min-w-9 items-center justify-center rounded-lg border border-portal text-portal-heading transition hover:bg-portal-muted disabled:cursor-not-allowed disabled:opacity-40"
+            className="inline-flex min-h-11 min-w-11 items-center justify-center rounded-lg border border-portal text-portal-heading transition hover:bg-portal-muted active:scale-95 disabled:cursor-not-allowed disabled:opacity-40 sm:min-h-9 sm:min-w-9"
             aria-label="Next page"
           >
             <ChevronRight className="size-4" aria-hidden />

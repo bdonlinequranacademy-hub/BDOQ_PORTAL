@@ -261,10 +261,10 @@ export function PortalLayout({
               className="size-9 shrink-0 rounded-xl object-contain"
             />
             <div className="min-w-0 flex-1 text-center">
-              <p className="truncate font-display text-base font-bold text-portal-heading">
+              <p className="truncate font-display text-lg font-bold text-portal-heading">
                 {activePage}
               </p>
-              <p className="truncate text-[10px] font-medium uppercase tracking-wider text-gold-dark dark:text-gold">
+              <p className="truncate text-[11px] font-medium uppercase tracking-wider text-gold-dark dark:text-gold">
                 {portalLabel}
               </p>
             </div>
