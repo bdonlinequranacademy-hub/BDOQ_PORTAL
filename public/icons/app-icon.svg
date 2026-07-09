@@ -1,5 +1,5 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 180 180" fill="none">
-  <rect width="180" height="180" rx="40" fill="#0D4A2F"/>
+  <rect width="180" height="180" rx="40" fill="#32C991"/>
   <path fill="#D4A853" d="M90 28 L98 68 L138 76 L98 84 L90 124 L82 84 L42 76 L82 68 Z"/>
   <circle cx="90" cy="76" r="8" fill="#D4A853" opacity="0.9"/>
   <text x="90" y="152" text-anchor="middle" fill="#ADEbb3" font-family="Georgia, serif" font-size="22" font-weight="700">BDOQ</text>

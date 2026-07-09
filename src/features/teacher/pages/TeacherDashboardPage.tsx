@@ -11,7 +11,6 @@ import {
   FileText,
   BookOpenCheck,
 } from "lucide-react";
-import { useAuthStore } from "@/stores/authStore";
 import {
   useTeacherClasses,
   useTeacherNotifications,
@@ -26,29 +25,18 @@ import { LogSessionSheet } from "@/components/schedule/LogSessionSheet";
 import { sortSessionsByAcademyTime } from "@/lib/utils/schedule";
 import type { SessionSlotView } from "@/types/models";
 import { StatCard } from "@/components/ui/shared/StatCard";
-import { BDOQ_BRAND } from "@/lib/bdoqBrand";
 import { PageLoading } from "@/components/ui/PageLoading";
 import { EmptyState } from "@/components/ui/EmptyState";
-import { DashboardHero } from "@/components/dashboard/DashboardHero";
 import { DashboardSection } from "@/components/dashboard/DashboardSection";
 import { DashboardTwoColumn } from "@/components/dashboard/DashboardTwoColumn";
 import { QuickActionGrid } from "@/components/dashboard/QuickActionGrid";
 import { DashboardNotificationFeed } from "@/components/dashboard/DashboardNotificationFeed";
-
-function todayLabel() {
-  return new Date().toLocaleDateString("en-US", {
-    weekday: "long",
-    month: "short",
-    day: "numeric",
-  });
-}
 
 function todayIsoDate() {
   return new Date().toISOString().split("T")[0];
 }
 
 export function TeacherDashboardPage() {
-  const user = useAuthStore((s) => s.user);
   const navigate = useNavigate();
   const { data: classes = [], isLoading } = useTeacherClasses();
   const { data: notifications = [] } = useTeacherNotifications();
@@ -141,13 +129,6 @@ export function TeacherDashboardPage() {
   return (
     <>
       <PageContainer className="flex flex-col gap-6 lg:gap-8">
-        <DashboardHero
-          name={user?.name ?? "Teacher"}
-          subtitle={`${BDOQ_BRAND.shortName} — Quran teaching portal`}
-          dateLabel={todayLabel()}
-          roleBadge="Teacher"
-        />
-
         <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
           <StatCard
             label="Today's classes"

@@ -2,6 +2,11 @@
 
 export const BISMILLAH = "بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ";
 
+export const PORTAL_BRANDING_HADITH = {
+  text: "The best among you are those who learn the Quran and teach it.",
+  source: "Sahih Bukhari",
+} as const;
+
 export interface IPortalQuote {
   arabic: string;
   translation: string;

@@ -7,9 +7,9 @@ export default {
     extend: {
       colors: {
         primary: {
-          DEFAULT: "#1B6B44",
-          dark: "#0D4A2F",
-          light: "#E8F5EE",
+          DEFAULT: "#32C991",
+          dark: "#269B6F",
+          light: "#E8FAF2",
           mint: "#ADEBB3",
         },
         "brand-red": {
@@ -27,16 +27,16 @@ export default {
           light: "#E8C97A",
           dark: "#B8923F",
         },
-        "bg-light": "#F0FBF6",
+        "bg-light": "#E8FAF2",
         "text-dark": "#1A1A2E",
         "text-gray": "#6B7280",
         /** @deprecated use primary-dark — kept for gradual migration */
         navy: {
-          DEFAULT: "#0D4A2F",
-          50: "#F0FBF6",
-          100: "#E8F5EE",
-          500: "#1B6B44",
-          900: "#0D4A2F",
+          DEFAULT: "#269B6F",
+          50: "#E8FAF2",
+          100: "#E8FAF2",
+          500: "#32C991",
+          900: "#269B6F",
         },
         cream: {
           DEFAULT: "#FDF6E3",
@@ -44,7 +44,7 @@ export default {
         surface: {
           DEFAULT: "#FFFFFF",
         },
-        success: "#1B6B44",
+        success: "#32C991",
         warning: "#D4A853",
         danger: "#D14343",
         info: "#0D9488",

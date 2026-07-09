@@ -9,7 +9,6 @@ import {
   MessageSquare,
   Calendar,
 } from "lucide-react";
-import { useAuthStore } from "@/stores/authStore";
 import {
   useStudentClasses,
   useStudentHomework,
@@ -26,10 +25,8 @@ import { classTitle, teacherName } from "@/lib/utils/class";
 import { StudentCurriculumPlan } from "@/components/curriculum/StudentCurriculumPlan";
 import { formatCurriculumPath } from "@/lib/api/curriculumApi";
 import { StatCard } from "@/components/ui/shared/StatCard";
-import { BDOQ_BRAND } from "@/lib/bdoqBrand";
 import { PageLoading } from "@/components/ui/PageLoading";
 import { EmptyState } from "@/components/ui/EmptyState";
-import { DashboardHero } from "@/components/dashboard/DashboardHero";
 import { DashboardSection } from "@/components/dashboard/DashboardSection";
 import { DashboardTwoColumn } from "@/components/dashboard/DashboardTwoColumn";
 import { DashboardNotificationFeed } from "@/components/dashboard/DashboardNotificationFeed";
@@ -40,16 +37,7 @@ function isOverdue(dueDate: string) {
   return new Date(dueDate) < new Date();
 }
 
-function todayLabel() {
-  return new Date().toLocaleDateString("en-US", {
-    weekday: "long",
-    month: "short",
-    day: "numeric",
-  });
-}
-
 export function StudentDashboardPage() {
-  const user = useAuthStore((s) => s.user);
   const navigate = useNavigate();
   const { data: classes = [], isLoading: classesLoading } = useStudentClasses();
   const { data: homework = [] } = useStudentHomework();
@@ -79,13 +67,6 @@ export function StudentDashboardPage() {
 
   return (
     <PageContainer className="flex flex-col gap-6 lg:gap-8">
-      <DashboardHero
-        name={user?.name ?? "Student"}
-        subtitle={BDOQ_BRAND.portalTagline}
-        dateLabel={todayLabel()}
-        roleBadge="Student"
-      />
-
       {nextSession ? (
         <button
           type="button"

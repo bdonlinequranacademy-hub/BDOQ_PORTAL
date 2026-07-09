@@ -2,6 +2,7 @@ import { Outlet, useLocation, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { Bell, ChevronLeft, ChevronRight, LogOut, Search } from "lucide-react";
 import { BrandLogo } from "@/components/brand/BrandLogo";
+import { PortalBrandingHeader } from "@/components/layout/PortalBrandingHeader";
 import { GlobalSearch } from "@/components/search/GlobalSearch";
 import { ThemeToggle } from "@/components/theme/ThemeToggle";
 import { MobileNavMenu } from "@/components/layout/MobileNavMenu";
@@ -246,11 +247,12 @@ export function PortalLayout({
       </aside>
 
       <div
-        className={`portal-mobile-shell flex min-h-screen w-full min-w-0 flex-col transition-[padding] duration-300 ease-in-out ${
+        className={`portal-mobile-shell portal-islamic-page flex min-h-screen w-full min-w-0 flex-col transition-[padding] duration-300 ease-in-out ${
           sidebarOpen ? SIDEBAR_EXPANDED_CLASS : SIDEBAR_COLLAPSED_CLASS
         }`}
       >
-        <header className="portal-mobile-header sticky top-0 z-40 lg:border-b lg:border-portal lg:bg-portal-header lg:px-8 lg:py-3 lg:shadow-sm">
+        <div className="portal-islamic-page-content flex min-h-screen flex-1 flex-col">
+          <header className="portal-mobile-header sticky top-0 z-40 lg:border-b lg:border-portal/80 lg:px-8 lg:py-2 lg:shadow-sm">
           {/* Mobile app bar */}
           <div className="flex items-center gap-2 px-3 sm:px-4 lg:hidden">
             <img
@@ -318,15 +320,17 @@ export function PortalLayout({
           </div>
 
           {/* Desktop header */}
-          <div className="hidden w-full items-center justify-between px-6 lg:flex">
+          <div className="hidden w-full items-center justify-between gap-4 px-6 lg:flex">
             <div className="min-w-0">
-              <p className="truncate text-xs font-medium uppercase tracking-wider text-gold-dark dark:text-gold">
+              <p className="truncate font-display text-lg font-bold tracking-tight text-portal-heading xl:text-xl">
                 {BDOQ_BRAND.shortName}
               </p>
-              <p className="truncate font-display text-sm font-semibold text-portal-heading">{activePage}</p>
+              <p className="truncate text-sm font-medium text-primary-dark dark:text-primary">
+                {activePage}
+              </p>
             </div>
 
-            <div className="flex items-center gap-2 sm:gap-3">
+            <div className="flex shrink-0 items-center gap-2 sm:gap-3">
               <GlobalSearch role={user.role} />
               <div className="hidden sm:block">
                 <ThemeToggle compact />
@@ -372,11 +376,17 @@ export function PortalLayout({
               ) : null}
             </div>
           </div>
-        </header>
+          </header>
 
-        <main className="portal-mobile-content flex-1 w-full min-w-0 bg-portal animate-page-in lg:pb-8">
-          <Outlet />
-        </main>
+          <main className="portal-mobile-content flex-1 w-full min-w-0 animate-page-in lg:pb-8">
+            <div className="flex min-h-full flex-col">
+              <div className="px-4 pt-3 sm:px-6 sm:pt-3.5 lg:px-8 lg:pt-4">
+                <PortalBrandingHeader name={user.name} role={user.role} />
+              </div>
+              <Outlet />
+            </div>
+          </main>
+        </div>
 
         <nav className="portal-mobile-tabbar fixed inset-x-0 bottom-0 z-40 lg:hidden">
           <div className="flex items-stretch justify-around gap-0.5 px-1.5 pt-1.5">

@@ -1,36 +1,61 @@
-import { useParams, useNavigate } from "react-router-dom";
+import { useMemo, useState } from "react";
+import { useNavigate, useParams } from "react-router-dom";
 import {
-  ArrowLeft,
-  Pencil,
-  Banknote,
-  Clock,
-  Users,
-  ExternalLink,
-  Settings2,
-} from "lucide-react";
-import {
+  useAdminAttendance,
   useAdminClass,
+  useAdminClassLogs,
   useAdminUsers,
   useAssignStudent,
   useRemoveStudent,
+  useSetClassActive,
 } from "@/features/admin/hooks/useAdmin";
 import { PageContainer } from "@/components/layout/PageContainer";
-import { ClassHero } from "@/components/classes/ClassHero";
 import { ClassEnrollmentPanel } from "@/components/classes/ClassEnrollmentPanel";
-import { classTitle, formatDuration, studentCount, studentList, teacherName } from "@/lib/utils/class";
+import { classTitle, studentList } from "@/lib/utils/class";
 import { PageLoading } from "@/components/ui/PageLoading";
+import { AdminClassDetailHero } from "@/features/admin/components/class-detail/AdminClassDetailHero";
+import { AdminClassDetailStats } from "@/features/admin/components/class-detail/AdminClassDetailStats";
+import {
+  AdminClassDetailOverviewTab,
+  AdminClassDetailScheduleTab,
+} from "@/features/admin/components/class-detail/AdminClassDetailTabPanels";
+import {
+  AdminClassDetailActivityTab,
+  AdminClassDetailAttendanceTab,
+} from "@/features/admin/components/class-detail/AdminClassDetailAttendanceActivity";
+import { AdminClassDetailSidebar } from "@/features/admin/components/class-detail/AdminClassDetailSidebar";
+import type { AdminClassDetailTab } from "@/features/admin/components/class-detail/adminClassDetailUtils";
+import { cn } from "@/lib/utils/cn";
+
+const DETAIL_TABS: { id: AdminClassDetailTab; label: string }[] = [
+  { id: "overview", label: "Overview" },
+  { id: "schedule", label: "Schedule" },
+  { id: "students", label: "Students" },
+  { id: "attendance", label: "Attendance" },
+  { id: "activity", label: "Activity Log" },
+];
 
 export function AdminClassDetailPage() {
   const { id = "" } = useParams();
   const navigate = useNavigate();
+  const [tab, setTab] = useState<AdminClassDetailTab>("overview");
+
   const { data: cls, isLoading } = useAdminClass(id);
+  const { data: attendance = [] } = useAdminAttendance(id);
+  const { data: allLogs = [] } = useAdminClassLogs();
   const { data: allStudents = [] } = useAdminUsers("student");
   const assignStudent = useAssignStudent(id);
   const removeStudent = useRemoveStudent(id);
+  const setClassActive = useSetClassActive();
+
+  const classLogs = useMemo(
+    () => allLogs.filter((log) => log.classId === id),
+    [allLogs, id]
+  );
 
   const enrolled = cls ? studentList(cls.students) : [];
-  const enrolledIds = new Set(enrolled.map((s) => String(s._id)));
-  const available = allStudents.filter((s) => !enrolledIds.has(String(s.id)));
+  const enrolledIds = new Set(enrolled.map((student) => String(student._id)));
+  const available = allStudents.filter((student) => !enrolledIds.has(String(student.id)));
 
   async function handleAssign(studentId: string) {
     await assignStudent.mutateAsync(studentId);
@@ -41,113 +66,92 @@ export function AdminClassDetailPage() {
     removeStudent.mutate(studentId);
   }
 
-  return (
-    <PageContainer className="flex flex-col gap-6">
-      <div className="flex items-center justify-between gap-3">
-        <button
-          type="button"
-          onClick={() => navigate("/admin/classes")}
-          className="flex size-9 items-center justify-center rounded-full bg-zinc-100 transition hover:bg-zinc-200"
-          aria-label="Back to classes"
-        >
-          <ArrowLeft className="size-5 text-navy" />
-        </button>
-        <div className="min-w-0 flex-1">
-          <p className="text-xs font-semibold uppercase tracking-wide text-zinc-400">Class</p>
-          <h1 className="truncate text-xl font-bold text-navy">
-            {cls ? classTitle(cls) : "Class details"}
-          </h1>
-        </div>
-        <button
-          type="button"
-          onClick={() => navigate(`/admin/classes/${id}/edit`)}
-          className="flex size-9 items-center justify-center rounded-full bg-zinc-100 transition hover:bg-zinc-200"
-          aria-label="Edit class"
-        >
-          <Pencil className="size-4 text-navy" />
-        </button>
-      </div>
+  function handleDeactivate() {
+    if (!cls) return;
+    const title = classTitle(cls);
+    const inactive = cls.isActive === false;
 
+    if (inactive) {
+      if (!window.confirm(`Reactivate "${title}"?`)) return;
+      setClassActive.mutate({ id: cls._id, isActive: true });
+      return;
+    }
+
+    if (!window.confirm(`Deactivate "${title}"? Students will no longer see this class.`)) {
+      return;
+    }
+    setClassActive.mutate({ id: cls._id, isActive: false });
+  }
+
+  return (
+    <PageContainer className="gap-5 lg:gap-6">
       {isLoading ? (
-        <PageLoading compact />
+        <PageLoading label="Loading class details…" />
       ) : !cls ? (
-        <p className="text-sm text-zinc-400">Class not found.</p>
+        <p className="text-sm text-portal-muted">Class not found.</p>
       ) : (
         <>
-          <ClassHero
-            title={classTitle(cls)}
-            description={cls.description}
-            teacherName={teacherName(typeof cls.teacher === "object" ? cls.teacher : undefined)}
-            schedule={cls.schedule}
-            badge={
-              cls.isActive === false ? (
-                <span className="w-fit rounded-full bg-white/20 px-2.5 py-0.5 text-xs font-semibold">
-                  Inactive
-                </span>
-              ) : undefined
-            }
+          <AdminClassDetailHero
+            cls={cls}
+            classId={id}
+            onBack={() => navigate("/admin/classes")}
           />
 
-          <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-            <div className="rounded-2xl border border-zinc-100 bg-white p-4 shadow-sm">
-              <div className="flex items-center gap-2 text-zinc-500">
-                <Users className="size-4" />
-                <span className="text-xs font-medium">Enrolled</span>
+          <AdminClassDetailStats cls={cls} sessionLogCount={classLogs.length} />
+
+          <div className="grid grid-cols-1 gap-5 xl:grid-cols-[minmax(0,1fr)_300px] xl:gap-6">
+            <div className="flex min-w-0 flex-col gap-4">
+              <div className="flex flex-wrap gap-2 border-b border-portal pb-1">
+                {DETAIL_TABS.map((item) => (
+                  <button
+                    key={item.id}
+                    type="button"
+                    onClick={() => setTab(item.id)}
+                    className={cn(
+                      "rounded-t-xl px-4 py-2 text-sm font-semibold transition",
+                      tab === item.id
+                        ? "border-b-2 border-primary text-primary"
+                        : "text-portal-muted hover:text-portal-heading"
+                    )}
+                  >
+                    {item.label}
+                  </button>
+                ))}
               </div>
-              <p className="mt-1 text-2xl font-bold text-navy">{studentCount(cls)}</p>
+
+              {tab === "overview" ? (
+                <AdminClassDetailOverviewTab cls={cls} onOpenSchedule={() => setTab("schedule")} />
+              ) : null}
+
+              {tab === "schedule" ? <AdminClassDetailScheduleTab cls={cls} /> : null}
+
+              {tab === "students" ? (
+                <ClassEnrollmentPanel
+                  enrolled={enrolled}
+                  available={available}
+                  allStudents={allStudents}
+                  onAdd={handleAssign}
+                  onRemove={handleRemove}
+                  adding={assignStudent.isPending}
+                />
+              ) : null}
+
+              {tab === "attendance" ? (
+                <AdminClassDetailAttendanceTab overview={attendance} />
+              ) : null}
+
+              {tab === "activity" ? <AdminClassDetailActivityTab logs={classLogs} /> : null}
             </div>
-            {cls.sessionRateBdt != null ? (
-              <div className="rounded-2xl border border-zinc-100 bg-white p-4 shadow-sm">
-                <div className="flex items-center gap-2 text-zinc-500">
-                  <Banknote className="size-4" />
-                  <span className="text-xs font-medium">Session rate</span>
-                </div>
-                <p className="mt-1 text-2xl font-bold text-navy">{cls.sessionRateBdt}</p>
-                <p className="text-[10px] text-zinc-400">BDT per session</p>
-              </div>
-            ) : null}
-            {cls.schedule?.duration ? (
-              <div className="rounded-2xl border border-zinc-100 bg-white p-4 shadow-sm">
-                <div className="flex items-center gap-2 text-zinc-500">
-                  <Clock className="size-4" />
-                  <span className="text-xs font-medium">Duration</span>
-                </div>
-                <p className="mt-1 text-2xl font-bold text-navy">
-                  {formatDuration(cls.schedule.duration)}
-                </p>
-              </div>
-            ) : null}
-            <button
-              type="button"
-              onClick={() => navigate(`/admin/classes/${id}/edit`)}
-              className="flex flex-col items-start justify-center rounded-2xl border border-dashed border-gold/40 bg-gold/5 p-4 text-left transition hover:border-gold/60 hover:bg-gold/10"
-            >
-              <Settings2 className="size-4 text-gold-dark" />
-              <span className="mt-2 text-sm font-semibold text-navy">Edit settings</span>
-              <span className="text-[10px] text-zinc-500">Schedule, teacher, link</span>
-            </button>
+
+            <AdminClassDetailSidebar
+              cls={cls}
+              classId={id}
+              enrolled={enrolled}
+              onDeactivate={handleDeactivate}
+              onViewStudents={() => setTab("students")}
+              deactivating={setClassActive.isPending}
+            />
           </div>
-
-          {cls.meetingLink ? (
-            <a
-              href={cls.meetingLink}
-              target="_blank"
-              rel="noreferrer"
-              className="flex items-center justify-center gap-2 rounded-2xl border border-[#2b7fff]/20 bg-[#2b7fff]/5 px-4 py-3 text-sm font-semibold text-primary transition hover:bg-primary/10"
-            >
-              <ExternalLink className="size-4" />
-              Open meeting link
-            </a>
-          ) : null}
-
-          <ClassEnrollmentPanel
-            enrolled={enrolled}
-            available={available}
-            allStudents={allStudents}
-            onAdd={handleAssign}
-            onRemove={handleRemove}
-            adding={assignStudent.isPending}
-          />
         </>
       )}
     </PageContainer>

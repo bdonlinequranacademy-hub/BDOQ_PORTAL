@@ -26,32 +26,36 @@ export function StatCard({
   return (
     <Card
       className={cn(
-        "rounded-xl border border-portal p-4 shadow-sm transition-all sm:rounded-2xl sm:p-5",
+        "rounded-2xl border border-portal bg-portal-surface p-4 shadow-[0_8px_24px_-16px_rgba(13,74,47,0.18)] transition-all sm:p-5",
         onClick
-          ? "cursor-pointer text-left hover:-translate-y-0.5 hover:border-primary/20 hover:shadow-md active:scale-[0.99]"
-          : "hover:shadow-md",
+          ? "cursor-pointer text-left hover:-translate-y-0.5 hover:border-primary/25 hover:shadow-[0_12px_28px_-14px_rgba(50,201,145,0.28)] active:scale-[0.99]"
+          : "",
         className
       )}
     >
       <Wrapper
         type={onClick ? "button" : undefined}
         onClick={onClick}
-        className="flex w-full items-start justify-between gap-3"
+        className="flex w-full flex-col gap-3 text-left"
       >
-        <div className="min-w-0 text-left">
-          <p className="text-xs font-medium uppercase tracking-wide text-portal-muted sm:text-xs">
-            {label}
-          </p>
-          <p className="mt-1.5 text-2xl font-bold text-portal-heading sm:mt-2 sm:text-2xl">{value}</p>
-          {hint ? <p className="mt-1 text-xs text-portal-muted sm:text-[11px]">{hint}</p> : null}
+        <div className="flex items-start justify-between gap-3">
+          <div
+            className={cn(
+              "flex size-11 shrink-0 items-center justify-center rounded-xl sm:size-12",
+              iconBg
+            )}
+          >
+            {icon}
+          </div>
         </div>
-        <div
-          className={cn(
-            "flex size-11 shrink-0 items-center justify-center rounded-xl text-primary sm:size-11",
-            iconBg
-          )}
-        >
-          {icon}
+        <div className="min-w-0">
+          <p className="text-sm font-medium text-portal-muted">{label}</p>
+          <p className="mt-1 text-2xl font-bold tracking-tight text-portal-heading sm:text-[1.75rem]">
+            {value}
+          </p>
+          {hint ? (
+            <p className="mt-1.5 text-xs font-medium text-primary">{hint}</p>
+          ) : null}
         </div>
       </Wrapper>
     </Card>

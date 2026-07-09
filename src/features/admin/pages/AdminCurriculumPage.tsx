@@ -8,11 +8,9 @@ import {
 import { PageContainer } from "@/components/layout/PageContainer";
 import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
-import { formControlClass } from "@/lib/formControl";
 import type { CurriculumNode } from "@/lib/api/curriculumApi";
 import {
   GRAMMAR_LESSON_CATALOG,
-  SELECTABLE_SURAHS,
   TAJWEED_RULE_CATALOG,
   isSurahTopicId,
   programUsesGrammarPicker,
@@ -21,75 +19,22 @@ import {
   surahNameFromTopicId,
   surahTopicId,
 } from "@/lib/curriculumCatalog";
-
 import { PageLoading } from "@/components/ui/PageLoading";
-function cloneTree(nodes: CurriculumNode[]): CurriculumNode[] {
-  return nodes.map((node) => ({
-    ...node,
-    children: node.children ? cloneTree(node.children) : undefined,
-  }));
-}
-
-function newNodeId(prefix: string) {
-  return `${prefix}-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 6)}`;
-}
-
-function updateNodeAtPath(
-  nodes: CurriculumNode[],
-  path: number[],
-  updater: (node: CurriculumNode) => CurriculumNode
-): CurriculumNode[] {
-  if (path.length === 0) return nodes;
-  const [index, ...rest] = path;
-  return nodes.map((node, i) => {
-    if (i !== index) return node;
-    if (rest.length === 0) return updater(node);
-    return {
-      ...node,
-      children: updateNodeAtPath(node.children ?? [], rest, updater),
-    };
-  });
-}
-
-function CatalogMultiSelect({
-  label,
-  hint,
-  options,
-  selectedIds,
-  onChange,
-}: {
-  label: string;
-  hint: string;
-  options: { id: string; label: string }[];
-  selectedIds: string[];
-  onChange: (ids: string[]) => void;
-}) {
-  return (
-    <div className="flex flex-col gap-2">
-      <div>
-        <p className="text-sm font-semibold text-primary-dark">{label}</p>
-        <p className="text-xs text-zinc-500">{hint}</p>
-      </div>
-      <select
-        multiple
-        size={8}
-        value={selectedIds}
-        onChange={(e) => {
-          const ids = Array.from(e.target.selectedOptions).map((o) => o.value);
-          onChange(ids);
-        }}
-        className={`${formControlClass} min-h-[10rem]`}
-      >
-        {options.map((o) => (
-          <option key={o.id} value={o.id}>
-            {o.label}
-          </option>
-        ))}
-      </select>
-      <p className="text-xs text-zinc-400">Hold Ctrl (Windows) or ⌘ (Mac) to select multiple.</p>
-    </div>
-  );
-}
+import { AdminCurriculumStatsGrid } from "@/features/admin/components/curriculum/AdminCurriculumStatsGrid";
+import { AdminCurriculumDrillDown } from "@/features/admin/components/curriculum/AdminCurriculumDrillDown";
+import {
+  AdminCurriculumActivity,
+  AdminCurriculumOverview,
+  AdminCurriculumQuickActions,
+  exportCurriculumCsv,
+} from "@/features/admin/components/curriculum/AdminCurriculumInsights";
+import {
+  cloneTree,
+  computeCurriculumStats,
+  deleteNodeAtPath,
+  newNodeId,
+  updateNodeAtPath,
+} from "@/features/admin/components/curriculum/adminCurriculumUtils";
 
 export function AdminCurriculumPage() {
   const { data: serverTree = [], isLoading } = useAdminCurriculum();
@@ -115,9 +60,6 @@ export function AdminCurriculumPage() {
   const sections = program?.children ?? [];
   const section =
     sectionIdx !== "" && sections[sectionIdx] ? sections[sectionIdx] : null;
-  const topics = section?.children ?? [];
-  const topic =
-    topicIdx !== "" && topics[topicIdx] ? topics[topicIdx] : null;
 
   const programPath = useMemo(() => [programIdx], [programIdx]);
   const sectionPath = useMemo(
@@ -135,19 +77,21 @@ export function AdminCurriculumPage() {
   const selectedSurahs = useMemo(() => {
     if (!section) return [];
     return (section.children ?? [])
-      .map((c) => surahNameFromTopicId(c.id))
-      .filter((n): n is string => Boolean(n));
+      .map((child) => surahNameFromTopicId(child.id))
+      .filter((name): name is string => Boolean(name));
   }, [section]);
 
   const selectedTajweedIds = useMemo(() => {
     if (!section) return [];
-    return (section.children ?? []).map((c) => c.id);
+    return (section.children ?? []).map((child) => child.id);
   }, [section]);
 
   const selectedGrammarIds = useMemo(() => {
     if (!section) return [];
-    return (section.children ?? []).map((c) => c.id);
+    return (section.children ?? []).map((child) => child.id);
   }, [section]);
+
+  const stats = useMemo(() => computeCurriculumStats(tree), [tree]);
 
   function patchNode(path: number[], updater: (node: CurriculumNode) => CurriculumNode) {
     setTree((prev) => updateNodeAtPath(prev, path, updater));
@@ -160,7 +104,7 @@ export function AdminCurriculumPage() {
 
   function handleSurahSelection(names: string[]) {
     if (!sectionPath || !section) return;
-    const other = (section.children ?? []).filter((c) => !isSurahTopicId(c.id));
+    const other = (section.children ?? []).filter((child) => !isSurahTopicId(child.id));
     const surahNodes: CurriculumNode[] = names.map((name) => ({
       id: surahTopicId(section.id, name),
       label: name,
@@ -172,7 +116,7 @@ export function AdminCurriculumPage() {
   function handleTajweedSelection(ids: string[]) {
     if (!sectionPath) return;
     const nodes = ids.map((id) => {
-      const item = TAJWEED_RULE_CATALOG.find((r) => r.id === id);
+      const item = TAJWEED_RULE_CATALOG.find((rule) => rule.id === id);
       return {
         id,
         label: item?.label ?? id,
@@ -185,7 +129,7 @@ export function AdminCurriculumPage() {
   function handleGrammarSelection(ids: string[]) {
     if (!sectionPath) return;
     const nodes = ids.map((id) => {
-      const item = GRAMMAR_LESSON_CATALOG.find((r) => r.id === id);
+      const item = GRAMMAR_LESSON_CATALOG.find((lesson) => lesson.id === id);
       return {
         id,
         label: item?.label ?? id,
@@ -219,13 +163,60 @@ export function AdminCurriculumPage() {
     setTopicIdx("");
   }
 
+  function handleDeleteProgram(index: number) {
+    const target = tree[index];
+    if (!target) return;
+    if (
+      !window.confirm(
+        `Delete "${target.label}"? All sections and topics under this program will be removed.`
+      )
+    ) {
+      return;
+    }
+
+    setTree((prev) => deleteNodeAtPath(prev, [index]));
+    setDirty(true);
+
+    if (programIdx === index) {
+      setProgramIdx(Math.max(0, index - 1));
+      setSectionIdx("");
+      setTopicIdx("");
+    } else if (programIdx > index) {
+      setProgramIdx(programIdx - 1);
+    }
+  }
+
+  function handleDeleteSection(index: number) {
+    const target = sections[index];
+    if (!target) return;
+    if (
+      !window.confirm(
+        `Delete "${target.label}"? All topics under this section will be removed.`
+      )
+    ) {
+      return;
+    }
+
+    setTree((prev) => deleteNodeAtPath(prev, [programIdx, index]));
+    setDirty(true);
+
+    if (sectionIdx === index) {
+      setSectionIdx("");
+      setTopicIdx("");
+    } else if (sectionIdx !== "" && sectionIdx > index) {
+      setSectionIdx(sectionIdx - 1);
+    }
+  }
+
   async function handleSave() {
     await updateCurriculum.mutateAsync(tree);
     setDirty(false);
   }
 
   async function handleReset() {
-    if (!window.confirm("Reset curriculum to factory defaults? This cannot be undone.")) return;
+    if (!window.confirm("Reset curriculum to factory defaults? This cannot be undone.")) {
+      return;
+    }
     const res = await resetCurriculum.mutateAsync();
     if (res.data) {
       setTree(cloneTree(res.data));
@@ -234,251 +225,113 @@ export function AdminCurriculumPage() {
   }
 
   const showSurahPicker =
-    program && section && programUsesSurahPicker(program.id);
+    Boolean(program && section && programUsesSurahPicker(program.id));
   const showTajweedPicker =
-    program && section && programUsesTajweedPicker(program.id);
-  const showGrammarPicker =
-    program &&
-    section &&
-    programUsesGrammarPicker(program.id, section.id);
+    Boolean(program && section && programUsesTajweedPicker(program.id));
+  const showGrammarPicker = Boolean(
+    program && section && programUsesGrammarPicker(program.id, section.id)
+  );
 
   return (
-    <PageContainer className="flex flex-col gap-6">
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <div>
-          <h1 className="text-2xl font-bold text-primary-dark">Curriculum</h1>
-          <p className="text-sm text-zinc-500">
-            Pick program → section → manage surahs, tajweed rules, or grammar from dropdowns.
+    <PageContainer className="gap-5 lg:gap-6">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+        <div className="min-w-0">
+          <h1 className="portal-page-title font-display text-2xl font-bold text-primary-dark sm:text-3xl">
+            Curriculum
+          </h1>
+          <p className="portal-page-subtitle mt-1 max-w-2xl text-portal-muted">
+            Organize programs, sections and topics for structured learning across BOQ Academy.
           </p>
         </div>
         <div className="flex flex-wrap gap-2">
-          <Button type="button" variant="secondary" onClick={handleAddProgram} className="gap-2 rounded-xl">
-            <Plus className="size-4" />
-            Add program
+          <Button
+            type="button"
+            variant="primary"
+            onClick={handleAddProgram}
+            className="inline-flex items-center gap-2 rounded-xl px-5 py-2.5 text-sm font-semibold"
+          >
+            <Plus className="size-4" aria-hidden />
+            Add Program
           </Button>
           <Button
             type="button"
-            variant="secondary"
+            variant="ghost"
             onClick={handleReset}
             disabled={resetCurriculum.isPending}
-            className="gap-2 rounded-xl"
+            className="inline-flex items-center gap-2 rounded-xl border border-portal bg-portal-surface px-4 py-2.5 text-sm font-semibold text-portal-heading shadow-sm hover:bg-portal-muted/40"
           >
-            <RotateCcw className="size-4" />
-            Reset defaults
+            <RotateCcw className="size-4" aria-hidden />
+            Reset Defaults
           </Button>
           <Button
             type="button"
             onClick={handleSave}
             disabled={!dirty || updateCurriculum.isPending}
-            className="gap-2 rounded-xl bg-primary-dark text-white"
+            className="inline-flex items-center gap-2 rounded-xl border border-primary bg-primary/10 px-4 py-2.5 text-sm font-semibold text-primary-dark hover:bg-primary/15 disabled:opacity-50"
           >
-            <Save className="size-4" />
-            {updateCurriculum.isPending ? "Saving…" : "Save changes"}
+            <Save className="size-4" aria-hidden />
+            {updateCurriculum.isPending ? "Saving…" : "Save Changes"}
           </Button>
         </div>
       </div>
 
+      <AdminCurriculumStatsGrid stats={stats} dirty={dirty} isLoading={isLoading} />
+
       {isLoading ? (
         <PageLoading label="Loading curriculum…" />
       ) : tree.length === 0 ? (
-        <Card className="rounded-2xl p-6 text-sm text-zinc-500">
-          No curriculum loaded. Click Reset defaults.
+        <Card className="rounded-2xl border border-portal bg-portal-surface p-6 text-sm text-portal-muted">
+          No curriculum loaded. Click Reset Defaults to load the factory tree.
         </Card>
       ) : (
-        <Card className="flex flex-col gap-5 rounded-2xl border-0 p-5 shadow-sm">
-          <div className="grid gap-3 sm:grid-cols-3">
-            <label className="flex flex-col gap-1.5">
-              <span className="text-sm font-medium text-primary-dark">Program</span>
-              <select
-                value={programIdx}
-                onChange={(e) => {
-                  setProgramIdx(Number(e.target.value));
-                  setSectionIdx("");
-                  setTopicIdx("");
-                }}
-                className={formControlClass}
-              >
-                {tree.map((p, i) => (
-                  <option key={p.id} value={i}>
-                    {p.label}
-                  </option>
-                ))}
-              </select>
-            </label>
+        <>
+          <AdminCurriculumDrillDown
+            tree={tree}
+            programIdx={programIdx}
+            sectionIdx={sectionIdx}
+            topicIdx={topicIdx}
+            onProgramSelect={(index) => {
+              setProgramIdx(index);
+              setSectionIdx("");
+              setTopicIdx("");
+            }}
+            onSectionSelect={(index) => {
+              setSectionIdx(index);
+              setTopicIdx("");
+            }}
+            onTopicSelect={setTopicIdx}
+            onAddProgram={handleAddProgram}
+            onAddSection={handleAddSection}
+            onDeleteProgram={handleDeleteProgram}
+            onDeleteSection={handleDeleteSection}
+            programPath={programPath}
+            sectionPath={sectionPath}
+            topicPath={topicPath}
+            showSurahPicker={showSurahPicker}
+            showTajweedPicker={showTajweedPicker}
+            showGrammarPicker={showGrammarPicker}
+            selectedSurahs={selectedSurahs}
+            selectedTajweedIds={selectedTajweedIds}
+            selectedGrammarIds={selectedGrammarIds}
+            onPatchNode={patchNode}
+            onSurahSelection={handleSurahSelection}
+            onTajweedSelection={handleTajweedSelection}
+            onGrammarSelection={handleGrammarSelection}
+          />
 
-            <label className="flex flex-col gap-1.5">
-              <span className="text-sm font-medium text-primary-dark">Section</span>
-              <select
-                value={sectionIdx === "" ? "" : sectionIdx}
-                onChange={(e) => {
-                  setSectionIdx(e.target.value === "" ? "" : Number(e.target.value));
-                  setTopicIdx("");
-                }}
-                className={formControlClass}
-              >
-                <option value="">Select section…</option>
-                {sections.map((s, i) => (
-                  <option key={s.id} value={i}>
-                    {s.label}
-                  </option>
-                ))}
-              </select>
-            </label>
-
-            {!showSurahPicker && !showTajweedPicker && !showGrammarPicker ? (
-              <label className="flex flex-col gap-1.5">
-                <span className="text-sm font-medium text-primary-dark">Topic</span>
-                <select
-                  value={topicIdx === "" ? "" : topicIdx}
-                  onChange={(e) =>
-                    setTopicIdx(e.target.value === "" ? "" : Number(e.target.value))
-                  }
-                  className={formControlClass}
-                  disabled={!section}
-                >
-                  <option value="">Select topic…</option>
-                  {topics.map((t, i) =>
-                    isSurahTopicId(t.id) ? null : (
-                      <option key={t.id} value={i}>
-                        {t.label}
-                      </option>
-                    )
-                  )}
-                </select>
-              </label>
-            ) : null}
+          <div className="grid grid-cols-1 gap-5 xl:grid-cols-3">
+            <AdminCurriculumOverview tree={tree} />
+            <AdminCurriculumActivity tree={tree} dirty={dirty} />
+            <AdminCurriculumQuickActions
+              dirty={dirty}
+              saving={updateCurriculum.isPending}
+              resetting={resetCurriculum.isPending}
+              onSave={handleSave}
+              onReset={handleReset}
+              onExportCsv={() => exportCurriculumCsv(tree)}
+            />
           </div>
-
-          {program ? (
-            <div className="rounded-xl border border-zinc-200 bg-zinc-50/80 p-4">
-              <p className="mb-3 text-xs font-semibold uppercase text-zinc-400">Edit labels</p>
-              <div className="grid gap-3 sm:grid-cols-2">
-                <label className="flex flex-col gap-1">
-                  <span className="text-xs text-zinc-500">Program name (EN)</span>
-                  <input
-                    value={program.label}
-                    onChange={(e) =>
-                      patchNode(programPath, (n) => ({ ...n, label: e.target.value }))
-                    }
-                    className={formControlClass}
-                  />
-                </label>
-                <label className="flex flex-col gap-1">
-                  <span className="text-xs text-zinc-500">Program name (BN)</span>
-                  <input
-                    value={program.labelBn ?? ""}
-                    onChange={(e) =>
-                      patchNode(programPath, (n) => ({
-                        ...n,
-                        labelBn: e.target.value || undefined,
-                      }))
-                    }
-                    className={formControlClass}
-                  />
-                </label>
-              </div>
-            </div>
-          ) : null}
-
-          {section && sectionPath ? (
-            <div className="rounded-xl border border-zinc-200 bg-white p-4">
-              <div className="mb-3 grid gap-3 sm:grid-cols-2">
-                <label className="flex flex-col gap-1">
-                  <span className="text-xs text-zinc-500">Section name (EN)</span>
-                  <input
-                    value={section.label}
-                    onChange={(e) =>
-                      patchNode(sectionPath, (n) => ({ ...n, label: e.target.value }))
-                    }
-                    className={formControlClass}
-                  />
-                </label>
-                <label className="flex flex-col gap-1">
-                  <span className="text-xs text-zinc-500">Section name (BN)</span>
-                  <input
-                    value={section.labelBn ?? ""}
-                    onChange={(e) =>
-                      patchNode(sectionPath, (n) => ({
-                        ...n,
-                        labelBn: e.target.value || undefined,
-                      }))
-                    }
-                    className={formControlClass}
-                  />
-                </label>
-              </div>
-
-              {showSurahPicker ? (
-                <CatalogMultiSelect
-                  label="Surahs in this track"
-                  hint="Select surahs — students & homework will pick from this list."
-                  options={SELECTABLE_SURAHS.map((s) => ({ id: s, label: s }))}
-                  selectedIds={selectedSurahs}
-                  onChange={(names) => handleSurahSelection(names)}
-                />
-              ) : null}
-
-              {showTajweedPicker ? (
-                <CatalogMultiSelect
-                  label="Tajweed rules in this category"
-                  hint="Select rules for this tajweed category."
-                  options={TAJWEED_RULE_CATALOG}
-                  selectedIds={selectedTajweedIds}
-                  onChange={handleTajweedSelection}
-                />
-              ) : null}
-
-              {showGrammarPicker ? (
-                <CatalogMultiSelect
-                  label="Grammar lessons"
-                  hint="Select nahw / grammar topics for this section."
-                  options={GRAMMAR_LESSON_CATALOG}
-                  selectedIds={selectedGrammarIds}
-                  onChange={handleGrammarSelection}
-                />
-              ) : null}
-            </div>
-          ) : (
-            <button
-              type="button"
-              onClick={handleAddSection}
-              className="self-start text-sm font-semibold text-gold"
-            >
-              + Add section to this program
-            </button>
-          )}
-
-          {topic && topicPath && !isSurahTopicId(topic.id) ? (
-            <div className="rounded-xl border border-dashed border-zinc-200 p-4">
-              <p className="mb-2 text-xs font-semibold uppercase text-zinc-400">Topic detail</p>
-              <div className="grid gap-3 sm:grid-cols-2">
-                <label className="flex flex-col gap-1">
-                  <span className="text-xs text-zinc-500">Topic (EN)</span>
-                  <input
-                    value={topic.label}
-                    onChange={(e) =>
-                      patchNode(topicPath, (n) => ({ ...n, label: e.target.value }))
-                    }
-                    className={formControlClass}
-                  />
-                </label>
-                <label className="flex flex-col gap-1">
-                  <span className="text-xs text-zinc-500">Topic (BN)</span>
-                  <input
-                    value={topic.labelBn ?? ""}
-                    onChange={(e) =>
-                      patchNode(topicPath, (n) => ({
-                        ...n,
-                        labelBn: e.target.value || undefined,
-                      }))
-                    }
-                    className={formControlClass}
-                  />
-                </label>
-              </div>
-            </div>
-          ) : null}
-        </Card>
+        </>
       )}
     </PageContainer>
   );

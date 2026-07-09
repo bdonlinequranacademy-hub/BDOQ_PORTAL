@@ -212,7 +212,7 @@ export function CertificateDocument({ certificate }: { certificate: CertificateV
               {row.icon}
             </div>
             <div className="w-[116px] shrink-0">
-              <p className="font-['Cinzel',serif] text-[12px] font-semibold uppercase leading-tight tracking-wide text-[#0D4A2F]">
+              <p className="font-['Cinzel',serif] text-[12px] font-semibold uppercase leading-tight tracking-wide text-[#269B6F]">
                 {row.en}
               </p>
               <p className="font-['Noto_Sans_Bengali',sans-serif] text-[10px] font-medium leading-tight text-[#6B7280]">
@@ -236,13 +236,13 @@ export function CertificateDocument({ certificate }: { certificate: CertificateV
             value={certificate.verifyUrl}
             size={84}
             bgColor="#FFFFFF"
-            fgColor="#0D4A2F"
+            fgColor="#269B6F"
             level="M"
             marginSize={0}
           />
         </div>
         <div className="flex flex-col">
-          <p className="font-['Cinzel',serif] text-sm font-bold leading-tight text-[#0D4A2F]">
+          <p className="font-['Cinzel',serif] text-sm font-bold leading-tight text-[#269B6F]">
             Scan to Verify
           </p>
           <p className="font-['Noto_Sans_Bengali',sans-serif] text-xs font-semibold leading-tight text-black">
@@ -268,8 +268,8 @@ export function CertificateDocument({ certificate }: { certificate: CertificateV
           alt="Signature of Hafez Mawlana Mufti Abdul Mumin Khan"
           className="h-[115px] w-auto object-contain"
         />
-        <div className="mt-1 h-px w-full bg-[#0D4A2F]/50" />
-        <p className="mt-1 text-center font-['Cinzel',serif] text-sm font-bold leading-tight text-[#0D4A2F]">
+        <div className="mt-1 h-px w-full bg-[#269B6F]/50" />
+        <p className="mt-1 text-center font-['Cinzel',serif] text-sm font-bold leading-tight text-[#269B6F]">
           Hafez Mawlana Mufti Abdul Mumin Khan
         </p>
         <p className="text-center font-['Cinzel',serif] text-xs font-semibold leading-tight text-black">
@@ -287,8 +287,8 @@ export function CertificateDocument({ certificate }: { certificate: CertificateV
           alt="Authorized signature"
           className="h-[115px] w-auto object-contain"
         />
-        <div className="mt-1 h-px w-full bg-[#0D4A2F]/50" />
-        <p className="mt-1 text-center font-['Cinzel',serif] text-sm font-bold leading-tight text-[#0D4A2F]">
+        <div className="mt-1 h-px w-full bg-[#269B6F]/50" />
+        <p className="mt-1 text-center font-['Cinzel',serif] text-sm font-bold leading-tight text-[#269B6F]">
           Admin Authority
         </p>
         <p className="text-center font-['Cinzel',serif] text-xs font-semibold leading-tight text-black">

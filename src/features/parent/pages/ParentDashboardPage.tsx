@@ -22,14 +22,12 @@ import { ChildSelector } from "@/features/parent/components/ChildSelector";
 import { SessionStatusBadge } from "@/components/schedule/SessionStatusBadge";
 import { PageContainer } from "@/components/layout/PageContainer";
 import { Card } from "@/components/ui/Card";
-import { useAuthStore } from "@/stores/authStore";
 
 function isOverdue(dueDate: string) {
   return new Date(dueDate) < new Date();
 }
 
 export function ParentDashboardPage() {
-  const user = useAuthStore((s) => s.user);
   const navigate = useNavigate();
   const { data: children = [] } = useParentChildren();
   const childId = useSelectedChildId() ?? "";
@@ -50,14 +48,6 @@ export function ParentDashboardPage() {
 
   return (
     <PageContainer className="flex flex-col gap-6 lg:gap-8">
-      <div>
-        <span className="text-sm text-zinc-500">Assalamu Alaikum,</span>
-        <h1 className="text-2xl font-bold text-primary-dark lg:text-3xl">
-          {user?.name ?? "Parent"}
-        </h1>
-        <p className="mt-1 text-sm text-zinc-500">Your child&apos;s learning overview</p>
-      </div>
-
       <ChildSelector />
 
       {!childId && children.length === 0 ? null : !childId ? (

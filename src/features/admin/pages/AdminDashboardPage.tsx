@@ -1,3 +1,4 @@
+import { useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   Users,
@@ -16,39 +17,29 @@ import {
   BookOpenCheck,
   Library,
   CreditCard,
-  MessageCircle,
+  MessageSquareQuote,
   Percent,
   CheckCircle2,
   Radio,
-  MessageSquareQuote,
 } from "lucide-react";
-import { useAuthStore } from "@/stores/authStore";
 import { useAdminStats, useAdminWhatsAppQueue } from "@/features/admin/hooks/useAdmin";
 import { PageContainer } from "@/components/layout/PageContainer";
 import { StatCard } from "@/components/ui/shared/StatCard";
 import { EnrollmentChart } from "@/components/ui/shared/EnrollmentChart";
-import { BDOQ_BRAND } from "@/lib/bdoqBrand";
 import { PageLoading } from "@/components/ui/PageLoading";
 import { EmptyState } from "@/components/ui/EmptyState";
-import { DashboardHero } from "@/components/dashboard/DashboardHero";
 import { DashboardSection } from "@/components/dashboard/DashboardSection";
 import { DashboardTwoColumn } from "@/components/dashboard/DashboardTwoColumn";
-import { AlertActionCard } from "@/components/dashboard/AlertActionCard";
 import { HealthMetricRow } from "@/components/dashboard/HealthMetricRow";
 import { QuickActionGrid } from "@/components/dashboard/QuickActionGrid";
-import { LiveMonitorBanner } from "@/features/admin/components/liveMonitor/LiveMonitorBanner";
 import { LiveMonitorDashboardCard } from "@/features/admin/components/liveMonitor/LiveMonitorDashboardCard";
-
-function todayLabel() {
-  return new Date().toLocaleDateString("en-US", {
-    weekday: "long",
-    month: "short",
-    day: "numeric",
-  });
-}
+import { AdminDashboardWhatsAppStrip } from "@/features/admin/components/dashboard/AdminDashboardWhatsAppStrip";
+import {
+  AdminDashboardActionPanel,
+  type IAdminDashboardActionItem,
+} from "@/features/admin/components/dashboard/AdminDashboardActionPanel";
 
 export function AdminDashboardPage() {
-  const user = useAuthStore((s) => s.user);
   const navigate = useNavigate();
   const { data: stats, isLoading } = useAdminStats();
   const { data: waQueue = [] } = useAdminWhatsAppQueue();
@@ -64,15 +55,6 @@ export function AdminDashboardPage() {
   const newContacts = pending?.newContacts ?? 0;
   const newAdmissions = pending?.newStudentAdmissions ?? 0;
   const newTeacherApps = pending?.newTeacherApplications ?? 0;
-
-  const hasPending =
-    pendingLogs > 0 ||
-    pendingRequests > 0 ||
-    newTrials > 0 ||
-    newContacts > 0 ||
-    newAdmissions > 0 ||
-    newTeacherApps > 0 ||
-    pendingPayments > 0;
 
   const enrollmentBars = [
     { month: "Jan", count: Math.max(1, Math.floor((stats?.totalStudents ?? 0) * 0.12)) },
@@ -100,119 +82,100 @@ export function AdminDashboardPage() {
     { label: "Reviews", to: "/admin/testimonials", icon: <MessageSquareQuote className="size-5 text-primary" /> },
   ];
 
+  const actionItems = useMemo(() => {
+    const items: IAdminDashboardActionItem[] = [];
+
+    if (newContacts > 0) {
+      items.push({
+        id: "contacts",
+        title: `${newContacts} new contact message${newContacts === 1 ? "" : "s"}`,
+        actionLabel: "Open inbox",
+        onAction: () => navigate("/admin/contact-messages"),
+        accent: "sky",
+      });
+    }
+    if (newTrials > 0) {
+      items.push({
+        id: "trials",
+        title: `${newTrials} new trial lead${newTrials === 1 ? "" : "s"}`,
+        actionLabel: "Review trial bookings",
+        onAction: () => navigate("/admin/trial-bookings"),
+        accent: "amber",
+      });
+    }
+    if (newAdmissions > 0) {
+      items.push({
+        id: "admissions",
+        title: `${newAdmissions} new admission${newAdmissions === 1 ? "" : "s"}`,
+        actionLabel: "Review admissions",
+        onAction: () => navigate("/admin/student-admissions"),
+        accent: "violet",
+      });
+    }
+    if (newTeacherApps > 0) {
+      items.push({
+        id: "teacher-apps",
+        title: `${newTeacherApps} teacher application${newTeacherApps === 1 ? "" : "s"}`,
+        actionLabel: "Review applications",
+        onAction: () => navigate("/admin/teacher-applications"),
+        accent: "violet",
+      });
+    }
+    if (pendingPayments > 0) {
+      items.push({
+        id: "payments",
+        title: `${pendingPayments} payment proof${pendingPayments === 1 ? "" : "s"} to review`,
+        actionLabel: "Review payments",
+        onAction: () => navigate("/admin/payments"),
+        accent: "primary",
+      });
+    }
+    if (pendingLogs > 0) {
+      items.push({
+        id: "class-logs",
+        title: `${pendingLogs} class log${pendingLogs === 1 ? "" : "s"} pending`,
+        actionLabel: "Review class logs",
+        onAction: () => navigate("/admin/class-logs"),
+        accent: "amber",
+      });
+    }
+    if (pendingRequests > 0) {
+      items.push({
+        id: "student-requests",
+        title: `${pendingRequests} student request${pendingRequests === 1 ? "" : "s"}`,
+        actionLabel: "View requests",
+        onAction: () => navigate("/admin/student-requests"),
+        accent: "rose",
+      });
+    }
+
+    return items;
+  }, [
+    navigate,
+    newAdmissions,
+    newContacts,
+    newTeacherApps,
+    newTrials,
+    pendingLogs,
+    pendingPayments,
+    pendingRequests,
+  ]);
+
+  const liveBadge = liveSummary
+    ? liveSummary.liveCount > 0
+      ? `${liveSummary.liveCount} live`
+      : `${liveSummary.totalToday} today`
+    : undefined;
+
   return (
-    <PageContainer className="flex flex-col gap-6 lg:gap-8">
-      <DashboardHero
-        eyebrow="BDOQ Academy administration"
-        name={user?.name ?? "Admin"}
-        subtitle={BDOQ_BRAND.tagline}
-        dateLabel={todayLabel()}
-        roleBadge="Admin"
-      />
-
-      <div className="rounded-2xl border border-[#25D366]/25 bg-gradient-to-r from-[#25D366]/8 to-teal/5 p-4 shadow-sm dark:border-[#25D366]/35 dark:from-[#25D366]/15 dark:to-teal/10 sm:p-5">
-        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-          <div className="flex items-start gap-3">
-            <MessageCircle className="mt-0.5 size-5 shrink-0 text-[#128C7E]" aria-hidden />
-            <div>
-              <p className="font-semibold text-portal-heading">WhatsApp message queue</p>
-              <p className="text-sm text-portal-muted">
-                {waActionable > 0
-                  ? `${waActionable} ready-to-send reminder${waActionable === 1 ? "" : "s"}`
-                  : "No urgent WhatsApp messages right now"}
-                {waQueue.some((i) => i.category === "missing_whatsapp")
-                  ? ` · ${waQueue.filter((i) => i.category === "missing_whatsapp").length} users need numbers`
-                  : ""}
-              </p>
-            </div>
-          </div>
-          <button
-            type="button"
-            onClick={() => navigate("/admin/whatsapp-queue")}
-            className="shrink-0 rounded-xl bg-[#128C7E] px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-[#0e6b60]"
-          >
-            Open queue →
-          </button>
-        </div>
-      </div>
-
-      {liveSummary ? (
-        <LiveMonitorBanner
-          summary={liveSummary}
-          compact
-          onOpenMonitor={() => navigate("/admin/live-monitor")}
-        />
-      ) : null}
-
-      {hasPending ? (
-        <DashboardSection title="Action required" subtitle="Review these items first">
-          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-            {newContacts > 0 ? (
-              <AlertActionCard
-                tone="blue"
-                title={`${newContacts} new contact message${newContacts === 1 ? "" : "s"}`}
-                actionLabel="Open inbox"
-                onAction={() => navigate("/admin/contact-messages")}
-              />
-            ) : null}
-            {newTrials > 0 ? (
-              <AlertActionCard
-                tone="amber"
-                title={`${newTrials} new trial lead${newTrials === 1 ? "" : "s"}`}
-                actionLabel="Review trial bookings"
-                onAction={() => navigate("/admin/trial-bookings")}
-              />
-            ) : null}
-            {newAdmissions > 0 ? (
-              <AlertActionCard
-                tone="violet"
-                title={`${newAdmissions} new admission${newAdmissions === 1 ? "" : "s"}`}
-                actionLabel="Review admissions"
-                onAction={() => navigate("/admin/student-admissions")}
-              />
-            ) : null}
-            {newTeacherApps > 0 ? (
-              <AlertActionCard
-                tone="indigo"
-                title={`${newTeacherApps} teacher application${newTeacherApps === 1 ? "" : "s"}`}
-                actionLabel="Review applications"
-                onAction={() => navigate("/admin/teacher-applications")}
-              />
-            ) : null}
-            {pendingPayments > 0 ? (
-              <AlertActionCard
-                tone="emerald"
-                title={`${pendingPayments} payment proof${pendingPayments === 1 ? "" : "s"} to review`}
-                actionLabel="Review payments"
-                onAction={() => navigate("/admin/payments")}
-              />
-            ) : null}
-            {pendingLogs > 0 ? (
-              <AlertActionCard
-                tone="amber"
-                title={`${pendingLogs} class log${pendingLogs === 1 ? "" : "s"} pending`}
-                actionLabel="Review class logs"
-                onAction={() => navigate("/admin/class-logs")}
-              />
-            ) : null}
-            {pendingRequests > 0 ? (
-              <AlertActionCard
-                tone="neutral"
-                title={`${pendingRequests} student request${pendingRequests === 1 ? "" : "s"}`}
-                actionLabel="View requests"
-                onAction={() => navigate("/admin/student-requests")}
-              />
-            ) : null}
-          </div>
-        </DashboardSection>
-      ) : null}
-
-      <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
+    <PageContainer className="flex flex-col gap-5 lg:gap-6">
+      <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
         <StatCard
           label="Students"
           value={isLoading ? "—" : (stats?.totalStudents ?? 0)}
           icon={<Users className="size-5 text-primary" />}
           iconBg="bg-primary/10"
+          hint={stats?.activeClasses ? `${stats.activeClasses} active classes` : undefined}
           onClick={() => navigate("/admin/users")}
         />
         <StatCard
@@ -237,6 +200,50 @@ export function AdminDashboardPage() {
           onClick={() => navigate("/admin/classes")}
         />
       </div>
+
+      <div className="grid grid-cols-1 gap-5 lg:grid-cols-3 lg:gap-6">
+        <div className="lg:col-span-2">
+          <DashboardSection
+            title="Live monitor"
+            subtitle={
+              liveSummary
+                ? `${liveSummary.upcomingCount} upcoming · ${liveSummary.totalToday} total today`
+                : "Today's scheduled sessions"
+            }
+            badge={liveBadge}
+            actionLabel="View all"
+            onAction={() => navigate("/admin/live-monitor")}
+            elevated
+            className="h-full rounded-2xl border border-portal shadow-[0_8px_24px_-16px_rgba(13,74,47,0.18)]"
+          >
+            {isLoading ? (
+              <PageLoading />
+            ) : !stats?.todaysClasses?.length ? (
+              <EmptyState
+                icon={CalendarDays}
+                title="No classes today"
+                description="Check academy routine or assign students to classes."
+                actionLabel="Academy routine"
+                onAction={() => navigate("/admin/schedule/routine")}
+              />
+            ) : (
+              <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
+                {stats.todaysClasses.map((session) => (
+                  <LiveMonitorDashboardCard key={session._id} session={session} />
+                ))}
+              </div>
+            )}
+          </DashboardSection>
+        </div>
+
+        <AdminDashboardActionPanel items={actionItems} />
+      </div>
+
+      <AdminDashboardWhatsAppStrip
+        queue={waQueue}
+        actionableCount={waActionable}
+        onOpenQueue={() => navigate("/admin/whatsapp-queue")}
+      />
 
       {stats ? (
         <HealthMetricRow
@@ -268,55 +275,28 @@ export function AdminDashboardPage() {
 
       <DashboardTwoColumn
         main={
-          <>
-            <DashboardSection
-              title="Today's classes"
-              badge={
-                isLoading
-                  ? "…"
-                  : `${liveSummary?.totalToday ?? stats?.todaysClasses?.length ?? 0} scheduled`
-              }
-              actionLabel="Live monitor"
-              onAction={() => navigate("/admin/live-monitor")}
-              elevated
-            >
-              {isLoading ? (
-                <PageLoading />
-              ) : !stats?.todaysClasses?.length ? (
-                <EmptyState
-                  icon={CalendarDays}
-                  title="No classes today"
-                  description="Check academy routine or assign students to classes."
-                  actionLabel="Academy routine"
-                  onAction={() => navigate("/admin/schedule/routine")}
-                />
-              ) : (
-                <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
-                  {stats.todaysClasses.map((session) => (
-                    <LiveMonitorDashboardCard key={session._id} session={session} />
-                  ))}
-                </div>
-              )}
-            </DashboardSection>
-
-            <DashboardSection title="Quick links" subtitle="Jump to admin tools">
-              <QuickActionGrid
-                columns={3}
-                actions={adminQuickLinks.map((link) => ({
-                  label: link.label,
-                  icon: link.icon,
-                  iconBg: "bg-primary/10",
-                  onClick: () => navigate(link.to),
-                }))}
-              />
-            </DashboardSection>
-          </>
+          <DashboardSection
+            title="Quick access"
+            subtitle="Jump to admin tools"
+            className="rounded-2xl border border-portal shadow-[0_8px_24px_-16px_rgba(13,74,47,0.18)]"
+          >
+            <QuickActionGrid
+              columns={4}
+              actions={adminQuickLinks.map((link) => ({
+                label: link.label,
+                icon: link.icon,
+                iconBg: "bg-primary/10",
+                onClick: () => navigate(link.to),
+              }))}
+            />
+          </DashboardSection>
         }
         aside={
           <>
             <DashboardSection
               title="Enrollment overview"
               subtitle="Estimated from active roster"
+              className="rounded-2xl border border-portal shadow-[0_8px_24px_-16px_rgba(13,74,47,0.18)]"
             >
               <EnrollmentChart data={enrollmentBars} />
             </DashboardSection>
@@ -326,6 +306,7 @@ export function AdminDashboardPage() {
                 title="Curriculum coverage"
                 actionLabel="Manage"
                 onAction={() => navigate("/admin/curriculum")}
+                className="rounded-2xl border border-portal shadow-[0_8px_24px_-16px_rgba(13,74,47,0.18)]"
               >
                 <ul className="space-y-2 text-sm text-portal-muted">
                   <li>

@@ -1,13 +1,6 @@
-import { useState } from "react";
-import { Link } from "react-router-dom";
-import {
-  Banknote,
-  Check,
-  ExternalLink,
-  FileText,
-  X,
-} from "lucide-react";
-import type { BillingCurrency, PaymentRecordView, PaymentStatus } from "@/types/models";
+import { useMemo, useState } from "react";
+import { Banknote, LayoutGrid, List } from "lucide-react";
+import type { BillingCurrency, PaymentRecordView } from "@/types/models";
 import {
   useAdminPayments,
   useAdminOverdueBillings,
@@ -25,175 +18,91 @@ import { PageLoading } from "@/components/ui/PageLoading";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { Pagination } from "@/components/ui/Pagination";
 import { usePaginatedList } from "@/lib/hooks/usePaginatedList";
-import { UserInitialAvatar } from "@/components/ui/UserInitialAvatar";
+import { AdminPaymentsStatsGrid } from "@/features/admin/components/payments/AdminPaymentsStatsGrid";
+import { AdminPaymentsFilterPanel } from "@/features/admin/components/payments/AdminPaymentsFilterPanel";
+import {
+  AdminPaymentsTable,
+  exportPaymentsFile,
+} from "@/features/admin/components/payments/AdminPaymentsTable";
+import {
+  AdminPaymentMethodsOverview,
+  AdminRecentTransactions,
+} from "@/features/admin/components/payments/AdminPaymentsInsights";
+import { AdminOverdueBillingsTable } from "@/features/admin/components/payments/AdminOverdueBillingsTable";
+import { PAYMENT_CURRENCIES } from "@/features/admin/components/payments/adminPaymentsUtils";
+import { cn } from "@/lib/utils/cn";
 
-type PaymentTab = "pending" | "all" | "overdue";
+type PaymentTab = "all" | "pending" | "overdue" | "completed" | "rejected";
+type SortOption = "newest" | "oldest" | "amount_high" | "amount_low";
 
-const CURRENCIES: BillingCurrency[] = ["USD", "GBP", "EUR", "BDT", "CAD", "AUD"];
-
-const METHOD_LABELS: Record<string, string> = {
-  zelle: "Zelle",
-  wise: "Wise",
-  bank_transfer: "Bank transfer",
-  paypal: "PayPal",
-  cash_app: "Cash App",
-  bkash: "bKash",
-  nagad: "Nagad",
-  other: "Other",
-};
-
-function formatAmount(amount: number, currency: string) {
-  try {
-    return new Intl.NumberFormat(undefined, {
-      style: "currency",
-      currency,
-      minimumFractionDigits: 2,
-    }).format(amount);
-  } catch {
-    return `${currency} ${amount.toFixed(2)}`;
+function filterPayments(
+  payments: PaymentRecordView[],
+  options: {
+    search: string;
+    methodFilter: string;
+    dateFrom: string;
+    dateTo: string;
+    amountMin: string;
+    amountMax: string;
+    tab: PaymentTab;
+    sortBy: SortOption;
   }
-}
+): PaymentRecordView[] {
+  const query = options.search.trim().toLowerCase();
+  const min = options.amountMin ? Number(options.amountMin) : null;
+  const max = options.amountMax ? Number(options.amountMax) : null;
 
-function statusStyles(status: PaymentStatus) {
-  if (status === "approved") {
-    return "border-emerald-200 bg-emerald-50 text-emerald-800";
-  }
-  if (status === "rejected") {
-    return "border-red-200 bg-red-50 text-red-800";
-  }
-  return "border-amber-200 bg-amber-50 text-amber-900";
-}
+  const filtered = payments.filter((payment) => {
+    const studentName = payment.student?.name?.toLowerCase() ?? "";
+    const studentEmail = payment.student?.email?.toLowerCase() ?? "";
+    const reference = payment.reference.toLowerCase();
 
-function PaymentReviewCard({
-  payment,
-  onApprove,
-  onReject,
-  busy,
-}: {
-  payment: PaymentRecordView;
-  onApprove: (id: string) => void;
-  onReject: (id: string) => void;
-  busy: boolean;
-}) {
-  const studentName = payment.student?.name ?? "Student";
-  const methodLabel = METHOD_LABELS[payment.method] ?? payment.method.replace(/_/g, " ");
-  const paidOn = new Date(payment.paymentDate).toLocaleDateString();
-  const isPending = payment.status === "pending";
+    const matchesSearch =
+      !query ||
+      studentName.includes(query) ||
+      studentEmail.includes(query) ||
+      reference.includes(query);
 
-  return (
-    <article className="border-b border-zinc-100 last:border-b-0">
-      <div className="flex flex-col gap-3 px-4 py-4 sm:px-5">
-        <div className="flex flex-wrap items-start gap-3">
-          <UserInitialAvatar name={studentName} size="sm" />
-          <div className="flex min-w-0 flex-1 flex-wrap items-start justify-between gap-x-4 gap-y-2">
-            <div className="min-w-0">
-              <p className="truncate font-semibold text-navy">{studentName}</p>
-              <p className="truncate text-xs text-zinc-500">{payment.student?.email}</p>
-            </div>
-            <div className="flex items-center gap-2 sm:gap-3">
-              <div className="text-right">
-                <p className="text-lg font-bold tabular-nums text-navy sm:text-xl">
-                  {formatAmount(payment.amount, payment.currency)}
-                </p>
-                <p className="text-[11px] text-zinc-500">
-                  {payment.monthsCovered} mo
-                  {payment.netAmount != null
-                    ? ` · net ${formatAmount(payment.netAmount, payment.currency)}`
-                    : ""}
-                </p>
-              </div>
-              <span
-                className={`rounded-full border px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide ${statusStyles(payment.status)}`}
-              >
-                {payment.status}
-              </span>
-            </div>
-          </div>
-        </div>
+    const matchesMethod =
+      options.methodFilter === "all" || payment.method === options.methodFilter;
 
-        <dl className="grid grid-cols-2 gap-x-4 gap-y-2 text-xs sm:grid-cols-4">
-          <div>
-            <dt className="text-[10px] font-semibold uppercase tracking-wide text-zinc-400">Method</dt>
-            <dd className="mt-0.5 font-medium text-zinc-700">{methodLabel}</dd>
-          </div>
-          <div>
-            <dt className="text-[10px] font-semibold uppercase tracking-wide text-zinc-400">Reference</dt>
-            <dd className="mt-0.5 truncate font-medium text-zinc-700" title={payment.reference}>
-              {payment.reference}
-            </dd>
-          </div>
-          <div>
-            <dt className="text-[10px] font-semibold uppercase tracking-wide text-zinc-400">Paid on</dt>
-            <dd className="mt-0.5 font-medium text-zinc-700">{paidOn}</dd>
-          </div>
-          <div>
-            <dt className="text-[10px] font-semibold uppercase tracking-wide text-zinc-400">Country</dt>
-            <dd className="mt-0.5 font-medium text-zinc-700">{payment.country}</dd>
-          </div>
-        </dl>
+    const paidAt = new Date(payment.paymentDate || payment.createdAt);
+    const matchesFrom =
+      !options.dateFrom || paidAt >= new Date(`${options.dateFrom}T00:00:00`);
+    const matchesTo =
+      !options.dateTo || paidAt <= new Date(`${options.dateTo}T23:59:59`);
 
-        {payment.note ? (
-          <p className="w-full rounded-lg bg-zinc-50 px-3 py-2 text-xs leading-relaxed text-zinc-600">
-            <span className="font-semibold text-navy">Note · </span>
-            {payment.note}
-          </p>
-        ) : null}
+    const matchesAmount =
+      (min == null || payment.amount >= min) && (max == null || payment.amount <= max);
 
-        {payment.rejectionReason ? (
-          <p className="w-full rounded-lg border border-red-100 bg-red-50 px-3 py-2 text-xs text-red-700">
-            <span className="font-semibold">Rejected · </span>
-            {payment.rejectionReason}
-          </p>
-        ) : null}
+    const matchesTab =
+      options.tab === "all" ||
+      options.tab === "pending" ||
+      (options.tab === "completed" && payment.status === "approved") ||
+      (options.tab === "rejected" && payment.status === "rejected");
 
-        <div className="flex flex-col gap-2 border-t border-zinc-100 pt-3 sm:flex-row sm:items-center sm:justify-between">
-          <div className="flex flex-wrap items-center gap-3">
-            <a
-              href={payment.screenshotUrl}
-              target="_blank"
-              rel="noreferrer"
-              className="inline-flex w-fit items-center gap-1.5 text-xs font-semibold text-gold-dark hover:underline"
-            >
-              View payment proof
-              <ExternalLink className="size-3.5" />
-            </a>
-            {payment.status === "approved" ? (
-              <Link
-                to={`/admin/payments/${payment.id}/invoice`}
-                className="inline-flex items-center gap-1.5 text-xs font-semibold text-primary hover:underline"
-              >
-                <FileText className="size-3.5" />
-                Invoice
-              </Link>
-            ) : null}
-          </div>
+    const matchesPendingTab =
+      options.tab !== "pending" || payment.status === "pending";
 
-          {isPending ? (
-            <div className="flex gap-2 sm:justify-end">
-              <Button
-                variant="success"
-                disabled={busy}
-                onClick={() => onApprove(payment.id)}
-                className="h-9 flex-1 gap-1.5 rounded-lg px-4 sm:flex-none"
-              >
-                <Check className="size-4" />
-                Approve
-              </Button>
-              <Button
-                variant="outline-danger"
-                disabled={busy}
-                onClick={() => onReject(payment.id)}
-                className="h-9 flex-1 gap-1.5 rounded-lg px-4 sm:flex-none"
-              >
-                <X className="size-4" />
-                Reject
-              </Button>
-            </div>
-          ) : null}
-        </div>
-      </div>
-    </article>
-  );
+    return (
+      matchesSearch &&
+      matchesMethod &&
+      matchesFrom &&
+      matchesTo &&
+      matchesAmount &&
+      matchesTab &&
+      matchesPendingTab
+    );
+  });
+
+  return filtered.sort((a, b) => {
+    if (options.sortBy === "amount_high") return b.amount - a.amount;
+    if (options.sortBy === "amount_low") return a.amount - b.amount;
+
+    const aTime = new Date(a.paymentDate || a.createdAt).getTime();
+    const bTime = new Date(b.paymentDate || b.createdAt).getTime();
+    return options.sortBy === "newest" ? bTime - aTime : aTime - bTime;
+  });
 }
 
 export function AdminPaymentsPage() {
@@ -202,14 +111,23 @@ export function AdminPaymentsPage() {
   const [rejectId, setRejectId] = useState<string | null>(null);
   const [rejectReason, setRejectReason] = useState("");
 
+  const [search, setSearch] = useState("");
+  const [methodFilter, setMethodFilter] = useState("all");
+  const [dateFrom, setDateFrom] = useState("");
+  const [dateTo, setDateTo] = useState("");
+  const [amountMin, setAmountMin] = useState("");
+  const [amountMax, setAmountMax] = useState("");
+  const [sortBy, setSortBy] = useState<SortOption>("newest");
+
+  const statsEnabled = !showBilling;
+  const { data: allPayments = [], isLoading: allLoading } = useAdminPayments(undefined, {
+    enabled: statsEnabled,
+  });
   const { data: pending = [], isLoading: pendingLoading } = useAdminPayments("pending", {
     enabled: !showBilling && tab === "pending",
   });
-  const { data: all = [], isLoading: allLoading } = useAdminPayments(undefined, {
-    enabled: !showBilling && tab === "all",
-  });
   const { data: overdue = [], isLoading: overdueLoading } = useAdminOverdueBillings({
-    enabled: !showBilling && tab === "overdue",
+    enabled: !showBilling,
   });
   const { data: students = [] } = useAdminUsers("student", undefined, {
     enabled: showBilling,
@@ -227,23 +145,85 @@ export function AdminPaymentsPage() {
 
   const busy = approvePayment.isPending || rejectPayment.isPending;
 
+  const sourcePayments = useMemo(() => {
+    if (tab === "pending") return pending;
+    return allPayments;
+  }, [tab, pending, allPayments]);
+
+  const filteredPayments = useMemo(
+    () =>
+      filterPayments(sourcePayments, {
+        search,
+        methodFilter,
+        dateFrom,
+        dateTo,
+        amountMin,
+        amountMax,
+        tab,
+        sortBy,
+      }),
+    [sourcePayments, search, methodFilter, dateFrom, dateTo, amountMin, amountMax, tab, sortBy]
+  );
+
+  const filteredOverdue = useMemo(() => {
+    const query = search.trim().toLowerCase();
+    if (!query) return overdue;
+    return overdue.filter(
+      (row) =>
+        row.student.name.toLowerCase().includes(query) ||
+        row.student.email.toLowerCase().includes(query)
+    );
+  }, [overdue, search]);
+
+  const paymentPagination = usePaginatedList(filteredPayments, {
+    resetDeps: [search, methodFilter, dateFrom, dateTo, amountMin, amountMax, tab, sortBy],
+  });
+  const overduePagination = usePaginatedList(filteredOverdue, {
+    resetDeps: [search, tab],
+  });
+
   const paymentTabs: { id: PaymentTab; label: string; count?: number }[] = [
+    { id: "all", label: "All Payments", count: allPayments.length },
     { id: "pending", label: "Pending", count: pending.length },
-    { id: "all", label: "All payments" },
     { id: "overdue", label: "Overdue", count: overdue.length },
+    {
+      id: "completed",
+      label: "Completed",
+      count: allPayments.filter((payment) => payment.status === "approved").length,
+    },
+    {
+      id: "rejected",
+      label: "Rejected",
+      count: allPayments.filter((payment) => payment.status === "rejected").length,
+    },
   ];
 
-  const pendingPagination = usePaginatedList(pending, { resetDeps: [tab] });
-  const allPagination = usePaginatedList(all, { resetDeps: [tab] });
-  const overduePagination = usePaginatedList(overdue, { resetDeps: [tab] });
+  const listLoading =
+    tab === "overdue"
+      ? overdueLoading
+      : tab === "pending"
+        ? pendingLoading
+        : allLoading;
+
+  function clearFilters() {
+    setSearch("");
+    setMethodFilter("all");
+    setDateFrom("");
+    setDateTo("");
+    setAmountMin("");
+    setAmountMax("");
+    setSortBy("newest");
+  }
 
   return (
-    <PageContainer className="flex flex-col gap-6">
+    <PageContainer className="gap-5 lg:gap-6">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-        <div>
-          <h1 className="text-2xl font-bold text-navy">Payments</h1>
-          <p className="text-sm text-zinc-500">
-            Review manual payment proofs and manage student billing plans.
+        <div className="min-w-0">
+          <h1 className="portal-page-title font-display text-2xl font-bold text-primary-dark sm:text-3xl">
+            Payment Management
+          </h1>
+          <p className="portal-page-subtitle mt-1 max-w-2xl text-portal-muted">
+            Review manual payment proofs, track collections, and manage student billing plans.
           </p>
         </div>
         {!showBilling ? (
@@ -251,38 +231,157 @@ export function AdminPaymentsPage() {
             type="button"
             variant="primary"
             onClick={() => setShowBilling(true)}
-            className="inline-flex h-10 shrink-0 items-center gap-2 rounded-xl px-5 shadow-sm"
+            className="inline-flex shrink-0 items-center gap-2 rounded-xl bg-primary px-5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-primary-dark"
           >
-            <Banknote className="size-4" />
-            Set billing
+            <Banknote className="size-4" aria-hidden />
+            Set Billing
           </Button>
         ) : (
           <Button
             type="button"
             variant="ghost"
             onClick={() => setShowBilling(false)}
-            className="h-10 shrink-0 rounded-xl border-2 border-navy/20 bg-white px-4 text-navy shadow-sm hover:bg-navy/5"
+            className="h-10 shrink-0 rounded-xl border border-portal bg-portal-surface px-4 text-portal-heading shadow-sm hover:bg-portal-muted/40"
           >
             Back to payments
           </Button>
         )}
       </div>
 
-      {showBilling ? (
-        <Card className="flex max-w-lg flex-col gap-4 rounded-2xl border-0 p-6 shadow-sm">
+      {!showBilling ? (
+        <>
+          <AdminPaymentsStatsGrid
+            allPayments={allPayments}
+            overdue={overdue}
+            isLoading={allLoading}
+          />
+
+          <div className="grid grid-cols-1 gap-5 xl:grid-cols-[280px_minmax(0,1fr)] xl:gap-6">
+            <AdminPaymentsFilterPanel
+              search={search}
+              onSearchChange={setSearch}
+              methodFilter={methodFilter}
+              onMethodFilterChange={setMethodFilter}
+              dateFrom={dateFrom}
+              dateTo={dateTo}
+              onDateFromChange={setDateFrom}
+              onDateToChange={setDateTo}
+              amountMin={amountMin}
+              amountMax={amountMax}
+              onAmountMinChange={setAmountMin}
+              onAmountMaxChange={setAmountMax}
+              onClearFilters={clearFilters}
+              onExportCsv={() => exportPaymentsFile(filteredPayments, "csv")}
+              onExportExcel={() => exportPaymentsFile(filteredPayments, "excel")}
+            />
+
+            <div className="flex min-w-0 flex-col gap-4">
+              <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+                <div className="flex flex-wrap gap-2">
+                  {paymentTabs.map((item) => (
+                    <button
+                      key={item.id}
+                      type="button"
+                      onClick={() => setTab(item.id)}
+                      className={cn(
+                        "rounded-full px-4 py-1.5 text-sm font-semibold transition",
+                        tab === item.id
+                          ? "bg-primary text-white shadow-sm"
+                          : "border border-portal bg-portal-surface text-portal-heading hover:border-primary/30"
+                      )}
+                    >
+                      {item.label}
+                      {item.count != null ? ` (${item.count})` : ""}
+                    </button>
+                  ))}
+                </div>
+
+                {tab !== "overdue" ? (
+                  <div className="flex flex-wrap items-center gap-2">
+                    <div className="min-w-[170px]">
+                      <Select
+                        value={sortBy}
+                        onChange={(event) => setSortBy(event.target.value as SortOption)}
+                        className="py-2 text-sm"
+                        aria-label="Sort payments"
+                      >
+                        <option value="newest">Newest first</option>
+                        <option value="oldest">Oldest first</option>
+                        <option value="amount_high">Amount high to low</option>
+                        <option value="amount_low">Amount low to high</option>
+                      </Select>
+                    </div>
+                    <div className="hidden items-center gap-1 rounded-xl border border-portal bg-portal-surface p-1 sm:flex">
+                      <span className="inline-flex size-9 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                        <List className="size-4" aria-hidden />
+                      </span>
+                      <span className="inline-flex size-9 items-center justify-center rounded-lg text-portal-muted">
+                        <LayoutGrid className="size-4" aria-hidden />
+                      </span>
+                    </div>
+                  </div>
+                ) : null}
+              </div>
+
+              {listLoading ? (
+                <PageLoading
+                  label={tab === "overdue" ? "Loading overdue students…" : "Loading payments…"}
+                />
+              ) : tab === "overdue" ? (
+                filteredOverdue.length === 0 ? (
+                  <EmptyState
+                    title="No overdue students"
+                    description="All active billings are current."
+                  />
+                ) : (
+                  <>
+                    <AdminOverdueBillingsTable rows={overduePagination.paginatedItems} />
+                    <Pagination pagination={overduePagination} itemLabel="students" />
+                  </>
+                )
+              ) : filteredPayments.length === 0 ? (
+                <EmptyState
+                  title={tab === "pending" ? "No pending payments" : "No payments found"}
+                  description={
+                    tab === "pending"
+                      ? "New submissions will appear here."
+                      : "Try adjusting your filters."
+                  }
+                />
+              ) : (
+                <>
+                  <AdminPaymentsTable
+                    payments={paymentPagination.paginatedItems}
+                    busy={busy}
+                    onApprove={(id) => approvePayment.mutate(id)}
+                    onReject={(id) => setRejectId(id)}
+                  />
+                  <Pagination pagination={paymentPagination} itemLabel="payments" />
+                </>
+              )}
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 gap-5 xl:grid-cols-2">
+            <AdminPaymentMethodsOverview payments={allPayments} />
+            <AdminRecentTransactions payments={allPayments} />
+          </div>
+        </>
+      ) : (
+        <Card className="flex max-w-lg flex-col gap-4 rounded-2xl border border-portal bg-portal-surface p-6 shadow-[0_8px_24px_-16px_rgba(13,74,47,0.18)]">
           <div className="flex items-center gap-2">
-            <Banknote className="size-5 text-navy" />
-            <h2 className="text-lg font-bold text-navy">Student billing plan</h2>
+            <Banknote className="size-5 text-primary" />
+            <h2 className="text-lg font-bold text-portal-heading">Student billing plan</h2>
           </div>
           <Select
             value={billingStudentId}
-            onChange={(e) => setBillingStudentId(e.target.value)}
+            onChange={(event) => setBillingStudentId(event.target.value)}
             label="Student"
           >
             <option value="">Select student…</option>
-            {students.map((s) => (
-              <option key={s.id} value={s.id}>
-                {s.name} ({s.email})
+            {students.map((student) => (
+              <option key={student.id} value={student.id}>
+                {student.name} ({student.email})
               </option>
             ))}
           </Select>
@@ -292,16 +391,16 @@ export function AdminPaymentsPage() {
             min="0"
             placeholder="Monthly fee"
             value={monthlyFee}
-            onChange={(e) => setMonthlyFee(e.target.value)}
+            onChange={(event) => setMonthlyFee(event.target.value)}
           />
           <Select
             value={billingCurrency}
-            onChange={(e) => setBillingCurrency(e.target.value as BillingCurrency)}
+            onChange={(event) => setBillingCurrency(event.target.value as BillingCurrency)}
             label="Currency"
           >
-            {CURRENCIES.map((c) => (
-              <option key={c} value={c}>
-                {c}
+            {PAYMENT_CURRENCIES.map((currency) => (
+              <option key={currency} value={currency}>
+                {currency}
               </option>
             ))}
           </Select>
@@ -311,13 +410,9 @@ export function AdminPaymentsPage() {
             max="28"
             placeholder="Due day of month (1–28)"
             value={dueDay}
-            onChange={(e) => setDueDay(e.target.value)}
+            onChange={(event) => setDueDay(event.target.value)}
           />
-          <Input
-            type="date"
-            value={paidUntil}
-            onChange={(e) => setPaidUntil(e.target.value)}
-          />
+          <Input type="date" value={paidUntil} onChange={(event) => setPaidUntil(event.target.value)} />
           <Button
             disabled={!billingStudentId || !monthlyFee || upsertBilling.isPending}
             className="h-11 rounded-xl"
@@ -335,117 +430,19 @@ export function AdminPaymentsPage() {
             {upsertBilling.isPending ? "Saving…" : "Save billing plan"}
           </Button>
         </Card>
-      ) : (
-        <>
-      <div className="flex flex-wrap gap-2">
-        {paymentTabs.map((t) => (
-          <button
-            key={t.id}
-            type="button"
-            onClick={() => setTab(t.id)}
-            className={`rounded-full px-4 py-1.5 text-sm font-medium transition ${
-              tab === t.id
-                ? "bg-navy text-white shadow-sm"
-                : "border border-zinc-200 bg-white text-navy hover:border-gold/40 hover:bg-gold/5"
-            }`}
-          >
-            {t.label}
-            {t.count != null ? ` (${t.count})` : ""}
-          </button>
-        ))}
-      </div>
-
-      {tab === "pending" ? (
-        pendingLoading ? (
-          <PageLoading label="Loading pending payments…" />
-        ) : pending.length === 0 ? (
-          <EmptyState title="No pending payments" description="New submissions will appear here." />
-        ) : (
-          <>
-          <Card className="overflow-hidden rounded-2xl border border-zinc-100 bg-white p-0 shadow-sm">
-            {pendingPagination.paginatedItems.map((p) => (
-              <PaymentReviewCard
-                key={p.id}
-                payment={p}
-                busy={busy}
-                onApprove={(id) => approvePayment.mutate(id)}
-                onReject={(id) => setRejectId(id)}
-              />
-            ))}
-          </Card>
-          <Pagination pagination={pendingPagination} itemLabel="payments" />
-          </>
-        )
-      ) : null}
-
-      {tab === "all" ? (
-        allLoading ? (
-          <PageLoading label="Loading payments…" />
-        ) : all.length === 0 ? (
-          <EmptyState title="No payments yet" description="Approved and rejected payments appear here." />
-        ) : (
-          <>
-          <Card className="overflow-hidden rounded-2xl border border-zinc-100 bg-white p-0 shadow-sm">
-            {allPagination.paginatedItems.map((p) => (
-              <PaymentReviewCard
-                key={p.id}
-                payment={p}
-                busy={busy}
-                onApprove={(id) => approvePayment.mutate(id)}
-                onReject={(id) => setRejectId(id)}
-              />
-            ))}
-          </Card>
-          <Pagination pagination={allPagination} itemLabel="payments" />
-          </>
-        )
-      ) : null}
-
-      {tab === "overdue" ? (
-        overdueLoading ? (
-          <PageLoading label="Loading overdue students…" />
-        ) : overdue.length === 0 ? (
-          <EmptyState title="No overdue students" description="All active billings are current." />
-        ) : (
-          <>
-          <Card className="overflow-hidden rounded-2xl border border-zinc-100 bg-white p-0 shadow-sm">
-            {overduePagination.paginatedItems.map((row) => (
-              <article
-                key={row.student.id}
-                className="flex flex-col gap-2 border-b border-zinc-100 px-4 py-4 last:border-b-0 sm:flex-row sm:items-center sm:justify-between sm:px-5"
-              >
-                <div className="flex items-center gap-3">
-                  <UserInitialAvatar name={row.student.name} size="sm" />
-                  <div>
-                    <p className="font-semibold text-navy">{row.student.name}</p>
-                    <p className="text-xs text-zinc-500">{row.student.email}</p>
-                  </div>
-                </div>
-                <p className="text-sm font-medium tabular-nums text-red-700">
-                  {formatAmount(row.monthlyFee, row.currency)}/mo · Due{" "}
-                  {row.paidUntil ? new Date(row.paidUntil).toLocaleDateString() : "not set"}
-                </p>
-              </article>
-            ))}
-          </Card>
-          <Pagination pagination={overduePagination} itemLabel="students" />
-          </>
-        )
-      ) : null}
-        </>
       )}
 
       {rejectId ? (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
-          <Card className="flex w-full max-w-md flex-col gap-4 rounded-2xl p-6 shadow-xl">
-            <h3 className="text-lg font-bold text-navy">Reject payment</h3>
-            <p className="text-sm text-zinc-500">
+          <Card className="flex w-full max-w-md flex-col gap-4 rounded-2xl border border-portal bg-portal-surface p-6 shadow-xl">
+            <h3 className="text-lg font-bold text-portal-heading">Reject payment</h3>
+            <p className="text-sm text-portal-muted">
               The student will see this reason in their payment history.
             </p>
             <Input
               placeholder="Reason (optional)"
               value={rejectReason}
-              onChange={(e) => setRejectReason(e.target.value)}
+              onChange={(event) => setRejectReason(event.target.value)}
             />
             <div className="flex gap-2">
               <Button
@@ -468,7 +465,7 @@ export function AdminPaymentsPage() {
               </Button>
               <Button
                 variant="ghost"
-                className="flex-1 rounded-xl border border-zinc-200"
+                className="flex-1 rounded-xl border border-portal"
                 onClick={() => {
                   setRejectId(null);
                   setRejectReason("");

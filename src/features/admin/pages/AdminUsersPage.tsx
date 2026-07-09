@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { Search, Plus, Trash2, Pencil } from "lucide-react";
+import { useMemo, useState } from "react";
+import { LayoutGrid, List, UserPlus } from "lucide-react";
 import {
   useAdminUsers,
   useCreateUser,
@@ -7,10 +7,8 @@ import {
   useUpdateUser,
 } from "@/features/admin/hooks/useAdmin";
 import { PageContainer } from "@/components/layout/PageContainer";
-import { PageHeader } from "@/components/layout/PageHeader";
-import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
-import { formControlClass } from "@/lib/formControl";
+import { Select } from "@/components/ui/Select";
 import {
   ASSIGNABLE_ROLES,
   assignableRolesFor,
@@ -21,32 +19,27 @@ import {
 } from "@/lib/assignableRoles";
 import { useAuthStore } from "@/stores/authStore";
 import { useCurriculumTree } from "@/components/curriculum/NestedCurriculumSelect";
-import { formatCountryWithFlag } from "@/lib/utils/countryDisplay";
 import { AdminCreateUserModal } from "@/features/admin/components/AdminCreateUserModal";
 import { AdminEditUserModal } from "@/features/admin/components/AdminEditUserModal";
+import { AdminUsersStatsGrid } from "@/features/admin/components/users/AdminUsersStatsGrid";
+import {
+  AdminUsersFilterPanel,
+  type AdminUsersStatusFilter,
+} from "@/features/admin/components/users/AdminUsersFilterPanel";
+import {
+  AdminUsersTable,
+  exportUsersFile,
+} from "@/features/admin/components/users/AdminUsersTable";
 import type { CurriculumAssignment, Role } from "@/types/models";
-
 import { PageLoading } from "@/components/ui/PageLoading";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { Pagination } from "@/components/ui/Pagination";
 import { usePaginatedList } from "@/lib/hooks/usePaginatedList";
-
-const ROLE_COLORS: Record<Role, string> = {
-  student: "bg-teal-100 text-teal-700",
-  teacher: "bg-blue-100 text-blue-700",
-  admin: "bg-purple-100 text-purple-700",
-  super_admin: "bg-fuchsia-100 text-fuchsia-800",
-  parent: "bg-teal-100 text-teal-700",
-};
+import { cn } from "@/lib/utils/cn";
 
 type RoleFilter = (typeof ASSIGNABLE_ROLES)[number] | "all";
 type GenderFilter = "all" | "male" | "female";
-
-function genderLabel(gender?: "male" | "female") {
-  if (gender === "female") return "Female";
-  if (gender === "male") return "Male";
-  return null;
-}
+type SortOption = "newest" | "oldest" | "name";
 
 export function AdminUsersPage() {
   const currentUser = useAuthStore((s) => s.user);
@@ -55,8 +48,13 @@ export function AdminUsersPage() {
   const roleFilterOptions = isSuperAdmin(actorRole)
     ? (["all", ...ASSIGNABLE_ROLES] as const)
     : (["all", ...creatableRoles, "admin"] as const);
+
   const [roleFilter, setRoleFilter] = useState<RoleFilter>("all");
   const [genderFilter, setGenderFilter] = useState<GenderFilter>("all");
+  const [statusFilter, setStatusFilter] = useState<AdminUsersStatusFilter>("all");
+  const [dateFrom, setDateFrom] = useState("");
+  const [dateTo, setDateTo] = useState("");
+  const [sortBy, setSortBy] = useState<SortOption>("newest");
   const [search, setSearch] = useState("");
   const [showForm, setShowForm] = useState(false);
 
@@ -78,6 +76,7 @@ export function AdminUsersPage() {
   const teacherGender =
     roleFilter === "teacher" && genderFilter !== "all" ? genderFilter : undefined;
 
+  const { data: allUsers = [], isLoading: statsLoading } = useAdminUsers();
   const { data: users = [], isLoading } = useAdminUsers(
     roleFilter === "all" ? undefined : roleFilter,
     teacherGender
@@ -116,178 +115,167 @@ export function AdminUsersPage() {
     deleteUser.mutate(user.id);
   }
 
-  const filtered = users.filter(
-    (user) =>
-      user.name.toLowerCase().includes(search.toLowerCase()) ||
-      user.email.toLowerCase().includes(search.toLowerCase())
-  );
+  function clearFilters() {
+    setSearch("");
+    setRoleFilter("all");
+    setGenderFilter("all");
+    setStatusFilter("all");
+    setDateFrom("");
+    setDateTo("");
+    setSortBy("newest");
+  }
+
+  const filtered = useMemo(() => {
+    const query = search.trim().toLowerCase();
+
+    return users
+      .filter((user) => {
+        const matchesSearch =
+          !query ||
+          user.name.toLowerCase().includes(query) ||
+          user.email.toLowerCase().includes(query);
+
+        const matchesStatus =
+          statusFilter === "all" ||
+          (statusFilter === "active" && user.isActive !== false) ||
+          (statusFilter === "inactive" && user.isActive === false);
+
+        const joinedAt = user.createdAt ? new Date(user.createdAt) : null;
+        const matchesFrom =
+          !dateFrom || (joinedAt ? joinedAt >= new Date(`${dateFrom}T00:00:00`) : false);
+        const matchesTo =
+          !dateTo || (joinedAt ? joinedAt <= new Date(`${dateTo}T23:59:59`) : false);
+
+        return matchesSearch && matchesStatus && matchesFrom && matchesTo;
+      })
+      .sort((a, b) => {
+        if (sortBy === "name") {
+          return a.name.localeCompare(b.name);
+        }
+
+        const aTime = a.createdAt ? new Date(a.createdAt).getTime() : 0;
+        const bTime = b.createdAt ? new Date(b.createdAt).getTime() : 0;
+        return sortBy === "newest" ? bTime - aTime : aTime - bTime;
+      });
+  }, [users, search, statusFilter, dateFrom, dateTo, sortBy]);
 
   const pagination = usePaginatedList(filtered, {
-    resetDeps: [search, roleFilter, genderFilter],
+    resetDeps: [search, roleFilter, genderFilter, statusFilter, dateFrom, dateTo, sortBy],
   });
 
   return (
-    <PageContainer>
-      <PageHeader
-        title="User Management"
-        subtitle={`${users.length} users`}
-        action={
-          <Button
-            onClick={() => setShowForm(true)}
-            className="gap-2 rounded-xl bg-primary-dark text-white"
-          >
-            <Plus className="size-4" />
-            Add User
-          </Button>
-        }
-      />
-
-      <div className="relative">
-        <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-zinc-400" />
-        <input
-          className={`${formControlClass} py-3 pl-10`}
-          placeholder="Search users…"
-          value={search}
-          onChange={(event) => setSearch(event.target.value)}
-        />
-      </div>
-
-      <div className="flex flex-wrap gap-2">
-        {roleFilterOptions.map((role) => (
-          <button
-            key={role}
-            onClick={() => setRoleFilter(role)}
-            className={`rounded-full px-4 py-1.5 text-sm font-medium capitalize ${
-              roleFilter === role
-                ? "bg-primary-dark text-white"
-                : "border border-zinc-200 bg-white text-primary-dark"
-            }`}
-          >
-            {role === "all" ? "all" : roleLabel(role as Role)}
-          </button>
-        ))}
-      </div>
-
-      {roleFilter === "teacher" ? (
-        <div className="flex flex-wrap gap-2">
-          {(["all", "female", "male"] as const).map((gender) => (
-            <button
-              key={gender}
-              type="button"
-              onClick={() => setGenderFilter(gender)}
-              className={`rounded-full px-4 py-1.5 text-sm font-medium capitalize ${
-                genderFilter === gender
-                  ? "bg-[#C4922B] text-white"
-                  : "border border-zinc-200 bg-white text-primary-dark"
-              }`}
-            >
-              {gender === "all" ? "All teachers" : gender}
-            </button>
-          ))}
+    <PageContainer className="gap-5 lg:gap-6">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+        <div className="min-w-0">
+          <h1 className="portal-page-title font-display text-2xl font-bold text-primary-dark sm:text-3xl">
+            User Management
+          </h1>
+          <p className="portal-page-subtitle mt-1 max-w-2xl text-portal-muted">
+            Create, manage and organize users across the platform.
+          </p>
         </div>
-      ) : null}
+        <Button
+          onClick={() => setShowForm(true)}
+          className="inline-flex shrink-0 items-center gap-2 rounded-xl bg-primary px-5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-primary-dark"
+        >
+          <UserPlus className="size-4" aria-hidden />
+          Add New User
+        </Button>
+      </div>
 
-      {isLoading ? (
-        <PageLoading label="Loading users…" />
-      ) : filtered.length === 0 ? (
-        <EmptyState
-          title="No users found"
-          description={
-            search
-              ? "Try a different name or email."
-              : "No users match the selected filters."
-          }
+      <AdminUsersStatsGrid users={allUsers} isLoading={statsLoading} />
+
+      <div className="grid grid-cols-1 gap-5 xl:grid-cols-[280px_minmax(0,1fr)] xl:gap-6">
+        <AdminUsersFilterPanel
+          search={search}
+          onSearchChange={setSearch}
+          statusFilter={statusFilter}
+          onStatusFilterChange={setStatusFilter}
+          genderFilter={genderFilter}
+          onGenderFilterChange={setGenderFilter}
+          showGenderFilter={roleFilter === "teacher"}
+          dateFrom={dateFrom}
+          dateTo={dateTo}
+          onDateFromChange={setDateFrom}
+          onDateToChange={setDateTo}
+          onClearFilters={clearFilters}
+          onExportCsv={() => exportUsersFile(filtered, "csv")}
+          onExportExcel={() => exportUsersFile(filtered, "excel")}
+          roleFilterOptions={roleFilterOptions}
+          roleFilter={roleFilter}
+          onRoleFilterChange={setRoleFilter}
         />
-      ) : (
-        <>
-        <Card className="overflow-hidden rounded-2xl border-0 p-0 shadow-sm">
-          <div className="hidden md:grid md:grid-cols-[2fr_2fr_1fr_80px] md:gap-4 md:border-b md:border-zinc-100 md:bg-zinc-50 md:px-5 md:py-3 md:text-xs md:font-semibold md:uppercase md:tracking-wide md:text-zinc-500">
-            <span>Name</span>
-            <span>Email</span>
-            <span>Role</span>
-            <span className="text-right">Actions</span>
-          </div>
-          <div className="divide-y divide-zinc-100">
-            {pagination.paginatedItems.map((user) => {
-              const shownRole = displayRole(user.role);
-              const manageable = canManageUserAccount(actorRole, user.role);
-              return (
-                <div
-                  key={user.id}
-                  className={`flex flex-col gap-2.5 p-4 sm:gap-2 md:grid md:grid-cols-[2fr_2fr_1fr_80px] md:items-center md:gap-4 md:p-4 ${
-                    user.isActive === false ? "opacity-60" : ""
-                  }`}
+
+        <div className="flex min-w-0 flex-col gap-4">
+          <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+            <div className="flex flex-wrap gap-2">
+              {roleFilterOptions.map((role) => (
+                <button
+                  key={role}
+                  type="button"
+                  onClick={() => setRoleFilter(role)}
+                  className={cn(
+                    "rounded-full px-4 py-1.5 text-sm font-semibold transition",
+                    roleFilter === role
+                      ? "bg-primary text-white shadow-sm"
+                      : "border border-portal bg-portal-surface text-portal-heading hover:border-primary/30"
+                  )}
                 >
-                  <div>
-                    <div className="flex flex-wrap items-center gap-2">
-                      <p className="text-base font-semibold text-primary-dark sm:text-sm">{user.name}</p>
-                      {user.isActive === false ? (
-                        <span className="rounded-full bg-zinc-200 px-2 py-0.5 text-[10px] font-semibold uppercase text-zinc-600">
-                          Inactive
-                        </span>
-                      ) : null}
-                      {genderLabel(user.gender) ? (
-                        <span className="rounded-full bg-blue-50 px-2 py-0.5 text-[10px] font-semibold text-blue-700">
-                          {genderLabel(user.gender)}
-                        </span>
-                      ) : null}
-                    </div>
-                    <p className="text-sm text-zinc-500 md:hidden">{user.email}</p>
-                    {displayRole(user.role) === "student" && (user.timezone || user.country) ? (
-                      <p className="text-[10px] text-zinc-400">
-                        {user.timezone ? `${user.timezone}` : ""}
-                        {user.timezone && user.country ? " · " : ""}
-                        {user.country ? formatCountryWithFlag(user.country) : ""}
-                      </p>
-                    ) : null}
-                    {displayRole(user.role) === "teacher" && user.country ? (
-                      <p className="text-[10px] text-zinc-400">
-                        {formatCountryWithFlag(user.country)}
-                      </p>
-                    ) : null}
-                  </div>
-                  <p className="hidden text-sm text-zinc-600 md:block">{user.email}</p>
-                  <span
-                    className={`w-fit rounded-full px-2.5 py-0.5 text-xs font-medium ${ROLE_COLORS[shownRole]}`}
-                  >
-                    {roleLabel(user.role)}
-                  </span>
-                  <div className="flex justify-end gap-1">
-                    {manageable ? (
-                      <>
-                        <button
-                          onClick={() => openEditUser(user)}
-                          className="rounded-lg p-2 text-primary-dark hover:bg-zinc-100"
-                          aria-label="Edit user"
-                          title="Edit user"
-                        >
-                          <Pencil className="size-4" />
-                        </button>
-                        {user.isActive !== false ? (
-                          <button
-                            onClick={() => handleDeactivate(user)}
-                            className="rounded-lg p-2 text-red-500 hover:bg-red-50"
-                            aria-label="Deactivate user"
-                            title="Deactivate user"
-                          >
-                            <Trash2 className="size-4" />
-                          </button>
-                        ) : null}
-                      </>
-                    ) : (
-                      <span className="px-2 py-2 text-[10px] font-medium uppercase tracking-wide text-zinc-400">
-                        Protected
-                      </span>
-                    )}
-                  </div>
-                </div>
-              );
-            })}
+                  {role === "all" ? "All Users" : roleLabel(role as Role)}
+                </button>
+              ))}
+            </div>
+
+            <div className="flex flex-wrap items-center gap-2">
+              <div className="min-w-[170px]">
+                <Select
+                  value={sortBy}
+                  onChange={(event) => setSortBy(event.target.value as SortOption)}
+                  className="py-2 text-sm"
+                  aria-label="Sort users"
+                >
+                  <option value="newest">Newest first</option>
+                  <option value="oldest">Oldest first</option>
+                  <option value="name">Name A–Z</option>
+                </Select>
+              </div>
+              <div className="hidden items-center gap-1 rounded-xl border border-portal bg-portal-surface p-1 sm:flex">
+                <span className="inline-flex size-9 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                  <List className="size-4" aria-hidden />
+                </span>
+                <span className="inline-flex size-9 items-center justify-center rounded-lg text-portal-muted">
+                  <LayoutGrid className="size-4" aria-hidden />
+                </span>
+              </div>
+            </div>
           </div>
-        </Card>
-        <Pagination pagination={pagination} itemLabel="users" />
-        </>
-      )}
+
+          {isLoading ? (
+            <PageLoading label="Loading users…" />
+          ) : filtered.length === 0 ? (
+            <EmptyState
+              title="No users found"
+              description={
+                search
+                  ? "Try a different name or email."
+                  : "No users match the selected filters."
+              }
+              actionLabel={creatableRoles.length > 0 ? "Add New User" : undefined}
+              onAction={creatableRoles.length > 0 ? () => setShowForm(true) : undefined}
+            />
+          ) : (
+            <>
+              <AdminUsersTable
+                users={pagination.paginatedItems}
+                onEdit={openEditUser}
+                onDeactivate={handleDeactivate}
+                canManage={(targetRole) => canManageUserAccount(actorRole, targetRole)}
+              />
+              <Pagination pagination={pagination} itemLabel="users" />
+            </>
+          )}
+        </div>
+      </div>
 
       <AdminEditUserModal
         user={editingUser}
