@@ -1,155 +1,146 @@
 import { useMemo, useState } from "react";
-import type { ClassLogStatus, ClassLogView } from "@/types/models";
+import { ClipboardCheck } from "lucide-react";
+import type { ClassLogView } from "@/types/models";
 import {
   useAdminClassLogs,
   useApproveClassLog,
   useRejectClassLog,
 } from "@/features/admin/hooks/useAdmin";
 import { PageContainer } from "@/components/layout/PageContainer";
-import { ClassLogCard } from "@/components/schedule/ClassLogCard";
-import { CurriculumProgramFilter } from "@/components/curriculum/CurriculumProgramFilter";
-import { useCurriculumTree } from "@/components/curriculum/NestedCurriculumSelect";
-import { matchesProgramFilter } from "@/lib/api/curriculumApi";
-import { Card } from "@/components/ui/Card";
 import { EmptyState } from "@/components/ui/EmptyState";
-import { formControlClass } from "@/lib/formControl";
-import { ClipboardCheck, Search } from "lucide-react";
-
 import { PageLoading } from "@/components/ui/PageLoading";
 import { Pagination } from "@/components/ui/Pagination";
+import { useCurriculumTree } from "@/components/curriculum/NestedCurriculumSelect";
 import { usePaginatedList } from "@/lib/hooks/usePaginatedList";
-type Filter = "pending" | "all" | ClassLogStatus;
-
-const TABS: { id: Filter; label: string }[] = [
-  { id: "pending", label: "Pending" },
-  { id: "approved", label: "Approved" },
-  { id: "rejected", label: "Rejected" },
-  { id: "all", label: "All" },
-];
-
-function logSearchText(log: ClassLogView): string {
-  return [
-    log.student?.name,
-    log.teacher?.name,
-    log.classTitle,
-    log.lessonReport,
-  ]
-    .filter(Boolean)
-    .join(" ")
-    .toLowerCase();
-}
+import { AdminClassLogsStatsGrid } from "@/features/admin/components/class-logs/AdminClassLogsStatsGrid";
+import {
+  AdminClassLogsPendingAlert,
+  AdminClassLogsProgramNotice,
+} from "@/features/admin/components/class-logs/AdminClassLogsAlerts";
+import {
+  AdminClassLogsTable,
+  AdminClassLogsToolbar,
+} from "@/features/admin/components/class-logs/AdminClassLogsTable";
+import { AdminClassLogsSidebar } from "@/features/admin/components/class-logs/AdminClassLogsSidebar";
+import { AdminClassLogsDetailModal } from "@/features/admin/components/class-logs/AdminClassLogsDetailModal";
+import {
+  computeClassLogsStats,
+  exportClassLogsFile,
+  extractTeacherOptions,
+  filterAdminClassLogs,
+  type AdminClassLogsTab,
+} from "@/features/admin/components/class-logs/adminClassLogsUtils";
 
 export function AdminClassLogsPage() {
-  const [filter, setFilter] = useState<Filter>("pending");
+  const [tab, setTab] = useState<AdminClassLogsTab>("pending");
   const [programFilter, setProgramFilter] = useState("");
+  const [teacherFilter, setTeacherFilter] = useState("");
   const [search, setSearch] = useState("");
-  const { data: logs = [], isLoading, isError, refetch } = useAdminClassLogs();
+  const [dateFrom, setDateFrom] = useState("");
+  const [dateTo, setDateTo] = useState("");
+  const [selectedLog, setSelectedLog] = useState<ClassLogView | null>(null);
+
+  const { data: logs = [], isLoading, isError, isFetching, refetch } = useAdminClassLogs();
   const { data: curriculumTree = [] } = useCurriculumTree();
   const approve = useApproveClassLog();
   const reject = useRejectClassLog();
 
+  const stats = useMemo(() => computeClassLogsStats(logs), [logs]);
+  const teacherOptions = useMemo(() => extractTeacherOptions(logs), [logs]);
+
   const tabCounts = useMemo(
     () => ({
-      pending: logs.filter((l) => l.status === "pending").length,
-      approved: logs.filter((l) => l.status === "approved").length,
-      rejected: logs.filter((l) => l.status === "rejected").length,
       all: logs.length,
+      pending: stats.pending,
+      approved: stats.approved,
+      rejected: stats.rejected,
     }),
-    [logs]
+    [logs.length, stats]
   );
 
-  const filteredByStatus = useMemo(() => {
-    if (filter === "all") return logs;
-    return logs.filter((log) => log.status === filter);
-  }, [logs, filter]);
+  const visibleLogs = useMemo(
+    () =>
+      filterAdminClassLogs(logs, {
+        tab,
+        search,
+        programFilter,
+        teacherFilter,
+        dateFrom,
+        dateTo,
+      }),
+    [logs, tab, search, programFilter, teacherFilter, dateFrom, dateTo]
+  );
 
   const missingProgramCount = useMemo(
-    () => filteredByStatus.filter((l) => !l.curriculumProgram).length,
-    [filteredByStatus]
+    () => visibleLogs.filter((log) => !log.curriculumProgram).length,
+    [visibleLogs]
   );
 
-  const visibleLogs = useMemo(() => {
-    const q = search.trim().toLowerCase();
-    return filteredByStatus.filter((log) => {
-      if (!matchesProgramFilter(log.curriculumProgram, programFilter)) return false;
-      if (!q) return true;
-      return logSearchText(log).includes(q);
-    });
-  }, [filteredByStatus, programFilter, search]);
-
   const pagination = usePaginatedList(visibleLogs, {
-    resetDeps: [filter, programFilter, search],
+    pageSize: 10,
+    resetDeps: [tab, programFilter, teacherFilter, search, dateFrom, dateTo],
   });
 
+  const busy = approve.isPending || reject.isPending;
+
   function handleApprove(log: ClassLogView) {
-    approve.mutate(log._id);
+    approve.mutate(log._id, {
+      onSuccess: () => setSelectedLog(null),
+    });
   }
 
   function handleReject(log: ClassLogView) {
     const adminNote = window.prompt("Reason for rejection (optional):") ?? undefined;
-    reject.mutate({ id: log._id, adminNote });
+    reject.mutate(
+      { id: log._id, adminNote },
+      {
+        onSuccess: () => setSelectedLog(null),
+      }
+    );
+  }
+
+  function handleExport() {
+    exportClassLogsFile(visibleLogs, "class-logs-filtered");
   }
 
   return (
-    <PageContainer className="flex flex-col gap-6">
+    <PageContainer className="gap-5 lg:gap-6">
       <div>
-        <h1 className="text-2xl font-bold text-primary-dark">Class Log Approval</h1>
-        <p className="mt-1 text-sm text-zinc-500">
-          Review teacher session logs before they count toward verified sessions
+        <h1 className="portal-page-title font-display text-2xl font-bold text-primary-dark sm:text-3xl">
+          Class Log Approval
+        </h1>
+        <p className="portal-page-subtitle mt-1 max-w-3xl text-portal-muted">
+          Review teacher session logs before they count toward verified sessions and earnings.
         </p>
       </div>
 
-      {filter === "pending" && tabCounts.pending > 0 ? (
-        <Card className="rounded-2xl border-0 bg-amber-50 p-4 shadow-sm">
-          <p className="text-sm font-semibold text-amber-800">
-            {tabCounts.pending} log{tabCounts.pending === 1 ? "" : "s"} awaiting your approval
-          </p>
-        </Card>
-      ) : null}
+      <AdminClassLogsStatsGrid stats={stats} isLoading={isLoading} />
 
-      {missingProgramCount > 0 ? (
-        <Card className="rounded-2xl border-0 bg-zinc-50 p-4 shadow-sm">
-          <p className="text-sm text-zinc-600">
-            {missingProgramCount} log{missingProgramCount === 1 ? "" : "s"} have no study program
-            (submitted before curriculum tracking).
-          </p>
-        </Card>
-      ) : null}
+      <AdminClassLogsPendingAlert
+        pendingCount={stats.pending}
+        onReview={() => setTab("pending")}
+      />
 
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
-        <div className="relative flex-1">
-          <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-zinc-400" />
-          <input
-            className={`${formControlClass} pl-10`}
-            placeholder="Search student, teacher, class…"
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-          />
-        </div>
-        <CurriculumProgramFilter
-          tree={curriculumTree}
-          value={programFilter}
-          onChange={setProgramFilter}
-        />
-      </div>
+      <AdminClassLogsProgramNotice count={missingProgramCount} />
 
-      <div className="flex gap-2 overflow-x-auto pb-1">
-        {TABS.map((f) => (
-          <button
-            key={f.id}
-            type="button"
-            onClick={() => setFilter(f.id)}
-            className={`shrink-0 rounded-full px-4 py-1.5 text-sm font-medium ${
-              filter === f.id
-                ? "bg-primary-dark text-white"
-                : "border border-zinc-200 bg-white text-primary-dark"
-            }`}
-          >
-            {f.label}
-            <span className="ml-1.5 text-xs opacity-80">({tabCounts[f.id]})</span>
-          </button>
-        ))}
-      </div>
+      <AdminClassLogsToolbar
+        search={search}
+        programFilter={programFilter}
+        teacherFilter={teacherFilter}
+        dateFrom={dateFrom}
+        dateTo={dateTo}
+        tab={tab}
+        tabCounts={tabCounts}
+        teachers={teacherOptions}
+        curriculumTree={curriculumTree}
+        onSearchChange={setSearch}
+        onProgramChange={setProgramFilter}
+        onTeacherChange={setTeacherFilter}
+        onDateFromChange={setDateFrom}
+        onDateToChange={setDateTo}
+        onTabChange={setTab}
+        onExport={handleExport}
+      />
 
       {isError ? (
         <EmptyState
@@ -164,37 +155,42 @@ export function AdminClassLogsPage() {
       ) : visibleLogs.length === 0 ? (
         <EmptyState
           icon={ClipboardCheck}
-          title={filteredByStatus.length === 0 ? "No class logs in this view" : "No logs match your filters"}
+          title={
+            logs.length === 0 ? "No class logs in this view" : "No logs match your filters"
+          }
           description={
-            filteredByStatus.length === 0
-              ? filter === "pending"
-                ? "No logs are waiting for approval. Approved and rejected logs appear in their tabs."
-                : "Logs appear when teachers submit session reports from their schedule."
-              : "Try clearing search or program filter."
+            logs.length === 0
+              ? "Logs appear when teachers submit session reports from their schedule."
+              : "Try clearing search, teacher, program, or date filters."
           }
         />
       ) : (
-        <>
-        <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
-          {pagination.paginatedItems.map((log) => (
-            <ClassLogCard
-              key={log._id}
-              log={log}
-              showTeacher
-              onApprove={
-                log.status === "pending" || log.status === "rejected"
-                  ? handleApprove
-                  : undefined
-              }
-              onReject={log.status === "pending" ? handleReject : undefined}
-              approveLabel={log.status === "rejected" ? "Approve again" : undefined}
-              actionPending={approve.isPending || reject.isPending}
+        <div className="grid grid-cols-1 gap-5 xl:grid-cols-[minmax(0,1fr)_300px] xl:gap-6">
+          <div className="flex min-w-0 flex-col gap-4">
+            <AdminClassLogsTable
+              logs={pagination.paginatedItems}
+              busy={busy}
+              onView={setSelectedLog}
+              onApprove={handleApprove}
+              onReject={handleReject}
             />
-          ))}
+            <Pagination pagination={pagination} itemLabel="logs" />
+          </div>
+          <AdminClassLogsSidebar
+            logs={logs}
+            isFetching={isFetching}
+            onRefresh={() => void refetch()}
+          />
         </div>
-        <Pagination pagination={pagination} itemLabel="logs" />
-        </>
       )}
+
+      <AdminClassLogsDetailModal
+        log={selectedLog}
+        busy={busy}
+        onClose={() => setSelectedLog(null)}
+        onApprove={handleApprove}
+        onReject={handleReject}
+      />
     </PageContainer>
   );
 }

@@ -1,258 +1,201 @@
-import { useState } from "react";
-import { GraduationCap, Mail, Phone } from "lucide-react";
-import type {
-  StudentAdmissionStatus,
-  StudentAdmissionView,
-} from "@/types/models";
+import { useMemo, useState } from "react";
+import { Download, GraduationCap } from "lucide-react";
+import type { StudentAdmissionStatus, StudentAdmissionView } from "@/types/models";
 import {
   useAdminStudentAdmissions,
   useUpdateStudentAdmissionStatus,
 } from "@/features/admin/hooks/useAdmin";
 import { PageContainer } from "@/components/layout/PageContainer";
-import { PageHeader } from "@/components/layout/PageHeader";
-import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { PageLoading } from "@/components/ui/PageLoading";
 import { Pagination } from "@/components/ui/Pagination";
 import { usePaginatedList } from "@/lib/hooks/usePaginatedList";
-import { WhatsAppLinkButton } from "@/components/whatsapp/WhatsAppLinkButton";
-import { waMeUrlFromRaw } from "@/lib/whatsapp";
-import { admissionFollowUpMessage } from "@/lib/whatsappMessageTemplates";
+import { AdminStudentAdmissionsStatsGrid } from "@/features/admin/components/student-admissions/AdminStudentAdmissionsStatsGrid";
+import { AdminStudentAdmissionsNewAlert } from "@/features/admin/components/student-admissions/AdminStudentAdmissionsNewAlert";
 import {
-  buildAdmissionDisplaySections,
-  type IAdmissionDisplaySection,
-} from "@/lib/admissionFormDisplay";
-
-type Filter = "new" | "all" | StudentAdmissionStatus;
-
-function statusStyles(status: StudentAdmissionStatus) {
-  switch (status) {
-    case "reviewing":
-      return "bg-blue-100 text-blue-800";
-    case "approved":
-      return "bg-emerald-100 text-emerald-800";
-    case "closed":
-      return "bg-zinc-200 text-zinc-700";
-    default:
-      return "bg-amber-100 text-amber-800";
-  }
-}
-
-function nextActions(
-  status: StudentAdmissionStatus
-): { label: string; status: StudentAdmissionStatus }[] {
-  switch (status) {
-    case "new":
-      return [{ label: "Start review", status: "reviewing" }];
-    case "reviewing":
-      return [
-        { label: "Approve", status: "approved" },
-        { label: "Close", status: "closed" },
-      ];
-    case "approved":
-      return [{ label: "Close", status: "closed" }];
-    default:
-      return [];
-  }
-}
-
-function AdmissionDetails({
-  formData,
-}: {
-  formData: Record<string, unknown>;
-}) {
-  const sections = buildAdmissionDisplaySections(formData);
-  if (sections.length === 0) return null;
-
-  return (
-    <div className="space-y-4 border-t border-zinc-100 pt-4">
-      {sections.map((section) => (
-        <AdmissionSection key={section.title} section={section} />
-      ))}
-    </div>
-  );
-}
-
-function AdmissionSection({ section }: { section: IAdmissionDisplaySection }) {
-  return (
-    <div>
-      <h4 className="text-xs font-semibold uppercase tracking-wide text-zinc-500">
-        {section.title}
-      </h4>
-      <dl className="mt-2 grid gap-3 sm:grid-cols-2">
-        {section.rows.map((row) => (
-          <div
-            key={row.key}
-            className={row.fullWidth ? "sm:col-span-2" : undefined}
-          >
-            <dt className="text-xs text-zinc-500">{row.label}</dt>
-            <dd className="mt-0.5 text-sm font-medium text-primary-dark whitespace-pre-wrap">
-              {row.value}
-            </dd>
-          </div>
-        ))}
-      </dl>
-    </div>
-  );
-}
+  AdminStudentAdmissionsTable,
+  AdminStudentAdmissionsToolbar,
+} from "@/features/admin/components/student-admissions/AdminStudentAdmissionsTable";
+import { AdminStudentAdmissionsSidebar } from "@/features/admin/components/student-admissions/AdminStudentAdmissionsSidebar";
+import { AdminStudentAdmissionDetailModal } from "@/features/admin/components/student-admissions/AdminStudentAdmissionDetailModal";
+import {
+  computeStudentAdmissionsStats,
+  exportStudentAdmissionsFile,
+  extractCountryOptions,
+  extractProgramOptions,
+  extractSourceOptions,
+  filterStudentAdmissions,
+  type AdminStudentAdmissionsTab,
+} from "@/features/admin/components/student-admissions/adminStudentAdmissionsUtils";
 
 export function AdminStudentAdmissionsPage() {
-  const [filter, setFilter] = useState<Filter>("new");
-  const status = filter === "all" ? undefined : filter;
-  const { data: applications = [], isLoading } = useAdminStudentAdmissions(status);
+  const [tab, setTab] = useState<AdminStudentAdmissionsTab>("all");
+  const [search, setSearch] = useState("");
+  const [programFilter, setProgramFilter] = useState("");
+  const [countryFilter, setCountryFilter] = useState("");
+  const [sourceFilter, setSourceFilter] = useState("");
+  const [dateFrom, setDateFrom] = useState("");
+  const [dateTo, setDateTo] = useState("");
+  const [selectedApp, setSelectedApp] = useState<StudentAdmissionView | null>(null);
+
+  const { data: applications = [], isLoading, isError, isFetching, refetch } =
+    useAdminStudentAdmissions();
   const updateStatus = useUpdateStudentAdmissionStatus();
 
-  const newCount =
-    filter === "new"
-      ? applications.length
-      : applications.filter((a) => a.status === "new").length;
+  const stats = useMemo(() => computeStudentAdmissionsStats(applications), [applications]);
+  const programOptions = useMemo(() => extractProgramOptions(applications), [applications]);
+  const countryOptions = useMemo(() => extractCountryOptions(applications), [applications]);
+  const sourceOptions = useMemo(() => extractSourceOptions(applications), [applications]);
 
-  const pagination = usePaginatedList(applications, {
-    resetDeps: [filter],
+  const tabCounts = useMemo(
+    () => ({
+      all: applications.length,
+      new: stats.new,
+      reviewing: stats.reviewing,
+      approved: stats.approved,
+      closed: stats.closed,
+    }),
+    [applications.length, stats]
+  );
+
+  const visibleApplications = useMemo(
+    () =>
+      filterStudentAdmissions(applications, {
+        tab,
+        search,
+        programFilter,
+        countryFilter,
+        sourceFilter,
+        dateFrom,
+        dateTo,
+      }),
+    [applications, tab, search, programFilter, countryFilter, sourceFilter, dateFrom, dateTo]
+  );
+
+  const pagination = usePaginatedList(visibleApplications, {
+    pageSize: 10,
+    resetDeps: [tab, search, programFilter, countryFilter, sourceFilter, dateFrom, dateTo],
   });
 
+  const busy = updateStatus.isPending;
+
+  function handleUpdateStatus(app: StudentAdmissionView, status: StudentAdmissionStatus) {
+    updateStatus.mutate(
+      { id: app._id, status },
+      {
+        onSuccess: () => {
+          if (selectedApp?._id === app._id && status === "closed") {
+            setSelectedApp(null);
+          }
+        },
+      }
+    );
+  }
+
+  function handleExport() {
+    exportStudentAdmissionsFile(visibleApplications, "student-admissions-filtered");
+  }
+
   return (
-    <PageContainer>
-      <PageHeader
-        title="Student Admissions"
-        subtitle="Applications from the public website — review and create portal accounts when approved"
-      />
-
-      {filter === "new" && newCount > 0 ? (
-        <Card className="rounded-2xl border-0 bg-amber-50 p-4 shadow-sm">
-          <p className="text-sm font-semibold text-amber-800">
-            {newCount} new application{newCount === 1 ? "" : "s"} awaiting review
+    <PageContainer className="gap-5 lg:gap-6">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+        <div>
+          <h1 className="portal-page-title font-display text-2xl font-bold text-primary-dark sm:text-3xl">
+            Student Admission Leads
+          </h1>
+          <p className="portal-page-subtitle mt-1 max-w-3xl text-portal-muted">
+            Applications from the public website — review and create portal accounts when
+            approved.
           </p>
-        </Card>
-      ) : null}
-
-      <div className="flex gap-2 overflow-x-auto pb-1">
-        {(
-          [
-            { id: "new" as const, label: "New" },
-            { id: "reviewing" as const, label: "Reviewing" },
-            { id: "approved" as const, label: "Approved" },
-            { id: "closed" as const, label: "Closed" },
-            { id: "all" as const, label: "All" },
-          ] as const
-        ).map((f) => (
-          <button
-            key={f.id}
-            type="button"
-            onClick={() => setFilter(f.id)}
-            className={`shrink-0 rounded-full px-4 py-1.5 text-sm font-medium capitalize ${
-              filter === f.id
-                ? "bg-primary-dark text-white"
-                : "border border-zinc-200 bg-white text-primary-dark"
-            }`}
-          >
-            {f.label}
-          </button>
-        ))}
+        </div>
+        <Button
+          type="button"
+          variant="ghost"
+          onClick={handleExport}
+          className="inline-flex shrink-0 items-center gap-2 rounded-xl border border-portal px-4"
+        >
+          <Download className="size-4" aria-hidden />
+          Export
+        </Button>
       </div>
 
-      {isLoading ? (
+      <AdminStudentAdmissionsStatsGrid stats={stats} isLoading={isLoading} />
+
+      <AdminStudentAdmissionsNewAlert newCount={stats.new} onReview={() => setTab("new")} />
+
+      <AdminStudentAdmissionsToolbar
+        search={search}
+        programFilter={programFilter}
+        countryFilter={countryFilter}
+        sourceFilter={sourceFilter}
+        dateFrom={dateFrom}
+        dateTo={dateTo}
+        tab={tab}
+        tabCounts={tabCounts}
+        programs={programOptions}
+        countries={countryOptions}
+        sources={sourceOptions}
+        onSearchChange={setSearch}
+        onProgramChange={setProgramFilter}
+        onCountryChange={setCountryFilter}
+        onSourceChange={setSourceFilter}
+        onDateFromChange={setDateFrom}
+        onDateToChange={setDateTo}
+        onTabChange={setTab}
+        onExport={handleExport}
+      />
+
+      {isError ? (
+        <EmptyState
+          icon={GraduationCap}
+          title="Could not load admission applications"
+          description="The server failed to return student admissions. Try again in a moment."
+          actionLabel="Retry"
+          onAction={() => void refetch()}
+        />
+      ) : isLoading ? (
         <PageLoading label="Loading admission applications…" />
       ) : applications.length === 0 ? (
         <EmptyState
           icon={GraduationCap}
-          title="No admission applications in this view"
-          description="Applications appear here when visitors submit the student admission form."
+          title="No admission applications yet"
+          description="Applications appear here when visitors submit the student admission form on your website."
+        />
+      ) : visibleApplications.length === 0 ? (
+        <EmptyState
+          icon={GraduationCap}
+          title="No applications match your filters"
+          description="Try clearing search, program, country, source, or date filters."
         />
       ) : (
-        <>
-        <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
-          {pagination.paginatedItems.map((app) => (
-            <AdmissionCard
-              key={app._id}
-              app={app}
-              onUpdate={(nextStatus) =>
-                updateStatus.mutate({ id: app._id, status: nextStatus })
-              }
-              updating={updateStatus.isPending}
+        <div className="grid grid-cols-1 gap-5 xl:grid-cols-[minmax(0,1fr)_300px] xl:gap-6">
+          <div className="flex min-w-0 flex-col gap-4">
+            <AdminStudentAdmissionsTable
+              applications={pagination.paginatedItems}
+              busy={busy}
+              onView={setSelectedApp}
+              onAdvanceStatus={handleUpdateStatus}
             />
-          ))}
+            <Pagination pagination={pagination} itemLabel="applications" />
+          </div>
+          <AdminStudentAdmissionsSidebar
+            applications={applications}
+            filteredApplications={visibleApplications}
+            stats={stats}
+            isFetching={isFetching}
+            onRefresh={() => void refetch()}
+            onReviewNew={() => setTab("new")}
+          />
         </div>
-        <Pagination pagination={pagination} itemLabel="applications" />
-        </>
       )}
+
+      <AdminStudentAdmissionDetailModal
+        application={selectedApp}
+        busy={busy}
+        onClose={() => setSelectedApp(null)}
+        onUpdateStatus={handleUpdateStatus}
+      />
     </PageContainer>
-  );
-}
-
-function AdmissionCard({
-  app,
-  onUpdate,
-  updating,
-}: {
-  app: StudentAdmissionView;
-  onUpdate: (status: StudentAdmissionStatus) => void;
-  updating: boolean;
-}) {
-  const country =
-    typeof app.formData?.country === "string" ? app.formData.country : undefined;
-  const wa = waMeUrlFromRaw(
-    app.whatsapp,
-    country,
-    admissionFollowUpMessage(app.fullName)
-  );
-  const actions = nextActions(app.status);
-
-  return (
-    <Card className="flex flex-col gap-3 border-0 shadow-sm sm:gap-4">
-      <div className="flex flex-wrap items-center gap-2">
-        <span
-          className={`rounded-full px-3 py-1 text-xs font-semibold capitalize sm:px-2.5 sm:py-0.5 ${statusStyles(app.status)}`}
-        >
-          {app.status}
-        </span>
-        {app.locale ? (
-          <span className="rounded-full bg-zinc-100 px-2 py-0.5 text-xs text-zinc-600">
-            {app.locale === "bn" ? "Bengali" : "English"}
-          </span>
-        ) : null}
-        <span className="text-xs text-zinc-400">
-          {new Date(app.createdAt).toLocaleString()}
-        </span>
-      </div>
-
-      <div>
-        <p className="text-lg font-bold text-primary-dark sm:text-base">{app.fullName}</p>
-      </div>
-
-      <div className="flex flex-col gap-2 text-[15px] text-zinc-600 sm:gap-1 sm:text-sm">
-        <a
-          href={`mailto:${app.email}`}
-          className="inline-flex items-center gap-2 hover:text-primary-dark"
-        >
-          <Mail className="size-4 shrink-0 text-zinc-400" />
-          {app.email}
-        </a>
-        <span className="inline-flex items-center gap-2">
-          <Phone className="size-4 shrink-0 text-zinc-400" />
-          {app.whatsapp}
-        </span>
-        <WhatsAppLinkButton href={wa} label="Send WhatsApp" size="sm" />
-      </div>
-
-      <AdmissionDetails formData={app.formData} />
-
-      {actions.length > 0 ? (
-        <div className="flex flex-col gap-2 pt-1 sm:flex-row sm:flex-wrap">
-          {actions.map((action) => (
-            <Button
-              key={action.status}
-              type="button"
-              onClick={() => onUpdate(action.status)}
-              disabled={updating}
-              className="rounded-xl bg-primary-dark text-white sm:h-9 sm:w-auto sm:px-4 sm:text-sm"
-            >
-              {action.label}
-            </Button>
-          ))}
-        </div>
-      ) : null}
-    </Card>
   );
 }

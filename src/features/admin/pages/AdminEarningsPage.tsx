@@ -1,166 +1,175 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Banknote, ClipboardCheck } from "lucide-react";
+import { Banknote } from "lucide-react";
 import {
   useAdminClassLogs,
   useAdminEarnings,
   useApproveClassLog,
+  useRejectClassLog,
 } from "@/features/admin/hooks/useAdmin";
 import { PageContainer } from "@/components/layout/PageContainer";
-import { Card } from "@/components/ui/Card";
-import { Button } from "@/components/ui/Button";
-import { ClassLogCard } from "@/components/schedule/ClassLogCard";
-import { currentMonthValue, formatBdt, formatMonthLabel } from "@/lib/utils/month";
-import { formControlClass } from "@/lib/formControl";
+import { EmptyState } from "@/components/ui/EmptyState";
+import { PageLoading } from "@/components/ui/PageLoading";
+import { AdminClassLogsDetailModal } from "@/features/admin/components/class-logs/AdminClassLogsDetailModal";
+import { AdminEarningsOverviewHeader } from "@/features/admin/components/earnings/AdminEarningsOverviewHeader";
+import { AdminEarningsStatsGrid } from "@/features/admin/components/earnings/AdminEarningsStatsGrid";
+import { AdminEarningsPendingAlert } from "@/features/admin/components/earnings/AdminEarningsPendingAlert";
+import { AdminEarningsByTeacherTable } from "@/features/admin/components/earnings/AdminEarningsByTeacherTable";
+import { AdminEarningsProgramDonut } from "@/features/admin/components/earnings/AdminEarningsProgramDonut";
+import { AdminEarningsTrendChart } from "@/features/admin/components/earnings/AdminEarningsTrendChart";
+import { AdminEarningsQuickActions } from "@/features/admin/components/earnings/AdminEarningsQuickActions";
+import { AdminEarningsPendingTable } from "@/features/admin/components/earnings/AdminEarningsPendingTable";
+import { AdminEarningsSidebar } from "@/features/admin/components/earnings/AdminEarningsSidebar";
+import {
+  buildEarningsTrend,
+  computeEarningsStats,
+  exportEarningsTeachersFile,
+  getPendingApprovalLogs,
+  getRecentVerifiedLogs,
+  getUpcomingPendingLogs,
+  groupEarningsByProgram,
+  previousMonthValue,
+  type EarningsTrendRange,
+} from "@/features/admin/components/earnings/adminEarningsUtils";
+import { currentMonthValue } from "@/lib/utils/month";
 import type { ClassLogView } from "@/types/models";
 
-import { PageLoading } from "@/components/ui/PageLoading";
 export function AdminEarningsPage() {
   const navigate = useNavigate();
   const [month, setMonth] = useState(currentMonthValue());
-  const { data, isLoading } = useAdminEarnings(month);
-  const { data: pendingLogs = [], isLoading: pendingLoading } = useAdminClassLogs("pending");
+  const [trendRange, setTrendRange] = useState<EarningsTrendRange>("year");
+  const [selectedLog, setSelectedLog] = useState<ClassLogView | null>(null);
+
+  const { data, isLoading, isFetching, refetch } = useAdminEarnings(month);
+  const { data: previousData } = useAdminEarnings(previousMonthValue(month));
+  const { data: allLogs = [], isLoading: logsLoading } = useAdminClassLogs();
+  const { data: pendingLogs = [] } = useAdminClassLogs("pending");
   const approve = useApproveClassLog();
+  const reject = useRejectClassLog();
+
+  const stats = useMemo(
+    () => computeEarningsStats(data, previousData),
+    [data, previousData]
+  );
+  const programSegments = useMemo(
+    () => groupEarningsByProgram(allLogs, month),
+    [allLogs, month]
+  );
+  const trendData = useMemo(
+    () => buildEarningsTrend(allLogs, trendRange),
+    [allLogs, trendRange]
+  );
+  const pendingApprovalLogs = useMemo(
+    () => getPendingApprovalLogs(pendingLogs.length > 0 ? pendingLogs : allLogs),
+    [pendingLogs, allLogs]
+  );
+  const upcomingLogs = useMemo(
+    () => getUpcomingPendingLogs(pendingApprovalLogs),
+    [pendingApprovalLogs]
+  );
+  const recentLogs = useMemo(() => getRecentVerifiedLogs(allLogs), [allLogs]);
+
+  const busy = approve.isPending || reject.isPending;
+  const loading = isLoading || logsLoading;
 
   function handleApprove(log: ClassLogView) {
-    approve.mutate(log._id);
+    approve.mutate(log._id, {
+      onSuccess: () => {
+        if (selectedLog?._id === log._id) setSelectedLog(null);
+      },
+    });
+  }
+
+  function handleReject(log: ClassLogView) {
+    reject.mutate(
+      { id: log._id },
+      {
+        onSuccess: () => {
+          if (selectedLog?._id === log._id) setSelectedLog(null);
+        },
+      }
+    );
+  }
+
+  function handleExport() {
+    exportEarningsTeachersFile(data, month);
+  }
+
+  function handleReviewPending() {
+    navigate("/admin/class-logs");
   }
 
   return (
-    <PageContainer className="flex flex-col gap-6">
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
-        <div>
-          <h1 className="text-2xl font-bold text-primary-dark">Earnings Overview</h1>
-          <p className="mt-1 text-sm text-zinc-500">
-            Verified pay comes from approved class logs — {formatMonthLabel(month)}
-          </p>
-        </div>
-        <input
-          type="month"
-          value={month}
-          onChange={(e) => setMonth(e.target.value)}
-          className={`${formControlClass} w-full sm:w-auto`}
-        />
-      </div>
+    <PageContainer className="gap-5 lg:gap-6">
+      <AdminEarningsOverviewHeader
+        month={month}
+        onMonthChange={setMonth}
+        onExport={handleExport}
+      />
 
-      {!pendingLoading && pendingLogs.length > 0 ? (
-        <Card className="rounded-2xl border-0 bg-amber-50 p-5 shadow-sm">
-          <div className="flex flex-wrap items-center justify-between gap-3">
-            <div>
-              <p className="font-semibold text-amber-900">
-                {pendingLogs.length} session log{pendingLogs.length === 1 ? "" : "s"} awaiting
-                approval
-              </p>
-              <p className="mt-1 text-sm text-amber-800/80">
-                Approve logs to count sessions toward teacher earnings.
-              </p>
-            </div>
-            <Button
-              type="button"
-              variant="secondary"
-              onClick={() => navigate("/admin/class-logs")}
-              className="rounded-xl"
-            >
-              <ClipboardCheck className="mr-2 size-4" />
-              Review all
-            </Button>
-          </div>
-        </Card>
-      ) : null}
+      <AdminEarningsStatsGrid stats={stats} isLoading={loading} />
 
-      {isLoading ? (
+      <AdminEarningsPendingAlert
+        pendingCount={pendingApprovalLogs.length}
+        onReview={handleReviewPending}
+      />
+
+      {loading ? (
         <PageLoading label="Loading earnings…" />
+      ) : !data && pendingApprovalLogs.length === 0 ? (
+        <EmptyState
+          icon={Banknote}
+          title="No earnings data for this month"
+          description="Verified pay appears when class logs are approved for the selected month."
+        />
       ) : (
-        <>
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-            <Card className="rounded-2xl border-0 p-5 shadow-sm">
-              <div className="flex items-center gap-2 text-gold">
-                <Banknote className="size-5" />
-                <span className="text-xs text-zinc-400">Total verified</span>
-              </div>
-              <p className="mt-2 text-3xl font-bold text-primary-dark">
-                {formatBdt(data?.totalBdt ?? 0)}
-              </p>
-            </Card>
-            <Card className="rounded-2xl border-0 p-5 shadow-sm">
-              <span className="text-xs text-zinc-400">Verified sessions</span>
-              <p className="mt-2 text-3xl font-bold text-emerald-600">
-                {data?.verifiedSessions ?? 0}
-              </p>
-            </Card>
-            <Card className="rounded-2xl border-0 p-5 shadow-sm">
-              <span className="text-xs text-zinc-400">Pending approval</span>
-              <p className="mt-2 text-3xl font-bold text-amber-600">
-                {data?.pendingSessions ?? 0}
-              </p>
-            </Card>
+        <div className="grid grid-cols-1 gap-5 xl:grid-cols-[minmax(0,1fr)_280px] xl:gap-6">
+          <div className="flex min-w-0 flex-col gap-5">
+            <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
+              <AdminEarningsByTeacherTable
+                data={data}
+                onViewAll={() => navigate("/admin/class-logs")}
+              />
+              <AdminEarningsProgramDonut
+                segments={programSegments}
+                totalBdt={stats.verifiedBdt}
+              />
+            </div>
+
+            <AdminEarningsPendingTable
+              logs={pendingApprovalLogs}
+              busy={busy}
+              onView={setSelectedLog}
+              onApprove={handleApprove}
+              onViewAll={handleReviewPending}
+            />
           </div>
 
-          <Card className="rounded-2xl border-0 p-5 shadow-sm">
-            <h2 className="mb-4 font-bold text-primary-dark">By teacher</h2>
-            {(data?.teachers.length ?? 0) === 0 ? (
-              <p className="text-sm text-zinc-400">No earnings data for this month.</p>
-            ) : (
-              <div className="overflow-x-auto">
-                <table className="w-full min-w-[560px] text-left text-sm">
-                  <thead>
-                    <tr className="border-b border-portal text-xs uppercase text-portal-muted">
-                      <th className="py-2 pr-4">Teacher</th>
-                      <th className="py-2 pr-4">Verified</th>
-                      <th className="py-2 pr-4">Pending</th>
-                      <th className="py-2 text-right">Paid</th>
-                      <th className="py-2 text-right">Pending est.</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {data!.teachers.map((row) => (
-                      <tr key={row.teacherId} className="border-b border-portal last:border-b-0">
-                        <td className="py-3 pr-4 font-medium text-primary-dark">
-                          {row.teacherName}
-                        </td>
-                        <td className="py-3 pr-4">{row.verifiedSessions}</td>
-                        <td className="py-3 pr-4">{row.pendingSessions}</td>
-                        <td className="py-3 text-right font-semibold text-gold">
-                          {formatBdt(row.totalBdt)}
-                        </td>
-                        <td className="py-3 text-right text-zinc-500">
-                          {formatBdt(row.pendingBdt)}
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            )}
-          </Card>
-        </>
+          <div className="flex flex-col gap-4">
+            <AdminEarningsTrendChart
+              data={trendData}
+              range={trendRange}
+              onRangeChange={setTrendRange}
+            />
+            <AdminEarningsQuickActions
+              pendingCount={pendingApprovalLogs.length}
+              isFetching={isFetching || logsLoading}
+              onExport={handleExport}
+              onRefresh={() => void refetch()}
+              onReviewPending={handleReviewPending}
+            />
+            <AdminEarningsSidebar upcomingLogs={upcomingLogs} recentLogs={recentLogs} />
+          </div>
+        </div>
       )}
 
-      {!pendingLoading && pendingLogs.length > 0 ? (
-        <div>
-          <div className="mb-3 flex items-center justify-between">
-            <h2 className="font-bold text-primary-dark">Approve for earnings</h2>
-            <button
-              type="button"
-              onClick={() => navigate("/admin/class-logs")}
-              className="text-xs font-semibold text-gold"
-            >
-              Open class logs →
-            </button>
-          </div>
-          <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
-            {pendingLogs.slice(0, 4).map((log) => (
-              <ClassLogCard
-                key={log._id}
-                log={log}
-                showTeacher
-                onApprove={handleApprove}
-                actionPending={approve.isPending}
-              />
-            ))}
-          </div>
-        </div>
-      ) : null}
+      <AdminClassLogsDetailModal
+        log={selectedLog}
+        busy={busy}
+        onClose={() => setSelectedLog(null)}
+        onApprove={handleApprove}
+        onReject={handleReject}
+      />
     </PageContainer>
   );
 }

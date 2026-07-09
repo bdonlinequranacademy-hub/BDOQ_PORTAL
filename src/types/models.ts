@@ -508,6 +508,7 @@ export interface ContactMessageView {
   _id: string;
   name: string;
   email: string;
+  subject?: string;
   message: string;
   locale?: "en" | "bn";
   status: ContactMessageStatus;
@@ -657,6 +658,7 @@ export interface AdminProgressRecord {
   curriculumLabels?: { program?: string; unit?: string; topic?: string };
   surahsMemorized?: string[];
   tajweedScore?: number;
+  memorizedAyahs?: number;
   notes?: string;
   updatedAt?: string;
   updatedBy?: PopulatedUserRef;

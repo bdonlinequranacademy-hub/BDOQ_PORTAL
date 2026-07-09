@@ -1,116 +1,115 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { CalendarDays, Radio, RefreshCw } from "lucide-react";
+import { Radio } from "lucide-react";
 import { useAdminLiveMonitor } from "@/features/admin/hooks/useAdmin";
-import { LiveMonitorBanner } from "@/features/admin/components/liveMonitor/LiveMonitorBanner";
 import {
   LiveMonitorFilterTabs,
   type LiveMonitorFilter,
 } from "@/features/admin/components/liveMonitor/LiveMonitorFilterTabs";
-import { LiveMonitorSessionCard } from "@/features/admin/components/liveMonitor/LiveMonitorSessionCard";
-import { LiveMonitorSummaryGrid } from "@/features/admin/components/liveMonitor/LiveMonitorSummaryGrid";
-import {
-  groupLiveMonitorSessions,
-  sessionHasIssue,
-} from "@/features/admin/components/liveMonitor/liveMonitorUtils";
+import { AdminLiveMonitorHero } from "@/features/admin/components/liveMonitor/AdminLiveMonitorHero";
+import { AdminLiveMonitorStatsGrid } from "@/features/admin/components/liveMonitor/AdminLiveMonitorStatsGrid";
+import { AdminLiveMonitorDetailPanel } from "@/features/admin/components/liveMonitor/AdminLiveMonitorDetailPanel";
+import { AdminLiveMonitorSessionList } from "@/features/admin/components/liveMonitor/AdminLiveMonitorSessionList";
+import { AdminLiveMonitorSidebar } from "@/features/admin/components/liveMonitor/AdminLiveMonitorSidebar";
+import { pickDefaultSession } from "@/features/admin/components/liveMonitor/adminLiveMonitorUtils";
+import { sessionHasIssue } from "@/features/admin/components/liveMonitor/liveMonitorUtils";
 import { PageContainer } from "@/components/layout/PageContainer";
 import { PageLoading } from "@/components/ui/PageLoading";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { useSessionClock } from "@/hooks/useSessionClock";
-import { cn } from "@/lib/utils/cn";
-
-const SECTION_ACCENT: Record<string, string> = {
-  live: "border-red-500/40 bg-red-500/5 dark:bg-red-500/10",
-  issues: "border-amber-500/35 bg-amber-500/5 dark:bg-amber-500/10",
-  upcoming: "border-primary/25 bg-primary/5 dark:bg-primary/10",
-  completed: "border-portal bg-portal-surface-muted/50",
-};
+import type { LiveMonitorSession } from "@/types/models";
 
 export function AdminLiveMonitorPage() {
   const navigate = useNavigate();
   const now = useSessionClock();
   const { data, isLoading, isFetching, refetch } = useAdminLiveMonitor();
   const [filter, setFilter] = useState<LiveMonitorFilter>("all");
+  const [selectedId, setSelectedId] = useState<string | undefined>();
+
+  const allSessions = data?.sessions ?? [];
+  const summary = data?.summary;
 
   const filteredSessions = useMemo(() => {
-    const list = data?.sessions ?? [];
-    if (filter === "all") return list;
+    if (filter === "all") return allSessions;
     if (filter === "issues") {
-      return list.filter((s) => sessionHasIssue(s));
+      return allSessions.filter((session) => sessionHasIssue(session));
     }
-    return list.filter((s) => s.sessionPhase === filter);
-  }, [data?.sessions, filter]);
+    return allSessions.filter((session) => session.sessionPhase === filter);
+  }, [allSessions, filter]);
 
-  const groupedSections = useMemo(() => {
-    if (filter !== "all") return null;
-    return groupLiveMonitorSessions(filteredSessions);
-  }, [filter, filteredSessions]);
+  const selectedSession = useMemo(() => {
+    if (selectedId) {
+      return filteredSessions.find((session) => session._id === selectedId);
+    }
+    return pickDefaultSession(filteredSessions);
+  }, [filteredSessions, selectedId]);
 
-  const summary = data?.summary;
+  useEffect(() => {
+    if (filteredSessions.length === 0) {
+      setSelectedId(undefined);
+      return;
+    }
+
+    if (selectedId && filteredSessions.some((session) => session._id === selectedId)) {
+      return;
+    }
+
+    setSelectedId(pickDefaultSession(filteredSessions)?._id);
+  }, [filteredSessions, selectedId]);
 
   const filters: Array<{
     id: LiveMonitorFilter;
     label: string;
     count?: number;
   }> = [
-    { id: "all", label: "All", count: summary?.totalToday },
+    { id: "all", label: "Overview", count: summary?.totalToday },
     { id: "live", label: "Live", count: summary?.liveCount },
     { id: "upcoming", label: "Upcoming", count: summary?.upcomingCount },
-    { id: "completed", label: "Done", count: summary?.completedCount },
     {
       id: "issues",
       label: "Issues",
-      count:
-        (summary?.teacherLateCount ?? 0) +
-        (summary?.studentNoShowCount ?? 0) +
-        (summary?.teacherNoShowCount ?? 0),
+      count: summary
+        ? summary.teacherLateCount +
+          summary.studentNoShowCount +
+          summary.teacherNoShowCount
+        : undefined,
+    },
+    {
+      id: "completed",
+      label: "Completed",
+      count: summary?.completedCount,
     },
   ];
 
+  function handleSelectSession(session: LiveMonitorSession) {
+    setSelectedId(session._id);
+  }
+
   return (
-    <PageContainer className="flex flex-col gap-6">
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-        <div>
-          <div className="flex items-center gap-2.5">
-            <span className="flex size-10 items-center justify-center rounded-xl bg-red-500/10 text-red-600 dark:text-red-400">
-              <Radio className="size-5" aria-hidden />
-            </span>
-            <div>
-              <h1 className="text-2xl font-bold text-portal-heading">Live class monitor</h1>
-              <p className="text-sm text-portal-muted">
-                Asia/Dhaka · join tracking via portal Launch
-              </p>
-            </div>
-          </div>
-          {summary ? (
-            <p className="mt-2 inline-flex items-center gap-2 rounded-lg border border-portal bg-portal-surface-muted px-3 py-1.5 text-xs text-portal-muted">
-              <CalendarDays className="size-3.5" />
-              {summary.day}, {summary.sessionDate}
-              {data?.updatedAt
-                ? ` · Updated ${new Date(data.updatedAt).toLocaleTimeString()}`
-                : ""}
-            </p>
-          ) : null}
-        </div>
-        <button
-          type="button"
-          onClick={() => void refetch()}
-          disabled={isFetching}
-          className="inline-flex items-center gap-2 self-start rounded-xl border border-portal bg-portal-surface px-4 py-2.5 text-sm font-semibold text-portal-heading shadow-sm transition hover:bg-portal-surface-muted disabled:opacity-60"
-        >
-          <RefreshCw className={cn("size-4", isFetching && "animate-spin")} />
-          Refresh
-        </button>
-      </div>
-
+    <PageContainer className="gap-5 lg:gap-6">
       {summary ? (
-        <>
-          <LiveMonitorBanner summary={summary} />
-          <LiveMonitorSummaryGrid summary={summary} />
-        </>
-      ) : null}
+        <AdminLiveMonitorHero
+          summary={summary}
+          updatedAt={data?.updatedAt}
+          isFetching={isFetching}
+          onRefresh={() => void refetch()}
+        />
+      ) : (
+        <div>
+          <h1 className="portal-page-title font-display text-2xl font-bold text-primary-dark sm:text-3xl">
+            Live Class Monitor
+          </h1>
+          <p className="portal-page-subtitle mt-1 text-portal-muted">
+            Track today&apos;s sessions and join status in real time.
+          </p>
+        </div>
+      )}
 
-      <LiveMonitorFilterTabs filters={filters} active={filter} onChange={setFilter} />
+      {summary ? <AdminLiveMonitorStatsGrid summary={summary} isLoading={isLoading} /> : null}
+
+      <div className="rounded-2xl border border-portal bg-portal-surface px-4 pt-2 shadow-[0_8px_24px_-16px_rgba(13,74,47,0.18)] sm:px-5">
+        <LiveMonitorFilterTabs filters={filters} active={filter} onChange={setFilter} />
+      </div>
 
       {isLoading ? (
         <PageLoading label="Loading live sessions…" />
@@ -122,47 +121,32 @@ export function AdminLiveMonitorPage() {
           actionLabel="View routine"
           onAction={() => navigate("/admin/schedule/routine")}
         />
-      ) : filter === "all" && groupedSections ? (
-        <div className="space-y-6">
-          {groupedSections.map((section) => (
-            <section key={section.id} className="space-y-3">
-              <div
-                className={cn(
-                  "flex items-center justify-between rounded-xl border px-4 py-2.5",
-                  SECTION_ACCENT[section.id] ?? "border-portal bg-portal-surface-muted"
-                )}
-              >
-                <h2 className="text-sm font-bold uppercase tracking-wide text-portal-heading">
-                  {section.label}
-                </h2>
-                <span className="rounded-full bg-portal-surface px-2.5 py-0.5 text-xs font-semibold tabular-nums text-portal-muted shadow-sm">
-                  {section.sessions.length}
-                </span>
-              </div>
-              <div className="space-y-3">
-                {section.sessions.map((session) => (
-                  <LiveMonitorSessionCard
-                    key={session._id}
-                    session={session}
-                    now={now}
-                  />
-                ))}
-              </div>
-            </section>
-          ))}
-        </div>
       ) : (
-        <div className="space-y-3">
-          {filteredSessions.map((session) => (
-            <LiveMonitorSessionCard key={session._id} session={session} now={now} />
-          ))}
+        <div className="grid grid-cols-1 gap-5 xl:grid-cols-[minmax(0,1fr)_300px] xl:gap-6">
+          <div className="flex min-w-0 flex-col gap-4">
+            {selectedSession ? (
+              <AdminLiveMonitorDetailPanel session={selectedSession} now={now} />
+            ) : null}
+            <AdminLiveMonitorSessionList
+              sessions={filteredSessions}
+              selectedId={selectedSession?._id}
+              now={now}
+              onSelect={handleSelectSession}
+            />
+            <p className="rounded-xl border border-dashed border-portal bg-portal-muted/30 px-4 py-3 text-xs text-portal-muted">
+              Portal clock: {new Date(now).toLocaleTimeString()} · Teacher/student join is
+              recorded when they click <strong className="text-portal-heading">Launch</strong> on
+              their schedule.
+            </p>
+          </div>
+
+          <AdminLiveMonitorSidebar
+            sessions={allSessions}
+            isFetching={isFetching}
+            onRefresh={() => void refetch()}
+          />
         </div>
       )}
-
-      <p className="rounded-xl border border-dashed border-portal bg-portal-surface-muted/50 px-4 py-3 text-xs text-portal-muted">
-        Portal clock: {new Date(now).toLocaleTimeString()} · Teacher/student join is recorded when
-        they click <strong className="text-portal-heading">Launch</strong> on their schedule.
-      </p>
     </PageContainer>
   );
 }

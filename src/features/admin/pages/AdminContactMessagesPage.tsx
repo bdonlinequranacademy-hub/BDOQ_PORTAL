@@ -1,190 +1,160 @@
-import { useState } from "react";
-import { Inbox, Mail } from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
+import { Download, Inbox } from "lucide-react";
 import type { ContactMessageStatus, ContactMessageView } from "@/types/models";
 import {
   useAdminContactMessages,
   useUpdateContactMessageStatus,
 } from "@/features/admin/hooks/useAdmin";
 import { PageContainer } from "@/components/layout/PageContainer";
-import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { EmptyState } from "@/components/ui/EmptyState";
-
 import { PageLoading } from "@/components/ui/PageLoading";
-import { Pagination } from "@/components/ui/Pagination";
 import { usePaginatedList } from "@/lib/hooks/usePaginatedList";
-type Filter = "new" | "all" | ContactMessageStatus;
-
-function statusStyles(status: ContactMessageStatus) {
-  switch (status) {
-    case "replied":
-      return "bg-blue-100 text-blue-800";
-    case "closed":
-      return "bg-zinc-200 text-zinc-700";
-    default:
-      return "bg-amber-100 text-amber-800";
-  }
-}
-
-function nextActions(status: ContactMessageStatus): { label: string; status: ContactMessageStatus }[] {
-  switch (status) {
-    case "new":
-      return [{ label: "Mark replied", status: "replied" }];
-    case "replied":
-      return [{ label: "Mark closed", status: "closed" }];
-    default:
-      return [];
-  }
-}
-
-function localeLabel(locale?: ContactMessageView["locale"]) {
-  if (locale === "bn") return "Bengali";
-  if (locale === "en") return "English";
-  return null;
-}
-
-function replyViaEmailHref(message: ContactMessageView): string {
-  const subject = encodeURIComponent("Re: Your message to BDOQ Academy");
-  const body = encodeURIComponent(
-    `Assalamu alaikum ${message.name},\n\nThank you for contacting BD Online Quran Academy.\n\n---\nYour message:\n${message.message}\n---\n\n`
-  );
-  return `mailto:${message.email}?subject=${subject}&body=${body}`;
-}
+import { AdminContactInboxStatsGrid } from "@/features/admin/components/contact-inbox/AdminContactInboxStatsGrid";
+import { AdminContactInboxNewAlert } from "@/features/admin/components/contact-inbox/AdminContactInboxNewAlert";
+import { AdminContactInboxList } from "@/features/admin/components/contact-inbox/AdminContactInboxList";
+import { AdminContactInboxConversation } from "@/features/admin/components/contact-inbox/AdminContactInboxConversation";
+import { AdminContactInboxDetails } from "@/features/admin/components/contact-inbox/AdminContactInboxDetails";
+import {
+  computeContactInboxStats,
+  exportContactMessagesFile,
+  filterContactMessages,
+  type AdminContactInboxTab,
+} from "@/features/admin/components/contact-inbox/adminContactInboxUtils";
 
 export function AdminContactMessagesPage() {
-  const [filter, setFilter] = useState<Filter>("new");
-  const status = filter === "all" ? undefined : filter;
-  const { data: messages = [], isLoading } = useAdminContactMessages(status);
+  const [tab, setTab] = useState<AdminContactInboxTab>("all");
+  const [search, setSearch] = useState("");
+  const [selectedId, setSelectedId] = useState<string | null>(null);
+
+  const { data: messages = [], isLoading, isError, isFetching, refetch } =
+    useAdminContactMessages();
   const updateStatus = useUpdateContactMessageStatus();
 
-  const newCount =
-    filter === "new" ? messages.length : messages.filter((m) => m.status === "new").length;
+  const stats = useMemo(() => computeContactInboxStats(messages), [messages]);
 
-  const pagination = usePaginatedList(messages, {
-    resetDeps: [filter],
+  const tabCounts = useMemo(
+    () => ({
+      all: messages.length,
+      new: stats.new,
+      replied: stats.replied,
+      closed: stats.closed,
+    }),
+    [messages.length, stats]
+  );
+
+  const visibleMessages = useMemo(
+    () => filterContactMessages(messages, { tab, search }),
+    [messages, tab, search]
+  );
+
+  const pagination = usePaginatedList(visibleMessages, {
+    pageSize: 10,
+    resetDeps: [tab, search],
   });
 
+  const selectedMessage = useMemo(
+    () => visibleMessages.find((message) => message._id === selectedId) ?? null,
+    [visibleMessages, selectedId]
+  );
+
+  useEffect(() => {
+    if (visibleMessages.length === 0) {
+      setSelectedId(null);
+      return;
+    }
+
+    const stillVisible = visibleMessages.some((message) => message._id === selectedId);
+    if (!stillVisible) {
+      setSelectedId(visibleMessages[0]._id);
+    }
+  }, [visibleMessages, selectedId]);
+
+  const busy = updateStatus.isPending;
+
+  function handleUpdateStatus(message: ContactMessageView, status: ContactMessageStatus) {
+    updateStatus.mutate({ id: message._id, status });
+  }
+
+  function handleExport() {
+    exportContactMessagesFile(visibleMessages, "contact-inbox-filtered");
+  }
+
   return (
-    <PageContainer className="flex flex-col gap-6">
-      <div>
-        <h1 className="text-2xl font-bold text-primary-dark">Contact Messages</h1>
-        <p className="mt-1 text-sm text-zinc-500">
-          Enquiries from the website contact form — reply within 24 hours
-        </p>
-      </div>
-
-      {filter === "new" && newCount > 0 ? (
-        <Card className="rounded-2xl border-0 bg-amber-50 p-4 shadow-sm">
-          <p className="text-sm font-semibold text-amber-800">
-            {newCount} new message{newCount === 1 ? "" : "s"} awaiting reply
+    <PageContainer className="gap-5 lg:gap-6">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+        <div>
+          <h1 className="portal-page-title font-display text-2xl font-bold text-primary-dark sm:text-3xl">
+            Contact Inbox
+          </h1>
+          <p className="portal-page-subtitle mt-1 max-w-3xl text-portal-muted">
+            Enquiries from the website contact form — reply within 24 hours.
           </p>
-        </Card>
-      ) : null}
-
-      <div className="flex gap-2 overflow-x-auto pb-1">
-        {(
-          [
-            { id: "new" as const, label: "New" },
-            { id: "replied" as const, label: "Replied" },
-            { id: "closed" as const, label: "Closed" },
-            { id: "all" as const, label: "All" },
-          ] as const
-        ).map((f) => (
-          <button
-            key={f.id}
-            type="button"
-            onClick={() => setFilter(f.id)}
-            className={`shrink-0 rounded-full px-4 py-1.5 text-sm font-medium capitalize ${
-              filter === f.id
-                ? "bg-primary-dark text-white"
-                : "border border-zinc-200 bg-white text-primary-dark"
-            }`}
-          >
-            {f.label}
-          </button>
-        ))}
+        </div>
+        <Button
+          type="button"
+          variant="ghost"
+          onClick={handleExport}
+          className="inline-flex shrink-0 items-center gap-2 rounded-xl border border-portal px-4"
+        >
+          <Download className="size-4" aria-hidden />
+          Export
+        </Button>
       </div>
 
-      {isLoading ? (
-        <PageLoading label="Loading contact messages…" />
+      <AdminContactInboxStatsGrid stats={stats} isLoading={isLoading} />
+
+      <AdminContactInboxNewAlert newCount={stats.new} onReview={() => setTab("new")} />
+
+      {isError ? (
+        <EmptyState
+          icon={Inbox}
+          title="Could not load contact inbox"
+          description="The server failed to return contact messages. Try again in a moment."
+          actionLabel="Retry"
+          onAction={() => void refetch()}
+        />
+      ) : isLoading ? (
+        <PageLoading label="Loading contact inbox…" />
       ) : messages.length === 0 ? (
         <EmptyState
           icon={Inbox}
-          title="No contact messages in this view"
+          title="No contact messages yet"
           description="Messages appear here when visitors submit the contact form on your website."
         />
+      ) : visibleMessages.length === 0 ? (
+        <EmptyState
+          icon={Inbox}
+          title="No messages match your filters"
+          description="Try clearing search or switching to another status tab."
+        />
       ) : (
-        <>
-        <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
-          {pagination.paginatedItems.map((message) => {
-            const actions = nextActions(message.status);
-            const lang = localeLabel(message.locale);
-
-            return (
-              <Card
-                key={message._id}
-                className="flex flex-col gap-3 rounded-2xl border-0 p-5 shadow-sm"
-              >
-                <div className="flex flex-wrap items-center gap-2">
-                  <span
-                    className={`rounded-full px-2.5 py-0.5 text-xs font-semibold capitalize ${statusStyles(message.status)}`}
-                  >
-                    {message.status}
-                  </span>
-                  {lang ? (
-                    <span className="rounded-full bg-zinc-100 px-2 py-0.5 text-xs font-medium text-zinc-600">
-                      {lang}
-                    </span>
-                  ) : null}
-                  <span className="text-xs text-zinc-400">
-                    {new Date(message.createdAt).toLocaleString()}
-                  </span>
-                </div>
-
-                <div>
-                  <p className="font-bold text-primary-dark">{message.name}</p>
-                  <a
-                    href={`mailto:${message.email}`}
-                    className="mt-1 inline-flex items-center gap-2 text-sm text-zinc-600 hover:text-primary-dark"
-                  >
-                    <Mail className="size-4 shrink-0 text-zinc-400" />
-                    {message.email}
-                  </a>
-                </div>
-
-                <p className="whitespace-pre-wrap text-sm leading-relaxed text-zinc-700">
-                  {message.message}
-                </p>
-
-                {message.status !== "closed" ? (
-                  <div className="flex flex-wrap gap-2 pt-1">
-                    <a
-                      href={replyViaEmailHref(message)}
-                      className="inline-flex h-9 items-center rounded-xl border border-[#03214F]/20 bg-white px-4 text-sm font-semibold text-primary-dark transition hover:border-[#03214F]/40 hover:bg-primary-dark/5"
-                    >
-                      Reply via email
-                    </a>
-                    {actions.map((action) => (
-                      <Button
-                        key={action.status}
-                        type="button"
-                        onClick={() =>
-                          updateStatus.mutate({ id: message._id, status: action.status })
-                        }
-                        disabled={updateStatus.isPending}
-                        className="h-9 rounded-xl bg-primary-dark px-4 text-sm text-white"
-                      >
-                        {action.label}
-                      </Button>
-                    ))}
-                  </div>
-                ) : null}
-              </Card>
-            );
-          })}
+        <div className="grid grid-cols-1 gap-4 xl:grid-cols-[minmax(280px,320px)_minmax(0,1fr)_minmax(240px,280px)] xl:gap-5">
+          <AdminContactInboxList
+            messages={visibleMessages}
+            selectedId={selectedId}
+            search={search}
+            tab={tab}
+            tabCounts={tabCounts}
+            pagination={pagination}
+            onSearchChange={setSearch}
+            onTabChange={setTab}
+            onSelect={(message) => setSelectedId(message._id)}
+          />
+          <AdminContactInboxConversation
+            message={selectedMessage}
+            busy={busy}
+            onUpdateStatus={handleUpdateStatus}
+          />
+          <AdminContactInboxDetails
+            message={selectedMessage}
+            allMessages={messages}
+            busy={busy}
+            isFetching={isFetching}
+            onRefresh={() => void refetch()}
+            onUpdateStatus={handleUpdateStatus}
+          />
         </div>
-        <Pagination pagination={pagination} itemLabel="messages" />
-        </>
       )}
     </PageContainer>
   );

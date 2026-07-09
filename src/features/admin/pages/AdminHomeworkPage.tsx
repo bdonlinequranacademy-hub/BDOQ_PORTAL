@@ -1,160 +1,255 @@
 import { useMemo, useState } from "react";
-import { BookOpenCheck, Trash2 } from "lucide-react";
+import { BookOpenCheck } from "lucide-react";
+import type { AdminHomeworkItem } from "@/types/models";
 import { useAdminHomework, useDeleteAdminHomework } from "@/features/admin/hooks/useAdmin";
 import { PageContainer } from "@/components/layout/PageContainer";
-import { Card } from "@/components/ui/Card";
 import { EmptyState } from "@/components/ui/EmptyState";
-import { CurriculumProgramFilter } from "@/components/curriculum/CurriculumProgramFilter";
-import { useCurriculumTree } from "@/components/curriculum/NestedCurriculumSelect";
-import { formatCurriculumPath, matchesProgramFilter } from "@/lib/api/curriculumApi";
-import { MissingCurriculumBadge } from "@/components/curriculum/CurriculumProgramFilter";
-import { formatHomeworkDueLabel, isHomeworkOverdue } from "@/lib/homeworkDue";
-import type { AdminHomeworkItem } from "@/types/models";
-
 import { PageLoading } from "@/components/ui/PageLoading";
 import { Pagination } from "@/components/ui/Pagination";
+import { useCurriculumTree } from "@/components/curriculum/NestedCurriculumSelect";
 import { usePaginatedList } from "@/lib/hooks/usePaginatedList";
-function classTitle(item: AdminHomeworkItem) {
-  const cls = item.class;
-  if (cls && typeof cls === "object") return cls.title;
-  return "Unknown class";
-}
-
-function teacherName(item: AdminHomeworkItem) {
-  const teacher = item.teacher;
-  if (teacher && typeof teacher === "object") return teacher.name;
-  return "Unknown teacher";
-}
+import { AdminHomeworkOverviewHeader } from "@/features/admin/components/homework/AdminHomeworkOverviewHeader";
+import { AdminHomeworkStatsGrid } from "@/features/admin/components/homework/AdminHomeworkStatsGrid";
+import { AdminHomeworkPendingAlert } from "@/features/admin/components/homework/AdminHomeworkPendingAlert";
+import { AdminHomeworkByTeacherTable } from "@/features/admin/components/homework/AdminHomeworkByTeacherTable";
+import { AdminHomeworkProgramDonut } from "@/features/admin/components/homework/AdminHomeworkProgramDonut";
+import { AdminHomeworkSubmissionTrendChart } from "@/features/admin/components/homework/AdminHomeworkSubmissionTrendChart";
+import { AdminHomeworkQuickActions } from "@/features/admin/components/homework/AdminHomeworkQuickActions";
+import { AdminHomeworkToolbar } from "@/features/admin/components/homework/AdminHomeworkToolbar";
+import { AdminHomeworkTable } from "@/features/admin/components/homework/AdminHomeworkTable";
+import { AdminHomeworkPendingTable } from "@/features/admin/components/homework/AdminHomeworkPendingTable";
+import { AdminHomeworkSidebar } from "@/features/admin/components/homework/AdminHomeworkSidebar";
+import { AdminHomeworkDetailModal } from "@/features/admin/components/homework/AdminHomeworkDetailModal";
+import {
+  buildHomeworkSubmissionTrend,
+  computeHomeworkStats,
+  exportHomeworkFile,
+  extractClassOptions,
+  extractTeacherOptions,
+  filterHomework,
+  getAwaitingGradeHomework,
+  groupHomeworkByTeacher,
+  isHomeworkFullyGraded,
+  isHomeworkOverdueIncomplete,
+  type AdminHomeworkTab,
+  type HomeworkSort,
+  type HomeworkTrendRange,
+} from "@/features/admin/components/homework/adminHomeworkUtils";
 
 export function AdminHomeworkPage() {
+  const [tab, setTab] = useState<AdminHomeworkTab>("all");
+  const [search, setSearch] = useState("");
   const [programFilter, setProgramFilter] = useState("");
-  const { data: homework = [], isLoading } = useAdminHomework();
+  const [classFilter, setClassFilter] = useState("");
+  const [teacherFilter, setTeacherFilter] = useState("");
+  const [dateFrom, setDateFrom] = useState("");
+  const [dateTo, setDateTo] = useState("");
+  const [sortBy, setSortBy] = useState<HomeworkSort>("due_soonest");
+  const [trendRange, setTrendRange] = useState<HomeworkTrendRange>("year");
+  const [selectedItem, setSelectedItem] = useState<AdminHomeworkItem | null>(null);
+
+  const { data: homework = [], isLoading, isError, isFetching, refetch } = useAdminHomework();
   const deleteHomework = useDeleteAdminHomework();
   const { data: curriculumTree = [] } = useCurriculumTree();
 
-  const visibleHomework = useMemo(
-    () => homework.filter((hw) => matchesProgramFilter(hw.curriculumProgram, programFilter)),
-    [homework, programFilter]
+  const stats = useMemo(() => computeHomeworkStats(homework), [homework]);
+  const teacherRows = useMemo(() => groupHomeworkByTeacher(homework), [homework]);
+  const trendData = useMemo(
+    () => buildHomeworkSubmissionTrend(homework, trendRange),
+    [homework, trendRange]
+  );
+  const awaitingGradeItems = useMemo(() => getAwaitingGradeHomework(homework), [homework]);
+  const classOptions = useMemo(() => extractClassOptions(homework), [homework]);
+  const teacherOptions = useMemo(() => extractTeacherOptions(homework), [homework]);
+
+  const tabCounts = useMemo(
+    () => ({
+      all: homework.length,
+      awaiting_grade: homework.filter((item) => (item.pendingGradeCount ?? 0) > 0).length,
+      overdue: homework.filter((item) => isHomeworkOverdueIncomplete(item)).length,
+      fully_graded: homework.filter((item) => isHomeworkFullyGraded(item)).length,
+    }),
+    [homework]
   );
 
-  const pendingGradeTotal = visibleHomework.reduce(
-    (sum, hw) => sum + (hw.pendingGradeCount ?? 0),
-    0
+  const visibleHomework = useMemo(
+    () =>
+      filterHomework(homework, {
+        tab,
+        search,
+        programFilter,
+        classFilter,
+        teacherFilter,
+        dateFrom,
+        dateTo,
+        sortBy,
+      }),
+    [
+      homework,
+      tab,
+      search,
+      programFilter,
+      classFilter,
+      teacherFilter,
+      dateFrom,
+      dateTo,
+      sortBy,
+    ]
   );
 
   const pagination = usePaginatedList(visibleHomework, {
-    resetDeps: [programFilter],
+    pageSize: 10,
+    resetDeps: [
+      tab,
+      search,
+      programFilter,
+      classFilter,
+      teacherFilter,
+      dateFrom,
+      dateTo,
+      sortBy,
+    ],
   });
 
-  return (
-    <PageContainer className="flex flex-col gap-6">
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
-        <div>
-          <h1 className="text-2xl font-bold text-primary-dark">Homework</h1>
-          <p className="text-sm text-zinc-500">
-            Academy-wide assignments · {visibleHomework.length} shown
-            {pendingGradeTotal > 0 ? ` · ${pendingGradeTotal} awaiting grade` : ""}
-          </p>
-        </div>
-        <CurriculumProgramFilter
-          tree={curriculumTree}
-          value={programFilter}
-          onChange={setProgramFilter}
-        />
-      </div>
+  const busy = deleteHomework.isPending;
 
-      {isLoading ? (
-        <PageLoading label="Loading homework…" />
-      ) : visibleHomework.length === 0 ? (
+  async function handleDelete(item: AdminHomeworkItem) {
+    const ok = window.confirm(
+      `Delete "${item.title}"? This removes all student submissions.`
+    );
+    if (!ok) return;
+    await deleteHomework.mutateAsync(item._id);
+    if (selectedItem?._id === item._id) setSelectedItem(null);
+  }
+
+  function handleExport() {
+    exportHomeworkFile(visibleHomework, "homework-filtered");
+  }
+
+  return (
+    <PageContainer className="gap-5 lg:gap-6">
+      <AdminHomeworkOverviewHeader onExport={handleExport} />
+
+      <AdminHomeworkStatsGrid
+        stats={stats}
+        isLoading={isLoading}
+        onAwaitingGradeClick={() => setTab("awaiting_grade")}
+        onOverdueClick={() => setTab("overdue")}
+      />
+
+      <AdminHomeworkPendingAlert
+        awaitingGradeCount={stats.awaitingGrade}
+        overdueCount={stats.overdue}
+        onReviewAwaitingGrade={() => setTab("awaiting_grade")}
+        onReviewOverdue={() => setTab("overdue")}
+      />
+
+      {isError ? (
         <EmptyState
           icon={BookOpenCheck}
-          title={homework.length === 0 ? "No homework yet" : "No homework for this program"}
-          description={
-            homework.length === 0
-              ? "Assignments appear here when teachers create them for their classes."
-              : "Try selecting a different program filter."
-          }
+          title="Could not load homework"
+          description="The server failed to return assignments. Try again in a moment."
+          actionLabel="Retry"
+          onAction={() => void refetch()}
+        />
+      ) : isLoading ? (
+        <PageLoading label="Loading homework…" />
+      ) : homework.length === 0 ? (
+        <EmptyState
+          icon={BookOpenCheck}
+          title="No homework yet"
+          description="Assignments appear here when teachers create them for their classes."
         />
       ) : (
         <>
-        <Card className="overflow-hidden rounded-2xl border-0 p-0 shadow-sm">
-          <div className="hidden border-b border-zinc-100 bg-zinc-50 px-5 py-3 md:grid md:grid-cols-[2fr_1.5fr_1.2fr_1fr_1fr_1fr_0.5fr] md:text-xs md:font-semibold md:uppercase md:text-zinc-500">
-            <span>Assignment</span>
-            <span>Program</span>
-            <span>Class / Teacher</span>
-            <span>Due</span>
-            <span>Submissions</span>
-            <span>Grading</span>
-            <span />
+          <div className="grid grid-cols-1 gap-5 xl:grid-cols-[minmax(0,1fr)_280px] xl:gap-6">
+            <div className="flex min-w-0 flex-col gap-5">
+              <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
+                <AdminHomeworkByTeacherTable
+                  rows={teacherRows}
+                  onViewAll={() => setTab("all")}
+                />
+                <AdminHomeworkProgramDonut items={homework} />
+                <AdminHomeworkSubmissionTrendChart
+                  data={trendData}
+                  range={trendRange}
+                  onRangeChange={setTrendRange}
+                />
+              </div>
+
+              <AdminHomeworkToolbar
+                search={search}
+                programFilter={programFilter}
+                classFilter={classFilter}
+                teacherFilter={teacherFilter}
+                dateFrom={dateFrom}
+                dateTo={dateTo}
+                sortBy={sortBy}
+                tab={tab}
+                tabCounts={tabCounts}
+                classes={classOptions}
+                teachers={teacherOptions}
+                curriculumTree={curriculumTree}
+                onSearchChange={setSearch}
+                onProgramChange={setProgramFilter}
+                onClassChange={setClassFilter}
+                onTeacherChange={setTeacherFilter}
+                onDateFromChange={setDateFrom}
+                onDateToChange={setDateTo}
+                onSortChange={setSortBy}
+                onTabChange={setTab}
+                onExport={handleExport}
+              />
+
+              {visibleHomework.length === 0 ? (
+                <EmptyState
+                  icon={BookOpenCheck}
+                  title="No assignments match your filters"
+                  description="Try clearing search, program, class, teacher, or date filters."
+                />
+              ) : (
+                <>
+                  <AdminHomeworkTable
+                    items={pagination.paginatedItems}
+                    totalCount={visibleHomework.length}
+                    busy={busy}
+                    onView={setSelectedItem}
+                    onDelete={handleDelete}
+                  />
+                  <Pagination pagination={pagination} itemLabel="assignments" />
+                </>
+              )}
+
+              <AdminHomeworkPendingTable
+                items={awaitingGradeItems}
+                busy={busy}
+                onView={setSelectedItem}
+                onDelete={handleDelete}
+                onViewAll={() => setTab("awaiting_grade")}
+              />
+            </div>
+
+            <div className="flex flex-col gap-4">
+              <AdminHomeworkQuickActions
+                awaitingGradeCount={tabCounts.awaiting_grade}
+                isFetching={isFetching}
+                onExport={handleExport}
+                onRefresh={() => void refetch()}
+                onReviewAwaitingGrade={() => setTab("awaiting_grade")}
+                onReviewOverdue={() => setTab("overdue")}
+              />
+              <AdminHomeworkSidebar items={homework} />
+            </div>
           </div>
-          <div className="divide-y divide-zinc-100">
-            {pagination.paginatedItems.map((hw) => {
-              const overdue = isHomeworkOverdue(hw.dueDate);
-              return (
-                <div
-                  key={hw._id}
-                  className="flex flex-col gap-2 p-4 md:grid md:grid-cols-[2fr_1.5fr_1.2fr_1fr_1fr_1fr_0.5fr] md:items-center md:gap-4"
-                >
-                  <div>
-                    <p className="font-semibold text-primary-dark">{hw.title}</p>
-                    {hw.description ? (
-                      <p className="line-clamp-1 text-xs text-zinc-500">{hw.description}</p>
-                    ) : null}
-                  </div>
-                  <div className="text-sm">
-                    {hw.curriculumLabels?.program ? (
-                      <span className="text-gold">
-                        {formatCurriculumPath(hw.curriculumLabels)}
-                      </span>
-                    ) : (
-                      <MissingCurriculumBadge />
-                    )}
-                  </div>
-                  <div className="text-sm text-zinc-600">
-                    <p>{classTitle(hw)}</p>
-                    <p className="text-xs text-zinc-400">{teacherName(hw)}</p>
-                  </div>
-                  <p
-                    className={`text-sm font-medium ${
-                      overdue ? "text-red-600" : "text-zinc-600"
-                    }`}
-                  >
-                    {formatHomeworkDueLabel(hw.dueDate)}
-                  </p>
-                  <p className="text-sm text-zinc-600">
-                    {hw.submissionCount}/{hw.totalStudents ?? "—"} submitted
-                  </p>
-                  <p className="text-sm text-zinc-600">
-                    {hw.gradedCount ?? 0} graded
-                    {(hw.pendingGradeCount ?? 0) > 0 ? (
-                      <span className="ml-1 text-amber-700">
-                        · {hw.pendingGradeCount} pending
-                      </span>
-                    ) : null}
-                  </p>
-                  <button
-                    type="button"
-                    onClick={async () => {
-                      const ok = window.confirm(
-                        `Delete "${hw.title}"? This removes all student submissions.`
-                      );
-                      if (!ok) return;
-                      await deleteHomework.mutateAsync(hw._id);
-                    }}
-                    disabled={deleteHomework.isPending}
-                    className="inline-flex items-center justify-center rounded-lg p-2 text-zinc-400 hover:bg-red-50 hover:text-red-600"
-                    aria-label="Delete homework"
-                  >
-                    <Trash2 className="size-4" />
-                  </button>
-                </div>
-              );
-            })}
-          </div>
-        </Card>
-        <Pagination pagination={pagination} itemLabel="assignments" />
         </>
       )}
+
+      <AdminHomeworkDetailModal
+        item={selectedItem}
+        busy={busy}
+        onClose={() => setSelectedItem(null)}
+        onDelete={handleDelete}
+      />
     </PageContainer>
   );
 }
