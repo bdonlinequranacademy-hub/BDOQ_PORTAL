@@ -8,6 +8,7 @@ export const adminKeys = {
   stats: ["admin", "stats"] as const,
   users: (role?: Role) => ["admin", "users", role] as const,
   user: (id: string) => ["admin", "user", id] as const,
+  userProfile: (id: string) => ["admin", "userProfile", id] as const,
   classes: ["admin", "classes"] as const,
   class: (id: string) => ["admin", "class", id] as const,
   attendance: (classId?: string) => ["admin", "attendance", classId] as const,
@@ -82,6 +83,15 @@ export function useAdminUsers(
     queryFn: () => adminApi.getUsers(role, gender),
     select: (r) => r.data ?? [],
     enabled: options?.enabled ?? true,
+  });
+}
+
+export function useAdminUserProfile(id: string) {
+  return useQuery({
+    queryKey: adminKeys.userProfile(id),
+    queryFn: () => adminApi.getUserProfile(id),
+    select: (r) => r.data,
+    enabled: Boolean(id),
   });
 }
 

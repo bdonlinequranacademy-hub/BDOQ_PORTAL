@@ -1,5 +1,6 @@
 import type {
   AdminUser,
+  AdminUserProfileDetail,
   AdminClass,
   AdminStats,
   AttendanceOverview,
@@ -77,6 +78,11 @@ export const adminApi = {
 
   getUser: (id: string) =>
     apiClient.get<ApiResponse<AdminUser>>(`/admin/users/${id}`).then((r) => r.data),
+
+  getUserProfile: (id: string) =>
+    apiClient
+      .get<ApiResponse<AdminUserProfileDetail>>(`/admin/users/${id}/profile`)
+      .then((r) => r.data),
 
   createUser: (payload: {
     name: string;
@@ -640,7 +646,7 @@ export const adminApi = {
   getProfile: () =>
     apiClient.get<ApiResponse<AdminProfile>>("/admin/profile").then((r) => r.data),
 
-  updateProfile: (payload: { name?: string }) =>
+  updateProfile: (payload: { name?: string; gender?: "male" | "female" }) =>
     apiClient
       .patch<ApiResponse<AdminProfile>>("/admin/profile", payload)
       .then((r) => r.data),

@@ -173,6 +173,10 @@ export const AdminUsersPage = lazyNamed(
   () => import("@/features/admin/pages/AdminUsersPage"),
   "AdminUsersPage"
 );
+export const AdminUserProfilePage = lazyNamed(
+  () => import("@/features/admin/pages/AdminUserProfilePage"),
+  "AdminUserProfilePage"
+);
 export const AdminWhatsAppQueuePage = lazyNamed(
   () => import("@/features/admin/pages/AdminWhatsAppQueuePage"),
   "AdminWhatsAppQueuePage"

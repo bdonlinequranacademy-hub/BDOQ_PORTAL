@@ -239,7 +239,217 @@ export interface AdminUser {
   whatsapp?: string;
   curriculumAssignments?: CurriculumAssignment[];
   createdAt?: string;
+  avatarUrl?: string;
+  meetingLink?: string;
+  bankName?: string;
+  bankAccount?: string;
+  bKashNumber?: string;
+  emailVerified?: boolean;
+  authProvider?: string;
 }
+
+export interface AdminUserProfileClassSchedule {
+  day: string;
+  time: string;
+  duration?: number;
+  repeatWeekly?: boolean;
+}
+
+export interface AdminTeacherPublicProfile {
+  slug: string;
+  title: string;
+  bio: string;
+  about: string;
+  qualifications: string[];
+  skills: string[];
+  experience: string;
+  languages: string[];
+  showOnWebsite: boolean;
+  featured: boolean;
+}
+
+export interface AdminTeacherProfileDetail {
+  kind: "teacher";
+  user: AdminUser;
+  publicProfile: AdminTeacherPublicProfile | null;
+  stats: {
+    activeClasses: number;
+    totalClasses: number;
+    totalStudents: number;
+    experienceLabel: string;
+    yearsOnPlatform: number;
+    homeworkAssigned: number;
+    classLogsApproved: number;
+    classLogsPending: number;
+    earningsMonthBdt: number;
+    earningsPendingBdt: number;
+    verifiedSessionsThisMonth: number;
+  };
+  classes: Array<{
+    _id: string;
+    title: string;
+    description: string;
+    schedule: AdminUserProfileClassSchedule | null;
+    meetingLink: string;
+    sessionRateBdt: number;
+    isActive: boolean;
+    studentCount: number;
+    createdAt?: string;
+  }>;
+  scheduleSlots: Array<{
+    day: string;
+    time: string;
+    duration: number;
+    classTitle: string;
+    classId?: string;
+  }>;
+  students: Array<{
+    _id: string;
+    name: string;
+    email: string;
+    studentId?: string;
+    country?: string;
+    whatsapp?: string;
+    isActive: boolean;
+    classTitles: string[];
+  }>;
+  recentClassLogs: Array<{
+    _id: string;
+    sessionDate: string;
+    durationMinutes: number;
+    courseType: string;
+    lessonReport: string;
+    status: string;
+    earningsBdt: number;
+    studentName: string;
+    studentId?: string;
+    classTitle: string;
+    createdAt?: string;
+  }>;
+  recentHomework: Array<{
+    _id: string;
+    title: string;
+    dueDate: string;
+    classTitle: string;
+    submissionCount: number;
+    createdAt?: string;
+  }>;
+  studentRequests: Array<{
+    _id: string;
+    status: string;
+    message: string;
+    preferredCourseType: string;
+    createdAt?: string;
+    updatedAt?: string;
+  }>;
+  earnings: {
+    month: string;
+    totalBdt: number;
+    verifiedSessions: number;
+    pendingSessions: number;
+    pendingBdt: number;
+    rejectedSessions: number;
+  };
+}
+
+export interface AdminStudentProfileDetail {
+  kind: "student";
+  user: AdminUser;
+  stats: {
+    activeClasses: number;
+    totalClasses: number;
+    attendanceRate: number | null;
+    attendancePresent: number;
+    attendanceAbsent: number;
+    attendanceLate: number;
+    attendanceTotal: number;
+    pendingHomework: number;
+    submittedHomework: number;
+    yearsOnPlatform: number;
+    certificatesCount: number;
+    paymentsCount: number;
+  };
+  classes: Array<{
+    _id: string;
+    title: string;
+    description: string;
+    schedule: AdminUserProfileClassSchedule | null;
+    meetingLink: string;
+    isActive: boolean;
+    teacher: {
+      _id: string;
+      name: string;
+      email: string;
+      whatsapp?: string;
+      country?: string;
+      gender?: string;
+    } | null;
+    createdAt?: string;
+  }>;
+  progress: Array<{
+    _id: string;
+    surahs: string[];
+    tajweedScore: number | null;
+    memorizedAyahs: number;
+    curriculumProgram: string;
+    curriculumUnit?: string;
+    curriculumTopic?: string;
+    notes: string;
+    classTitle?: string;
+    updatedAt?: string;
+  }>;
+  recentAttendance: Array<{
+    _id: string;
+    status: string;
+    date: string;
+    classTitle: string;
+  }>;
+  homework: Array<{
+    _id: string;
+    title: string;
+    dueDate: string;
+    classTitle: string;
+    teacherName: string;
+    submitted: boolean;
+    grade: string | null;
+    submittedAt: string | null;
+  }>;
+  billing: {
+    monthlyFee: number;
+    currency: string;
+    dueDay: number;
+    paidUntil: string | null;
+    isActive: boolean;
+  } | null;
+  recentPayments: Array<{
+    _id: string;
+    amount: number;
+    currency: string;
+    status: string;
+    method?: string;
+    createdAt: string;
+  }>;
+  certificates: Array<{
+    _id: string;
+    certificateId: string;
+    courseName: string;
+    issueDate: string;
+    grade: string;
+  }>;
+}
+
+export interface AdminStaffProfileDetail {
+  kind: "staff";
+  user: AdminUser;
+  stats: {
+    yearsOnPlatform: number;
+  };
+}
+
+export type AdminUserProfileDetail =
+  | AdminTeacherProfileDetail
+  | AdminStudentProfileDetail
+  | AdminStaffProfileDetail;
 
 export interface ClassSchedule {
   day: string;
@@ -473,6 +683,9 @@ export interface AdminProfile {
   role: string;
   avatarUrl?: string;
   gender?: "male" | "female";
+  authProvider?: string;
+  isActive?: boolean;
+  createdAt?: string;
 }
 
 export type WhatsAppQueueCategory =

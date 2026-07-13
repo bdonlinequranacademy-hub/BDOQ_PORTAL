@@ -36,6 +36,7 @@ function genderLabel(gender?: "male" | "female") {
 
 interface IAdminUsersTableProps {
   users: AdminUser[];
+  onView: (user: AdminUser) => void;
   onEdit: (user: AdminUser) => void;
   onDeactivate: (user: AdminUser) => void;
   canManage: (targetRole: Role) => boolean;
@@ -43,6 +44,7 @@ interface IAdminUsersTableProps {
 
 export function AdminUsersTable({
   users,
+  onView,
   onEdit,
   onDeactivate,
   canManage,
@@ -85,7 +87,13 @@ export function AdminUsersTable({
                       />
                       <div className="min-w-0">
                         <p className="truncate font-semibold text-portal-heading">
-                          {user.name}
+                          <button
+                            type="button"
+                            onClick={() => onView(user)}
+                            className="text-left transition hover:text-primary"
+                          >
+                            {user.name}
+                          </button>
                         </p>
                         <p className="truncate text-xs text-portal-muted">{userHandle(user)}</p>
                       </div>
@@ -123,10 +131,10 @@ export function AdminUsersTable({
                         <>
                           <button
                             type="button"
-                            onClick={() => onEdit(user)}
+                            onClick={() => onView(user)}
                             className="rounded-lg p-2 text-portal-muted transition hover:bg-portal-muted/50 hover:text-primary"
                             aria-label={`View ${user.name}`}
-                            title="View user"
+                            title="View profile"
                           >
                             <Eye className="size-4" />
                           </button>
@@ -227,6 +235,14 @@ export function AdminUsersTable({
               <div className="flex justify-end gap-1">
                 {manageable ? (
                   <>
+                    <button
+                      type="button"
+                      onClick={() => onView(user)}
+                      className="rounded-lg p-2 text-primary hover:bg-portal-muted/50"
+                      aria-label={`View ${user.name}`}
+                    >
+                      <Eye className="size-4" />
+                    </button>
                     <button
                       type="button"
                       onClick={() => onEdit(user)}

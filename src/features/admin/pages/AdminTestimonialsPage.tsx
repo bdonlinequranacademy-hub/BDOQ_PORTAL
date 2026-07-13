@@ -1,155 +1,210 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { ExternalLink, Mic, Plus, Pencil, Search, Star, Trash2, Video } from "lucide-react";
+import { MessageSquareQuote } from "lucide-react";
+import type { TestimonialMediaType } from "@/types/models";
 import {
   useAdminTestimonials,
   useDeleteTestimonial,
 } from "@/features/admin/hooks/useAdmin";
 import { PageContainer } from "@/components/layout/PageContainer";
-import { Card } from "@/components/ui/Card";
+import { EmptyState } from "@/components/ui/EmptyState";
 import { PageLoading } from "@/components/ui/PageLoading";
-import { Button } from "@/components/ui/Button";
-import { formControlClass } from "@/lib/formControl";
-import { env } from "@/config/env";
-import type { TestimonialMediaType } from "@/types/models";
-
-const mediaBadge: Record<TestimonialMediaType, { label: string; className: string }> = {
-  text: { label: "Text", className: "bg-zinc-100 text-zinc-600" },
-  audio: { label: "Audio", className: "bg-sky-50 text-sky-700" },
-  video: { label: "Video", className: "bg-violet-50 text-violet-700" },
-};
-
-function MediaIcon({ type }: { type: TestimonialMediaType }) {
-  if (type === "audio") return <Mic className="size-3.5" aria-hidden />;
-  if (type === "video") return <Video className="size-3.5" aria-hidden />;
-  return <Star className="size-3.5" aria-hidden />;
-}
+import { Pagination } from "@/components/ui/Pagination";
+import { usePaginatedList } from "@/lib/hooks/usePaginatedList";
+import { AdminTestimonialsOverviewHeader } from "@/features/admin/components/testimonials/AdminTestimonialsOverviewHeader";
+import { AdminTestimonialsStatsGrid } from "@/features/admin/components/testimonials/AdminTestimonialsStatsGrid";
+import { AdminTestimonialsRatingDistribution } from "@/features/admin/components/testimonials/AdminTestimonialsRatingDistribution";
+import { AdminTestimonialsToolbar } from "@/features/admin/components/testimonials/AdminTestimonialsToolbar";
+import { AdminTestimonialsTable } from "@/features/admin/components/testimonials/AdminTestimonialsTable";
+import { AdminTestimonialsMediaTypesCard } from "@/features/admin/components/testimonials/AdminTestimonialsMediaTypesCard";
+import { AdminTestimonialsTopRated } from "@/features/admin/components/testimonials/AdminTestimonialsTopRated";
+import { AdminTestimonialsQuickActions } from "@/features/admin/components/testimonials/AdminTestimonialsQuickActions";
+import { AdminTestimonialsTipBanner } from "@/features/admin/components/testimonials/AdminTestimonialsTipBanner";
+import {
+  buildRatingDistribution,
+  computeTestimonialsStats,
+  exportTestimonialsFile,
+  filterTestimonials,
+  getTabCounts,
+  getTopRatedReviews,
+  groupByMediaType,
+  type AdminTestimonialsTab,
+  type TestimonialsSort,
+} from "@/features/admin/components/testimonials/adminTestimonialsUtils";
 
 export function AdminTestimonialsPage() {
   const navigate = useNavigate();
+  const [tab, setTab] = useState<AdminTestimonialsTab>("all");
   const [search, setSearch] = useState("");
-  const { data: testimonials = [], isLoading } = useAdminTestimonials();
+  const [mediaType, setMediaType] = useState<TestimonialMediaType | "">("");
+  const [ratingFilter, setRatingFilter] = useState<number | "">("");
+  const [statusFilter, setStatusFilter] = useState<"published" | "pending" | "">("");
+  const [dateFrom, setDateFrom] = useState("");
+  const [dateTo, setDateTo] = useState("");
+  const [sortBy, setSortBy] = useState<TestimonialsSort>("newest");
+  const [showAdvancedFilters, setShowAdvancedFilters] = useState(false);
+
+  const { data: testimonials = [], isLoading, isFetching, refetch } =
+    useAdminTestimonials();
   const deleteReview = useDeleteTestimonial();
 
-  const filtered = testimonials.filter(
-    (item) =>
-      item.name.toLowerCase().includes(search.toLowerCase()) ||
-      item.location.toLowerCase().includes(search.toLowerCase()) ||
-      item.content.toLowerCase().includes(search.toLowerCase())
+  const stats = useMemo(
+    () => computeTestimonialsStats(testimonials),
+    [testimonials]
+  );
+  const tabCounts = useMemo(() => getTabCounts(testimonials), [testimonials]);
+  const ratingRows = useMemo(
+    () => buildRatingDistribution(testimonials),
+    [testimonials]
+  );
+  const mediaRows = useMemo(() => groupByMediaType(testimonials), [testimonials]);
+  const topRated = useMemo(
+    () => getTopRatedReviews(testimonials),
+    [testimonials]
   );
 
-  if (isLoading) {
-    return (
-      <PageContainer>
-        <PageLoading label="Loading reviews…" />
-      </PageContainer>
-    );
+  const visible = useMemo(
+    () =>
+      filterTestimonials(testimonials, {
+        tab,
+        search,
+        mediaType,
+        ratingFilter,
+        statusFilter,
+        dateFrom,
+        dateTo,
+        sortBy,
+      }),
+    [
+      testimonials,
+      tab,
+      search,
+      mediaType,
+      ratingFilter,
+      statusFilter,
+      dateFrom,
+      dateTo,
+      sortBy,
+    ]
+  );
+
+  const pagination = usePaginatedList(visible, {
+    pageSize: 10,
+    resetDeps: [
+      tab,
+      search,
+      mediaType,
+      ratingFilter,
+      statusFilter,
+      dateFrom,
+      dateTo,
+      sortBy,
+    ],
+  });
+
+  function handleExport() {
+    exportTestimonialsFile(visible);
+  }
+
+  function handleDelete(item: { id: string; name: string }) {
+    if (!window.confirm(`Delete review from ${item.name}?`)) return;
+    deleteReview.mutate(item.id);
   }
 
   return (
-    <PageContainer className="flex flex-col gap-6">
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <div>
-          <h1 className="text-2xl font-bold text-primary-dark">Student Reviews</h1>
-          <p className="text-sm text-zinc-500">
-            Manage text, audio, and video reviews shown on the public website homepage
-          </p>
-        </div>
-        <Button
-          onClick={() => navigate("/admin/testimonials/new")}
-          className="gap-2 rounded-xl bg-primary-dark text-white"
-        >
-          <Plus className="size-4" />
-          New review
-        </Button>
-      </div>
+    <PageContainer className="gap-5 lg:gap-6">
+      <AdminTestimonialsOverviewHeader onExport={handleExport} />
 
-      <div className="relative">
-        <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-zinc-400" />
-        <input
-          className={`${formControlClass} py-3 pl-10`}
-          placeholder="Search by name, location, or quote…"
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
+      <div className="grid grid-cols-1 gap-5 xl:grid-cols-[minmax(0,1.4fr)_minmax(260px,0.7fr)]">
+        <AdminTestimonialsStatsGrid
+          stats={stats}
+          isLoading={isLoading}
+          onPublishedClick={() => setTab("published")}
+          onPendingClick={() => setTab("pending")}
+          onFeaturedClick={() => setTab("featured")}
+        />
+        <AdminTestimonialsRatingDistribution
+          rows={ratingRows}
+          total={testimonials.length}
         />
       </div>
 
-      <div className="grid gap-4">
-        {filtered.length === 0 ? (
-          <Card className="rounded-2xl border-0 p-8 text-center shadow-sm">
-            <p className="font-medium text-zinc-600">No reviews yet</p>
-            <p className="mt-1 text-sm text-zinc-500">
-              Add student testimonials to populate the homepage review section.
-            </p>
-          </Card>
-        ) : (
-          filtered.map((item) => {
-            const badge = mediaBadge[item.mediaType ?? "text"];
-            return (
-              <Card
-                key={item.id}
-                className="flex flex-col gap-4 rounded-2xl border-0 p-5 shadow-sm sm:flex-row sm:items-start sm:justify-between"
-              >
-                <div className="min-w-0 flex-1">
-                  <div className="mb-2 flex flex-wrap items-center gap-2">
-                    <span
-                      className={`inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-semibold ${badge.className}`}
-                    >
-                      <MediaIcon type={item.mediaType ?? "text"} />
-                      {badge.label}
-                    </span>
-                    {!item.showOnWebsite && (
-                      <span className="rounded-full bg-amber-50 px-2.5 py-1 text-xs font-semibold text-amber-700">
-                        Hidden
-                      </span>
-                    )}
-                    <span className="text-xs text-zinc-400">Order {item.sortOrder}</span>
-                  </div>
-                  <p className="font-semibold text-primary-dark">{item.name}</p>
-                  <p className="text-xs text-zinc-500">
-                    {item.role} · {item.location}
-                  </p>
-                  <p className="mt-2 line-clamp-2 text-sm text-zinc-600">
-                    &ldquo;{item.content}&rdquo;
-                  </p>
-                </div>
+      {isLoading ? (
+        <PageLoading label="Loading reviews…" />
+      ) : testimonials.length === 0 ? (
+        <EmptyState
+          icon={MessageSquareQuote}
+          title="No reviews yet"
+          description="Add student testimonials to populate the homepage review section."
+          actionLabel="New review"
+          onAction={() => navigate("/admin/testimonials/new")}
+        />
+      ) : (
+        <div className="grid grid-cols-1 gap-5 xl:grid-cols-[minmax(0,1fr)_280px] xl:gap-6">
+          <div className="flex min-w-0 flex-col gap-5">
+            <AdminTestimonialsToolbar
+              tab={tab}
+              tabCounts={tabCounts}
+              search={search}
+              mediaType={mediaType}
+              ratingFilter={ratingFilter}
+              statusFilter={statusFilter}
+              dateFrom={dateFrom}
+              dateTo={dateTo}
+              sortBy={sortBy}
+              showAdvancedFilters={showAdvancedFilters}
+              onTabChange={setTab}
+              onSearchChange={setSearch}
+              onMediaTypeChange={setMediaType}
+              onRatingFilterChange={setRatingFilter}
+              onStatusFilterChange={setStatusFilter}
+              onDateFromChange={setDateFrom}
+              onDateToChange={setDateTo}
+              onSortChange={setSortBy}
+              onToggleAdvancedFilters={() =>
+                setShowAdvancedFilters((value) => !value)
+              }
+            />
 
-                <div className="flex shrink-0 flex-wrap gap-2">
-                  <a
-                    href={`${env.publicSiteUrl}/reviews`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center gap-1 rounded-xl border border-zinc-200 px-3 py-2 text-xs font-semibold text-zinc-600 hover:bg-zinc-50"
-                  >
-                    <ExternalLink className="size-3.5" />
-                    Public page
-                  </a>
-                  <Button
-                    variant="ghost"
-                    className="gap-1 rounded-xl"
-                    onClick={() => navigate(`/admin/testimonials/${item.id}/edit`)}
-                  >
-                    <Pencil className="size-3.5" />
-                    Edit
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    className="gap-1 rounded-xl text-red-600 hover:bg-red-50"
-                    onClick={() => {
-                      if (window.confirm(`Delete review from ${item.name}?`)) {
-                        deleteReview.mutate(item.id);
-                      }
-                    }}
-                  >
-                    <Trash2 className="size-3.5" />
-                    Delete
-                  </Button>
-                </div>
-              </Card>
-            );
-          })
-        )}
-      </div>
+            <AdminTestimonialsTable
+              items={pagination.paginatedItems}
+              totalCount={visible.length}
+              onView={(item) => navigate(`/admin/testimonials/${item.id}/edit`)}
+              onEdit={(item) => navigate(`/admin/testimonials/${item.id}/edit`)}
+              onDelete={handleDelete}
+            />
+
+            <Pagination pagination={pagination} itemLabel="reviews" />
+            <AdminTestimonialsTipBanner pendingCount={stats.pending} />
+          </div>
+
+          <aside className="flex flex-col gap-5">
+            <AdminTestimonialsMediaTypesCard
+              rows={mediaRows}
+              activeType={mediaType}
+              onTypeSelect={setMediaType}
+            />
+            <AdminTestimonialsTopRated
+              items={topRated}
+              onSelect={(item) => navigate(`/admin/testimonials/${item.id}/edit`)}
+            />
+            <AdminTestimonialsQuickActions onExport={handleExport} />
+            {isFetching ? (
+              <p className="text-center text-xs text-portal-muted">
+                Refreshing reviews…
+              </p>
+            ) : (
+              <button
+                type="button"
+                onClick={() => void refetch()}
+                className="text-center text-xs font-semibold text-primary hover:underline"
+              >
+                Refresh data
+              </button>
+            )}
+          </aside>
+        </div>
+      )}
     </PageContainer>
   );
 }

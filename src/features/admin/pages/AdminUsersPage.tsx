@@ -1,5 +1,6 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { LayoutGrid, List, UserPlus } from "lucide-react";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import {
   useAdminUsers,
   useCreateUser,
@@ -42,6 +43,8 @@ type GenderFilter = "all" | "male" | "female";
 type SortOption = "newest" | "oldest" | "name";
 
 export function AdminUsersPage() {
+  const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
   const currentUser = useAuthStore((s) => s.user);
   const actorRole = currentUser?.role ?? "admin";
   const creatableRoles = assignableRolesFor(actorRole);
@@ -102,7 +105,34 @@ export function AdminUsersPage() {
 
   function closeEditUser() {
     setEditUserId(null);
+    if (searchParams.has("edit")) {
+      const next = new URLSearchParams(searchParams);
+      next.delete("edit");
+      setSearchParams(next, { replace: true });
+    }
   }
+
+  function handleViewUser(user: (typeof users)[number]) {
+    navigate(`/admin/users/${user.id}`);
+  }
+
+  useEffect(() => {
+    const roleParam = searchParams.get("role");
+    if (
+      roleParam &&
+      (ASSIGNABLE_ROLES as readonly string[]).includes(roleParam) &&
+      roleFilter !== roleParam
+    ) {
+      setRoleFilter(roleParam as RoleFilter);
+    }
+  }, [searchParams, roleFilter]);
+
+  useEffect(() => {
+    const editId = searchParams.get("edit");
+    if (!editId || users.length === 0 || editUserId === editId) return;
+    const target = users.find((user) => user.id === editId) ?? allUsers.find((user) => user.id === editId);
+    if (target) openEditUser(target);
+  }, [searchParams, users, allUsers, editUserId]);
 
   function handleDeactivate(user: (typeof users)[number]) {
     if (
@@ -267,6 +297,7 @@ export function AdminUsersPage() {
             <>
               <AdminUsersTable
                 users={pagination.paginatedItems}
+                onView={handleViewUser}
                 onEdit={openEditUser}
                 onDeactivate={handleDeactivate}
                 canManage={(targetRole) => canManageUserAccount(actorRole, targetRole)}
