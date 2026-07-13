@@ -75,6 +75,18 @@ export default {
       screens: {
         xs: "375px",
       },
+      /** Portal design system — all corners 8px (avatars keep rounded-full) */
+      borderRadius: {
+        none: "0px",
+        sm: "8px",
+        DEFAULT: "8px",
+        md: "8px",
+        lg: "8px",
+        xl: "8px",
+        "2xl": "8px",
+        "3xl": "8px",
+        full: "9999px",
+      },
     },
   },
   plugins: [],

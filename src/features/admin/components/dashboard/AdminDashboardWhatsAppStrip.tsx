@@ -21,7 +21,7 @@ export function AdminDashboardWhatsAppStrip({
   const missingCount = queue.filter((item) => item.category === "missing_whatsapp").length;
 
   return (
-    <Card className="rounded-2xl border border-portal bg-portal-surface p-4 shadow-[0_8px_24px_-16px_rgba(13,74,47,0.18)] sm:p-5">
+    <Card className="portal-card--lg rounded-2xl border border-portal bg-portal-surface p-4 shadow-[0_8px_24px_-16px_rgba(13,74,47,0.18)] sm:p-5">
       <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
         <div className="flex min-w-0 flex-1 items-start gap-3 sm:items-center">
           <div className="flex size-11 shrink-0 items-center justify-center rounded-xl bg-[#25D366]/12 text-[#128C7E]">

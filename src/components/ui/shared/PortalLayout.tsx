@@ -1,6 +1,14 @@
 import { Outlet, useLocation, useNavigate } from "react-router-dom";
-import { useEffect, useState } from "react";
-import { Bell, ChevronLeft, ChevronRight, LogOut, Search } from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
+import {
+  BadgeCheck,
+  Bell,
+  ChevronLeft,
+  ChevronRight,
+  LogOut,
+  Search,
+  Sparkles,
+} from "lucide-react";
 import { BrandLogo } from "@/components/brand/BrandLogo";
 import { PortalBrandingHeader } from "@/components/layout/PortalBrandingHeader";
 import { GlobalSearch } from "@/components/search/GlobalSearch";
@@ -9,19 +17,24 @@ import { MobileNavMenu } from "@/components/layout/MobileNavMenu";
 import { BDOQ_BRAND, BDOQ_ROLE_PORTAL_LABEL } from "@/lib/bdoqBrand";
 import { isStaffAdmin } from "@/lib/assignableRoles";
 import { profilePathForRole } from "@/lib/portalNav";
+import {
+  groupPortalNavItems,
+  type IPortalNavItem,
+} from "@/lib/portalSidebarNav";
 import { UserAvatar } from "@/components/ui/UserAvatar";
 import { cn } from "@/lib/utils/cn";
 import type { Role } from "@/types/models";
-import type { ReactNode } from "react";
 
-export interface IPortalNavItem {
-  label: string;
-  icon: ReactNode;
-  path: string;
-}
+export type { IPortalNavItem };
 
 interface IPortalLayoutProps {
-  user: { name: string; email: string; role: Role; avatarUrl?: string; gender?: "male" | "female" };
+  user: {
+    name: string;
+    email: string;
+    role: Role;
+    avatarUrl?: string;
+    gender?: "male" | "female";
+  };
   navItems: IPortalNavItem[];
   mobileTabs: IPortalNavItem[];
   primaryPaths: string[];
@@ -39,18 +52,29 @@ function readSidebarOpenPreference(): boolean {
   return localStorage.getItem(SIDEBAR_OPEN_KEY) !== "false";
 }
 
+function roleDisplayLabel(role: Role): string {
+  if (role === "super_admin") return "Super Admin";
+  if (role === "admin") return "Admin";
+  if (role === "teacher") return "Teacher";
+  if (role === "student") return "Student";
+  if (role === "parent") return "Parent";
+  return role;
+}
+
 function NavButton({
   item,
   active,
   onClick,
   layout,
   collapsed = false,
+  emphasize = false,
 }: {
   item: IPortalNavItem;
   active: boolean;
   onClick: () => void;
   layout: "sidebar" | "tab";
   collapsed?: boolean;
+  emphasize?: boolean;
 }) {
   if (layout === "sidebar") {
     return (
@@ -59,20 +83,33 @@ function NavButton({
         onClick={onClick}
         title={collapsed ? item.label : undefined}
         aria-label={item.label}
-        className={`relative flex w-full min-h-[44px] items-center rounded-xl text-sm transition ${
-          collapsed
-            ? "justify-center px-2 py-2.5"
-            : "gap-3 px-3 py-2.5 text-left"
-        } ${
+        aria-current={active ? "page" : undefined}
+        className={cn(
+          "relative flex w-full min-h-[44px] items-center rounded text-sm transition-all duration-200",
+          collapsed ? "justify-center px-2 py-2.5" : "gap-3 px-3.5 py-2.5 text-left",
           active
             ? collapsed
               ? "portal-nav-item--active portal-nav-item--active-collapsed"
               : "portal-nav-item--active"
-            : "text-white/75 hover:bg-white/10 hover:text-white"
-        }`}
+            : "text-white/80 hover:bg-white/10 hover:text-white",
+          emphasize && "portal-nav-item--dashboard"
+        )}
       >
-        <span className="shrink-0 [&>svg]:size-5">{item.icon}</span>
-        {!collapsed ? <span className="truncate">{item.label}</span> : null}
+        <span className="shrink-0 text-current [&>svg]:size-[18px]">{item.icon}</span>
+        {!collapsed ? (
+          <>
+            <span className="min-w-0 flex-1 truncate font-medium tracking-wide">
+              {item.label}
+            </span>
+            <ChevronRight
+              className={cn(
+                "size-3.5 shrink-0 transition",
+                active ? "text-gold opacity-90" : "text-white/35"
+              )}
+              aria-hidden
+            />
+          </>
+        ) : null}
       </button>
     );
   }
@@ -127,7 +164,9 @@ export function PortalLayout({
   }, [sidebarOpen]);
 
   function isActive(path: string) {
-    if (path === `/${user.role}`) return location.pathname === path;
+    if (path === `/${user.role}` || path === "/admin") {
+      return location.pathname === path;
+    }
     return location.pathname.startsWith(path);
   }
 
@@ -135,6 +174,11 @@ export function PortalLayout({
     BDOQ_ROLE_PORTAL_LABEL[user.role] ?? `${user.role} portal`;
   const activePage = navItems.find((n) => isActive(n.path))?.label ?? "Dashboard";
   const profilePath = profilePathForRole(user.role);
+  const navSections = useMemo(
+    () => groupPortalNavItems(navItems, user.role),
+    [navItems, user.role]
+  );
+  const profileActive = Boolean(profilePath && isActive(profilePath));
 
   function goToProfile() {
     if (profilePath) navigate(profilePath);
@@ -143,25 +187,25 @@ export function PortalLayout({
   return (
     <div className="portal-page-bg min-h-screen text-portal transition-colors duration-200">
       <aside
-        className={`bg-portal-sidebar fixed inset-y-0 left-0 z-50 hidden flex-col text-white transition-[width] duration-300 ease-in-out lg:flex ${
+        className={cn(
+          "bg-portal-sidebar fixed inset-y-0 left-0 z-50 hidden flex-col overflow-hidden text-white transition-[width] duration-300 ease-in-out lg:flex",
           sidebarOpen ? "w-64" : "w-[4.5rem]"
-        }`}
+        )}
       >
-        <div className="border-b border-gold/20">
+        {/* Brand header — logo stacked above portal label */}
+        <div className="relative z-10 border-b border-gold/25">
           {sidebarOpen ? (
-            <div className="flex items-start gap-2 px-4 py-4">
-              <div className="min-w-0 flex-1">
-                <BrandLogo subtitle={portalLabel} />
-              </div>
+            <div className="relative px-4 pb-4 pt-4">
               <button
                 type="button"
                 onClick={() => setSidebarOpen(false)}
-                className="mt-1 flex size-9 shrink-0 items-center justify-center rounded-lg text-white/70 transition hover:bg-white/10 hover:text-white"
+                className="absolute right-3 top-3 flex size-8 items-center justify-center rounded border border-white/15 text-white/70 transition hover:border-gold/40 hover:bg-white/10 hover:text-white"
                 aria-label="Collapse sidebar"
                 title="Collapse sidebar"
               >
-                <ChevronLeft className="size-5" aria-hidden />
+                <ChevronLeft className="size-4" aria-hidden />
               </button>
+              <BrandLogo subtitle={portalLabel} />
             </div>
           ) : (
             <div className="flex flex-col items-center gap-2 px-2 py-4">
@@ -169,87 +213,139 @@ export function PortalLayout({
               <button
                 type="button"
                 onClick={() => setSidebarOpen(true)}
-                className="flex size-9 items-center justify-center rounded-lg text-white/70 transition hover:bg-white/10 hover:text-white"
+                className="flex size-8 items-center justify-center rounded border border-white/15 text-white/70 transition hover:border-gold/40 hover:bg-white/10 hover:text-white"
                 aria-label="Expand sidebar"
                 title="Expand sidebar"
               >
-                <ChevronRight className="size-5" aria-hidden />
+                <ChevronRight className="size-4" aria-hidden />
               </button>
             </div>
           )}
         </div>
 
+        {/* Nav groups */}
         <nav
-          className={`portal-sidebar-nav flex flex-1 flex-col gap-1 overflow-y-auto py-4 ${
-            sidebarOpen ? "px-4" : "px-2"
-          }`}
+          className={cn(
+            "portal-sidebar-nav relative z-10 flex flex-1 flex-col overflow-y-auto py-3",
+            sidebarOpen ? "px-3" : "px-2"
+          )}
         >
-          {navItems.map((item) => (
-            <NavButton
-              key={item.path}
-              item={item}
-              active={isActive(item.path)}
-              onClick={() => navigate(item.path)}
-              layout="sidebar"
-              collapsed={!sidebarOpen}
-            />
+          {navSections.map((section) => (
+            <div key={section.id} className="mb-1">
+              {sidebarOpen && section.label ? (
+                <div className="portal-sidebar-section-label">
+                  <Sparkles className="size-3 shrink-0 text-gold" aria-hidden />
+                  <span>{section.label}</span>
+                </div>
+              ) : null}
+              <div className={cn("flex flex-col gap-0.5", sidebarOpen && section.label ? "pb-1" : "")}>
+                {section.items.map((item) => (
+                  <NavButton
+                    key={item.path}
+                    item={item}
+                    active={isActive(item.path)}
+                    onClick={() => navigate(item.path)}
+                    layout="sidebar"
+                    collapsed={!sidebarOpen}
+                    emphasize={section.id === "dashboard"}
+                  />
+                ))}
+              </div>
+            </div>
           ))}
         </nav>
 
+        {/* Profile + sign out */}
         <div
-          className={`border-t border-gold/20 py-4 ${sidebarOpen ? "px-4" : "px-2"}`}
+          className={cn(
+            "relative z-10 mt-auto border-t border-gold/20 pb-14 pt-3",
+            sidebarOpen ? "px-3" : "px-2"
+          )}
         >
           {sidebarOpen ? (
-            <p className="mb-3 px-1 text-center text-[10px] leading-relaxed text-white/50">
-              {BDOQ_BRAND.portalTagline}
-            </p>
-          ) : null}
-          <button
-            type="button"
-            onClick={goToProfile}
-            disabled={!profilePath}
-            title={!sidebarOpen ? user.name : undefined}
-            aria-label={!sidebarOpen ? `Profile: ${user.name}` : undefined}
-            className={`flex w-full items-center rounded-xl bg-white/10 transition hover:bg-white/15 disabled:cursor-default ${
-              sidebarOpen ? "gap-3 px-3 py-3 text-left" : "justify-center p-2"
-            }`}
-          >
-            <UserAvatar
-              name={user.name}
-              avatarUrl={user.avatarUrl}
-              gender={user.gender}
-              size="sm"
-              shape="circle"
-            />
-            {sidebarOpen ? (
-              <div className="min-w-0 flex-1">
-                <p className="truncate text-sm font-semibold">{user.name}</p>
-                <p className="truncate text-xs text-white/60">{user.email}</p>
-              </div>
-            ) : null}
-          </button>
-          <button
-            type="button"
-            onClick={onSignOut}
-            title={!sidebarOpen ? "Sign out" : undefined}
-            aria-label="Sign out"
-            className={`mt-3 flex w-full min-h-[44px] items-center rounded-xl text-sm text-white/70 transition hover:bg-white/10 hover:text-white ${
-              sidebarOpen ? "px-3 py-2 text-left" : "justify-center p-2"
-            }`}
-          >
-            {sidebarOpen ? (
-              "Sign out"
-            ) : (
-              <LogOut className="size-5" aria-hidden />
-            )}
-          </button>
+            <div className="portal-sidebar-profile-card rounded-2xl p-3">
+              <button
+                type="button"
+                onClick={goToProfile}
+                disabled={!profilePath}
+                aria-current={profileActive ? "page" : undefined}
+                className={cn(
+                  "flex w-full items-center gap-3 rounded-xl text-left transition disabled:cursor-default",
+                  profileActive ? "opacity-100" : "hover:opacity-95"
+                )}
+              >
+                <UserAvatar
+                  name={user.name}
+                  avatarUrl={user.avatarUrl}
+                  gender={user.gender}
+                  size="sm"
+                  shape="circle"
+                />
+                <div className="min-w-0 flex-1">
+                  <p className="truncate text-sm font-semibold text-white">
+                    {user.name}
+                  </p>
+                  <p className="mt-0.5 flex items-center gap-1 truncate text-[11px] font-medium text-gold">
+                    {roleDisplayLabel(user.role)}
+                    <BadgeCheck className="size-3.5 shrink-0 text-gold" aria-hidden />
+                  </p>
+                </div>
+              </button>
+              <button
+                type="button"
+                onClick={onSignOut}
+                aria-label="Sign out"
+                className="mt-3 flex w-full min-h-[40px] items-center gap-2 rounded-xl px-1 text-sm text-white/70 transition hover:bg-white/10 hover:text-white"
+              >
+                <LogOut className="size-4 shrink-0" aria-hidden />
+                Sign out
+              </button>
+            </div>
+          ) : (
+            <div className="flex flex-col items-center gap-2">
+              <button
+                type="button"
+                onClick={goToProfile}
+                disabled={!profilePath}
+                title={user.name}
+                aria-label={`Profile: ${user.name}`}
+                className={cn(
+                  "flex size-10 items-center justify-center rounded-full border border-gold/25 bg-black/20 transition hover:border-gold/50",
+                  profileActive && "portal-nav-item--active portal-nav-item--active-collapsed"
+                )}
+              >
+                <UserAvatar
+                  name={user.name}
+                  avatarUrl={user.avatarUrl}
+                  gender={user.gender}
+                  size="sm"
+                  shape="circle"
+                />
+              </button>
+              <button
+                type="button"
+                onClick={onSignOut}
+                title="Sign out"
+                aria-label="Sign out"
+                className="flex size-9 items-center justify-center rounded-full text-white/70 transition hover:bg-white/10 hover:text-white"
+              >
+                <LogOut className="size-4" aria-hidden />
+              </button>
+            </div>
+          )}
         </div>
+
+        {/* Mosque silhouette watermark */}
+        {sidebarOpen ? (
+          <div className="portal-sidebar-mosque" aria-hidden />
+        ) : null}
       </aside>
 
       <div
-        className={`portal-mobile-shell portal-islamic-page flex min-h-screen w-full min-w-0 flex-col transition-[padding] duration-300 ease-in-out ${
+        className={cn(
+          "portal-mobile-shell portal-islamic-page flex min-h-screen w-full min-w-0 flex-col transition-[padding] duration-300 ease-in-out",
           sidebarOpen ? SIDEBAR_EXPANDED_CLASS : SIDEBAR_COLLAPSED_CLASS
-        }`}
+        )}
       >
         <div className="portal-islamic-page-content flex min-h-screen flex-1 flex-col">
           <header className="portal-mobile-header sticky top-0 z-40 lg:border-b lg:border-portal/80 lg:px-8 lg:py-2 lg:shadow-sm">

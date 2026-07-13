@@ -9,25 +9,23 @@
   :root,
   [data-theme="light"] {
     color-scheme: light;
-    --portal-bg: #e8faf2;
-    --portal-surface: #ffffff;
-    --portal-surface-muted: #e8faf2;
+    --portal-bg: #ffffff;
+    --portal-surface: #fcfefd;
+    --portal-surface-muted: #fafdfb;
     --portal-heading: #269b6f;
     --portal-text: #1a1a2e;
     --portal-muted: #6b7280;
-    --portal-border: #e5e7eb;
+    --portal-border: #f0f4f2;
     --portal-header: #ffffff;
-    --portal-sidebar: #228b62;
-    --portal-sidebar-deep: #1a7356;
-    --portal-ring-offset: #e8faf2;
+    --portal-sidebar: #0a4d3c;
+    --portal-sidebar-deep: #004434;
+    --portal-ring-offset: #ffffff;
     --portal-card-shadow:
-      0 1px 2px rgb(38 155 111 / 0.06),
-      0 4px 14px -2px rgb(38 155 111 / 0.1),
-      0 12px 32px -6px rgb(38 155 111 / 0.08);
+      0 0 0 1px rgb(210 232 220 / 0.28),
+      0 2px 8px rgb(180 220 200 / 0.1);
     --portal-card-shadow-hover:
-      0 2px 4px rgb(38 155 111 / 0.08),
-      0 8px 22px -2px rgb(38 155 111 / 0.14),
-      0 18px 44px -8px rgb(38 155 111 / 0.12);
+      0 0 0 1px rgb(200 228 215 / 0.35),
+      0 3px 12px rgb(175 215 195 / 0.14);
 
     --background: 158 60% 97%;
     --foreground: 158 55% 22%;
@@ -37,7 +35,7 @@
     --muted-foreground: 215 16% 47%;
     --border: 214 32% 91%;
     --ring: 40 65% 47%;
-    --radius: 0.75rem;
+    --radius: 8px;
   }
 
   .dark,
@@ -51,8 +49,8 @@
     --portal-muted: #8b9cb3;
     --portal-border: rgba(148, 163, 184, 0.14);
     --portal-header: #151c2c;
-    --portal-sidebar: #1a7356;
-    --portal-sidebar-deep: #145c45;
+    --portal-sidebar: #0a4d3c;
+    --portal-sidebar-deep: #00382c;
     --portal-ring-offset: #0b1120;
     --portal-card-shadow:
       inset 0 1px 0 0 rgb(255 255 255 / 0.06),
@@ -158,12 +156,92 @@
   .bg-portal-sidebar {
     background-color: var(--portal-sidebar);
     background-image: linear-gradient(
-      165deg,
+      180deg,
       var(--portal-sidebar-deep) 0%,
-      var(--portal-sidebar) 45%,
-      #32c991 100%
+      var(--portal-sidebar) 42%,
+      #0d5c48 78%,
+      #0a4d3c 100%
     );
     background-size: 100% 100%;
+  }
+
+  /* Islamic geometric motif used on active nav / profile buttons */
+  .portal-nav-item--active {
+    @apply relative font-semibold text-white;
+    background-color: rgb(0 0 0 / 0.28);
+    box-shadow: inset 0 0 0 1px rgb(212 168 83 / 0.35);
+  }
+
+  .portal-nav-item--active-collapsed {
+    @apply ring-1 ring-gold/40;
+  }
+
+  .portal-nav-item--dashboard {
+    box-shadow: inset 0 0 0 1px rgb(212 168 83 / 0.55);
+  }
+
+  .portal-nav-item--dashboard.portal-nav-item--active {
+    box-shadow: inset 0 0 0 1.5px rgb(212 168 83 / 0.8);
+    background-color: rgb(0 0 0 / 0.25);
+  }
+
+  .portal-sidebar-section-label {
+    @apply flex items-center gap-2 px-1 pt-3 pb-1.5 text-[10px] font-semibold uppercase tracking-[0.2em] text-gold;
+  }
+
+  .portal-sidebar-section-label::after {
+    content: "";
+    flex: 1;
+    height: 1px;
+    background: linear-gradient(
+      90deg,
+      rgb(212 168 83 / 0.55),
+      rgb(212 168 83 / 0)
+    );
+  }
+
+  .portal-sidebar-profile-card {
+    position: relative;
+    overflow: hidden;
+    border: 1px solid rgb(212 168 83 / 0.32);
+    background-color: rgb(0 0 0 / 0.28);
+  }
+
+  .portal-sidebar-profile-card::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    background-image:
+      linear-gradient(180deg, rgb(0 40 30 / 0.55), rgb(0 40 30 / 0.35)),
+      url("/brand/sidebar-islamic-motif.png"),
+      url("/brand/islamic-geo-pattern.svg");
+    background-size: cover, 180% auto, 56px 56px;
+    background-position: center, center 65%, 0 0;
+    background-repeat: no-repeat, no-repeat, repeat;
+    opacity: 0.9;
+    pointer-events: none;
+  }
+
+  .portal-sidebar-profile-card > * {
+    position: relative;
+    z-index: 1;
+  }
+
+  .portal-sidebar-mosque {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 5.5rem;
+    background-image:
+      linear-gradient(180deg, transparent 0%, rgb(0 30 24 / 0.55) 55%, rgb(0 30 24 / 0.7) 100%),
+      url("/brand/sidebar-islamic-motif.png");
+    background-repeat: no-repeat, no-repeat;
+    background-position: center, center bottom;
+    background-size: cover, 120% auto;
+    opacity: 0.55;
+    pointer-events: none;
   }
 
   .portal-auth-panel {
@@ -201,7 +279,7 @@
     background-position: center center;
     background-repeat: no-repeat;
     background-attachment: fixed;
-    opacity: 0.65;
+    opacity: 0.28;
     pointer-events: none;
   }
 
@@ -220,19 +298,23 @@
     pointer-events: none;
     background: linear-gradient(
       180deg,
-      rgb(232 250 242 / 0.18) 0%,
-      rgb(232 250 242 / 0.28) 45%,
-      rgb(232 250 242 / 0.38) 100%
+      rgb(255 255 255 / 0.55) 0%,
+      rgb(255 255 255 / 0.42) 45%,
+      rgb(255 255 255 / 0.35) 100%
     );
   }
 
   .dark .portal-islamic-page::after {
     background: linear-gradient(
       180deg,
-      rgb(11 17 32 / 0.45) 0%,
-      rgb(11 17 32 / 0.58) 45%,
-      rgb(11 17 32 / 0.72) 100%
+      rgb(11 17 32 / 0.55) 0%,
+      rgb(11 17 32 / 0.65) 45%,
+      rgb(11 17 32 / 0.78) 100%
     );
+  }
+
+  .dark .portal-islamic-page::before {
+    opacity: 0.22;
   }
 
   .portal-islamic-page-content {
@@ -241,22 +323,138 @@
   }
 
   .portal-auth-card {
-    @apply rounded-3xl border border-portal bg-portal-surface shadow-lg;
+    @apply portal-card-islamic portal-card--lg rounded-3xl border border-portal bg-portal-surface shadow-lg;
+  }
+
+  /*
+   * Islamic elegance — arched frame watermark (gold pattern + mosque).
+   * Asset is already pale on cream; use multiply + stronger opacity so
+   * gold/green ink shows on white cards while cream washes out.
+   */
+  .portal-card-islamic {
+    position: relative;
+    overflow: hidden;
+    isolation: isolate;
+  }
+
+  .portal-card-islamic::before,
+  .portal-card::before {
+    content: "";
+    position: absolute;
+    inset-inline: 0;
+    top: 0;
+    z-index: 0;
+    height: 2px;
+    pointer-events: none;
+    background: linear-gradient(
+      90deg,
+      rgb(50 201 145 / 0) 0%,
+      rgb(50 201 145 / 0.35) 20%,
+      rgb(212 168 83 / 0.7) 50%,
+      rgb(50 201 145 / 0.35) 80%,
+      rgb(50 201 145 / 0) 100%
+    );
+    opacity: 0.22;
+  }
+
+  .portal-card-islamic::after,
+  .portal-card::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    border-radius: inherit;
+    pointer-events: none;
+    background-image: url("/brand/card-islamic-frame.png");
+    background-repeat: no-repeat;
+    background-position: center center;
+    background-size: cover;
+    opacity: 0.55;
+    mix-blend-mode: multiply;
+    filter: contrast(1.45) saturate(1.35);
+  }
+
+  .portal-card--lg.portal-card-islamic::after,
+  .portal-card.portal-card--lg::after {
+    background-size: cover;
+    background-position: center center;
+    opacity: 0.65;
+    filter: contrast(1.5) saturate(1.4);
+  }
+
+  .portal-card--sm.portal-card-islamic::after,
+  .portal-card.portal-card--sm::after {
+    background-size: 145% auto;
+    background-position: center 35%;
+    opacity: 0.42;
+    filter: contrast(1.55) saturate(1.45);
+  }
+
+  .dark .portal-card-islamic::after,
+  .dark .portal-card::after {
+    opacity: 0.4;
+    mix-blend-mode: soft-light;
+    filter: contrast(1.25) brightness(1.15) saturate(1.2);
+  }
+
+  .dark .portal-card--lg.portal-card-islamic::after,
+  .dark .portal-card.portal-card--lg::after {
+    opacity: 0.48;
+  }
+
+  .dark .portal-card--sm.portal-card-islamic::after,
+  .dark .portal-card.portal-card--sm::after {
+    opacity: 0.32;
+  }
+
+  .portal-card-islamic > *,
+  .portal-card > * {
+    position: relative;
+    z-index: 1;
   }
 
   .portal-islamic-hero {
+    @apply portal-card-islamic portal-card--lg;
     background-color: var(--portal-surface);
-    border-color: var(--portal-border);
+    border-color: rgb(220 235 228 / 0.7);
   }
 
-  .portal-card-islamic {
-    @apply relative overflow-hidden;
+  /* Primary CTAs — geometric motif for Islamic feel */
+  .portal-btn-islamic {
+    position: relative;
+    isolation: isolate;
+    overflow: hidden;
+    background-color: #32c991;
+    background-image:
+      linear-gradient(
+        145deg,
+        rgb(50 201 145 / 0.97) 0%,
+        rgb(38 155 111 / 1) 55%,
+        rgb(32 140 100 / 1) 100%
+      ),
+      url("/brand/islamic-geo-pattern.svg");
+    background-size: auto, 42px 42px;
+    background-position: center, center;
+    background-repeat: no-repeat, repeat;
+    background-blend-mode: normal, soft-light;
+    box-shadow:
+      0 1px 0 rgb(255 255 255 / 0.18) inset,
+      0 8px 18px -10px rgb(38 155 111 / 0.55);
   }
 
-  .portal-card-islamic::before {
-    content: "";
-    @apply pointer-events-none absolute inset-x-0 top-0 h-0.5 bg-gradient-to-r from-primary via-gold to-primary;
-    opacity: 0.35;
+  .portal-btn-islamic:hover {
+    background-image:
+      linear-gradient(
+        145deg,
+        rgb(45 185 130 / 0.98) 0%,
+        rgb(32 140 100 / 1) 60%,
+        rgb(28 120 88 / 1) 100%
+      ),
+      url("/brand/islamic-geo-pattern.svg");
+  }
+
+  .portal-btn-islamic:disabled {
+    background-blend-mode: normal, normal;
   }
 
   /* ── Mobile app shell (native-like on phones) ── */
@@ -380,7 +578,7 @@
 
     .portal-card {
       padding: 1rem;
-      border-radius: 1rem;
+      border-radius: 8px;
     }
 
     .form-control {
@@ -421,13 +619,7 @@
     }
   }
 
-  .portal-nav-item--active {
-    @apply bg-white/10 font-semibold text-white;
-  }
-
-  .portal-nav-item--active-collapsed {
-    @apply bg-white/15 text-white ring-1 ring-white/20;
-  }
+  /* Active nav styles declared above with Islamic geometric pattern */
 
   .form-control {
     @apply flex w-full min-h-[44px] rounded-xl border border-gray-200 px-4 py-2.5 text-sm outline-none transition disabled:cursor-not-allowed disabled:opacity-60;
@@ -455,8 +647,21 @@
 
   .portal-card {
     @apply portal-card-islamic rounded-2xl border border-portal transition-[box-shadow,background-color,border-color] duration-200;
-    border-color: var(--portal-border);
+    position: relative;
+    overflow: hidden;
+    isolation: isolate;
+    border-color: rgb(220 235 228 / 0.7);
     background-color: var(--portal-surface);
+    box-shadow: var(--portal-card-shadow);
+  }
+
+  .portal-card::before,
+  .portal-card-islamic::before {
+    opacity: 0.22;
+  }
+
+  .portal-branding-header {
+    border-color: rgb(220 235 228 / 0.7);
     box-shadow: var(--portal-card-shadow);
   }
 

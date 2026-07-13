@@ -26,7 +26,7 @@ export function StatCard({
   return (
     <Card
       className={cn(
-        "rounded-2xl border border-portal bg-portal-surface p-4 shadow-[0_8px_24px_-16px_rgba(13,74,47,0.18)] transition-all sm:p-5",
+        "portal-card--sm rounded-2xl border border-portal bg-portal-surface p-4 shadow-[0_8px_24px_-16px_rgba(13,74,47,0.18)] transition-all sm:p-5",
         onClick
           ? "cursor-pointer text-left hover:-translate-y-0.5 hover:border-primary/25 hover:shadow-[0_12px_28px_-14px_rgba(50,201,145,0.28)] active:scale-[0.99]"
           : "",
@@ -41,7 +41,7 @@ export function StatCard({
         <div className="flex items-start justify-between gap-3">
           <div
             className={cn(
-              "flex size-11 shrink-0 items-center justify-center rounded-xl sm:size-12",
+              "flex size-11 shrink-0 items-center justify-center rounded-xl ring-1 ring-gold/25 sm:size-12",
               iconBg
             )}
           >

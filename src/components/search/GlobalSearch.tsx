@@ -1,13 +1,26 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, type ReactNode } from "react";
 import { useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
-import { BookOpen, GraduationCap, Search, User, X, Library } from "lucide-react";
+import {
+  BookOpen,
+  ChevronRight,
+  CreditCard,
+  GraduationCap,
+  LayoutDashboard,
+  Library,
+  MessageCircle,
+  Search,
+  User,
+  Users,
+  X,
+} from "lucide-react";
 import { searchApi } from "@/lib/api/searchApi";
 import { filterPortalPages } from "@/lib/portalNav";
 import { isStaffAdmin } from "@/lib/assignableRoles";
 import { useCurriculumTree } from "@/components/curriculum/NestedCurriculumSelect";
 import type { Role, SearchResultItem } from "@/types/models";
 import { formControlClass } from "@/lib/formControl";
+import { cn } from "@/lib/utils/cn";
 
 function resultIcon(type: SearchResultItem["type"]) {
   switch (type) {
@@ -18,6 +31,91 @@ function resultIcon(type: SearchResultItem["type"]) {
     default:
       return User;
   }
+}
+
+function pageIcon(path: string) {
+  if (path.endsWith("/admin") || path.endsWith("/teacher") || path.endsWith("/student")) {
+    return LayoutDashboard;
+  }
+  if (path.includes("whatsapp")) return MessageCircle;
+  if (path.includes("users")) return Users;
+  if (path.includes("payment")) return CreditCard;
+  if (path.includes("curriculum") || path.includes("resource")) return Library;
+  if (path.includes("class")) return BookOpen;
+  return Search;
+}
+
+function SearchListSection({
+  title,
+  children,
+}: {
+  title: string;
+  children: ReactNode;
+}) {
+  return (
+    <section className="mb-3 last:mb-0">
+      <p className="mb-1.5 px-2 text-[10px] font-semibold uppercase tracking-[0.16em] text-portal-muted">
+        {title}
+      </p>
+      <ul className="overflow-hidden rounded border border-[rgb(220_235_228/0.7)] bg-white/80 shadow-[var(--portal-card-shadow)]">
+        {children}
+      </ul>
+    </section>
+  );
+}
+
+function SearchListRow({
+  onClick,
+  icon,
+  title,
+  subtitle,
+  meta,
+  active = false,
+}: {
+  onClick: () => void;
+  icon: ReactNode;
+  title: string;
+  subtitle?: string;
+  meta?: string;
+  active?: boolean;
+}) {
+  return (
+    <li className="border-b border-[rgb(220_235_228/0.55)] last:border-b-0">
+      <button
+        type="button"
+        onClick={onClick}
+        className={cn(
+          "group flex w-full items-center gap-3 px-3 py-2.5 text-left transition",
+          active
+            ? "bg-primary/8"
+            : "hover:bg-[#f6fcf9] focus-visible:bg-[#f6fcf9] focus-visible:outline-none"
+        )}
+      >
+        <span className="flex size-9 shrink-0 items-center justify-center rounded bg-primary/10 text-primary ring-1 ring-primary/15 transition group-hover:bg-gold/15 group-hover:text-gold-dark group-hover:ring-gold/25">
+          {icon}
+        </span>
+        <span className="min-w-0 flex-1">
+          <span className="block truncate text-sm font-semibold text-portal-heading">
+            {title}
+          </span>
+          {subtitle ? (
+            <span className="mt-0.5 block truncate text-xs text-portal-muted">
+              {subtitle}
+            </span>
+          ) : null}
+        </span>
+        {meta ? (
+          <span className="shrink-0 rounded bg-portal-surface-muted px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-portal-muted">
+            {meta}
+          </span>
+        ) : null}
+        <ChevronRight
+          className="size-4 shrink-0 text-portal-muted/50 transition group-hover:translate-x-0.5 group-hover:text-gold"
+          aria-hidden
+        />
+      </button>
+    </li>
+  );
 }
 
 export function GlobalSearch({ role }: { role: Role }) {
@@ -65,12 +163,11 @@ export function GlobalSearch({ role }: { role: Role }) {
       .slice(0, 5);
   }, [curriculumTree, debounced]);
 
-  const programLink =
-    isStaffAdmin(role)
-      ? "/admin/curriculum"
-      : role === "teacher"
-        ? "/teacher/progress"
-        : "/student/progress";
+  const programLink = isStaffAdmin(role)
+    ? "/admin/curriculum"
+    : role === "teacher"
+      ? "/teacher/progress"
+      : "/student/progress";
 
   const { data: apiResults = [], isFetching } = useQuery({
     queryKey: ["portalSearch", debounced],
@@ -88,20 +185,18 @@ export function GlobalSearch({ role }: { role: Role }) {
 
   if (!open) {
     return (
-      <>
-        <button
-          type="button"
-          onClick={() => setOpen(true)}
-          className="hidden items-center gap-2 rounded-xl border border-portal bg-portal-muted px-3 py-1.5 text-sm text-portal-muted transition hover:text-portal-heading sm:flex"
-          aria-label="Open search"
-        >
-          <Search className="size-4" />
-          <span>Search…</span>
-          <kbd className="rounded bg-portal-surface px-1.5 py-0.5 text-[10px] font-medium text-portal-muted">
-            Ctrl K
-          </kbd>
-        </button>
-      </>
+      <button
+        type="button"
+        onClick={() => setOpen(true)}
+        className="hidden items-center gap-2 rounded border border-[rgb(220_235_228/0.7)] bg-portal-surface px-3 py-1.5 text-sm text-portal-muted shadow-[var(--portal-card-shadow)] transition hover:text-portal-heading sm:flex"
+        aria-label="Open search"
+      >
+        <Search className="size-4" />
+        <span>Search…</span>
+        <kbd className="rounded bg-[#f6fcf9] px-1.5 py-0.5 text-[10px] font-medium text-portal-muted">
+          Ctrl K
+        </kbd>
+      </button>
     );
   }
 
@@ -111,11 +206,13 @@ export function GlobalSearch({ role }: { role: Role }) {
       onClick={() => setOpen(false)}
     >
       <div
-        className="w-full max-w-lg overflow-hidden rounded-2xl border border-portal bg-portal-surface shadow-2xl animate-page-in"
+        className="w-full max-w-lg overflow-hidden rounded border border-[rgb(220_235_228/0.7)] bg-portal-surface shadow-[var(--portal-card-shadow)] animate-page-in"
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="flex items-center gap-2 border-b border-portal px-4 py-3">
-          <Search className="size-5 shrink-0 text-portal-muted" />
+        <div className="flex items-center gap-2 border-b border-[rgb(220_235_228/0.7)] px-4 py-3">
+          <span className="flex size-8 shrink-0 items-center justify-center rounded bg-primary/10 text-primary">
+            <Search className="size-4" />
+          </span>
           <input
             autoFocus
             value={query}
@@ -126,102 +223,71 @@ export function GlobalSearch({ role }: { role: Role }) {
           <button
             type="button"
             onClick={() => setOpen(false)}
-            className="rounded-lg p-1 text-portal-muted hover:bg-portal-surface-muted/30"
+            className="rounded p-1.5 text-portal-muted transition hover:bg-[#f6fcf9] hover:text-portal-heading"
             aria-label="Close search"
           >
             <X className="size-4" />
           </button>
         </div>
 
-        <div className="max-h-[min(60vh,420px)] overflow-y-auto p-2">
+        <div className="max-h-[min(60vh,420px)] overflow-y-auto p-3">
           {pages.length > 0 ? (
-            <section className="mb-3">
-              <p className="px-2 py-1 text-[10px] font-semibold uppercase tracking-wider text-portal-muted">
-                Pages
-              </p>
-              <ul>
-                {pages.map((page) => (
-                  <li key={page.path}>
-                    <button
-                      type="button"
-                      onClick={() => go(page.path)}
-                      className="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-left text-sm transition hover:bg-portal-surface-muted/40"
-                    >
-                      <Search className="size-4 text-gold" />
-                      <span className="font-medium text-portal-heading">{page.label}</span>
-                    </button>
-                  </li>
-                ))}
-              </ul>
-            </section>
+            <SearchListSection title="Pages">
+              {pages.map((page) => {
+                const Icon = pageIcon(page.path);
+                return (
+                  <SearchListRow
+                    key={page.path}
+                    onClick={() => go(page.path)}
+                    icon={<Icon className="size-4" aria-hidden />}
+                    title={page.label}
+                    subtitle={page.path}
+                  />
+                );
+              })}
+            </SearchListSection>
           ) : null}
 
           {programHits.length > 0 ? (
-            <section className="mb-3">
-              <p className="px-2 py-1 text-[10px] font-semibold uppercase tracking-wider text-portal-muted">
-                Study programs
-              </p>
-              <ul>
-                {programHits.map((program) => (
-                  <li key={program.id}>
-                    <button
-                      type="button"
-                      onClick={() => go(programLink)}
-                      className="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-left text-sm transition hover:bg-portal-surface-muted/40"
-                    >
-                      <Library className="size-4 shrink-0 text-gold" />
-                      <div className="min-w-0">
-                        <p className="truncate font-medium text-portal-heading">{program.label}</p>
-                        <p className="truncate text-xs text-portal-muted">Open progress & curriculum</p>
-                      </div>
-                    </button>
-                  </li>
-                ))}
-              </ul>
-            </section>
+            <SearchListSection title="Study programs">
+              {programHits.map((program) => (
+                <SearchListRow
+                  key={program.id}
+                  onClick={() => go(programLink)}
+                  icon={<Library className="size-4" aria-hidden />}
+                  title={program.label}
+                  subtitle="Open progress & curriculum"
+                />
+              ))}
+            </SearchListSection>
           ) : null}
 
           {debounced.trim().length >= 2 ? (
-            <section>
-              <p className="px-2 py-1 text-[10px] font-semibold uppercase tracking-wider text-portal-muted">
-                Results
-              </p>
+            <SearchListSection title="Results">
               {isFetching ? (
-                <p className="px-3 py-4 text-sm text-portal-muted">Searching…</p>
+                <li className="px-3 py-4 text-sm text-portal-muted">Searching…</li>
               ) : apiResults.length === 0 ? (
-                <p className="px-3 py-4 text-sm text-portal-muted">No matches for “{debounced}”.</p>
+                <li className="px-3 py-4 text-sm text-portal-muted">
+                  No matches for “{debounced}”.
+                </li>
               ) : (
-                <ul>
-                  {apiResults.map((item) => {
-                    const Icon = resultIcon(item.type);
-                    return (
-                      <li key={`${item.type}-${item.id}`}>
-                        <button
-                          type="button"
-                          onClick={() => go(item.path)}
-                          className="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-left transition hover:bg-portal-surface-muted/40"
-                        >
-                          <Icon className="size-4 shrink-0 text-portal-heading" />
-                          <div className="min-w-0">
-                            <p className="truncate text-sm font-medium text-portal-heading">
-                              {item.title}
-                            </p>
-                            {item.subtitle ? (
-                              <p className="truncate text-xs text-portal-muted">{item.subtitle}</p>
-                            ) : null}
-                          </div>
-                          <span className="ml-auto shrink-0 rounded-full bg-portal-surface-muted/50 px-2 py-0.5 text-[10px] capitalize text-portal-muted">
-                            {item.type}
-                          </span>
-                        </button>
-                      </li>
-                    );
-                  })}
-                </ul>
+                apiResults.map((item) => {
+                  const Icon = resultIcon(item.type);
+                  return (
+                    <SearchListRow
+                      key={`${item.type}-${item.id}`}
+                      onClick={() => go(item.path)}
+                      icon={<Icon className="size-4" aria-hidden />}
+                      title={item.title}
+                      subtitle={item.subtitle}
+                      meta={item.type}
+                    />
+                  );
+                })
               )}
-            </section>
+            </SearchListSection>
           ) : (
-            <p className="px-3 py-4 text-sm text-portal-muted">
+            <p className="px-2 py-3 text-sm text-portal-muted">
               Type at least 2 characters to search students and classes.
             </p>
           )}

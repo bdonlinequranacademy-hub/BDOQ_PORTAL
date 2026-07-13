@@ -26,7 +26,7 @@ function BrandingLogo() {
   return (
     <div className="relative shrink-0">
       <div
-        className="pointer-events-none absolute -inset-0.5 rounded-[1.15rem] bg-gradient-to-b from-gold/25 to-gold/5"
+        className="pointer-events-none absolute -inset-0.5 rounded bg-gradient-to-b from-gold/25 to-gold/5"
         aria-hidden
       />
       <div className="relative flex size-[4.25rem] items-center justify-center rounded-2xl border border-gold/35 bg-white p-2 shadow-[0_8px_24px_-12px_rgba(212,168,83,0.45)] sm:size-[4.5rem] sm:p-2.5">

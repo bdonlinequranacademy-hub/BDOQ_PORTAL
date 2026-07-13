@@ -15,12 +15,13 @@ interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
 
 const variantStyles: Record<Variant, string> = {
   primary:
-    "bg-primary text-white hover:bg-primary-dark focus-visible:ring-primary/30",
+    "portal-btn-islamic text-white hover:bg-primary-dark focus-visible:ring-primary/30",
   secondary:
     "border-2 border-gold bg-transparent text-primary-dark hover:bg-gold/10 hover:border-gold-dark",
   ghost: "bg-transparent text-primary-dark hover:bg-primary/10",
   danger: "bg-red-500 text-white hover:bg-red-600",
-  success: "bg-primary text-white hover:bg-primary-dark",
+  success:
+    "portal-btn-islamic text-white hover:bg-primary-dark focus-visible:ring-primary/30",
   "outline-danger":
     "border-2 border-red-300 bg-white text-red-600 hover:border-red-400 hover:bg-red-50",
 };
@@ -33,7 +34,7 @@ export function Button({
   return (
     <button
       className={cn(
-        "inline-flex w-full min-h-[48px] items-center justify-center rounded-full px-6 py-2.5 text-[15px] font-semibold transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto sm:min-h-[42px] sm:py-2 sm:text-sm",
+        "inline-flex w-full min-h-[48px] items-center justify-center rounded px-6 py-2.5 text-[15px] font-semibold transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto sm:min-h-[42px] sm:py-2 sm:text-sm",
         variantStyles[variant],
         className
       )}

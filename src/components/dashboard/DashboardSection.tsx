@@ -27,7 +27,7 @@ export function DashboardSection({
   return (
     <Card
       className={cn(
-        "flex flex-col gap-3 p-4 sm:gap-4 sm:p-6",
+        "portal-card--lg flex flex-col gap-3 p-4 sm:gap-4 sm:p-6",
         elevated
           ? "shadow-[var(--portal-card-shadow,0_10px_30px_-12px_rgba(3,33,79,0.18))]"
           : "shadow-sm",

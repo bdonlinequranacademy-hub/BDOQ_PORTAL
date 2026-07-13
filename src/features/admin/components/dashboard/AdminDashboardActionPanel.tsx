@@ -51,7 +51,7 @@ function ActionRow({ item }: { item: IAdminDashboardActionItem }) {
 
 export function AdminDashboardActionPanel({ items }: IAdminDashboardActionPanelProps) {
   return (
-    <Card className="flex h-full flex-col gap-4 rounded-2xl border border-portal bg-portal-surface p-4 shadow-[0_8px_24px_-16px_rgba(13,74,47,0.18)] sm:p-5">
+    <Card className="portal-card--lg flex h-full flex-col gap-4 rounded-2xl border border-portal bg-portal-surface p-4 shadow-[0_8px_24px_-16px_rgba(13,74,47,0.18)] sm:p-5">
       <div>
         <h2 className="text-base font-bold text-portal-heading">Action required</h2>
         <p className="mt-0.5 text-sm text-portal-muted">Review these items first</p>

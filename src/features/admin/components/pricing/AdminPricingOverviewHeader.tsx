@@ -7,7 +7,7 @@ export function AdminPricingOverviewHeader() {
   const name = user?.name?.split(" ")[0] || "Admin";
 
   return (
-    <div className="portal-card-islamic relative overflow-hidden rounded-2xl border border-portal bg-portal-surface px-5 py-6 shadow-[0_8px_24px_-16px_rgba(13,74,47,0.18)] sm:px-8 sm:py-7">
+    <div className="portal-card-islamic portal-card--lg relative overflow-hidden rounded-2xl border border-portal bg-portal-surface px-5 py-6 shadow-[0_8px_24px_-16px_rgba(13,74,47,0.18)] sm:px-8 sm:py-7">
       <div
         className="pointer-events-none absolute -right-10 -top-12 size-56 rounded-full bg-primary/10 blur-2xl"
         aria-hidden
