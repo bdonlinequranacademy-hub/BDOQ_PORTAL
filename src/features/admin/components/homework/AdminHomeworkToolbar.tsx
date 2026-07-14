@@ -92,7 +92,7 @@ export function AdminHomeworkToolbar({
             type="button"
             onClick={() => onTabChange(item.id)}
             className={cn(
-              "inline-flex h-9 items-center gap-1.5 rounded-full px-4 text-sm font-semibold transition",
+              "inline-flex h-9 items-center gap-1.5 rounded-[8px] px-4 text-sm font-semibold transition",
               tab === item.id
                 ? "bg-primary text-white shadow-sm"
                 : "bg-portal-muted/50 text-portal-muted hover:text-portal-heading"

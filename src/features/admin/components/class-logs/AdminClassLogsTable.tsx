@@ -246,14 +246,20 @@ export function AdminClassLogsToolbar({
       </div>
 
       <div className="flex flex-col gap-3 border-t border-portal pt-4 sm:flex-row sm:items-center sm:justify-between">
-        <div className="flex gap-1 overflow-x-auto">
+        <div
+          className="portal-tabs flex gap-1 overflow-x-auto"
+          role="tablist"
+          aria-label="Class log status"
+        >
           {TABS.map((item) => (
             <button
               key={item.id}
               type="button"
+              role="tab"
+              aria-selected={tab === item.id}
               onClick={() => onTabChange(item.id)}
               className={cn(
-                "shrink-0 rounded-full px-3.5 py-1.5 text-xs font-semibold transition",
+                "shrink-0 rounded-[8px] px-3.5 py-1.5 text-xs font-semibold transition",
                 tab === item.id
                   ? "bg-primary-dark text-white shadow-sm"
                   : "border border-portal bg-portal-muted/20 text-portal-heading hover:bg-portal-muted/40"

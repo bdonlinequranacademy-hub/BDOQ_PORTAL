@@ -284,7 +284,7 @@ export function AdminPaymentsPage() {
                       type="button"
                       onClick={() => setTab(item.id)}
                       className={cn(
-                        "rounded-full px-4 py-1.5 text-sm font-semibold transition",
+                        "rounded-[8px] px-4 py-1.5 text-sm font-semibold transition",
                         tab === item.id
                           ? "bg-primary text-white shadow-sm"
                           : "border border-portal bg-portal-surface text-portal-heading hover:border-primary/30"

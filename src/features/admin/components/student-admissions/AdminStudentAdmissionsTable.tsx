@@ -301,7 +301,7 @@ export function AdminStudentAdmissionsToolbar({
               type="button"
               onClick={() => onTabChange(item.id)}
               className={cn(
-                "shrink-0 rounded-full px-3.5 py-1.5 text-xs font-semibold transition",
+                "shrink-0 rounded-[8px] px-3.5 py-1.5 text-xs font-semibold transition",
                 tab === item.id
                   ? "bg-primary-dark text-white shadow-sm"
                   : "border border-portal bg-portal-muted/20 text-portal-heading hover:bg-portal-muted/40"

@@ -108,7 +108,7 @@ export function AdminClassDetailPage() {
                     type="button"
                     onClick={() => setTab(item.id)}
                     className={cn(
-                      "rounded-t-xl px-4 py-2 text-sm font-semibold transition",
+                      "rounded-t-[8px] px-4 py-2 text-sm font-semibold transition",
                       tab === item.id
                         ? "border-b-2 border-primary text-primary"
                         : "text-portal-muted hover:text-portal-heading"

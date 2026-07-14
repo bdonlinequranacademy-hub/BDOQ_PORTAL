@@ -162,7 +162,7 @@ export function AdminWhatsAppQueuePage() {
             type="button"
             onClick={() => setFilter(key)}
             className={cn(
-              "rounded-full px-3 py-1.5 text-xs font-semibold transition",
+              "rounded-[8px] px-3 py-1.5 text-xs font-semibold transition",
               filter === key
                 ? "bg-primary-dark text-white"
                 : "bg-zinc-100 text-zinc-600 hover:bg-zinc-200"

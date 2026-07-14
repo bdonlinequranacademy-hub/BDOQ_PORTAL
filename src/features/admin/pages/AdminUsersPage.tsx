@@ -245,7 +245,7 @@ export function AdminUsersPage() {
                   type="button"
                   onClick={() => setRoleFilter(role)}
                   className={cn(
-                    "rounded-full px-4 py-1.5 text-sm font-semibold transition",
+                    "rounded-[8px] px-4 py-1.5 text-sm font-semibold transition",
                     roleFilter === role
                       ? "bg-primary text-white shadow-sm"
                       : "border border-portal bg-portal-surface text-portal-heading hover:border-primary/30"

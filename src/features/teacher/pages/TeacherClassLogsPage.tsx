@@ -112,7 +112,7 @@ export function TeacherClassLogsPage() {
             key={f.id}
             type="button"
             onClick={() => setFilter(f.id)}
-            className={`shrink-0 rounded-full px-4 py-1.5 text-sm font-medium ${
+            className={`shrink-0 rounded-[8px] px-4 py-1.5 text-sm font-medium ${
               filter === f.id
                 ? "bg-primary-dark text-white"
                 : "border border-zinc-200 bg-white text-primary-dark"

@@ -127,6 +127,14 @@
     border-color: var(--portal-border);
   }
 
+  /* Filter / status tabs — always 8px (never pills) */
+  [role="tablist"] > [role="tab"],
+  [role="tablist"] > button,
+  .portal-tabs > button,
+  .portal-tabs button {
+    border-radius: 8px !important;
+  }
+
   /* Sidebar nav: scroll when needed, hide visible scrollbar */
   .portal-sidebar-nav {
     scrollbar-width: none;

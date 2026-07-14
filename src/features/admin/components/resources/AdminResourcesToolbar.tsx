@@ -77,7 +77,7 @@ export function AdminResourcesToolbar({
               type="button"
               onClick={() => onTabChange(id)}
               className={cn(
-                "inline-flex items-center gap-2 rounded-full px-3.5 py-2 text-sm font-semibold transition",
+                "inline-flex items-center gap-2 rounded-[8px] px-3.5 py-2 text-sm font-semibold transition",
                 active
                   ? "bg-primary text-white shadow-sm"
                   : "bg-portal-surface text-portal-muted ring-1 ring-portal hover:bg-portal-muted/30"
@@ -87,7 +87,7 @@ export function AdminResourcesToolbar({
               {label}
               <span
                 className={cn(
-                  "rounded-full px-1.5 text-[10px] font-bold",
+                  "rounded-[8px] px-1.5 text-[10px] font-bold",
                   active ? "bg-white/20" : "bg-portal-muted/40"
                 )}
               >

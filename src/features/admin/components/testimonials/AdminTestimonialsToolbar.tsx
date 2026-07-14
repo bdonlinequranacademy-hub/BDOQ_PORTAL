@@ -75,7 +75,7 @@ export function AdminTestimonialsToolbar({
             type="button"
             onClick={() => onTabChange(item.id)}
             className={cn(
-              "rounded-full px-3.5 py-1.5 text-sm font-semibold transition",
+              "rounded-[8px] px-3.5 py-1.5 text-sm font-semibold transition",
               tab === item.id
                 ? "bg-primary text-white shadow-sm"
                 : "text-portal-muted hover:bg-portal-muted/40 hover:text-portal-heading"

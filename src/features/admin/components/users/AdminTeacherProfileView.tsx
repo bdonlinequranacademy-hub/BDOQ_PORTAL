@@ -257,7 +257,7 @@ export function AdminTeacherProfileView({
             type="button"
             onClick={() => setTab(item.id)}
             className={cn(
-              "rounded-full px-4 py-2 text-sm font-semibold transition",
+              "rounded-[8px] px-4 py-2 text-sm font-semibold transition",
               tab === item.id
                 ? "bg-primary text-white shadow-sm"
                 : "border border-portal bg-portal-surface text-portal-muted hover:border-primary/30 hover:text-primary-dark"

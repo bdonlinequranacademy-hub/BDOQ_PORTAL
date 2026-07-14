@@ -106,7 +106,7 @@ export function AdminRoutineFilters({
             type="button"
             onClick={() => onDayChange("")}
             className={cn(
-              "shrink-0 rounded-full px-3.5 py-1.5 text-xs font-semibold transition",
+              "shrink-0 rounded-[8px] px-3.5 py-1.5 text-xs font-semibold transition",
               day === ""
                 ? "bg-primary-dark text-white shadow-sm"
                 : "border border-portal bg-portal-surface text-portal-heading hover:bg-portal-muted/50"
@@ -123,7 +123,7 @@ export function AdminRoutineFilters({
                 type="button"
                 onClick={() => onDayChange(scheduleDay)}
                 className={cn(
-                  "shrink-0 rounded-full px-3.5 py-1.5 text-xs font-semibold transition",
+                  "shrink-0 rounded-[8px] px-3.5 py-1.5 text-xs font-semibold transition",
                   day === scheduleDay
                     ? "bg-primary-dark text-white shadow-sm"
                     : "border border-portal bg-portal-surface text-portal-heading hover:bg-portal-muted/50"
