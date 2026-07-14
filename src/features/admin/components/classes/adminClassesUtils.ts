@@ -66,8 +66,8 @@ export function classStatusLabel(cls: AdminClass): string {
 
 export function classStatusStyles(cls: AdminClass): string {
   return cls.isActive === false
-    ? "bg-amber-100 text-amber-800"
-    : "bg-emerald-100 text-emerald-800";
+    ? "bg-amber-100 text-amber-800 dark:bg-amber-500/15 dark:text-amber-200 dark:ring-1 dark:ring-amber-400/25"
+    : "bg-emerald-100 text-emerald-800 dark:bg-emerald-500/15 dark:text-emerald-200 dark:ring-1 dark:ring-emerald-400/30";
 }
 
 export function studentCapacityPercent(count: number, max = 20): number {

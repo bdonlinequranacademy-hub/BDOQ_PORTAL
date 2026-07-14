@@ -13,6 +13,51 @@ export interface IPortalQuote {
   source: string;
 }
 
+/** Emotional Quran / Hadith slides for branding header carousel */
+export const PORTAL_BRANDING_QUOTES: IPortalQuote[] = [
+  {
+    arabic: "خَيْرُكُمْ مَنْ تَعَلَّمَ الْقُرْآنَ وَعَلَّمَهُ",
+    translation:
+      "The best among you are those who learn the Quran and teach it.",
+    source: "Sahih Bukhari",
+  },
+  {
+    arabic: "إِنَّ هَٰذَا الْقُرْآنَ يَهْدِي لِلَّتِي هِيَ أَقْوَمُ",
+    translation:
+      "Indeed, this Quran guides to that which is most upright.",
+    source: "Quran 17:9",
+  },
+  {
+    arabic: "وَنُنَزِّلُ مِنَ الْقُرْآنِ مَا هُوَ شِفَاءٌ وَرَحْمَةٌ لِّلْمُؤْمِنِينَ",
+    translation:
+      "And We send down of the Quran that which is healing and mercy for the believers.",
+    source: "Quran 17:82",
+  },
+  {
+    arabic: "الَّذِينَ آمَنُوا وَتَطْمَئِنُّ قُلُوبُهُم بِذِكْرِ اللَّهِ",
+    translation:
+      "Those who believe and whose hearts find rest in the remembrance of Allah.",
+    source: "Quran 13:28",
+  },
+  {
+    arabic: "اقْرَءُوا الْقُرْآنَ فَإِنَّهُ يَأْتِي يَوْمَ الْقِيَامَةِ شَفِيعًا لِأَصْحَابِهِ",
+    translation:
+      "Recite the Quran, for it will come as an intercessor for its companions on the Day of Resurrection.",
+    source: "Sahih Muslim",
+  },
+  {
+    arabic: "كِتَابٌ أَنزَلْنَاهُ إِلَيْكَ مُبَارَكٌ لِّيَدَّبَّرُوا آيَاتِهِ",
+    translation:
+      "A blessed Book We have revealed to you, that they may reflect upon its verses.",
+    source: "Quran 38:29",
+  },
+  {
+    arabic: "رَبِّ زِدْنِي عِلْمًا",
+    translation: "My Lord, increase me in knowledge.",
+    source: "Quran 20:114",
+  },
+];
+
 export const PORTAL_QUOTES: IPortalQuote[] = [
   {
     arabic: "اقْرَأْ بِاسْمِ رَبِّكَ الَّذِي خَلَقَ",

@@ -1,0 +1,92 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 180" fill="none" aria-hidden="true">
+  <defs>
+    <linearGradient id="domeGold" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#FFF1CC" stop-opacity="0.95"/>
+      <stop offset="35%" stop-color="#E8C97A" stop-opacity="0.78"/>
+      <stop offset="100%" stop-color="#B8923F" stop-opacity="0.42"/>
+    </linearGradient>
+    <linearGradient id="bodyEmerald" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#1FA97A" stop-opacity="0.55"/>
+      <stop offset="55%" stop-color="#0A4D3C" stop-opacity="0.72"/>
+      <stop offset="100%" stop-color="#00382C" stop-opacity="0.88"/>
+    </linearGradient>
+    <linearGradient id="softFar" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#D4A853" stop-opacity="0.22"/>
+      <stop offset="100%" stop-color="#0A4D3C" stop-opacity="0.18"/>
+    </linearGradient>
+    <filter id="softGlow" x="-20%" y="-40%" width="140%" height="180%">
+      <feGaussianBlur stdDeviation="1.4" result="b"/>
+      <feMerge>
+        <feMergeNode in="b"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+
+  <!-- distant misty skyline -->
+  <g fill="url(#softFar)" opacity="0.85">
+    <path d="M0 180 V128 C22 118 48 112 72 118 C98 104 128 100 156 112 C184 98 224 96 258 114 C292 98 334 94 372 112 C410 96 452 98 490 114 C528 102 568 106 604 120 C640 112 688 118 720 128 V180 Z"/>
+  </g>
+
+  <!-- main elegant mosque composition -->
+  <g filter="url(#softGlow)">
+    <!-- left minaret -->
+    <g fill="url(#bodyEmerald)">
+      <rect x="42" y="62" width="12" height="104" rx="2.5"/>
+      <rect x="36" y="52" width="24" height="12" rx="2"/>
+      <rect x="38" y="78" width="20" height="8" rx="1.5"/>
+      <path d="M48 28 L54 52 H42 Z" fill="url(#domeGold)"/>
+      <circle cx="48" cy="24" r="3" fill="#FFF1CC"/>
+      <path d="M48 18 L50.2 22.8 H45.8 Z" fill="#D4A853"/>
+    </g>
+
+    <!-- left secondary dome -->
+    <path d="M72 168 V102 C72 78 98 64 128 64 C158 64 184 78 184 102 V168 Z" fill="url(#bodyEmerald)"/>
+    <path d="M98 64 C98 42 128 28 128 28 C128 28 158 42 158 64 Z" fill="url(#domeGold)"/>
+    <circle cx="128" cy="26" r="2.5" fill="#FFF1CC"/>
+    <rect x="86" y="118" width="14" height="22" rx="7" fill="#D4A853" opacity="0.35"/>
+    <rect x="114" y="118" width="14" height="22" rx="7" fill="#D4A853" opacity="0.35"/>
+    <rect x="142" y="118" width="14" height="22" rx="7" fill="#D4A853" opacity="0.35"/>
+
+    <!-- arcade block -->
+    <path d="M198 168 V118 C198 106 214 98 230 98 C246 98 262 106 262 118 V168 Z" fill="url(#bodyEmerald)"/>
+    <path d="M214 98 C214 86 230 78 230 78 C230 78 246 86 246 98 Z" fill="url(#domeGold)" opacity="0.85"/>
+    <path d="M274 168 V118 C274 106 290 98 306 98 C322 98 338 106 338 118 V168 Z" fill="url(#bodyEmerald)"/>
+    <path d="M290 98 C290 86 306 78 306 78 C306 78 322 86 322 98 Z" fill="url(#domeGold)" opacity="0.85"/>
+
+    <!-- grand center dome -->
+    <path d="M352 168 V92 C352 58 400 38 448 38 C496 38 544 58 544 92 V168 Z" fill="url(#bodyEmerald)"/>
+    <path d="M404 38 C404 12 448 2 448 2 C448 2 492 12 492 38 Z" fill="url(#domeGold)"/>
+    <circle cx="448" cy="4" r="3.5" fill="#FFF1CC"/>
+    <path d="M448 -4 L451 2.5 H445 Z" fill="#D4A853"/>
+    <!-- drum windows -->
+    <g fill="#D4A853" opacity="0.4">
+      <rect x="392" y="78" width="10" height="16" rx="5"/>
+      <rect x="416" y="78" width="10" height="16" rx="5"/>
+      <rect x="440" y="78" width="10" height="16" rx="5"/>
+      <rect x="464" y="78" width="10" height="16" rx="5"/>
+      <rect x="488" y="78" width="10" height="16" rx="5"/>
+    </g>
+    <!-- portal -->
+    <path d="M432 168 V132 C432 118 448 110 448 110 C448 110 464 118 464 132 V168 Z" fill="#D4A853" opacity="0.45"/>
+
+    <!-- right secondary dome -->
+    <path d="M560 168 V108 C560 86 582 74 608 74 C634 74 656 86 656 108 V168 Z" fill="url(#bodyEmerald)"/>
+    <path d="M582 74 C582 56 608 44 608 44 C608 44 634 56 634 74 Z" fill="url(#domeGold)"/>
+    <circle cx="608" cy="42" r="2.2" fill="#FFF1CC"/>
+
+    <!-- right minaret -->
+    <g fill="url(#bodyEmerald)">
+      <rect x="666" y="58" width="12" height="110" rx="2.5"/>
+      <rect x="660" y="48" width="24" height="12" rx="2"/>
+      <rect x="662" y="74" width="20" height="8" rx="1.5"/>
+      <path d="M672 24 L678 48 H666 Z" fill="url(#domeGold)"/>
+      <circle cx="672" cy="20" r="3" fill="#FFF1CC"/>
+      <path d="M672 14 L674.2 18.8 H669.8 Z" fill="#D4A853"/>
+    </g>
+  </g>
+
+  <!-- reflective ground wash -->
+  <rect x="0" y="168" width="720" height="12" fill="url(#bodyEmerald)" opacity="0.55"/>
+  <path d="M0 168 H720" stroke="#D4A853" stroke-opacity="0.35" stroke-width="1"/>
+</svg>

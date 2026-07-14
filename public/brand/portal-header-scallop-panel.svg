@@ -1,0 +1,39 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 220" fill="none" aria-hidden="true">
+  <defs>
+    <linearGradient id="goldStroke" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#F5E6C8"/>
+      <stop offset="45%" stop-color="#D4A853"/>
+      <stop offset="100%" stop-color="#B8923F"/>
+    </linearGradient>
+  </defs>
+  <!-- Scalloped Islamic panel silhouette -->
+  <path
+    id="scallopPanel"
+    fill="#FFFFFF"
+    stroke="url(#goldStroke)"
+    stroke-width="2.2"
+    d="M48 18
+       C58 18 66 28 76 28 C86 28 94 18 104 18
+       C114 18 122 28 132 28 C142 28 150 18 160 18
+       H740
+       C750 18 758 28 768 28 C778 28 786 18 796 18
+       C806 18 814 28 824 28 C834 28 842 18 852 18
+       C860 18 868 26 868 36
+       V72
+       C868 82 878 90 878 100 C878 110 868 118 868 128
+       V160
+       C868 170 878 178 878 188 C878 198 868 206 868 210
+       C860 214 852 202 842 202 C832 202 824 214 814 214
+       C804 214 796 202 786 202 C776 202 768 214 758 214
+       C748 214 740 202 730 202
+       H170
+       C160 202 152 214 142 214 C132 214 124 202 114 202
+       C104 202 96 214 86 214 C76 214 68 202 58 202
+       C48 202 40 214 32 210
+       C22 206 22 198 22 188 C22 178 32 170 32 160
+       V128
+       C32 118 22 110 22 100 C22 90 32 82 32 72
+       V36
+       C32 26 40 18 48 18 Z"
+  />
+</svg>

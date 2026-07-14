@@ -33,7 +33,7 @@
   --boq-bg-light: #0f172a;
   --boq-text-dark: #f1f5f9;
   --boq-text-gray: #8b9cb3;
-  --boq-border: rgba(148, 163, 184, 0.14);
+  --boq-border: rgb(148 163 184 / 0.09);
   --boq-sidebar: #1a7356;
   --boq-sidebar-deep: #145c45;
 }

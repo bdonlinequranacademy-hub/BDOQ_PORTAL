@@ -63,7 +63,7 @@ export function AdminUsersTable({
               <th className="px-5 py-3.5 text-right">Actions</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-portal/80">
+          <tbody className="divide-y divide-portal">
             {users.map((user) => {
               const shownRole = displayRole(user.role);
               const manageable = canManage(user.role);
@@ -173,7 +173,7 @@ export function AdminUsersTable({
         </table>
       </div>
 
-      <div className="divide-y divide-portal/80 lg:hidden">
+      <div className="divide-y divide-portal lg:hidden">
         {users.map((user) => {
           const shownRole = displayRole(user.role);
           const manageable = canManage(user.role);

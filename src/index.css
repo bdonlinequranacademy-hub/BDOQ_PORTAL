@@ -42,32 +42,30 @@
   [data-theme="dark"] {
     color-scheme: dark;
     --portal-bg: #0b1120;
-    --portal-surface: #151c2c;
-    --portal-surface-muted: #1a2235;
-    --portal-heading: #f1f5f9;
-    --portal-text: #cbd5e1;
+    --portal-surface: #131a28;
+    --portal-surface-muted: #182033;
+    --portal-heading: #e8eef7;
+    --portal-text: #c5d0e0;
     --portal-muted: #8b9cb3;
-    --portal-border: rgba(148, 163, 184, 0.14);
-    --portal-header: #151c2c;
+    /* Soft divider hue — opacity modifiers applied via overrides below */
+    --portal-border: rgb(148 163 184 / 0.07);
+    --portal-divider: rgb(148 163 184 / 0.09);
+    --portal-header: #131a28;
     --portal-sidebar: #0a4d3c;
     --portal-sidebar-deep: #00382c;
     --portal-ring-offset: #0b1120;
     --portal-card-shadow:
-      inset 0 1px 0 0 rgb(255 255 255 / 0.06),
-      0 2px 8px rgb(0 0 0 / 0.38),
-      0 10px 32px -4px rgb(0 0 0 / 0.58),
-      0 18px 48px -8px rgb(0 0 0 / 0.42);
+      0 1px 0 0 rgb(255 255 255 / 0.03),
+      0 4px 16px -6px rgb(0 0 0 / 0.45);
     --portal-card-shadow-hover:
-      inset 0 1px 0 0 rgb(255 255 255 / 0.08),
-      0 4px 12px rgb(0 0 0 / 0.45),
-      0 14px 40px -4px rgb(0 0 0 / 0.65),
-      0 24px 56px -8px rgb(0 0 0 / 0.48);
+      0 1px 0 0 rgb(255 255 255 / 0.045),
+      0 8px 22px -8px rgb(0 0 0 / 0.55);
 
     --background: 222 47% 7%;
     --foreground: 210 40% 96%;
     --muted: 222 28% 14%;
     --muted-foreground: 215 18% 62%;
-    --border: 222 22% 18%;
+    --border: 220 18% 18%;
   }
 
   html {
@@ -400,19 +398,24 @@
 
   .dark .portal-card-islamic::after,
   .dark .portal-card::after {
-    opacity: 0.4;
+    opacity: 0.2;
     mix-blend-mode: soft-light;
-    filter: contrast(1.25) brightness(1.15) saturate(1.2);
+    filter: contrast(1.1) brightness(1.02) saturate(1.05);
   }
 
   .dark .portal-card--lg.portal-card-islamic::after,
   .dark .portal-card.portal-card--lg::after {
-    opacity: 0.48;
+    opacity: 0.26;
   }
 
   .dark .portal-card--sm.portal-card-islamic::after,
   .dark .portal-card.portal-card--sm::after {
-    opacity: 0.32;
+    opacity: 0.16;
+  }
+
+  .dark .portal-card::before,
+  .dark .portal-card-islamic::before {
+    opacity: 0.08;
   }
 
   .portal-card-islamic > *,
@@ -425,6 +428,11 @@
     @apply portal-card-islamic portal-card--lg;
     background-color: var(--portal-surface);
     border-color: rgb(220 235 228 / 0.7);
+  }
+
+  .dark .portal-islamic-hero,
+  [data-theme="dark"] .portal-islamic-hero {
+    border-color: var(--portal-border);
   }
 
   /* Primary CTAs — geometric motif for Islamic feel */
@@ -644,6 +652,17 @@
     --tw-ring-offset-color: var(--portal-ring-offset);
   }
 
+  .dark .form-control,
+  [data-theme="dark"] .form-control {
+    border-color: var(--portal-divider) !important;
+    background-color: var(--portal-surface-muted);
+  }
+
+  .dark .form-control:focus-visible,
+  [data-theme="dark"] .form-control:focus-visible {
+    border-color: rgb(50 201 145 / 0.55);
+  }
+
   .form-label {
     @apply text-sm font-medium leading-none;
     color: var(--portal-text);
@@ -661,6 +680,103 @@
     border-color: rgb(220 235 228 / 0.7);
     background-color: var(--portal-surface);
     box-shadow: var(--portal-card-shadow);
+  }
+
+  /* Dark only: neutralize light mint borders + heavy outlines (light unchanged) */
+  .dark .portal-card,
+  [data-theme="dark"] .portal-card {
+    border-color: var(--portal-border);
+    background-color: var(--portal-surface);
+    box-shadow: var(--portal-card-shadow);
+  }
+
+  .dark .portal-section,
+  [data-theme="dark"] .portal-section {
+    border-color: var(--portal-border);
+    background-color: var(--portal-surface);
+    box-shadow: var(--portal-card-shadow);
+  }
+
+  .dark .portal-branding-header,
+  [data-theme="dark"] .portal-branding-header {
+    border-color: var(--portal-divider);
+    box-shadow: var(--portal-card-shadow);
+  }
+
+  .dark .border-portal,
+  [data-theme="dark"] .border-portal,
+  .dark .border-portal\/10,
+  [data-theme="dark"] .border-portal\/10,
+  .dark .border-portal\/20,
+  [data-theme="dark"] .border-portal\/20,
+  .dark .border-portal\/30,
+  [data-theme="dark"] .border-portal\/30,
+  .dark .border-portal\/40,
+  [data-theme="dark"] .border-portal\/40,
+  .dark .border-portal\/50,
+  [data-theme="dark"] .border-portal\/50,
+  .dark .border-portal\/60,
+  [data-theme="dark"] .border-portal\/60,
+  .dark .border-portal\/70,
+  [data-theme="dark"] .border-portal\/70,
+  .dark .border-portal\/80,
+  [data-theme="dark"] .border-portal\/80,
+  .dark .border-portal\/90,
+  [data-theme="dark"] .border-portal\/90,
+  .dark .ring-portal,
+  [data-theme="dark"] .ring-portal {
+    border-color: var(--portal-divider) !important;
+    --tw-ring-color: rgb(148 163 184 / 0.1);
+  }
+
+  /* Table row / list dividers — /80 modifiers go bright in dark; force soft */
+  .dark .divide-portal > :not([hidden]) ~ :not([hidden]),
+  [data-theme="dark"] .divide-portal > :not([hidden]) ~ :not([hidden]),
+  .dark .divide-portal\/20 > :not([hidden]) ~ :not([hidden]),
+  [data-theme="dark"] .divide-portal\/20 > :not([hidden]) ~ :not([hidden]),
+  .dark .divide-portal\/40 > :not([hidden]) ~ :not([hidden]),
+  [data-theme="dark"] .divide-portal\/40 > :not([hidden]) ~ :not([hidden]),
+  .dark .divide-portal\/50 > :not([hidden]) ~ :not([hidden]),
+  [data-theme="dark"] .divide-portal\/50 > :not([hidden]) ~ :not([hidden]),
+  .dark .divide-portal\/60 > :not([hidden]) ~ :not([hidden]),
+  [data-theme="dark"] .divide-portal\/60 > :not([hidden]) ~ :not([hidden]),
+  .dark .divide-portal\/70 > :not([hidden]) ~ :not([hidden]),
+  [data-theme="dark"] .divide-portal\/70 > :not([hidden]) ~ :not([hidden]),
+  .dark .divide-portal\/80 > :not([hidden]) ~ :not([hidden]),
+  [data-theme="dark"] .divide-portal\/80 > :not([hidden]) ~ :not([hidden]),
+  .dark .divide-portal\/90 > :not([hidden]) ~ :not([hidden]),
+  [data-theme="dark"] .divide-portal\/90 > :not([hidden]) ~ :not([hidden]) {
+    border-color: var(--portal-divider) !important;
+  }
+
+  .dark .border-gray-100,
+  .dark .border-gray-200,
+  .dark .border-gray-300,
+  .dark .border-zinc-100,
+  .dark .border-zinc-200,
+  .dark .border-zinc-300,
+  .dark .border-slate-100,
+  .dark .border-slate-200,
+  .dark .border-slate-300,
+  [data-theme="dark"] .border-gray-100,
+  [data-theme="dark"] .border-gray-200,
+  [data-theme="dark"] .border-gray-300,
+  [data-theme="dark"] .border-zinc-100,
+  [data-theme="dark"] .border-zinc-200,
+  [data-theme="dark"] .border-zinc-300,
+  [data-theme="dark"] .border-slate-100,
+  [data-theme="dark"] .border-slate-200,
+  [data-theme="dark"] .border-slate-300 {
+    border-color: var(--portal-divider) !important;
+  }
+
+  .dark .divide-gray-100 > :not([hidden]) ~ :not([hidden]),
+  .dark .divide-gray-200 > :not([hidden]) ~ :not([hidden]),
+  .dark .divide-zinc-100 > :not([hidden]) ~ :not([hidden]),
+  .dark .divide-zinc-200 > :not([hidden]) ~ :not([hidden]),
+  .dark .divide-slate-100 > :not([hidden]) ~ :not([hidden]),
+  .dark .divide-slate-200 > :not([hidden]) ~ :not([hidden]) {
+    border-color: var(--portal-divider) !important;
   }
 
   /* ─── Portal page layout helpers (UX consistency) ───────────── */
@@ -734,6 +850,227 @@
     box-shadow: var(--portal-card-shadow);
   }
 
+  /* Header logo plate styles — unused now; crest replaces logo */
+  .portal-branding-logo__mask {
+    display: none;
+  }
+
+  .portal-branding-logo__img {
+    mix-blend-mode: screen;
+  }
+
+  /* Left brand — animated gradient text + crest */
+  .portal-brand-left {
+    animation: portalBrandRise 0.7s ease-out both;
+  }
+
+  .portal-brand-gradient-text {
+    background-image: linear-gradient(
+      105deg,
+      #7DFFB2 0%,
+      #F5E6C8 28%,
+      #32C991 55%,
+      #D4A853 78%,
+      #A7F3D0 100%
+    );
+    background-size: 220% auto;
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    animation: portalBrandShine 5s linear infinite;
+  }
+
+  .portal-brand-gradient-text--gold {
+    background-image: linear-gradient(
+      90deg,
+      #B8923F 0%,
+      #F5E6C8 35%,
+      #D4A853 65%,
+      #FFF1CC 100%
+    );
+    background-size: 200% auto;
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    animation: portalBrandShine 4.2s linear infinite reverse;
+  }
+
+  .portal-brand-label__line {
+    background: linear-gradient(90deg, transparent, rgba(212, 168, 83, 0.85));
+    animation: portalBrandLinePulse 2.4s ease-in-out infinite;
+  }
+
+  .portal-brand-tagline {
+    animation: portalBrandFade 1s ease-out 0.25s both;
+  }
+
+  .portal-brand-dots span {
+    display: block;
+    width: 5px;
+    height: 5px;
+    border-radius: 999px;
+    background: #d4a853;
+    opacity: 0.55;
+    animation: portalBrandDot 1.6s ease-in-out infinite;
+  }
+
+  .portal-brand-dots span:nth-child(2) {
+    animation-delay: 0.2s;
+    opacity: 0.85;
+  }
+
+  .portal-brand-dots span:nth-child(3) {
+    animation-delay: 0.4s;
+  }
+
+  .portal-brand-crest__ring {
+    animation: portalBrandRing 3.2s ease-in-out infinite;
+  }
+
+  .portal-brand-crest__glow {
+    animation: portalBrandGlow 2.6s ease-in-out infinite;
+  }
+
+  .portal-brand-crest__icon {
+    animation: portalBrandFloat 3.5s ease-in-out infinite;
+  }
+
+  @keyframes portalBrandShine {
+    0% {
+      background-position: 0% center;
+    }
+    100% {
+      background-position: 220% center;
+    }
+  }
+
+  @keyframes portalBrandRise {
+    from {
+      opacity: 0;
+      transform: translateY(10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @keyframes portalBrandFade {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+
+  @keyframes portalBrandLinePulse {
+    0%,
+    100% {
+      opacity: 0.45;
+    }
+    50% {
+      opacity: 1;
+    }
+  }
+
+  @keyframes portalBrandDot {
+    0%,
+    100% {
+      transform: scale(0.85);
+      opacity: 0.4;
+    }
+    50% {
+      transform: scale(1.15);
+      opacity: 1;
+    }
+  }
+
+  @keyframes portalBrandRing {
+    0%,
+    100% {
+      transform: scale(1);
+      opacity: 0.55;
+    }
+    50% {
+      transform: scale(1.08);
+      opacity: 0.95;
+    }
+  }
+
+  @keyframes portalBrandGlow {
+    0%,
+    100% {
+      opacity: 0.45;
+      transform: scale(0.92);
+    }
+    50% {
+      opacity: 0.9;
+      transform: scale(1.08);
+    }
+  }
+
+  @keyframes portalBrandFloat {
+    0%,
+    100% {
+      transform: translateY(0);
+    }
+    50% {
+      transform: translateY(-3px);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .portal-brand-left,
+    .portal-brand-gradient-text,
+    .portal-brand-gradient-text--gold,
+    .portal-brand-label__line,
+    .portal-brand-tagline,
+    .portal-brand-dots span,
+    .portal-brand-crest__ring,
+    .portal-brand-crest__glow,
+    .portal-brand-crest__icon {
+      animation: none !important;
+    }
+
+    .portal-brand-gradient-text,
+    .portal-brand-gradient-text--gold {
+      background-position: 30% center;
+    }
+  }
+
+  .portal-branding-scallop {
+    isolation: isolate;
+    background:
+      linear-gradient(
+        145deg,
+        rgb(240 251 246 / 0.98) 0%,
+        rgb(255 251 242 / 0.97) 45%,
+        rgb(232 246 239 / 0.98) 100%
+      );
+  }
+
+  .portal-branding-quote-slide {
+    animation: portalQuoteFade 0.55s ease-out both;
+  }
+
+  @keyframes portalQuoteFade {
+    from {
+      opacity: 0;
+      transform: translateY(6px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .portal-branding-quote-slide {
+      animation: none !important;
+    }
+  }
+
   .portal-card.shadow-sm,
   .rounded-xl.shadow-sm,
   .rounded-2xl.shadow-sm,
@@ -761,8 +1098,53 @@
   .dark .bg-\[\#F8FAFF\],
   .dark .bg-\[\#F8F9FF\],
   .dark .bg-\[\#FCFBFA\],
-  .dark .bg-\[\#EEF2F8\] {
+  .dark .bg-\[\#EEF2F8\],
+  .dark .bg-\[\#F4FBF8\],
+  .dark .bg-\[\#F7FBF8\],
+  .dark .bg-\[\#E8FAF2\],
+  .dark .bg-\[\#F0FBF6\],
+  .dark .bg-\[\#fcfefd\],
+  .dark .bg-\[\#FCFEFD\] {
     background-color: var(--portal-surface-muted);
+  }
+
+  .dark .bg-slate-50,
+  .dark .bg-slate-50\/40,
+  .dark .bg-slate-50\/50 {
+    background-color: var(--portal-surface-muted);
+  }
+
+  .dark .border-slate-100,
+  .dark .border-slate-200,
+  .dark .border-\[\#E5E7EB\] {
+    border-color: var(--portal-border);
+  }
+
+  .dark .ring-1.ring-portal,
+  .dark .ring-portal\/70,
+  .dark .ring-1.ring-black\/5 {
+    --tw-ring-color: rgb(148 163 184 / 0.1);
+  }
+
+  .dark .border-primary\/10,
+  .dark .border-primary\/12,
+  .dark .border-primary\/15,
+  .dark .border-primary\/20,
+  .dark .border-primary\/25 {
+    border-color: rgb(50 201 145 / 0.18);
+  }
+
+  .dark .bg-primary\/5,
+  .dark .bg-primary\/10,
+  .dark .bg-primary\/12 {
+    background-color: rgb(50 201 145 / 0.12);
+  }
+
+  .dark .bg-orange-100,
+  .dark .bg-amber-100,
+  .dark .bg-violet-100,
+  .dark .bg-gold\/20 {
+    background-color: rgb(148 163 184 / 0.12);
   }
 
   .dark .bg-red-50 {
@@ -816,6 +1198,18 @@
 
   .dark .bg-emerald-50 {
     background-color: rgb(16 185 129 / 0.14);
+  }
+
+  .dark .bg-emerald-100 {
+    background-color: rgb(16 185 129 / 0.16);
+  }
+
+  .dark .text-emerald-800 {
+    color: rgb(167 243 208);
+  }
+
+  .dark .text-amber-800 {
+    color: rgb(253 230 138);
   }
 
   .dark .bg-purple-50 {
@@ -996,11 +1390,15 @@
   }
 
   .dark .text-emerald-800 {
-    color: rgb(110 231 183);
+    color: rgb(167 243 208);
   }
 
   .dark .text-amber-600 {
     color: rgb(251 191 36);
+  }
+
+  .dark .text-amber-800 {
+    color: rgb(253 230 138);
   }
 
   .dark .border-emerald-200 {
