@@ -27,6 +27,7 @@ import {
   filterAttendanceOverview,
   getAttendanceSummary,
   groupAttendanceByClass,
+  type AttendanceRateFilter,
   type AttendanceSort,
 } from "@/features/admin/components/attendance/adminAttendanceUtils";
 
@@ -36,6 +37,7 @@ export function AdminAttendancePage() {
   const [classFilter, setClassFilter] = useState(initialClassId);
   const [search, setSearch] = useState("");
   const [sortBy, setSortBy] = useState<AttendanceSort>("highest");
+  const [rateFilter, setRateFilter] = useState<AttendanceRateFilter>("all");
 
   const {
     data: overview = [],
@@ -50,6 +52,12 @@ export function AdminAttendancePage() {
     setClassFilter(params.get("classId") ?? "");
   }, [params]);
 
+  const hasActiveFilters =
+    Boolean(classFilter) ||
+    Boolean(search.trim()) ||
+    sortBy !== "highest" ||
+    rateFilter !== "all";
+
   const attendanceStats = useMemo(
     () => computeAttendanceStats(overview, stats),
     [overview, stats]
@@ -62,16 +70,21 @@ export function AdminAttendancePage() {
     () =>
       filterAttendanceOverview(
         overview,
-        { search, classFilter: "", sortBy },
+        { search, classFilter: "", sortBy, rateFilter },
         classes
       ),
-    [overview, search, sortBy, classes]
+    [overview, search, sortBy, rateFilter, classes]
   );
 
   const pagination = usePaginatedList(visibleRows, {
     pageSize: 10,
-    resetDeps: [search, sortBy, classFilter],
+    resetDeps: [search, sortBy, classFilter, rateFilter],
   });
+
+  const selectedClassLabel = useMemo(() => {
+    if (!classFilter) return undefined;
+    return classes.find((cls) => cls._id === classFilter)?.title;
+  }, [classFilter, classes]);
 
   function handleClassChange(value: string) {
     setClassFilter(value);
@@ -82,6 +95,14 @@ export function AdminAttendancePage() {
     }
   }
 
+  function handleClearFilters() {
+    setClassFilter("");
+    setSearch("");
+    setSortBy("highest");
+    setRateFilter("all");
+    setParams({});
+  }
+
   function handleExport() {
     exportAttendanceFile(visibleRows, classes);
   }
@@ -90,8 +111,14 @@ export function AdminAttendancePage() {
     <PageContainer>
       <AdminAttendanceOverviewHeader
         classFilter={classFilter}
+        rateFilter={rateFilter}
         classes={classes.map((cls) => ({ _id: cls._id, title: cls.title }))}
+        hasActiveFilters={hasActiveFilters}
+        isFetching={isFetching}
         onClassChange={handleClassChange}
+        onRateFilterChange={setRateFilter}
+        onClearFilters={handleClearFilters}
+        onRefresh={() => void refetch()}
         onExport={handleExport}
       />
 
@@ -105,9 +132,11 @@ export function AdminAttendancePage() {
           title="No attendance data yet"
           description={
             classFilter
-              ? "No attendance records for this class yet."
+              ? "No attendance records for this class yet. Clear the class filter to see all classes."
               : "Overview appears once teachers start marking attendance in classes."
           }
+          actionLabel={classFilter ? "Clear class filter" : undefined}
+          onAction={classFilter ? handleClearFilters : undefined}
         />
       ) : (
         <div className="grid grid-cols-1 items-start gap-4 xl:gap-5 xl:grid-cols-[minmax(0,1fr)_280px]">
@@ -123,8 +152,14 @@ export function AdminAttendancePage() {
             <AdminAttendanceToolbar
               search={search}
               sortBy={sortBy}
+              rateFilter={rateFilter}
+              classFilterLabel={selectedClassLabel}
+              resultCount={visibleRows.length}
+              hasActiveFilters={hasActiveFilters}
               onSearchChange={setSearch}
               onSortChange={setSortBy}
+              onRateFilterChange={setRateFilter}
+              onClearFilters={handleClearFilters}
               onExport={handleExport}
             />
 
@@ -132,7 +167,9 @@ export function AdminAttendancePage() {
               <EmptyState
                 icon={ClipboardList}
                 title="No classes match your filters"
-                description="Try clearing search or selecting a different class."
+                description="Try clearing search, rate filter, or selecting a different class."
+                actionLabel="Clear all filters"
+                onAction={handleClearFilters}
               />
             ) : (
               <>

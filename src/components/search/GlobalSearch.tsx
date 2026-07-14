@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState, type ReactNode } from "react";
+import { createPortal } from "react-dom";
 import { useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import {
@@ -118,7 +119,16 @@ function SearchListRow({
   );
 }
 
-export function GlobalSearch({ role }: { role: Role }) {
+export function GlobalSearch({
+  role,
+  variant = "compact",
+  className,
+}: {
+  role: Role;
+  /** compact = chip, bar = wide field, host = no trigger (listens for mobile open event) */
+  variant?: "compact" | "bar" | "host";
+  className?: string;
+}) {
   const navigate = useNavigate();
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState("");
@@ -131,6 +141,8 @@ export function GlobalSearch({ role }: { role: Role }) {
 
   useEffect(() => {
     function onKeyDown(e: KeyboardEvent) {
+      // Host is for mobile icon only — avoid double Ctrl+K handlers with desktop bar
+      if (variant === "host") return;
       if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "k") {
         e.preventDefault();
         setOpen(true);
@@ -140,15 +152,22 @@ export function GlobalSearch({ role }: { role: Role }) {
       }
     }
     function openFromEvent() {
+      // Mobile search icon dispatches this; only the host instance should open
+      if (variant !== "host") return;
       setOpen(true);
     }
+    function onEscape(e: KeyboardEvent) {
+      if (e.key === "Escape") setOpen(false);
+    }
     window.addEventListener("keydown", onKeyDown);
+    window.addEventListener("keydown", onEscape);
     window.addEventListener("portal:open-search", openFromEvent);
     return () => {
       window.removeEventListener("keydown", onKeyDown);
+      window.removeEventListener("keydown", onEscape);
       window.removeEventListener("portal:open-search", openFromEvent);
     };
-  }, []);
+  }, [variant]);
 
   const pages = useMemo(() => filterPortalPages(role, debounced), [role, debounced]);
 
@@ -183,12 +202,144 @@ export function GlobalSearch({ role }: { role: Role }) {
     navigate(path);
   }
 
+  const modal =
+    open && typeof document !== "undefined"
+      ? createPortal(
+          <div
+            className="fixed inset-0 z-[200] flex items-start justify-center bg-black/45 p-3 pt-[10vh] backdrop-blur-sm sm:p-4 sm:pt-[12vh]"
+            onClick={() => setOpen(false)}
+            role="dialog"
+            aria-modal="true"
+            aria-label="Search"
+          >
+            <div
+              className="w-full max-w-lg overflow-hidden rounded-xl border border-[rgb(220_235_228/0.7)] bg-portal-surface shadow-[var(--portal-card-shadow)] animate-page-in"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="flex items-center gap-2 border-b border-[rgb(220_235_228/0.7)] px-4 py-3">
+                <span className="flex size-8 shrink-0 items-center justify-center rounded bg-primary/10 text-primary">
+                  <Search className="size-4" />
+                </span>
+                <input
+                  autoFocus
+                  value={query}
+                  onChange={(e) => setQuery(e.target.value)}
+                  placeholder="Search students, classes, pages…"
+                  className={`${formControlClass} border-0 bg-transparent px-0 shadow-none focus-visible:ring-0`}
+                />
+                <button
+                  type="button"
+                  onClick={() => setOpen(false)}
+                  className="rounded p-1.5 text-portal-muted transition hover:bg-[#f6fcf9] hover:text-portal-heading"
+                  aria-label="Close search"
+                >
+                  <X className="size-4" />
+                </button>
+              </div>
+
+              <div className="max-h-[min(60vh,420px)] overflow-y-auto p-3">
+                {pages.length > 0 ? (
+                  <SearchListSection title="Pages">
+                    {pages.map((page) => {
+                      const Icon = pageIcon(page.path);
+                      return (
+                        <SearchListRow
+                          key={page.path}
+                          onClick={() => go(page.path)}
+                          icon={<Icon className="size-4" aria-hidden />}
+                          title={page.label}
+                          subtitle={page.path}
+                        />
+                      );
+                    })}
+                  </SearchListSection>
+                ) : null}
+
+                {programHits.length > 0 ? (
+                  <SearchListSection title="Study programs">
+                    {programHits.map((program) => (
+                      <SearchListRow
+                        key={program.id}
+                        onClick={() => go(programLink)}
+                        icon={<Library className="size-4" aria-hidden />}
+                        title={program.label}
+                        subtitle="Open progress & curriculum"
+                      />
+                    ))}
+                  </SearchListSection>
+                ) : null}
+
+                {debounced.trim().length >= 2 ? (
+                  <SearchListSection title="Results">
+                    {isFetching ? (
+                      <li className="px-3 py-4 text-sm text-portal-muted">Searching…</li>
+                    ) : apiResults.length === 0 ? (
+                      <li className="px-3 py-4 text-sm text-portal-muted">
+                        No matches for “{debounced}”.
+                      </li>
+                    ) : (
+                      apiResults.map((item) => {
+                        const Icon = resultIcon(item.type);
+                        return (
+                          <SearchListRow
+                            key={`${item.type}-${item.id}`}
+                            onClick={() => go(item.path)}
+                            icon={<Icon className="size-4" aria-hidden />}
+                            title={item.title}
+                            subtitle={item.subtitle}
+                            meta={item.type}
+                          />
+                        );
+                      })
+                    )}
+                  </SearchListSection>
+                ) : (
+                  <p className="px-2 py-3 text-sm text-portal-muted">
+                    Type at least 2 characters to search students and classes.
+                  </p>
+                )}
+              </div>
+            </div>
+          </div>,
+          document.body
+        )
+      : null;
+
   if (!open) {
+    if (variant === "host") {
+      return null;
+    }
+
+    if (variant === "bar") {
+      return (
+        <button
+          type="button"
+          onClick={() => setOpen(true)}
+          className={cn(
+            "flex h-10 w-full min-w-0 items-center gap-2.5 rounded-xl border border-portal bg-portal-surface px-3.5 text-left text-sm text-portal-muted shadow-[var(--portal-card-shadow)] transition hover:border-primary/30 hover:text-portal-heading",
+            className
+          )}
+          aria-label="Open search"
+        >
+          <Search className="size-4 shrink-0 text-primary" aria-hidden />
+          <span className="min-w-0 flex-1 truncate font-medium">
+            Search students, teachers, classes…
+          </span>
+          <kbd className="hidden shrink-0 rounded-md bg-[#f0fbf6] px-1.5 py-0.5 text-[10px] font-semibold text-portal-muted sm:inline-block dark:bg-white/10">
+            Ctrl K
+          </kbd>
+        </button>
+      );
+    }
+
     return (
       <button
         type="button"
         onClick={() => setOpen(true)}
-        className="hidden items-center gap-2 rounded border border-[rgb(220_235_228/0.7)] bg-portal-surface px-3 py-1.5 text-sm text-portal-muted shadow-[var(--portal-card-shadow)] transition hover:text-portal-heading sm:flex"
+        className={cn(
+          "hidden items-center gap-2 rounded border border-[rgb(220_235_228/0.7)] bg-portal-surface px-3 py-1.5 text-sm text-portal-muted shadow-[var(--portal-card-shadow)] transition hover:text-portal-heading sm:flex",
+          className
+        )}
         aria-label="Open search"
       >
         <Search className="size-4" />
@@ -201,98 +352,22 @@ export function GlobalSearch({ role }: { role: Role }) {
   }
 
   return (
-    <div
-      className="fixed inset-0 z-[100] flex items-start justify-center bg-black/40 p-4 pt-[12vh] backdrop-blur-sm"
-      onClick={() => setOpen(false)}
-    >
-      <div
-        className="w-full max-w-lg overflow-hidden rounded border border-[rgb(220_235_228/0.7)] bg-portal-surface shadow-[var(--portal-card-shadow)] animate-page-in"
-        onClick={(e) => e.stopPropagation()}
-      >
-        <div className="flex items-center gap-2 border-b border-[rgb(220_235_228/0.7)] px-4 py-3">
-          <span className="flex size-8 shrink-0 items-center justify-center rounded bg-primary/10 text-primary">
-            <Search className="size-4" />
-          </span>
-          <input
-            autoFocus
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-            placeholder="Search students, classes, pages…"
-            className={`${formControlClass} border-0 bg-transparent px-0 shadow-none focus-visible:ring-0`}
-          />
-          <button
-            type="button"
-            onClick={() => setOpen(false)}
-            className="rounded p-1.5 text-portal-muted transition hover:bg-[#f6fcf9] hover:text-portal-heading"
-            aria-label="Close search"
-          >
-            <X className="size-4" />
-          </button>
-        </div>
-
-        <div className="max-h-[min(60vh,420px)] overflow-y-auto p-3">
-          {pages.length > 0 ? (
-            <SearchListSection title="Pages">
-              {pages.map((page) => {
-                const Icon = pageIcon(page.path);
-                return (
-                  <SearchListRow
-                    key={page.path}
-                    onClick={() => go(page.path)}
-                    icon={<Icon className="size-4" aria-hidden />}
-                    title={page.label}
-                    subtitle={page.path}
-                  />
-                );
-              })}
-            </SearchListSection>
-          ) : null}
-
-          {programHits.length > 0 ? (
-            <SearchListSection title="Study programs">
-              {programHits.map((program) => (
-                <SearchListRow
-                  key={program.id}
-                  onClick={() => go(programLink)}
-                  icon={<Library className="size-4" aria-hidden />}
-                  title={program.label}
-                  subtitle="Open progress & curriculum"
-                />
-              ))}
-            </SearchListSection>
-          ) : null}
-
-          {debounced.trim().length >= 2 ? (
-            <SearchListSection title="Results">
-              {isFetching ? (
-                <li className="px-3 py-4 text-sm text-portal-muted">Searching…</li>
-              ) : apiResults.length === 0 ? (
-                <li className="px-3 py-4 text-sm text-portal-muted">
-                  No matches for “{debounced}”.
-                </li>
-              ) : (
-                apiResults.map((item) => {
-                  const Icon = resultIcon(item.type);
-                  return (
-                    <SearchListRow
-                      key={`${item.type}-${item.id}`}
-                      onClick={() => go(item.path)}
-                      icon={<Icon className="size-4" aria-hidden />}
-                      title={item.title}
-                      subtitle={item.subtitle}
-                      meta={item.type}
-                    />
-                  );
-                })
-              )}
-            </SearchListSection>
-          ) : (
-            <p className="px-2 py-3 text-sm text-portal-muted">
-              Type at least 2 characters to search students and classes.
-            </p>
+    <>
+      {variant === "bar" ? (
+        <button
+          type="button"
+          className={cn(
+            "pointer-events-none flex h-10 w-full min-w-0 items-center gap-2.5 rounded-xl border border-primary/40 bg-primary/5 px-3.5 text-left text-sm text-portal-heading opacity-80",
+            className
           )}
-        </div>
-      </div>
-    </div>
+          aria-hidden
+          tabIndex={-1}
+        >
+          <Search className="size-4 shrink-0 text-primary" aria-hidden />
+          <span className="min-w-0 flex-1 truncate font-medium">Search open…</span>
+        </button>
+      ) : null}
+      {modal}
+    </>
   );
 }

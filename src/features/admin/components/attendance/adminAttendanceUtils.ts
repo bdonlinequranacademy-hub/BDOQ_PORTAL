@@ -2,6 +2,11 @@ import type { AttendanceOverview, AdminClass, AdminStats } from "@/types/models"
 
 export type AttendanceSort = "highest" | "lowest" | "most_records" | "class_name";
 
+export type AttendanceRateFilter = "all" | "low" | "good" | "excellent";
+
+export const ATTENDANCE_RATE_LOW = 60;
+export const ATTENDANCE_RATE_GOOD = 80;
+
 export interface IAttendanceTrendPoint {
   label: string;
   percentage: number;
@@ -137,15 +142,25 @@ export function filterAttendanceOverview(
     search: string;
     classFilter: string;
     sortBy: AttendanceSort;
+    rateFilter?: AttendanceRateFilter;
   },
   classes: AdminClass[]
 ): AttendanceOverview[] {
   const query = options.search.trim().toLowerCase();
+  const rateFilter = options.rateFilter ?? "all";
 
   const filtered = overview.filter((row) => {
     const cls = findClassForRow(classes, row);
     const classId = cls?._id ?? row.class._id ?? "";
     if (options.classFilter && classId !== options.classFilter) return false;
+    if (rateFilter === "low" && row.percentage >= ATTENDANCE_RATE_LOW) return false;
+    if (
+      rateFilter === "good" &&
+      (row.percentage < ATTENDANCE_RATE_LOW || row.percentage >= ATTENDANCE_RATE_GOOD)
+    ) {
+      return false;
+    }
+    if (rateFilter === "excellent" && row.percentage < ATTENDANCE_RATE_GOOD) return false;
     if (!query) return true;
     const teacher = getTeacherName(cls);
     return [row.class.title, teacher].join(" ").toLowerCase().includes(query);

@@ -21,6 +21,7 @@ import {
   groupPortalNavItems,
   type IPortalNavItem,
 } from "@/lib/portalSidebarNav";
+import { hijriDateLabel } from "@/lib/islamicPortal";
 import { UserAvatar } from "@/components/ui/UserAvatar";
 import { cn } from "@/lib/utils/cn";
 import type { Role } from "@/types/models";
@@ -179,6 +180,7 @@ export function PortalLayout({
     [navItems, user.role]
   );
   const profileActive = Boolean(profilePath && isActive(profilePath));
+  const hijriLabel = useMemo(() => hijriDateLabel(), []);
 
   function goToProfile() {
     if (profilePath) navigate(profilePath);
@@ -367,6 +369,7 @@ export function PortalLayout({
               </p>
             </div>
             <div className="flex shrink-0 items-center gap-0.5">
+              <GlobalSearch role={user.role} variant="host" />
               <button
                 type="button"
                 onClick={() => window.dispatchEvent(new Event("portal:open-search"))}
@@ -416,18 +419,37 @@ export function PortalLayout({
           </div>
 
           {/* Desktop header */}
-          <div className="hidden w-full items-center justify-between gap-4 px-6 lg:flex">
-            <div className="min-w-0">
+          <div className="hidden w-full items-center gap-4 px-6 lg:flex xl:gap-6">
+            <div className="min-w-0 shrink-0 basis-[11.5rem] xl:basis-[13.5rem]">
               <p className="truncate font-display text-lg font-bold tracking-tight text-portal-heading xl:text-xl">
                 {BDOQ_BRAND.shortName}
               </p>
-              <p className="truncate text-sm font-medium text-primary-dark dark:text-primary">
+              <p className="truncate text-sm font-semibold text-primary-dark dark:text-primary">
                 {activePage}
               </p>
             </div>
 
+            <div className="mx-auto flex min-w-0 max-w-2xl flex-1 items-center justify-center gap-3">
+              <GlobalSearch
+                role={user.role}
+                variant="bar"
+                className="w-full max-w-xl"
+              />
+              {hijriLabel ? (
+                <span
+                  className="hidden shrink-0 items-center rounded-xl border border-gold/35 bg-[linear-gradient(135deg,#fff8e7_0%,#f0fbf6_100%)] px-3 py-2 text-[11px] font-semibold text-[#0A4D3C] shadow-sm xl:inline-flex dark:border-gold/30 dark:bg-[linear-gradient(135deg,rgb(212_168_83/0.15)_0%,rgb(13_74_47/0.35)_100%)] dark:text-[#F5E6C8]"
+                  title="Hijri date"
+                >
+                  <Sparkles className="mr-1.5 size-3.5 text-gold" aria-hidden />
+                  {hijriLabel}
+                </span>
+              ) : null}
+            </div>
+
             <div className="flex shrink-0 items-center gap-2 sm:gap-3">
-              <GlobalSearch role={user.role} />
+              <span className="hidden rounded-full border border-primary/20 bg-primary/10 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wide text-primary-dark xl:inline-flex dark:bg-primary/20 dark:text-[#A7F3D0]">
+                {roleDisplayLabel(user.role)}
+              </span>
               <div className="hidden sm:block">
                 <ThemeToggle compact />
               </div>
