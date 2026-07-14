@@ -30,6 +30,7 @@ const ADMIN_GROUPS: Record<string, readonly string[]> = {
   communication: [
     "/admin/trial-bookings",
     "/admin/contact-messages",
+    "/admin/newsletter-subscribers",
     "/admin/student-admissions",
     "/admin/teacher-applications",
     "/admin/student-requests",

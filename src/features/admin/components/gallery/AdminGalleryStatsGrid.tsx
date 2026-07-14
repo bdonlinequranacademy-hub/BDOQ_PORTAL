@@ -15,7 +15,7 @@ export function AdminGalleryStatsGrid({
   isLoading,
 }: IAdminGalleryStatsGridProps) {
   return (
-    <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-5">
+    <div className="grid grid-cols-2 items-start gap-2.5 sm:gap-3 lg:grid-cols-5">
       <StatCard
         label="Total Items"
         value={isLoading ? "—" : stats.total}

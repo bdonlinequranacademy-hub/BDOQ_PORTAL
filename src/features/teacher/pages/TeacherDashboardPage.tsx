@@ -129,7 +129,7 @@ export function TeacherDashboardPage() {
   return (
     <>
       <PageContainer className="flex flex-col gap-6 lg:gap-8">
-        <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
+        <div className="grid grid-cols-2 items-start gap-2.5 sm:gap-3 lg:grid-cols-4">
           <StatCard
             label="Today's classes"
             value={scheduleLoading ? "…" : todaySessions.length}

@@ -195,7 +195,7 @@ export function AdminTestimonialFormPage() {
   const saving = createReview.isPending || updateReview.isPending;
 
   return (
-    <PageContainer className="gap-5 lg:gap-6">
+    <PageContainer>
       <button
         type="button"
         onClick={() => navigate("/admin/testimonials")}
@@ -239,7 +239,7 @@ export function AdminTestimonialFormPage() {
 
       <form
         onSubmit={(e) => void handleSubmit(e)}
-        className="grid grid-cols-1 gap-5 xl:grid-cols-[minmax(0,1fr)_320px]"
+        className="grid grid-cols-1 items-start gap-4 xl:gap-5 xl:grid-cols-[minmax(0,1fr)_320px]"
       >
         <div className="flex flex-col gap-5">
           <Card className="rounded-2xl border border-portal bg-portal-surface p-5 shadow-sm sm:p-6">

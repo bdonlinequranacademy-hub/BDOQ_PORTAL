@@ -87,7 +87,7 @@ export function AdminAttendancePage() {
   }
 
   return (
-    <PageContainer className="gap-5 lg:gap-6">
+    <PageContainer>
       <AdminAttendanceOverviewHeader
         classFilter={classFilter}
         classes={classes.map((cls) => ({ _id: cls._id, title: cls.title }))}
@@ -110,7 +110,7 @@ export function AdminAttendancePage() {
           }
         />
       ) : (
-        <div className="grid grid-cols-1 gap-5 xl:grid-cols-[minmax(0,1fr)_280px] xl:gap-6">
+        <div className="grid grid-cols-1 items-start gap-4 xl:gap-5 xl:grid-cols-[minmax(0,1fr)_280px]">
           <div className="flex min-w-0 flex-col gap-5">
             <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
               <AdminAttendanceTrendChart data={trendData} />

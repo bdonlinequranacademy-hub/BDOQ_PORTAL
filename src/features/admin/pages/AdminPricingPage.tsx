@@ -71,7 +71,7 @@ export function AdminPricingPage() {
   }
 
   return (
-    <PageContainer className="gap-5 lg:gap-6">
+    <PageContainer>
       <AdminPricingOverviewHeader />
 
       <div className="flex flex-col gap-4 lg:flex-row lg:items-stretch">
@@ -105,7 +105,7 @@ export function AdminPricingPage() {
           onAction={() => navigate("/admin/pricing/new")}
         />
       ) : (
-        <div className="grid grid-cols-1 gap-5 xl:grid-cols-[minmax(0,1fr)_300px] xl:gap-6">
+        <div className="grid grid-cols-1 items-start gap-4 xl:gap-5 xl:grid-cols-[minmax(0,1fr)_300px]">
           <div className="flex min-w-0 flex-col gap-5">
             <AdminPricingToolbar
               search={search}

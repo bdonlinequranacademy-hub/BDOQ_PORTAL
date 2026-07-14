@@ -72,6 +72,7 @@ import {
   AdminStudentAdmissionsPage,
   AdminTeacherApplicationsPage,
   AdminContactMessagesPage,
+  AdminNewsletterSubscribersPage,
   AdminHomeworkPage,
   AdminRoutinePage,
   AdminLiveMonitorPage,
@@ -212,6 +213,10 @@ export const router = createBrowserRouter([
               { path: "/admin/teacher-applications", element: suspend(AdminTeacherApplicationsPage) },
               { path: "/admin/trial-bookings", element: suspend(AdminTrialBookingsPage) },
               { path: "/admin/contact-messages", element: suspend(AdminContactMessagesPage) },
+              {
+                path: "/admin/newsletter-subscribers",
+                element: suspend(AdminNewsletterSubscribersPage),
+              },
               { path: "/admin/homework", element: suspend(AdminHomeworkPage) },
               { path: "/admin/earnings", element: suspend(AdminEarningsPage) },
               { path: "/admin/payments", element: suspend(AdminPaymentsPage) },

@@ -654,13 +654,74 @@
   }
 
   .portal-card {
-    @apply portal-card-islamic rounded-2xl border border-portal transition-[box-shadow,background-color,border-color] duration-200;
+    @apply portal-card-islamic rounded-[8px] border border-portal transition-[box-shadow,background-color,border-color] duration-200;
     position: relative;
     overflow: hidden;
     isolation: isolate;
     border-color: rgb(220 235 228 / 0.7);
     background-color: var(--portal-surface);
     box-shadow: var(--portal-card-shadow);
+  }
+
+  /* ─── Portal page layout helpers (UX consistency) ───────────── */
+  .portal-page {
+    min-width: 0;
+  }
+
+  .portal-page-title {
+    @apply font-display font-bold tracking-tight text-primary-dark;
+    line-height: 1.2;
+  }
+
+  .portal-page-subtitle {
+    @apply text-sm leading-relaxed text-portal-muted sm:text-[0.9375rem];
+  }
+
+  /** Compact stats row — never stretch tall next to side panels */
+  .portal-stats-grid {
+    @apply grid grid-cols-2 items-start gap-2.5 sm:gap-3;
+  }
+
+  /** Main + aside / filters + content splits */
+  .portal-layout-split {
+    @apply grid grid-cols-1 items-start gap-4 xl:gap-5;
+  }
+
+  .portal-layout-split--filters {
+    @apply xl:grid-cols-[minmax(240px,280px)_minmax(0,1fr)];
+  }
+
+  .portal-layout-split--aside {
+    @apply xl:grid-cols-[minmax(0,1fr)_minmax(260px,300px)];
+  }
+
+  .portal-layout-split--summary {
+    @apply xl:grid-cols-[minmax(0,1.45fr)_minmax(260px,0.85fr)];
+  }
+
+  .portal-layout-split--equal {
+    @apply xl:grid-cols-2;
+  }
+
+  /** Section / toolbar / table shell */
+  .portal-section {
+    @apply rounded-[8px] border border-portal bg-portal-surface shadow-[var(--portal-card-shadow)];
+  }
+
+  .portal-section-header {
+    @apply flex flex-col gap-3 border-b border-portal px-4 py-3.5 sm:flex-row sm:items-center sm:justify-between sm:px-5;
+  }
+
+  .portal-section-body {
+    @apply p-4 sm:p-5;
+  }
+
+  .portal-toolbar {
+    @apply flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between;
+  }
+
+  .portal-toolbar-tabs {
+    @apply flex flex-wrap gap-2;
   }
 
   .portal-card::before,

@@ -100,7 +100,7 @@ export function AdminEarningsPage() {
   }
 
   return (
-    <PageContainer className="gap-5 lg:gap-6">
+    <PageContainer>
       <AdminEarningsOverviewHeader
         month={month}
         onMonthChange={setMonth}
@@ -123,7 +123,7 @@ export function AdminEarningsPage() {
           description="Verified pay appears when class logs are approved for the selected month."
         />
       ) : (
-        <div className="grid grid-cols-1 gap-5 xl:grid-cols-[minmax(0,1fr)_280px] xl:gap-6">
+        <div className="grid grid-cols-1 items-start gap-4 xl:gap-5 xl:grid-cols-[minmax(0,1fr)_280px]">
           <div className="flex min-w-0 flex-col gap-5">
             <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
               <AdminEarningsByTeacherTable

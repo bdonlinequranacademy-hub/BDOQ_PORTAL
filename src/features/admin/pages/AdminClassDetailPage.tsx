@@ -84,7 +84,7 @@ export function AdminClassDetailPage() {
   }
 
   return (
-    <PageContainer className="gap-5 lg:gap-6">
+    <PageContainer>
       {isLoading ? (
         <PageLoading label="Loading class details…" />
       ) : !cls ? (
@@ -99,7 +99,7 @@ export function AdminClassDetailPage() {
 
           <AdminClassDetailStats cls={cls} sessionLogCount={classLogs.length} />
 
-          <div className="grid grid-cols-1 gap-5 xl:grid-cols-[minmax(0,1fr)_300px] xl:gap-6">
+          <div className="grid grid-cols-1 items-start gap-4 xl:gap-5 xl:grid-cols-[minmax(0,1fr)_300px]">
             <div className="flex min-w-0 flex-col gap-4">
               <div className="flex flex-wrap gap-2 border-b border-portal pb-1">
                 {DETAIL_TABS.map((item) => (

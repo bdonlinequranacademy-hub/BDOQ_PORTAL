@@ -112,10 +112,10 @@ export function AdminTestimonialsPage() {
   }
 
   return (
-    <PageContainer className="gap-5 lg:gap-6">
+    <PageContainer>
       <AdminTestimonialsOverviewHeader onExport={handleExport} />
 
-      <div className="grid grid-cols-1 gap-5 xl:grid-cols-[minmax(0,1.4fr)_minmax(260px,0.7fr)]">
+      <div className="grid grid-cols-1 items-start gap-4 xl:grid-cols-[minmax(0,1.4fr)_minmax(260px,0.7fr)] xl:gap-5">
         <AdminTestimonialsStatsGrid
           stats={stats}
           isLoading={isLoading}
@@ -140,7 +140,7 @@ export function AdminTestimonialsPage() {
           onAction={() => navigate("/admin/testimonials/new")}
         />
       ) : (
-        <div className="grid grid-cols-1 gap-5 xl:grid-cols-[minmax(0,1fr)_280px] xl:gap-6">
+        <div className="grid grid-cols-1 items-start gap-4 xl:gap-5 xl:grid-cols-[minmax(0,1fr)_280px]">
           <div className="flex min-w-0 flex-col gap-5">
             <AdminTestimonialsToolbar
               tab={tab}

@@ -30,6 +30,8 @@ import type {
   StudentRequestStatus,
   ContactMessageView,
   ContactMessageStatus,
+  NewsletterSubscriberView,
+  NewsletterSubscriberStatus,
   TrialBookingView,
   TrialBookingStatus,
   StudentAdmissionView,
@@ -297,6 +299,24 @@ export const adminApi = {
       .patch<ApiResponse<ContactMessageView>>(`/admin/contact-messages/${id}/status`, {
         status,
       })
+      .then((r) => r.data),
+
+  getNewsletterSubscribers: (status?: NewsletterSubscriberStatus) =>
+    apiClient
+      .get<ApiResponse<NewsletterSubscriberView[]>>("/admin/newsletter-subscribers", {
+        params: status ? { status } : {},
+      })
+      .then((r) => r.data),
+
+  updateNewsletterSubscriberStatus: (
+    id: string,
+    status: NewsletterSubscriberStatus
+  ) =>
+    apiClient
+      .patch<ApiResponse<NewsletterSubscriberView>>(
+        `/admin/newsletter-subscribers/${id}/status`,
+        { status }
+      )
       .then((r) => r.data),
 
   getAcademyRoutine: (teacherId?: string) =>

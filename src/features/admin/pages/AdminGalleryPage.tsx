@@ -173,7 +173,7 @@ export function AdminGalleryPage() {
     : formatGalleryDate(new Date().toISOString());
 
   return (
-    <PageContainer className="gap-5 lg:gap-6">
+    <PageContainer>
       <AdminGalleryOverviewHeader editing={Boolean(editId)} />
       <AdminGalleryStatsGrid stats={stats} />
 
@@ -196,7 +196,7 @@ export function AdminGalleryPage() {
         </p>
       ) : null}
 
-      <div className="grid grid-cols-1 gap-5 xl:grid-cols-[minmax(0,1.15fr)_minmax(260px,0.85fr)_minmax(280px,0.95fr)]">
+      <div className="grid grid-cols-1 items-start gap-4 xl:gap-5 xl:grid-cols-[minmax(0,1.15fr)_minmax(260px,0.85fr)_minmax(280px,0.95fr)]">
         <AdminGalleryMediaForm
           form={form}
           editing={Boolean(editId && editingItem)}

@@ -20,7 +20,7 @@ export function AdminClassDetailStats({ cls, sessionLogCount }: IAdminClassDetai
   const nextSession = getNextScheduleInfo(cls.schedule);
 
   return (
-    <div className="grid grid-cols-2 gap-3 sm:gap-4 xl:grid-cols-5">
+    <div className="grid grid-cols-2 items-start gap-2.5 sm:gap-3 xl:grid-cols-5">
       <StatCard
         label="Enrolled Students"
         value={enrolled}

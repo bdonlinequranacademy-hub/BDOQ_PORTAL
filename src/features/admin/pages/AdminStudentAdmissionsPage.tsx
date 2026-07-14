@@ -98,7 +98,7 @@ export function AdminStudentAdmissionsPage() {
   }
 
   return (
-    <PageContainer className="gap-5 lg:gap-6">
+    <PageContainer>
       <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
         <div>
           <h1 className="portal-page-title font-display text-2xl font-bold text-primary-dark sm:text-3xl">
@@ -169,7 +169,7 @@ export function AdminStudentAdmissionsPage() {
           description="Try clearing search, program, country, source, or date filters."
         />
       ) : (
-        <div className="grid grid-cols-1 gap-5 xl:grid-cols-[minmax(0,1fr)_300px] xl:gap-6">
+        <div className="grid grid-cols-1 items-start gap-4 xl:gap-5 xl:grid-cols-[minmax(0,1fr)_300px]">
           <div className="flex min-w-0 flex-col gap-4">
             <AdminStudentAdmissionsTable
               applications={pagination.paginatedItems}

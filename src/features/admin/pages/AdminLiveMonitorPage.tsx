@@ -86,7 +86,7 @@ export function AdminLiveMonitorPage() {
   }
 
   return (
-    <PageContainer className="gap-5 lg:gap-6">
+    <PageContainer>
       {summary ? (
         <AdminLiveMonitorHero
           summary={summary}
@@ -122,7 +122,7 @@ export function AdminLiveMonitorPage() {
           onAction={() => navigate("/admin/schedule/routine")}
         />
       ) : (
-        <div className="grid grid-cols-1 gap-5 xl:grid-cols-[minmax(0,1fr)_300px] xl:gap-6">
+        <div className="grid grid-cols-1 items-start gap-4 xl:gap-5 xl:grid-cols-[minmax(0,1fr)_300px]">
           <div className="flex min-w-0 flex-col gap-4">
             {selectedSession ? (
               <AdminLiveMonitorDetailPanel session={selectedSession} now={now} />

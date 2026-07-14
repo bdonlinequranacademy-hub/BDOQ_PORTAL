@@ -729,6 +729,18 @@ export interface ContactMessageView {
   updatedAt: string;
 }
 
+export type NewsletterSubscriberStatus = "active" | "unsubscribed";
+
+export interface NewsletterSubscriberView {
+  _id: string;
+  email: string;
+  locale?: "en" | "bn";
+  source?: string;
+  status: NewsletterSubscriberStatus;
+  createdAt: string;
+  updatedAt: string;
+}
+
 export type TrialBookingStatus = "new" | "contacted" | "scheduled" | "closed";
 
 export interface TrialBookingView {

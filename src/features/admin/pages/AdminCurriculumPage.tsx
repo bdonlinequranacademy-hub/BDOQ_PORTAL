@@ -233,7 +233,7 @@ export function AdminCurriculumPage() {
   );
 
   return (
-    <PageContainer className="gap-5 lg:gap-6">
+    <PageContainer>
       <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
         <div className="min-w-0">
           <h1 className="portal-page-title font-display text-2xl font-bold text-primary-dark sm:text-3xl">
@@ -319,7 +319,7 @@ export function AdminCurriculumPage() {
             onGrammarSelection={handleGrammarSelection}
           />
 
-          <div className="grid grid-cols-1 gap-5 xl:grid-cols-3">
+          <div className="grid grid-cols-1 items-start gap-4 xl:gap-5 xl:grid-cols-3">
             <AdminCurriculumOverview tree={tree} />
             <AdminCurriculumActivity tree={tree} dirty={dirty} />
             <AdminCurriculumQuickActions

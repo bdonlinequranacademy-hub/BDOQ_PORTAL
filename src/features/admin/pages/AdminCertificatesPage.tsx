@@ -121,7 +121,7 @@ export function AdminCertificatesPage() {
   const canSubmit = Boolean(form.studentName.trim() && form.courseName.trim());
 
   return (
-    <PageContainer className="gap-5 lg:gap-6">
+    <PageContainer>
       <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <div>
           <h1 className="font-display text-2xl font-bold text-primary-dark sm:text-3xl">
@@ -150,7 +150,7 @@ export function AdminCertificatesPage() {
 
       <div
         id="certificate-generator"
-        className="grid grid-cols-1 gap-5 xl:grid-cols-[minmax(280px,0.95fr)_minmax(260px,0.85fr)_minmax(300px,1.1fr)]"
+        className="grid grid-cols-1 items-start gap-4 xl:gap-5 xl:grid-cols-[minmax(280px,0.95fr)_minmax(260px,0.85fr)_minmax(300px,1.1fr)]"
       >
         <AdminCertFormSection number={1} title="Certificate Details">
           <form

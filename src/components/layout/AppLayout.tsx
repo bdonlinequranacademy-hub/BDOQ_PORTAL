@@ -27,6 +27,7 @@ import {
   Award,
   Radio,
   Images,
+  Mail,
 } from "lucide-react";
 import { useAuthStore } from "@/stores/authStore";
 import { useUnreadNotificationCount } from "@/hooks/useUnreadNotifications";
@@ -83,6 +84,7 @@ function navItemsForRole(role: Role): IPortalNavItem[] {
         { label: "Class Logs", icon: <ClipboardCheck className="size-5" />, path: "/admin/class-logs" },
         { label: "Free Class Leads", icon: <CalendarCheck className="size-5" />, path: "/admin/trial-bookings" },
         { label: "Contact Inbox", icon: <Inbox className="size-5" />, path: "/admin/contact-messages" },
+        { label: "Newsletter", icon: <Mail className="size-5" />, path: "/admin/newsletter-subscribers" },
         { label: "Student Admissions", icon: <GraduationCap className="size-5" />, path: "/admin/student-admissions" },
         { label: "Teacher Applications", icon: <Briefcase className="size-5" />, path: "/admin/teacher-applications" },
         { label: "Teacher Requests", icon: <UserPlus className="size-5" />, path: "/admin/student-requests" },

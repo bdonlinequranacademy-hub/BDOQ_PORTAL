@@ -29,7 +29,7 @@ import {
   AdminRecentTransactions,
 } from "@/features/admin/components/payments/AdminPaymentsInsights";
 import { AdminOverdueBillingsTable } from "@/features/admin/components/payments/AdminOverdueBillingsTable";
-import { PAYMENT_CURRENCIES } from "@/features/admin/components/payments/adminPaymentsUtils";
+import { AdminStudentBillingForm } from "@/features/admin/components/payments/AdminStudentBillingForm";
 import { cn } from "@/lib/utils/cn";
 
 type PaymentTab = "all" | "pending" | "overdue" | "completed" | "rejected";
@@ -216,47 +216,62 @@ export function AdminPaymentsPage() {
   }
 
   return (
-    <PageContainer className="gap-5 lg:gap-6">
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-        <div className="min-w-0">
-          <h1 className="portal-page-title font-display text-2xl font-bold text-primary-dark sm:text-3xl">
-            Payment Management
-          </h1>
-          <p className="portal-page-subtitle mt-1 max-w-2xl text-portal-muted">
-            Review manual payment proofs, track collections, and manage student billing plans.
-          </p>
-        </div>
-        {!showBilling ? (
-          <Button
-            type="button"
-            variant="primary"
-            onClick={() => setShowBilling(true)}
-            className="inline-flex shrink-0 items-center gap-2 rounded-xl bg-primary px-5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-primary-dark"
-          >
-            <Banknote className="size-4" aria-hidden />
-            Set Billing
-          </Button>
-        ) : (
-          <Button
-            type="button"
-            variant="ghost"
-            onClick={() => setShowBilling(false)}
-            className="h-10 shrink-0 rounded-xl border border-portal bg-portal-surface px-4 text-portal-heading shadow-sm hover:bg-portal-muted/40"
-          >
-            Back to payments
-          </Button>
-        )}
-      </div>
-
-      {!showBilling ? (
+    <PageContainer>
+      {showBilling ? (
+        <AdminStudentBillingForm
+          students={students}
+          studentId={billingStudentId}
+          monthlyFee={monthlyFee}
+          currency={billingCurrency}
+          dueDay={dueDay}
+          paidUntil={paidUntil}
+          saving={upsertBilling.isPending}
+          onStudentIdChange={setBillingStudentId}
+          onMonthlyFeeChange={setMonthlyFee}
+          onCurrencyChange={setBillingCurrency}
+          onDueDayChange={setDueDay}
+          onPaidUntilChange={setPaidUntil}
+          onBack={() => setShowBilling(false)}
+          onSave={() => {
+            if (!billingStudentId || !monthlyFee) return;
+            upsertBilling.mutate({
+              studentId: billingStudentId,
+              monthlyFee: Number(monthlyFee),
+              currency: billingCurrency,
+              dueDayOfMonth: Number(dueDay) || 1,
+              ...(paidUntil ? { paidUntil } : {}),
+            });
+          }}
+        />
+      ) : (
         <>
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+            <div className="min-w-0">
+              <h1 className="portal-page-title font-display text-2xl font-bold text-primary-dark sm:text-3xl">
+                Payment Management
+              </h1>
+              <p className="portal-page-subtitle mt-1 max-w-2xl text-portal-muted">
+                Review manual payment proofs, track collections, and manage student billing plans.
+              </p>
+            </div>
+            <Button
+              type="button"
+              variant="primary"
+              onClick={() => setShowBilling(true)}
+              className="inline-flex shrink-0 items-center gap-2 rounded-[8px] bg-primary px-5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-primary-dark"
+            >
+              <Banknote className="size-4" aria-hidden />
+              Set Billing
+            </Button>
+          </div>
+
           <AdminPaymentsStatsGrid
             allPayments={allPayments}
             overdue={overdue}
             isLoading={allLoading}
           />
 
-          <div className="grid grid-cols-1 gap-5 xl:grid-cols-[280px_minmax(0,1fr)] xl:gap-6">
+          <div className="grid grid-cols-1 items-start gap-4 xl:gap-5 xl:grid-cols-[280px_minmax(0,1fr)]">
             <AdminPaymentsFilterPanel
               search={search}
               onSearchChange={setSearch}
@@ -311,7 +326,7 @@ export function AdminPaymentsPage() {
                         <option value="amount_low">Amount low to high</option>
                       </Select>
                     </div>
-                    <div className="hidden items-center gap-1 rounded-xl border border-portal bg-portal-surface p-1 sm:flex">
+                    <div className="hidden items-center gap-1 rounded-[8px] border border-portal bg-portal-surface p-1 sm:flex">
                       <span className="inline-flex size-9 items-center justify-center rounded-lg bg-primary/10 text-primary">
                         <List className="size-4" aria-hidden />
                       </span>
@@ -362,79 +377,16 @@ export function AdminPaymentsPage() {
             </div>
           </div>
 
-          <div className="grid grid-cols-1 gap-5 xl:grid-cols-2">
+          <div className="grid grid-cols-1 items-start gap-4 xl:gap-5 xl:grid-cols-2">
             <AdminPaymentMethodsOverview payments={allPayments} />
             <AdminRecentTransactions payments={allPayments} />
           </div>
         </>
-      ) : (
-        <Card className="flex max-w-lg flex-col gap-4 rounded-2xl border border-portal bg-portal-surface p-6 shadow-[0_8px_24px_-16px_rgba(13,74,47,0.18)]">
-          <div className="flex items-center gap-2">
-            <Banknote className="size-5 text-primary" />
-            <h2 className="text-lg font-bold text-portal-heading">Student billing plan</h2>
-          </div>
-          <Select
-            value={billingStudentId}
-            onChange={(event) => setBillingStudentId(event.target.value)}
-            label="Student"
-          >
-            <option value="">Select student…</option>
-            {students.map((student) => (
-              <option key={student.id} value={student.id}>
-                {student.name} ({student.email})
-              </option>
-            ))}
-          </Select>
-          <Input
-            type="number"
-            step="0.01"
-            min="0"
-            placeholder="Monthly fee"
-            value={monthlyFee}
-            onChange={(event) => setMonthlyFee(event.target.value)}
-          />
-          <Select
-            value={billingCurrency}
-            onChange={(event) => setBillingCurrency(event.target.value as BillingCurrency)}
-            label="Currency"
-          >
-            {PAYMENT_CURRENCIES.map((currency) => (
-              <option key={currency} value={currency}>
-                {currency}
-              </option>
-            ))}
-          </Select>
-          <Input
-            type="number"
-            min="1"
-            max="28"
-            placeholder="Due day of month (1–28)"
-            value={dueDay}
-            onChange={(event) => setDueDay(event.target.value)}
-          />
-          <Input type="date" value={paidUntil} onChange={(event) => setPaidUntil(event.target.value)} />
-          <Button
-            disabled={!billingStudentId || !monthlyFee || upsertBilling.isPending}
-            className="h-11 rounded-xl"
-            onClick={() => {
-              if (!billingStudentId || !monthlyFee) return;
-              upsertBilling.mutate({
-                studentId: billingStudentId,
-                monthlyFee: Number(monthlyFee),
-                currency: billingCurrency,
-                dueDayOfMonth: Number(dueDay) || 1,
-                ...(paidUntil ? { paidUntil } : {}),
-              });
-            }}
-          >
-            {upsertBilling.isPending ? "Saving…" : "Save billing plan"}
-          </Button>
-        </Card>
       )}
 
       {rejectId ? (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
-          <Card className="flex w-full max-w-md flex-col gap-4 rounded-2xl border border-portal bg-portal-surface p-6 shadow-xl">
+          <Card className="flex w-full max-w-md flex-col gap-4 rounded-[8px] border border-portal bg-portal-surface p-6 shadow-xl">
             <h3 className="text-lg font-bold text-portal-heading">Reject payment</h3>
             <p className="text-sm text-portal-muted">
               The student will see this reason in their payment history.
@@ -447,7 +399,7 @@ export function AdminPaymentsPage() {
             <div className="flex gap-2">
               <Button
                 variant="danger"
-                className="flex-1 rounded-xl"
+                className="flex-1 rounded-[8px]"
                 disabled={rejectPayment.isPending}
                 onClick={() => {
                   rejectPayment.mutate(
@@ -465,7 +417,7 @@ export function AdminPaymentsPage() {
               </Button>
               <Button
                 variant="ghost"
-                className="flex-1 rounded-xl border border-portal"
+                className="flex-1 rounded-[8px] border border-portal"
                 onClick={() => {
                   setRejectId(null);
                   setRejectReason("");

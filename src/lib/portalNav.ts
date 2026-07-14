@@ -51,6 +51,11 @@ export function portalPagesForRole(role: Role): PortalPageLink[] {
         { label: "Class Logs", path: "/admin/class-logs", keywords: "approve sessions" },
         { label: "Free Class Leads", path: "/admin/trial-bookings", keywords: "free trial website form" },
         { label: "Contact Inbox", path: "/admin/contact-messages", keywords: "contact enquiry email" },
+        {
+          label: "Newsletter",
+          path: "/admin/newsletter-subscribers",
+          keywords: "newsletter subscribe email footer list",
+        },
         { label: "Student Admissions", path: "/admin/student-admissions", keywords: "public admission form website" },
         { label: "Teacher Applications", path: "/admin/teacher-applications", keywords: "teacher registration cv" },
         { label: "Teacher Requests", path: "/admin/student-requests", keywords: "teacher request student assign" },

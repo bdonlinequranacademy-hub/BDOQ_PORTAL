@@ -155,7 +155,7 @@ export function AdminPricingFormPage() {
     features.some((f) => f.trim().length > 0);
 
   return (
-    <PageContainer className="gap-5 lg:gap-6">
+    <PageContainer>
       <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
         <div>
           <button
@@ -200,7 +200,7 @@ export function AdminPricingFormPage() {
 
       <form
         onSubmit={(e) => void handleSubmit(e)}
-        className="grid grid-cols-1 gap-5 xl:grid-cols-[minmax(0,1fr)_320px]"
+        className="grid grid-cols-1 items-start gap-4 xl:gap-5 xl:grid-cols-[minmax(0,1fr)_320px]"
       >
         <div className="flex flex-col gap-5">
           <AdminPricingFormSection number={1} title="Package Information">

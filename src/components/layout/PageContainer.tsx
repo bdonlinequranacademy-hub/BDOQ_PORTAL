@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import { cn } from "@/lib/utils/cn";
 
 type PageSize = "default" | "narrow" | "wide";
 
@@ -14,7 +15,7 @@ interface PageContainerProps {
   size?: PageSize;
 }
 
-/** Full-width portal page shell with responsive horizontal padding. */
+/** Full-width portal page shell — consistent vertical rhythm + padding. */
 export function PageContainer({
   children,
   className = "",
@@ -22,7 +23,12 @@ export function PageContainer({
 }: PageContainerProps) {
   return (
     <div
-      className={`w-full ${maxWidth[size]} flex flex-col gap-4 px-4 py-4 sm:gap-5 sm:px-6 sm:py-6 lg:gap-6 lg:px-8 lg:py-8 ${className}`}
+      className={cn(
+        "portal-page flex w-full flex-col",
+        maxWidth[size],
+        "gap-4 px-4 pb-5 pt-3 sm:gap-5 sm:px-6 sm:pb-6 sm:pt-4 lg:gap-5 lg:px-8 lg:pb-8 lg:pt-5",
+        className
+      )}
     >
       {children}
     </div>

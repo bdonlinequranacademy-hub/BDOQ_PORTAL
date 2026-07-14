@@ -127,7 +127,7 @@ export function AdminProfilePage() {
       : ["Users", "Classes", "CMS", "Billing"];
 
   return (
-    <PageContainer className="gap-5 lg:gap-6">
+    <PageContainer>
       <div>
         <h1 className="font-display text-2xl font-bold text-primary-dark sm:text-3xl">
           My Profile
@@ -137,7 +137,7 @@ export function AdminProfilePage() {
         </p>
       </div>
 
-      <div className="grid grid-cols-1 gap-5 xl:grid-cols-[minmax(280px,0.9fr)_minmax(0,1.4fr)]">
+      <div className="grid grid-cols-1 items-start gap-4 xl:gap-5 xl:grid-cols-[minmax(280px,0.9fr)_minmax(0,1.4fr)]">
         {/* Left column */}
         <div className="flex flex-col gap-5">
           <Card className="rounded-2xl border border-portal bg-portal-surface p-6 shadow-[0_8px_24px_-16px_rgba(13,74,47,0.18)]">

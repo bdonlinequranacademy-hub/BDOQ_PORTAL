@@ -81,7 +81,7 @@ export function AdminContactMessagesPage() {
   }
 
   return (
-    <PageContainer className="gap-5 lg:gap-6">
+    <PageContainer>
       <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
         <div>
           <h1 className="portal-page-title font-display text-2xl font-bold text-primary-dark sm:text-3xl">

@@ -2,7 +2,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { adminApi } from "@/lib/api/adminApi";
 import { useUiStore } from "@/stores/uiStore";
 import { useAuthStore } from "@/stores/authStore";
-import type { Role, ClassSchedule, BlogPostStatus, BlogCategory, ClassLogStatus, StudentRequestStatus, TrialBookingStatus, ContactMessageStatus, StudentAdmissionStatus, TeacherApplicationStatus, BillingCurrency, ResourceType, ResourceStatus } from "@/types/models";
+import type { Role, ClassSchedule, BlogPostStatus, BlogCategory, ClassLogStatus, StudentRequestStatus, TrialBookingStatus, ContactMessageStatus, NewsletterSubscriberStatus, StudentAdmissionStatus, TeacherApplicationStatus, BillingCurrency, ResourceType, ResourceStatus } from "@/types/models";
 
 export const adminKeys = {
   stats: ["admin", "stats"] as const,
@@ -32,6 +32,8 @@ export const adminKeys = {
   studentAdmissions: (status?: string) => ["admin", "studentAdmissions", status] as const,
   teacherApplications: (status?: string) => ["admin", "teacherApplications", status] as const,
   contactMessages: (status?: string) => ["admin", "contactMessages", status] as const,
+  newsletterSubscribers: (status?: string) =>
+    ["admin", "newsletterSubscribers", status] as const,
   homework: ["admin", "homework"] as const,
   academyRoutine: (teacherId?: string) => ["admin", "academyRoutine", teacherId] as const,
   curriculum: ["admin", "curriculum"] as const,
@@ -790,6 +792,35 @@ export function useUpdateContactMessageStatus() {
       addToast("success", "Contact message updated");
     },
     onError: () => addToast("error", "Failed to update contact message"),
+  });
+}
+
+export function useAdminNewsletterSubscribers(
+  status?: NewsletterSubscriberStatus
+) {
+  return useQuery({
+    queryKey: adminKeys.newsletterSubscribers(status),
+    queryFn: () => adminApi.getNewsletterSubscribers(status),
+    select: (r) => r.data ?? [],
+  });
+}
+
+export function useUpdateNewsletterSubscriberStatus() {
+  const qc = useQueryClient();
+  const addToast = useUiStore((s) => s.addToast);
+  return useMutation({
+    mutationFn: ({
+      id,
+      status,
+    }: {
+      id: string;
+      status: NewsletterSubscriberStatus;
+    }) => adminApi.updateNewsletterSubscriberStatus(id, status),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["admin", "newsletterSubscribers"] });
+      addToast("success", "Subscriber updated");
+    },
+    onError: () => addToast("error", "Failed to update subscriber"),
   });
 }
 

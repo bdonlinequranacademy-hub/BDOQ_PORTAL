@@ -269,6 +269,10 @@ export const AdminContactMessagesPage = lazyNamed(
   () => import("@/features/admin/pages/AdminContactMessagesPage"),
   "AdminContactMessagesPage"
 );
+export const AdminNewsletterSubscribersPage = lazyNamed(
+  () => import("@/features/admin/pages/AdminNewsletterSubscribersPage"),
+  "AdminNewsletterSubscribersPage"
+);
 export const AdminHomeworkPage = lazyNamed(
   () => import("@/features/admin/pages/AdminHomeworkPage"),
   "AdminHomeworkPage"

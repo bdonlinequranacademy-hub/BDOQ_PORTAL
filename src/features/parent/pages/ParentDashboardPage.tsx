@@ -54,7 +54,7 @@ export function ParentDashboardPage() {
         <p className="text-sm text-zinc-400">Select a child to view their data.</p>
       ) : (
         <>
-          <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
+          <div className="grid grid-cols-2 items-start gap-2.5 sm:gap-3 lg:grid-cols-4">
             {[
               { label: "Classes", value: classes.length, color: "text-primary" },
               { label: "Due homework", value: pendingHw.length, color: "text-amber-600" },

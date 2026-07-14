@@ -118,7 +118,7 @@ export function AdminRoutinePage() {
   const hasFilters = Boolean(courseType || teacherId || countryFilter || statusFilter || dayFilter);
 
   return (
-    <PageContainer className="gap-5 lg:gap-6">
+    <PageContainer>
       <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
         <div className="min-w-0">
           <h1 className="portal-page-title font-display text-2xl font-bold text-primary-dark sm:text-3xl">
@@ -145,7 +145,7 @@ export function AdminRoutinePage() {
 
       <AdminRoutineStatsGrid stats={stats} isLoading={isLoading} />
 
-      <div className="grid grid-cols-1 gap-5 xl:grid-cols-[minmax(0,1fr)_300px] xl:gap-6">
+      <div className="grid grid-cols-1 items-start gap-4 xl:gap-5 xl:grid-cols-[minmax(0,1fr)_300px]">
         <div className="flex min-w-0 flex-col gap-4">
           <div className="rounded-2xl border border-portal bg-portal-surface p-4 shadow-[0_8px_24px_-16px_rgba(13,74,47,0.18)] sm:p-5">
             <AdminRoutineFilters
