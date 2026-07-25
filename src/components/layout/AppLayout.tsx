@@ -28,6 +28,7 @@ import {
   Radio,
   Images,
   Mail,
+  CircleHelp,
 } from "lucide-react";
 import { useAuthStore } from "@/stores/authStore";
 import { useUnreadNotificationCount } from "@/hooks/useUnreadNotifications";
@@ -96,17 +97,12 @@ function navItemsForRole(role: Role): IPortalNavItem[] {
         { label: "Student Reviews", icon: <MessageSquareQuote className="size-5" />, path: "/admin/testimonials" },
         { label: "Gallery CMS", icon: <Images className="size-5" />, path: "/admin/gallery" },
         { label: "Pricing CMS", icon: <CreditCard className="size-5" />, path: "/admin/pricing" },
+        { label: "Courses CMS", icon: <BookOpen className="size-5" />, path: "/admin/courses" },
+        { label: "Website Teachers", icon: <Users className="size-5" />, path: "/admin/teacher-profiles" },
+        { label: "FAQ CMS", icon: <CircleHelp className="size-5" />, path: "/admin/faq" },
         { label: "Resources", icon: <Library className="size-5" />, path: "/admin/resources" },
         { label: "Certificates", icon: <Award className="size-5" />, path: "/admin/certificates" },
         { label: "Profile", icon: <User className="size-5" />, path: "/admin/profile" },
-      ];
-    case "parent":
-      return [
-        { label: "Dashboard", icon: <LayoutDashboard className="size-5" />, path: "/parent" },
-        { label: "Homework", icon: <BookOpenCheck className="size-5" />, path: "/parent/homework" },
-        { label: "Attendance", icon: <ClipboardList className="size-5" />, path: "/parent/attendance" },
-        { label: "Progress", icon: <TrendingUp className="size-5" />, path: "/parent/progress" },
-        { label: "Notifications", icon: <Bell className="size-5" />, path: "/parent/notifications" },
       ];
     default:
       return [];

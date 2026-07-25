@@ -9,7 +9,6 @@ const profileQueryKey: Partial<Record<Role, readonly string[]>> = {
   super_admin: ["admin", "profile"],
   teacher: ["teacher", "profile"],
   student: ["student", "profile"],
-  parent: ["student", "profile"],
 };
 
 export function useUploadProfileAvatar(role: Role) {

@@ -58,7 +58,6 @@ function roleDisplayLabel(role: Role): string {
   if (role === "admin") return "Admin";
   if (role === "teacher") return "Teacher";
   if (role === "student") return "Student";
-  if (role === "parent") return "Parent";
   return role;
 }
 

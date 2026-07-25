@@ -18,5 +18,4 @@ export const BDOQ_ROLE_PORTAL_LABEL: Record<string, string> = {
   teacher: "Teacher Portal",
   admin: "Admin Portal",
   super_admin: "Super Admin Portal",
-  parent: "Parent Portal",
 };

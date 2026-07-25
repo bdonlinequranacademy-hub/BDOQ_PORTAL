@@ -26,7 +26,6 @@ export function roleDashboardLabel(role: Role): string {
     case "super_admin":
       return "Admin dashboard";
     case "student":
-    case "parent":
     default:
       return "Student dashboard";
   }
@@ -39,7 +38,7 @@ export function welcomeBackMessage(name: string, role: Role): string {
 
 export function googleSignInSuccessMessage(name: string, role: Role): string {
   const first = name.split(" ")[0] || name;
-  if (role === "student" || role === "parent") {
+  if (role === "student") {
     return `Signed in with Google. Welcome, ${first}! Your student account is ready.`;
   }
   return `Signed in with Google. Welcome back, ${first}! Opening your ${roleDashboardLabel(role)}…`;

@@ -11,7 +11,6 @@ const ROLE_COLORS: Record<Role, string> = {
   teacher: "bg-blue-100 text-blue-700",
   admin: "bg-violet-100 text-violet-700",
   super_admin: "bg-fuchsia-100 text-fuchsia-800",
-  parent: "bg-sky-100 text-sky-700",
 };
 
 function userHandle(user: AdminUser): string {

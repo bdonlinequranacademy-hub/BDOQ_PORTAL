@@ -5,6 +5,7 @@ import { AuthLayout } from "@/components/layout/AuthLayout";
 import { fetchMeRequest } from "@/features/auth/api/authApi";
 import { useAuthStore } from "@/stores/authStore";
 import { toast } from "@/stores/uiStore";
+import { normalizeAuthUser } from "@/lib/assignableRoles";
 import { homePathForRole } from "@/lib/utils/roles";
 import {
   LOGIN_PATH,
@@ -36,8 +37,7 @@ export function OAuthCallbackPage() {
 
     fetchMeRequest(token)
       .then((user) => {
-        const normalized =
-          user.role === "parent" ? { ...user, role: "student" as const } : user;
+        const normalized = normalizeAuthUser(user);
 
         login(token, normalized);
         toast.success(

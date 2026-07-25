@@ -532,12 +532,6 @@ export function AdminProfilePage() {
                     icon: Globe,
                     connected: authProvider === "google",
                   },
-                  {
-                    id: "facebook",
-                    label: "Facebook",
-                    icon: Users,
-                    connected: authProvider === "facebook",
-                  },
                 ] as const
               ).map(({ id, label, icon: Icon, connected }) => (
                 <div

@@ -65,6 +65,12 @@ import {
   AdminGalleryFormPage,
   AdminPricingPage,
   AdminPricingFormPage,
+  AdminCoursesPage,
+  AdminCourseFormPage,
+  AdminTeacherProfilesPage,
+  AdminTeacherProfileFormPage,
+  AdminFaqPage,
+  AdminFaqFormPage,
   AdminResourcesPage,
   AdminResourceFormPage,
   AdminStudentRequestsPage,
@@ -81,11 +87,6 @@ import {
   AdminCertificatesPage,
   AdminCertificateViewPage,
   AdminProfilePage,
-  ParentDashboardPage,
-  ParentAttendancePage,
-  ParentHomeworkPage,
-  ParentProgressPage,
-  ParentNotificationsPage,
   VerifyCertificatePage,
   PortalHomePage,
   ForbiddenPage,
@@ -114,22 +115,6 @@ export const router = createBrowserRouter([
   {
     element: <ProtectedRoute />,
     children: [
-      {
-        element: <RoleRoute role="parent" />,
-        children: [
-          {
-            element: <AppLayout />,
-            children: [
-              { path: "/parent", element: suspend(ParentDashboardPage) },
-              { path: "/parent/homework", element: suspend(ParentHomeworkPage) },
-              { path: "/parent/attendance", element: suspend(ParentAttendancePage) },
-              { path: "/parent/progress", element: suspend(ParentProgressPage) },
-              { path: "/parent/notifications", element: suspend(ParentNotificationsPage) },
-            ],
-          },
-        ],
-      },
-
       {
         element: <RoleRoute role="student" />,
         children: [
@@ -235,6 +220,15 @@ export const router = createBrowserRouter([
               { path: "/admin/pricing", element: suspend(AdminPricingPage) },
               { path: "/admin/pricing/new", element: suspend(AdminPricingFormPage) },
               { path: "/admin/pricing/:id/edit", element: suspend(AdminPricingFormPage) },
+              { path: "/admin/courses", element: suspend(AdminCoursesPage) },
+              { path: "/admin/courses/new", element: suspend(AdminCourseFormPage) },
+              { path: "/admin/courses/:id/edit", element: suspend(AdminCourseFormPage) },
+              { path: "/admin/teacher-profiles", element: suspend(AdminTeacherProfilesPage) },
+              { path: "/admin/teacher-profiles/new", element: suspend(AdminTeacherProfileFormPage) },
+              { path: "/admin/teacher-profiles/:id/edit", element: suspend(AdminTeacherProfileFormPage) },
+              { path: "/admin/faq", element: suspend(AdminFaqPage) },
+              { path: "/admin/faq/new", element: suspend(AdminFaqFormPage) },
+              { path: "/admin/faq/:id/edit", element: suspend(AdminFaqFormPage) },
               { path: "/admin/resources", element: suspend(AdminResourcesPage) },
               { path: "/admin/resources/new", element: suspend(AdminResourceFormPage) },
               { path: "/admin/resources/:id/edit", element: suspend(AdminResourceFormPage) },

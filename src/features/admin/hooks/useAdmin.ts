@@ -25,6 +25,12 @@ export const adminKeys = {
   galleryItem: (id: string) => ["admin", "galleryItem", id] as const,
   pricing: ["admin", "pricing"] as const,
   pricingPackage: (id: string) => ["admin", "pricingPackage", id] as const,
+  courses: ["admin", "courses"] as const,
+  course: (id: string) => ["admin", "course", id] as const,
+  teacherProfiles: ["admin", "teacherProfiles"] as const,
+  teacherProfile: (id: string) => ["admin", "teacherProfile", id] as const,
+  faq: ["admin", "faq"] as const,
+  faqItem: (id: string) => ["admin", "faqItem", id] as const,
   classLogs: (status?: string) => ["admin", "classLogs", status] as const,
   earnings: (month?: string) => ["admin", "earnings", month] as const,
   studentRequests: (status?: string) => ["admin", "studentRequests", status] as const,
@@ -573,6 +579,180 @@ export function useDeletePricingPackage() {
       addToast("success", "Pricing package deleted");
     },
     onError: () => addToast("error", "Failed to delete pricing package"),
+  });
+}
+
+export function useAdminCourses() {
+  return useQuery({
+    queryKey: adminKeys.courses,
+    queryFn: () => adminApi.getCourses(),
+    select: (r) => r.data ?? [],
+  });
+}
+
+export function useAdminCourse(id: string) {
+  return useQuery({
+    queryKey: adminKeys.course(id),
+    queryFn: () => adminApi.getCourse(id),
+    select: (r) => r.data,
+    enabled: Boolean(id),
+  });
+}
+
+export function useCreateCourse() {
+  const qc = useQueryClient();
+  const addToast = useUiStore((s) => s.addToast);
+  return useMutation({
+    mutationFn: adminApi.createCourse,
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: adminKeys.courses });
+      addToast("success", "Course created");
+    },
+    onError: () => addToast("error", "Failed to create course"),
+  });
+}
+
+export function useUpdateCourse(id: string) {
+  const qc = useQueryClient();
+  const addToast = useUiStore((s) => s.addToast);
+  return useMutation({
+    mutationFn: (payload: Parameters<typeof adminApi.updateCourse>[1]) =>
+      adminApi.updateCourse(id, payload),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: adminKeys.courses });
+      qc.invalidateQueries({ queryKey: adminKeys.course(id) });
+      addToast("success", "Course saved");
+    },
+    onError: () => addToast("error", "Failed to save course"),
+  });
+}
+
+export function useDeleteCourse() {
+  const qc = useQueryClient();
+  const addToast = useUiStore((s) => s.addToast);
+  return useMutation({
+    mutationFn: adminApi.deleteCourse,
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: adminKeys.courses });
+      addToast("success", "Course deleted");
+    },
+    onError: () => addToast("error", "Failed to delete course"),
+  });
+}
+
+export function useAdminTeacherProfiles() {
+  return useQuery({
+    queryKey: adminKeys.teacherProfiles,
+    queryFn: () => adminApi.getTeacherProfiles(),
+    select: (r) => r.data ?? [],
+  });
+}
+
+export function useAdminTeacherProfile(id: string) {
+  return useQuery({
+    queryKey: adminKeys.teacherProfile(id),
+    queryFn: () => adminApi.getTeacherProfile(id),
+    select: (r) => r.data,
+    enabled: Boolean(id),
+  });
+}
+
+export function useCreateTeacherProfile() {
+  const qc = useQueryClient();
+  const addToast = useUiStore((s) => s.addToast);
+  return useMutation({
+    mutationFn: adminApi.createTeacherProfile,
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: adminKeys.teacherProfiles });
+      addToast("success", "Teacher profile created");
+    },
+    onError: () => addToast("error", "Failed to create teacher profile"),
+  });
+}
+
+export function useUpdateTeacherProfile(id: string) {
+  const qc = useQueryClient();
+  const addToast = useUiStore((s) => s.addToast);
+  return useMutation({
+    mutationFn: (payload: Parameters<typeof adminApi.updateTeacherProfile>[1]) =>
+      adminApi.updateTeacherProfile(id, payload),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: adminKeys.teacherProfiles });
+      qc.invalidateQueries({ queryKey: adminKeys.teacherProfile(id) });
+      addToast("success", "Teacher profile saved");
+    },
+    onError: () => addToast("error", "Failed to save teacher profile"),
+  });
+}
+
+export function useDeleteTeacherProfile() {
+  const qc = useQueryClient();
+  const addToast = useUiStore((s) => s.addToast);
+  return useMutation({
+    mutationFn: adminApi.deleteTeacherProfile,
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: adminKeys.teacherProfiles });
+      addToast("success", "Teacher profile deleted");
+    },
+    onError: () => addToast("error", "Failed to delete teacher profile"),
+  });
+}
+
+export function useAdminFaqItems() {
+  return useQuery({
+    queryKey: adminKeys.faq,
+    queryFn: () => adminApi.getFaqItems(),
+    select: (r) => r.data ?? [],
+  });
+}
+
+export function useAdminFaqItem(id: string) {
+  return useQuery({
+    queryKey: adminKeys.faqItem(id),
+    queryFn: () => adminApi.getFaqItem(id),
+    select: (r) => r.data,
+    enabled: Boolean(id),
+  });
+}
+
+export function useCreateFaqItem() {
+  const qc = useQueryClient();
+  const addToast = useUiStore((s) => s.addToast);
+  return useMutation({
+    mutationFn: adminApi.createFaqItem,
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: adminKeys.faq });
+      addToast("success", "FAQ item created");
+    },
+    onError: () => addToast("error", "Failed to create FAQ item"),
+  });
+}
+
+export function useUpdateFaqItem(id: string) {
+  const qc = useQueryClient();
+  const addToast = useUiStore((s) => s.addToast);
+  return useMutation({
+    mutationFn: (payload: Parameters<typeof adminApi.updateFaqItem>[1]) =>
+      adminApi.updateFaqItem(id, payload),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: adminKeys.faq });
+      qc.invalidateQueries({ queryKey: adminKeys.faqItem(id) });
+      addToast("success", "FAQ item saved");
+    },
+    onError: () => addToast("error", "Failed to save FAQ item"),
+  });
+}
+
+export function useDeleteFaqItem() {
+  const qc = useQueryClient();
+  const addToast = useUiStore((s) => s.addToast);
+  return useMutation({
+    mutationFn: adminApi.deleteFaqItem,
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: adminKeys.faq });
+      addToast("success", "FAQ item deleted");
+    },
+    onError: () => addToast("error", "Failed to delete FAQ item"),
   });
 }
 

@@ -1,4 +1,4 @@
-import type { Role } from "@/types/models";
+import type { AuthUser, Role } from "@/types/models";
 
 /** Roles admins can assign. Parent is deprecated — student covers guardians & learners. */
 export const ASSIGNABLE_ROLES: Role[] = ["student", "teacher", "admin", "super_admin"];
@@ -32,11 +32,19 @@ export function canManageUserAccount(actorRole: Role, targetRole: Role): boolean
   return !isElevatedAccount(targetRole);
 }
 
-export function displayRole(role: Role): Role {
-  return role === "parent" ? "student" : role;
+export function displayRole(role: Role | "parent" | string): Role {
+  if (role === "parent") return "student";
+  return role as Role;
 }
 
-export function roleLabel(role: Role): string {
+export function normalizeAuthUser(user: AuthUser): AuthUser {
+  if ((user.role as string) === "parent") {
+    return { ...user, role: "student" };
+  }
+  return user;
+}
+
+export function roleLabel(role: Role | "parent" | string): string {
   if (role === "super_admin") return "Super Admin";
   return displayRole(role);
 }

@@ -150,8 +150,6 @@ export function mobilePrimaryPaths(role: Role): string[] {
     case "admin":
     case "super_admin":
       return ["/admin", "/admin/live-monitor", "/admin/class-logs", "/admin/users"];
-    case "parent":
-      return ["/parent", "/parent/homework", "/parent/attendance", "/parent/progress"];
     default:
       return [];
   }

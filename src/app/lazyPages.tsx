@@ -241,6 +241,30 @@ export const AdminPricingFormPage = lazyNamed(
   () => import("@/features/admin/pages/AdminPricingFormPage"),
   "AdminPricingFormPage"
 );
+export const AdminCoursesPage = lazyNamed(
+  () => import("@/features/admin/pages/AdminCoursesPage"),
+  "AdminCoursesPage"
+);
+export const AdminCourseFormPage = lazyNamed(
+  () => import("@/features/admin/pages/AdminCourseFormPage"),
+  "AdminCourseFormPage"
+);
+export const AdminTeacherProfilesPage = lazyNamed(
+  () => import("@/features/admin/pages/AdminTeacherProfilesPage"),
+  "AdminTeacherProfilesPage"
+);
+export const AdminTeacherProfileFormPage = lazyNamed(
+  () => import("@/features/admin/pages/AdminTeacherProfileFormPage"),
+  "AdminTeacherProfileFormPage"
+);
+export const AdminFaqPage = lazyNamed(
+  () => import("@/features/admin/pages/AdminFaqPage"),
+  "AdminFaqPage"
+);
+export const AdminFaqFormPage = lazyNamed(
+  () => import("@/features/admin/pages/AdminFaqFormPage"),
+  "AdminFaqFormPage"
+);
 export const AdminResourcesPage = lazyNamed(
   () => import("@/features/admin/pages/AdminResourcesPage"),
   "AdminResourcesPage"
@@ -317,27 +341,6 @@ export const AdminCertificateViewPage = lazyNamed(
 export const AdminProfilePage = lazyNamed(
   () => import("@/features/admin/pages/AdminProfilePage"),
   "AdminProfilePage"
-);
-
-export const ParentDashboardPage = lazyNamed(
-  () => import("@/features/parent/pages/ParentDashboardPage"),
-  "ParentDashboardPage"
-);
-export const ParentAttendancePage = lazyNamed(
-  () => import("@/features/parent/pages/ParentAttendancePage"),
-  "ParentAttendancePage"
-);
-export const ParentHomeworkPage = lazyNamed(
-  () => import("@/features/parent/pages/ParentHomeworkPage"),
-  "ParentHomeworkPage"
-);
-export const ParentProgressPage = lazyNamed(
-  () => import("@/features/parent/pages/ParentProgressPage"),
-  "ParentProgressPage"
-);
-export const ParentNotificationsPage = lazyNamed(
-  () => import("@/features/parent/pages/ParentNotificationsPage"),
-  "ParentNotificationsPage"
 );
 
 export const VerifyCertificatePage = lazyNamed(

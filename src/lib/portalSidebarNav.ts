@@ -77,15 +77,6 @@ const STUDENT_GROUPS: Record<string, readonly string[]> = {
   account: ["/student/payments", "/student/notifications", "/student/profile"],
 };
 
-const PARENT_GROUPS: Record<string, readonly string[]> = {
-  learning: [
-    "/parent/homework",
-    "/parent/attendance",
-    "/parent/progress",
-  ],
-  account: ["/parent/notifications"],
-};
-
 const SECTION_LABELS: Record<string, string> = {
   management: "Management",
   communication: "Communication",
@@ -106,8 +97,6 @@ function groupsForRole(role: Role): Record<string, readonly string[]> | null {
       return TEACHER_GROUPS;
     case "student":
       return STUDENT_GROUPS;
-    case "parent":
-      return PARENT_GROUPS;
     default:
       return null;
   }

@@ -1,4 +1,4 @@
-export type Role = "student" | "teacher" | "admin" | "super_admin" | "parent";
+export type Role = "student" | "teacher" | "admin" | "super_admin";
 export type AttendanceStatus = "present" | "absent" | "late";
 export type Grade = "A" | "B" | "C" | "D" | "F";
 export type HomeworkSubmissionStatus =
@@ -142,13 +142,6 @@ export interface Notification {
   isRead: boolean;
   createdAt: string;
   type?: string;
-}
-
-export interface ParentChild {
-  _id: string;
-  name: string;
-  email: string;
-  role: "student";
 }
 
 export interface StudentClass {
@@ -1259,6 +1252,68 @@ export interface AdminTestimonial {
   mediaType: TestimonialMediaType;
   mediaUrl?: string;
   youtubeId?: string;
+  sortOrder: number;
+  showOnWebsite: boolean;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+export type AdminCourseCategory = "private" | "record" | "live" | "free";
+export type AdminCourseGender = "male" | "female" | "children";
+
+export interface AdminCourseDetail {
+  benefits: Array<{ id: string; title: string; description: string; icon: string }>;
+  modules: Array<{ id: string; title: string; topics: string[] }>;
+  audience: string[];
+  faqs: Array<{ id: string; question: string; answer: string }>;
+  startingPriceBdt: number;
+  recommendedPackage: string;
+}
+
+export interface AdminCourse {
+  id: string;
+  slug: string;
+  title: string;
+  description: string;
+  icon: string;
+  target?: string;
+  category: AdminCourseCategory;
+  gender?: AdminCourseGender;
+  sortOrder: number;
+  showOnWebsite: boolean;
+  detail: AdminCourseDetail;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+export interface AdminTeacherProfile {
+  id: string;
+  slug: string;
+  name: string;
+  role: string;
+  bio: string;
+  about?: string;
+  gender: "male" | "female";
+  country?: string;
+  location?: string;
+  avatarUrl?: string;
+  featured: boolean;
+  showOnWebsite: boolean;
+  sortOrder: number;
+  qualifications: string[];
+  skills: string[];
+  experience?: string;
+  languages: string[];
+  courseSlugs: string[];
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+export interface AdminFaqItem {
+  id: string;
+  externalId: string;
+  question: string;
+  answer: string;
   sortOrder: number;
   showOnWebsite: boolean;
   createdAt?: string;

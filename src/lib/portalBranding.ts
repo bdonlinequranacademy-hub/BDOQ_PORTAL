@@ -31,12 +31,6 @@ const BRANDING_BY_ROLE: Record<Role, IPortalBrandingMeta> = {
     badgeClass:
       "bg-primary text-white border-primary/40 dark:bg-primary/25 dark:text-emerald-100 dark:border-primary/40",
   },
-  parent: {
-    roleLabel: "Parent",
-    subtitle: "Follow your child's classes, homework, and progress",
-    badgeClass:
-      "bg-sky-600 text-white border-sky-500/80 dark:bg-sky-500/25 dark:text-sky-100 dark:border-sky-400/35",
-  },
 };
 
 export function getPortalBrandingMeta(role: Role): IPortalBrandingMeta {

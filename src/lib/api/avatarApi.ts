@@ -7,7 +7,6 @@ function profileAvatarPath(role: Role): string {
     case "teacher":
       return "/teacher/profile/avatar";
     case "student":
-    case "parent":
       return "/student/profile/avatar";
     case "admin":
     case "super_admin":

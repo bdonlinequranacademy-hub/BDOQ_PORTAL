@@ -10,8 +10,6 @@ export function homePathForRole(role: Role): string {
     case "admin":
     case "super_admin":
       return "/admin";
-    case "parent":
-      return "/student";
     default:
       return "/login";
   }

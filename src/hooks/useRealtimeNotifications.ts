@@ -5,7 +5,6 @@ import { useAuthStore } from "@/stores/authStore";
 import { toast } from "@/stores/uiStore";
 import { studentKeys } from "@/features/student/hooks/useStudent";
 import { teacherKeys } from "@/features/teacher/hooks/useTeacher";
-import { parentKeys } from "@/features/parent/hooks/useParent";
 import { adminKeys } from "@/features/admin/hooks/useAdmin";
 import {
   disconnectRealtimeSocket,
@@ -33,11 +32,6 @@ function invalidateForRole(qc: ReturnType<typeof useQueryClient>, role: Role) {
   }
   if (role === "teacher") {
     qc.invalidateQueries({ queryKey: teacherKeys.notifications });
-    return;
-  }
-  if (role === "parent") {
-    qc.invalidateQueries({ queryKey: parentKeys.notifications });
-    qc.invalidateQueries({ queryKey: ["parent", "scheduleToday"] });
     return;
   }
   if (isStaffAdmin(role)) {

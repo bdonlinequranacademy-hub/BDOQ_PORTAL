@@ -12,6 +12,12 @@ import type {
   AdminTestimonial,
   AdminGalleryItem,
   AdminPricingPackage,
+  AdminCourse,
+  AdminCourseCategory,
+  AdminCourseGender,
+  AdminCourseDetail,
+  AdminTeacherProfile,
+  AdminFaqItem,
   GalleryAlbumType,
   GalleryMediaType,
   BlogCategory,
@@ -582,6 +588,160 @@ export const adminApi = {
   deletePricingPackage: (id: string) =>
     apiClient
       .delete<ApiResponse<null>>(`/admin/pricing/${id}`)
+      .then((r) => r.data),
+
+  getCourses: () =>
+    apiClient
+      .get<ApiResponse<AdminCourse[]>>("/admin/courses")
+      .then((r) => r.data),
+
+  getCourse: (id: string) =>
+    apiClient
+      .get<ApiResponse<AdminCourse>>(`/admin/courses/${id}`)
+      .then((r) => r.data),
+
+  createCourse: (payload: {
+    slug?: string;
+    title: string;
+    description: string;
+    icon?: string;
+    target?: string;
+    category: AdminCourseCategory;
+    gender?: AdminCourseGender;
+    sortOrder?: number;
+    showOnWebsite?: boolean;
+    detail?: Partial<AdminCourseDetail>;
+  }) =>
+    apiClient
+      .post<ApiResponse<AdminCourse>>("/admin/courses", payload)
+      .then((r) => r.data),
+
+  updateCourse: (
+    id: string,
+    payload: Partial<{
+      slug: string;
+      title: string;
+      description: string;
+      icon: string;
+      target: string;
+      category: AdminCourseCategory;
+      gender: AdminCourseGender | "";
+      sortOrder: number;
+      showOnWebsite: boolean;
+      detail: Partial<AdminCourseDetail>;
+    }>
+  ) =>
+    apiClient
+      .put<ApiResponse<AdminCourse>>(`/admin/courses/${id}`, payload)
+      .then((r) => r.data),
+
+  deleteCourse: (id: string) =>
+    apiClient
+      .delete<ApiResponse<null>>(`/admin/courses/${id}`)
+      .then((r) => r.data),
+
+  getTeacherProfiles: () =>
+    apiClient
+      .get<ApiResponse<AdminTeacherProfile[]>>("/admin/teacher-profiles")
+      .then((r) => r.data),
+
+  getTeacherProfile: (id: string) =>
+    apiClient
+      .get<ApiResponse<AdminTeacherProfile>>(`/admin/teacher-profiles/${id}`)
+      .then((r) => r.data),
+
+  createTeacherProfile: (payload: {
+    slug?: string;
+    name: string;
+    role: string;
+    bio: string;
+    about?: string;
+    gender: "male" | "female";
+    country?: string;
+    location?: string;
+    avatarUrl?: string;
+    featured?: boolean;
+    showOnWebsite?: boolean;
+    sortOrder?: number;
+    qualifications?: string[];
+    skills?: string[];
+    experience?: string;
+    languages?: string[];
+    courseSlugs?: string[];
+  }) =>
+    apiClient
+      .post<ApiResponse<AdminTeacherProfile>>("/admin/teacher-profiles", payload)
+      .then((r) => r.data),
+
+  updateTeacherProfile: (
+    id: string,
+    payload: Partial<{
+      slug: string;
+      name: string;
+      role: string;
+      bio: string;
+      about: string;
+      gender: "male" | "female";
+      country: string;
+      location: string;
+      avatarUrl: string;
+      featured: boolean;
+      showOnWebsite: boolean;
+      sortOrder: number;
+      qualifications: string[];
+      skills: string[];
+      experience: string;
+      languages: string[];
+      courseSlugs: string[];
+    }>
+  ) =>
+    apiClient
+      .put<ApiResponse<AdminTeacherProfile>>(`/admin/teacher-profiles/${id}`, payload)
+      .then((r) => r.data),
+
+  deleteTeacherProfile: (id: string) =>
+    apiClient
+      .delete<ApiResponse<null>>(`/admin/teacher-profiles/${id}`)
+      .then((r) => r.data),
+
+  getFaqItems: () =>
+    apiClient
+      .get<ApiResponse<AdminFaqItem[]>>("/admin/faq")
+      .then((r) => r.data),
+
+  getFaqItem: (id: string) =>
+    apiClient
+      .get<ApiResponse<AdminFaqItem>>(`/admin/faq/${id}`)
+      .then((r) => r.data),
+
+  createFaqItem: (payload: {
+    externalId?: string;
+    question: string;
+    answer: string;
+    sortOrder?: number;
+    showOnWebsite?: boolean;
+  }) =>
+    apiClient
+      .post<ApiResponse<AdminFaqItem>>("/admin/faq", payload)
+      .then((r) => r.data),
+
+  updateFaqItem: (
+    id: string,
+    payload: Partial<{
+      externalId: string;
+      question: string;
+      answer: string;
+      sortOrder: number;
+      showOnWebsite: boolean;
+    }>
+  ) =>
+    apiClient
+      .put<ApiResponse<AdminFaqItem>>(`/admin/faq/${id}`, payload)
+      .then((r) => r.data),
+
+  deleteFaqItem: (id: string) =>
+    apiClient
+      .delete<ApiResponse<null>>(`/admin/faq/${id}`)
       .then((r) => r.data),
 
   getCurriculum: () =>

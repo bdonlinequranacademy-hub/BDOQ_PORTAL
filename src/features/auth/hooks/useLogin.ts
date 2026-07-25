@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { useAuthStore } from "@/stores/authStore";
 import { toast } from "@/stores/uiStore";
 import { loginRequest, type LoginPayload } from "@/features/auth/api/authApi";
+import { normalizeAuthUser } from "@/lib/assignableRoles";
 import { homePathForRole } from "@/lib/utils/roles";
 import { welcomeBackMessage } from "@/lib/authMessages";
 
@@ -13,10 +14,7 @@ export function useLogin() {
   return useMutation({
     mutationFn: (payload: LoginPayload) => loginRequest(payload),
     onSuccess: (data) => {
-      const user =
-        data.user.role === "parent"
-          ? { ...data.user, role: "student" as const }
-          : data.user;
+      const user = normalizeAuthUser(data.user);
 
       login(data.token, user);
       toast.success(welcomeBackMessage(user.name, user.role));
