@@ -20,6 +20,7 @@ import {
   type CmsStatusFilter,
 } from "@/features/admin/lib/adminCmsUtils";
 import type { AdminCourse, AdminCourseCategory } from "@/types/models";
+import { AdminSectionHeaderPanel } from "@/features/admin/components/sectionHeaders/AdminSectionHeaderPanel";
 import { cn } from "@/lib/utils/cn";
 
 const CATEGORY_LABELS: Record<AdminCourseCategory, string> = {
@@ -93,6 +94,7 @@ export function AdminCoursesPage() {
 
   return (
     <PageContainer>
+      <AdminSectionHeaderPanel sectionKey="pages.courses" defaultOpen />
       <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
         <div>
           <h1 className="font-display text-2xl font-bold text-primary-dark sm:text-3xl">

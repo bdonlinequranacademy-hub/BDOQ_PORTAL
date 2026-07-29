@@ -1319,3 +1319,61 @@ export interface AdminFaqItem {
   createdAt?: string;
   updatedAt?: string;
 }
+
+export interface AdminSectionHeader {
+  id?: string;
+  sectionKey: string;
+  label: string;
+  sortOrder: number;
+  showOnWebsite: boolean;
+  contentEn: ISectionHeaderLocaleContent;
+  contentBn: ISectionHeaderLocaleContent;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+export interface ISectionHeaderLocaleContent {
+  eyebrow?: string;
+  title: string;
+  subtitle?: string;
+  titleHighlight?: string;
+  titleAccent?: string;
+  intro?: string;
+}
+
+export interface ISectionHeaderLocaleContent {
+  eyebrow?: string;
+  title: string;
+  subtitle?: string;
+  titleHighlight?: string;
+  titleAccent?: string;
+  intro?: string;
+}
+
+export interface IHomeHeroLocaleContent {
+  badge: string;
+  title: string;
+  titleHighlight?: string;
+  subtitle: string;
+  imageAlt: string;
+  primaryCta: string;
+  secondaryCta: string;
+}
+
+export interface AdminHomeHeroSlide {
+  id?: string;
+  slideId: string;
+  sortOrder: number;
+  imageUrl: string;
+  imagePublicId?: string;
+  imageObjectPosition: string;
+  imageScale: number;
+  primaryHref: string;
+  secondaryHref: string;
+  theme: "light" | "dark";
+  showOnWebsite: boolean;
+  contentEn: IHomeHeroLocaleContent;
+  contentBn: IHomeHeroLocaleContent;
+  createdAt?: string;
+  updatedAt?: string;
+}

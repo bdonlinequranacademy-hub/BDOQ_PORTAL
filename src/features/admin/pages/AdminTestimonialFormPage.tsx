@@ -35,7 +35,7 @@ const MEDIA_OPTIONS: {
 }[] = [
   { type: "text", label: "Text", hint: "Quote only", icon: Type },
   { type: "audio", label: "Audio", hint: "MP3 + quote", icon: Mic },
-  { type: "video", label: "Video", hint: "YouTube + quote", icon: Video },
+  { type: "video", label: "Video", hint: "Upload or YouTube", icon: Video },
 ];
 
 const ROLE_SUGGESTIONS = [
@@ -63,6 +63,15 @@ function extractYoutubeId(input: string): string {
   return trimmed;
 }
 
+function extractUploadError(err: unknown, fallback: string): string {
+  if (err && typeof err === "object" && "response" in err) {
+    const response = (err as { response?: { data?: { message?: string } } })
+      .response;
+    if (response?.data?.message) return response.data.message;
+  }
+  return fallback;
+}
+
 export function AdminTestimonialFormPage() {
   const { id } = useParams<{ id: string }>();
   const isEdit = Boolean(id);
@@ -86,6 +95,7 @@ export function AdminTestimonialFormPage() {
   const [showOnWebsite, setShowOnWebsite] = useState(true);
   const [uploadingAudio, setUploadingAudio] = useState(false);
   const [uploadingImage, setUploadingImage] = useState(false);
+  const [uploadingVideo, setUploadingVideo] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -110,21 +120,21 @@ export function AdminTestimonialFormPage() {
     role.trim().length > 0 &&
     location.trim().length > 0 &&
     content.trim().length >= 20 &&
-    (mediaType !== "video" || youtubeId.length === 11) &&
+    (mediaType !== "video" || youtubeId.length === 11 || mediaUrl.trim().length > 0) &&
     (mediaType !== "audio" || mediaUrl.trim().length > 0);
 
   async function handleAudioUpload(file: File): Promise<void> {
     setUploadingAudio(true);
     setError(null);
     try {
-      const res = await uploadFile.mutateAsync({ file, purpose: "audio" });
+      const res = await uploadFile.mutateAsync({ file, purpose: "testimonial" });
       if (res.success && res.data?.url) {
         setMediaUrl(res.data.url);
       } else {
         setError("Audio upload failed. Try again.");
       }
-    } catch {
-      setError("Audio upload failed. Try again.");
+    } catch (err) {
+      setError(extractUploadError(err, "Audio upload failed. Try again."));
     } finally {
       setUploadingAudio(false);
     }
@@ -134,16 +144,34 @@ export function AdminTestimonialFormPage() {
     setUploadingImage(true);
     setError(null);
     try {
-      const res = await uploadFile.mutateAsync({ file, purpose: "gallery" });
+      const res = await uploadFile.mutateAsync({ file, purpose: "testimonial" });
       if (res.success && res.data?.url) {
         setImage(res.data.url);
       } else {
         setError("Image upload failed. Try again.");
       }
-    } catch {
-      setError("Image upload failed. Try again.");
+    } catch (err) {
+      setError(extractUploadError(err, "Image upload failed. Try again."));
     } finally {
       setUploadingImage(false);
+    }
+  }
+
+  async function handleVideoUpload(file: File): Promise<void> {
+    setUploadingVideo(true);
+    setError(null);
+    try {
+      const res = await uploadFile.mutateAsync({ file, purpose: "testimonial" });
+      if (res.success && res.data?.url) {
+        setMediaUrl(res.data.url);
+        setYoutubeInput("");
+      } else {
+        setError("Video upload failed. Try again.");
+      }
+    } catch (err) {
+      setError(extractUploadError(err, "Video upload failed. Try again."));
+    } finally {
+      setUploadingVideo(false);
     }
   }
 
@@ -163,8 +191,12 @@ export function AdminTestimonialFormPage() {
       rating,
       image: image.trim() || undefined,
       mediaType,
-      mediaUrl: mediaType === "audio" ? mediaUrl.trim() : undefined,
-      youtubeId: mediaType === "video" ? youtubeId : undefined,
+      mediaUrl:
+        mediaType === "audio" || (mediaType === "video" && mediaUrl.trim())
+          ? mediaUrl.trim()
+          : undefined,
+      youtubeId:
+        mediaType === "video" && youtubeId.length === 11 ? youtubeId : undefined,
       sortOrder: Number(sortOrder) || 0,
       showOnWebsite,
     };
@@ -301,11 +333,11 @@ export function AdminTestimonialFormPage() {
                     className={formControlClass}
                     value={image}
                     onChange={(e) => setImage(e.target.value)}
-                    placeholder="Image URL or upload below"
+                    placeholder="Image URL or upload from device below"
                   />
                   <label className="inline-flex cursor-pointer items-center gap-2 rounded-xl border border-portal px-3 py-2 text-sm font-semibold text-portal-heading transition hover:border-primary/30 hover:bg-primary/5">
                     <ImagePlus className="size-4 text-primary" aria-hidden />
-                    {uploadingImage ? "Uploading…" : "Upload photo"}
+                    {uploadingImage ? "Uploading…" : "Upload from device"}
                     <input
                       type="file"
                       accept="image/*"
@@ -419,20 +451,13 @@ export function AdminTestimonialFormPage() {
             </div>
 
             {mediaType === "audio" ? (
-              <div className="mt-5 space-y-3 rounded-2xl border border-portal bg-portal-muted/15 p-4">
-                <label className="flex flex-col gap-1.5">
-                  <span className={formLabelClass}>Audio URL *</span>
-                  <input
-                    className={formControlClass}
-                    value={mediaUrl}
-                    onChange={(e) => setMediaUrl(e.target.value)}
-                    placeholder="https://…"
-                    required={mediaType === "audio"}
-                  />
-                </label>
+              <div className="mt-5 space-y-4 rounded-2xl border border-portal bg-portal-muted/15 p-4">
+                <p className="text-sm font-semibold text-portal-heading">
+                  Audio file — upload or paste link
+                </p>
                 <label className="inline-flex cursor-pointer items-center gap-2 rounded-xl border border-portal bg-portal-surface px-4 py-2.5 text-sm font-semibold text-portal-heading transition hover:border-primary/30">
                   <Upload className="size-4 text-primary" aria-hidden />
-                  {uploadingAudio ? "Uploading…" : "Upload MP3 / audio file"}
+                  {uploadingAudio ? "Uploading…" : "Upload from device"}
                   <input
                     type="file"
                     accept="audio/*"
@@ -444,6 +469,22 @@ export function AdminTestimonialFormPage() {
                     }}
                   />
                 </label>
+                <div className="flex items-center gap-3">
+                  <span className="h-px flex-1 bg-portal" aria-hidden />
+                  <span className="text-xs font-semibold uppercase tracking-wide text-portal-muted">
+                    or paste link
+                  </span>
+                  <span className="h-px flex-1 bg-portal" aria-hidden />
+                </div>
+                <label className="flex flex-col gap-1.5">
+                  <span className={formLabelClass}>Audio URL *</span>
+                  <input
+                    className={formControlClass}
+                    value={mediaUrl}
+                    onChange={(e) => setMediaUrl(e.target.value)}
+                    placeholder="https://res.cloudinary.com/… or any audio link"
+                  />
+                </label>
                 {mediaUrl ? (
                   <audio controls className="mt-1 w-full" src={mediaUrl}>
                     <track kind="captions" />
@@ -453,15 +494,56 @@ export function AdminTestimonialFormPage() {
             ) : null}
 
             {mediaType === "video" ? (
-              <div className="mt-5 space-y-3 rounded-2xl border border-portal bg-portal-muted/15 p-4">
+              <div className="mt-5 space-y-4 rounded-2xl border border-portal bg-portal-muted/15 p-4">
+                <p className="text-sm font-semibold text-portal-heading">
+                  Video — upload, YouTube, or direct link
+                </p>
+                <p className={formHintClass}>
+                  MP4/WebM up to 100 MB from device, or paste a YouTube / Cloudinary link.
+                </p>
+                <label className="inline-flex cursor-pointer items-center gap-2 rounded-xl border border-portal bg-portal-surface px-4 py-2.5 text-sm font-semibold text-portal-heading transition hover:border-primary/30">
+                  <Upload className="size-4 text-primary" aria-hidden />
+                  {uploadingVideo ? "Uploading…" : "Upload video from device"}
+                  <input
+                    type="file"
+                    accept="video/*"
+                    className="hidden"
+                    disabled={uploadingVideo}
+                    onChange={(e) => {
+                      const file = e.target.files?.[0];
+                      if (file) void handleVideoUpload(file);
+                    }}
+                  />
+                </label>
+                <div className="flex items-center gap-3">
+                  <span className="h-px flex-1 bg-portal" aria-hidden />
+                  <span className="text-xs font-semibold uppercase tracking-wide text-portal-muted">
+                    or paste link
+                  </span>
+                  <span className="h-px flex-1 bg-portal" aria-hidden />
+                </div>
                 <label className="flex flex-col gap-1.5">
-                  <span className={formLabelClass}>YouTube URL or video ID *</span>
+                  <span className={formLabelClass}>Direct video URL</span>
+                  <input
+                    className={formControlClass}
+                    value={mediaUrl}
+                    onChange={(e) => {
+                      setMediaUrl(e.target.value);
+                      if (e.target.value.trim()) setYoutubeInput("");
+                    }}
+                    placeholder="https://res.cloudinary.com/…/video.mp4"
+                  />
+                </label>
+                <label className="flex flex-col gap-1.5">
+                  <span className={formLabelClass}>YouTube URL or video ID</span>
                   <input
                     className={formControlClass}
                     value={youtubeInput}
-                    onChange={(e) => setYoutubeInput(e.target.value)}
+                    onChange={(e) => {
+                      setYoutubeInput(e.target.value);
+                      if (extractYoutubeId(e.target.value)) setMediaUrl("");
+                    }}
                     placeholder="https://youtube.com/watch?v=… or 11-char ID"
-                    required={mediaType === "video"}
                   />
                   <span className={formHintClass}>
                     Detected ID:{" "}
@@ -480,6 +562,10 @@ export function AdminTestimonialFormPage() {
                       allowFullScreen
                     />
                   </div>
+                ) : mediaUrl ? (
+                  <video controls className="w-full rounded-xl" src={mediaUrl}>
+                    <track kind="captions" />
+                  </video>
                 ) : null}
               </div>
             ) : null}
@@ -613,9 +699,9 @@ export function AdminTestimonialFormPage() {
             </div>
 
             <ul className="mt-4 space-y-2 text-xs text-portal-muted">
-              <li>• Text reviews show quote + rating on homepage cards.</li>
-              <li>• Audio reviews need a playable file URL.</li>
-              <li>• Video reviews embed YouTube on the reviews page.</li>
+              <li>• Text reviews open the full quote in a popup on click.</li>
+              <li>• Audio: upload from device or paste a Cloudinary / direct link.</li>
+              <li>• Video: upload MP4, paste a link, or use YouTube.</li>
             </ul>
           </Card>
         </aside>

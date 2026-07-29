@@ -31,6 +31,8 @@ export const adminKeys = {
   teacherProfile: (id: string) => ["admin", "teacherProfile", id] as const,
   faq: ["admin", "faq"] as const,
   faqItem: (id: string) => ["admin", "faqItem", id] as const,
+  homeHero: ["admin", "homeHero"] as const,
+  sectionHeaders: ["admin", "sectionHeaders"] as const,
   classLogs: (status?: string) => ["admin", "classLogs", status] as const,
   earnings: (month?: string) => ["admin", "earnings", month] as const,
   studentRequests: (status?: string) => ["admin", "studentRequests", status] as const,
@@ -753,6 +755,61 @@ export function useDeleteFaqItem() {
       addToast("success", "FAQ item deleted");
     },
     onError: () => addToast("error", "Failed to delete FAQ item"),
+  });
+}
+
+export function useAdminHomeHeroSlides() {
+  return useQuery({
+    queryKey: adminKeys.homeHero,
+    queryFn: () => adminApi.getHomeHeroSlides(),
+    select: (r) => r.data?.slides ?? [],
+  });
+}
+
+export function useSaveHomeHeroSlides() {
+  const qc = useQueryClient();
+  const addToast = useUiStore((s) => s.addToast);
+  return useMutation({
+    mutationFn: adminApi.saveHomeHeroSlides,
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: adminKeys.homeHero });
+      addToast("success", "Home hero saved");
+    },
+    onError: () => addToast("error", "Failed to save home hero"),
+  });
+}
+
+export function useAdminSectionHeaders() {
+  return useQuery({
+    queryKey: adminKeys.sectionHeaders,
+    queryFn: () => adminApi.getSectionHeaders(),
+    select: (r) => r.data?.headers ?? [],
+  });
+}
+
+export function useSaveSectionHeaders() {
+  const qc = useQueryClient();
+  const addToast = useUiStore((s) => s.addToast);
+  return useMutation({
+    mutationFn: adminApi.saveSectionHeaders,
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: adminKeys.sectionHeaders });
+      addToast("success", "Section headers saved");
+    },
+    onError: () => addToast("error", "Failed to save section headers"),
+  });
+}
+
+export function useUpsertSectionHeader() {
+  const qc = useQueryClient();
+  const addToast = useUiStore((s) => s.addToast);
+  return useMutation({
+    mutationFn: adminApi.upsertSectionHeader,
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: adminKeys.sectionHeaders });
+      addToast("success", "Section header saved");
+    },
+    onError: () => addToast("error", "Failed to save section header"),
   });
 }
 

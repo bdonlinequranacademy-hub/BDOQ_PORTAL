@@ -20,6 +20,7 @@ import { AdminTestimonialsMediaTypesCard } from "@/features/admin/components/tes
 import { AdminTestimonialsTopRated } from "@/features/admin/components/testimonials/AdminTestimonialsTopRated";
 import { AdminTestimonialsQuickActions } from "@/features/admin/components/testimonials/AdminTestimonialsQuickActions";
 import { AdminTestimonialsTipBanner } from "@/features/admin/components/testimonials/AdminTestimonialsTipBanner";
+import { AdminSectionHeaderPanel } from "@/features/admin/components/sectionHeaders/AdminSectionHeaderPanel";
 import {
   buildRatingDistribution,
   computeTestimonialsStats,
@@ -113,6 +114,8 @@ export function AdminTestimonialsPage() {
 
   return (
     <PageContainer>
+      <AdminSectionHeaderPanel sectionKey="home.testimonials" defaultOpen />
+      <AdminSectionHeaderPanel sectionKey="pages.reviews" />
       <AdminTestimonialsOverviewHeader onExport={handleExport} />
 
       <div className="grid grid-cols-1 items-start gap-4 xl:grid-cols-[minmax(0,1.4fr)_minmax(260px,0.7fr)] xl:gap-5">

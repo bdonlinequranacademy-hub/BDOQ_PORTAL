@@ -29,6 +29,7 @@ import {
   Images,
   Mail,
   CircleHelp,
+  LayoutTemplate,
 } from "lucide-react";
 import { useAuthStore } from "@/stores/authStore";
 import { useUnreadNotificationCount } from "@/hooks/useUnreadNotifications";
@@ -94,6 +95,8 @@ function navItemsForRole(role: Role): IPortalNavItem[] {
         { label: "Attendance", icon: <ClipboardList className="size-5" />, path: "/admin/attendance" },
         { label: "Progress", icon: <BarChart3 className="size-5" />, path: "/admin/progress" },
         { label: "Blog CMS", icon: <Newspaper className="size-5" />, path: "/admin/blog" },
+        { label: "Home Hero CMS", icon: <LayoutTemplate className="size-5" />, path: "/admin/home-hero" },
+        { label: "Section Headers", icon: <LayoutTemplate className="size-5" />, path: "/admin/section-headers" },
         { label: "Student Reviews", icon: <MessageSquareQuote className="size-5" />, path: "/admin/testimonials" },
         { label: "Gallery CMS", icon: <Images className="size-5" />, path: "/admin/gallery" },
         { label: "Pricing CMS", icon: <CreditCard className="size-5" />, path: "/admin/pricing" },

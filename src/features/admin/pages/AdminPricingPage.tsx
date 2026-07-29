@@ -18,6 +18,7 @@ import { AdminPricingTable } from "@/features/admin/components/pricing/AdminPric
 import { AdminPricingStatusOverview } from "@/features/admin/components/pricing/AdminPricingStatusOverview";
 import { AdminPricingQuickActions } from "@/features/admin/components/pricing/AdminPricingQuickActions";
 import { AdminPricingTipBanner } from "@/features/admin/components/pricing/AdminPricingTipBanner";
+import { AdminSectionHeaderPanel } from "@/features/admin/components/sectionHeaders/AdminSectionHeaderPanel";
 import {
   buildStatusOverview,
   computePricingStats,
@@ -72,6 +73,7 @@ export function AdminPricingPage() {
 
   return (
     <PageContainer>
+      <AdminSectionHeaderPanel sectionKey="pages.pricing" defaultOpen />
       <AdminPricingOverviewHeader />
 
       <div className="flex flex-col gap-4 lg:flex-row lg:items-stretch">

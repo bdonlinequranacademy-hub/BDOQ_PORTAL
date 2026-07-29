@@ -21,6 +21,7 @@ import {
   type CmsStatusFilter,
 } from "@/features/admin/lib/adminCmsUtils";
 import type { AdminTeacherProfile } from "@/types/models";
+import { AdminSectionHeaderPanel } from "@/features/admin/components/sectionHeaders/AdminSectionHeaderPanel";
 import { cn } from "@/lib/utils/cn";
 
 function filterTeacherProfiles(
@@ -77,6 +78,8 @@ export function AdminTeacherProfilesPage() {
 
   return (
     <PageContainer>
+      <AdminSectionHeaderPanel sectionKey="home.teachers" defaultOpen />
+      <AdminSectionHeaderPanel sectionKey="pages.teachers" />
       <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
         <div>
           <h1 className="font-display text-2xl font-bold text-primary-dark sm:text-3xl">

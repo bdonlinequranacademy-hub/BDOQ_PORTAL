@@ -16,6 +16,7 @@ import { AdminGalleryMediaForm } from "@/features/admin/components/gallery/Admin
 import { AdminGallerySettingsPanel } from "@/features/admin/components/gallery/AdminGallerySettingsPanel";
 import { AdminGalleryPreviewCard } from "@/features/admin/components/gallery/AdminGalleryPreviewCard";
 import { AdminGalleryRecentList } from "@/features/admin/components/gallery/AdminGalleryRecentList";
+import { AdminSectionHeaderPanel } from "@/features/admin/components/sectionHeaders/AdminSectionHeaderPanel";
 import {
   buildGalleryPayload,
   canSubmitGalleryForm,
@@ -174,6 +175,7 @@ export function AdminGalleryPage() {
 
   return (
     <PageContainer>
+      <AdminSectionHeaderPanel sectionKey="pages.gallery" defaultOpen />
       <AdminGalleryOverviewHeader editing={Boolean(editId)} />
       <AdminGalleryStatsGrid stats={stats} />
 

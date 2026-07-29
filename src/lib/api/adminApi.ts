@@ -18,6 +18,8 @@ import type {
   AdminCourseDetail,
   AdminTeacherProfile,
   AdminFaqItem,
+  AdminHomeHeroSlide,
+  AdminSectionHeader,
   GalleryAlbumType,
   GalleryMediaType,
   BlogCategory,
@@ -742,6 +744,42 @@ export const adminApi = {
   deleteFaqItem: (id: string) =>
     apiClient
       .delete<ApiResponse<null>>(`/admin/faq/${id}`)
+      .then((r) => r.data),
+
+  getHomeHeroSlides: () =>
+    apiClient
+      .get<ApiResponse<{ slides: AdminHomeHeroSlide[] }>>("/admin/home-hero")
+      .then((r) => r.data),
+
+  saveHomeHeroSlides: (payload: { slides: AdminHomeHeroSlide[] }) =>
+    apiClient
+      .put<ApiResponse<{ slides: AdminHomeHeroSlide[] }>>(
+        "/admin/home-hero",
+        payload
+      )
+      .then((r) => r.data),
+
+  getSectionHeaders: () =>
+    apiClient
+      .get<ApiResponse<{ headers: AdminSectionHeader[] }>>(
+        "/admin/section-headers"
+      )
+      .then((r) => r.data),
+
+  saveSectionHeaders: (payload: { headers: AdminSectionHeader[] }) =>
+    apiClient
+      .put<ApiResponse<{ headers: AdminSectionHeader[] }>>(
+        "/admin/section-headers",
+        payload
+      )
+      .then((r) => r.data),
+
+  upsertSectionHeader: (payload: { header: AdminSectionHeader }) =>
+    apiClient
+      .put<ApiResponse<{ header: AdminSectionHeader }>>(
+        "/admin/section-headers/item",
+        payload
+      )
       .then((r) => r.data),
 
   getCurriculum: () =>

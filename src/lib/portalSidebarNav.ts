@@ -36,6 +36,8 @@ const ADMIN_GROUPS: Record<string, readonly string[]> = {
     "/admin/student-requests",
   ],
   content: [
+    "/admin/home-hero",
+    "/admin/section-headers",
     "/admin/blog",
     "/admin/testimonials",
     "/admin/gallery",

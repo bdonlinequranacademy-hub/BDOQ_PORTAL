@@ -265,6 +265,14 @@ export const AdminFaqFormPage = lazyNamed(
   () => import("@/features/admin/pages/AdminFaqFormPage"),
   "AdminFaqFormPage"
 );
+export const AdminHeroPage = lazyNamed(
+  () => import("@/features/admin/pages/AdminHeroPage"),
+  "AdminHeroPage"
+);
+export const AdminSectionHeadersPage = lazyNamed(
+  () => import("@/features/admin/pages/AdminSectionHeadersPage"),
+  "AdminSectionHeadersPage"
+);
 export const AdminResourcesPage = lazyNamed(
   () => import("@/features/admin/pages/AdminResourcesPage"),
   "AdminResourcesPage"

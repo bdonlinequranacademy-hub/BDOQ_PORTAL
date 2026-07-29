@@ -20,6 +20,7 @@ import {
   type CmsStatusFilter,
 } from "@/features/admin/lib/adminCmsUtils";
 import type { AdminFaqItem } from "@/types/models";
+import { AdminSectionHeaderPanel } from "@/features/admin/components/sectionHeaders/AdminSectionHeaderPanel";
 
 function filterFaqItems(
   items: AdminFaqItem[],
@@ -73,6 +74,7 @@ export function AdminFaqPage() {
 
   return (
     <PageContainer>
+      <AdminSectionHeaderPanel sectionKey="home.faq" defaultOpen />
       <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
         <div>
           <h1 className="font-display text-2xl font-bold text-primary-dark sm:text-3xl">
