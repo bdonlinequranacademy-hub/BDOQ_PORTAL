@@ -3,6 +3,8 @@ export interface IAdmissionDisplayRow {
   label: string;
   value: string;
   fullWidth?: boolean;
+  href?: string;
+  imageUrl?: string;
 }
 
 export interface IAdmissionDisplaySection {
@@ -24,6 +26,7 @@ const FIELD_LABELS: Record<string, string> = {
   currentAddressLine2: "Address line 2",
   currentCity: "City",
   currentDistrict: "District",
+  currentState: "Division / State",
   currentPostalCode: "Postal code",
   currentCountry: "Country",
   sameAsCurrentAddress: "Permanent address same as current",
@@ -31,6 +34,7 @@ const FIELD_LABELS: Record<string, string> = {
   permanentAddressLine2: "Permanent address line 2",
   permanentCity: "Permanent city",
   permanentDistrict: "Permanent district",
+  permanentState: "Permanent division / state",
   permanentPostalCode: "Permanent postal code",
   permanentCountry: "Permanent country",
   address: "Address",
@@ -48,7 +52,15 @@ const FIELD_LABELS: Record<string, string> = {
   internetType: "Internet connection",
   packagePlan: "Learning package",
   packageName: "Package",
-  paymentMethod: "Payment method",
+  paymentMethod: "Monthly payment method",
+  admissionFeeCurrency: "Admission fee currency",
+  admissionFeeAmount: "Admission fee paid",
+  admissionFeePaymentMethod: "Admission fee payment method",
+  admissionPaymentReference: "Transaction reference",
+  admissionPaymentDate: "Payment date",
+  admissionPaymentSender: "Sender account / mobile",
+  admissionPaymentNote: "Payment note",
+  admissionPaymentProofUrl: "Payment proof",
   parentName: "Parent / guardian name",
   guardianName: "Guardian name",
   parentRelationship: "Relationship to student",
@@ -93,6 +105,13 @@ const VALUE_LABELS: Record<string, string> = {
   youtube: "YouTube",
   google: "Google search",
   friend: "Friend or family",
+  bkash: "bKash",
+  nagad: "Nagad",
+  bank: "Bank transfer",
+  paypal: "PayPal",
+  cash: "Cash",
+  bdt: "BDT",
+  usd: "USD",
   AM: "AM",
   PM: "PM",
   en: "English",
@@ -117,9 +136,9 @@ const SECTIONS: { title: string; fields: string[] }[] = [
   {
     title: "Address",
     fields: [
-      "address",
       "currentAddressLine1",
       "currentAddressLine2",
+      "currentState",
       "currentCity",
       "currentDistrict",
       "currentPostalCode",
@@ -127,6 +146,7 @@ const SECTIONS: { title: string; fields: string[] }[] = [
       "sameAsCurrentAddress",
       "permanentAddressLine1",
       "permanentAddressLine2",
+      "permanentState",
       "permanentCity",
       "permanentDistrict",
       "permanentPostalCode",
@@ -154,6 +174,19 @@ const SECTIONS: { title: string; fields: string[] }[] = [
     ],
   },
   {
+    title: "Admission fee payment",
+    fields: [
+      "admissionFeeCurrency",
+      "admissionFeeAmount",
+      "admissionFeePaymentMethod",
+      "admissionPaymentReference",
+      "admissionPaymentDate",
+      "admissionPaymentSender",
+      "admissionPaymentNote",
+      "admissionPaymentProofUrl",
+    ],
+  },
+  {
     title: "Guardian & other details",
     fields: [
       "parentName",
@@ -170,6 +203,12 @@ const SECTIONS: { title: string; fields: string[] }[] = [
 ];
 
 const HEADER_FIELDS = new Set(["fullName", "name", "email", "whatsapp"]);
+
+const HIDDEN_FIELDS = new Set([
+  "admissionPaymentProofPublicId",
+  "admissionPaymentProofFile",
+  "locale",
+]);
 
 function humanizeKey(key: string): string {
   return key
@@ -228,6 +267,19 @@ export function buildAdmissionDisplaySections(
       const value = formatSingleValue(formData[key]);
       if (!value) continue;
 
+      if (key === "admissionPaymentProofUrl") {
+        rows.push({
+          key,
+          label: FIELD_LABELS[key] ?? humanizeKey(key),
+          value: "View payment screenshot",
+          href: value,
+          imageUrl: value,
+          fullWidth: true,
+        });
+        usedKeys.add(key);
+        continue;
+      }
+
       rows.push({
         key,
         label: FIELD_LABELS[key] ?? humanizeKey(key),
@@ -263,7 +315,13 @@ export function buildAdmissionDisplaySections(
 
   const extraRows: IAdmissionDisplayRow[] = [];
   for (const [key, raw] of Object.entries(formData)) {
-    if (usedKeys.has(key) || HEADER_FIELDS.has(key) || key === "locale") continue;
+    if (
+      usedKeys.has(key) ||
+      HEADER_FIELDS.has(key) ||
+      HIDDEN_FIELDS.has(key)
+    ) {
+      continue;
+    }
     const value = formatSingleValue(raw);
     if (!value) continue;
     extraRows.push({

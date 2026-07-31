@@ -1,4 +1,4 @@
-import { Download, Mail, MoreHorizontal, Phone, Search } from "lucide-react";
+import { Download, Mail, Phone, Search } from "lucide-react";
 import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { UserInitialAvatar } from "@/components/ui/UserInitialAvatar";
@@ -7,12 +7,11 @@ import { waMeUrlFromRaw } from "@/lib/whatsapp";
 import { trialLeadFollowUpMessage } from "@/lib/whatsappMessageTemplates";
 import type { TrialBookingStatus, TrialBookingView } from "@/types/models";
 import { TrialLeadStatusBadge } from "@/features/admin/components/trial-leads/TrialLeadStatusBadge";
+import { TrialLeadStatusMenu } from "@/features/admin/components/trial-leads/TrialLeadStatusMenu";
 import {
   formatCourseInterest,
   formatLeadSource,
   formatLeadSourceDetail,
-  nextTrialLeadActionLabel,
-  nextTrialLeadStatus,
   trialLeadMailtoHref,
   trialLeadTelHref,
   type AdminTrialLeadsTab,
@@ -35,7 +34,7 @@ export function AdminTrialLeadsTable({
   busy,
   onAdvanceStatus,
 }: IAdminTrialLeadsTableProps) {
-  const { t, statusLabel, formatDateTime } = usePortalTranslation();
+  const { t, formatDateTime } = usePortalTranslation();
 
   return (
     <Card className="overflow-hidden rounded-2xl border border-portal bg-portal-surface p-0 shadow-[0_8px_24px_-16px_rgba(13,74,47,0.18)]">
@@ -59,8 +58,6 @@ export function AdminTrialLeadsTable({
                 lead.country,
                 trialLeadFollowUpMessage(lead.parentName)
               );
-              const nextStatus = nextTrialLeadStatus(lead.status);
-              const nextLabel = nextTrialLeadActionLabel(lead.status, t, statusLabel);
               const telHref = trialLeadTelHref(lead.whatsapp, lead.country);
               const mailHref = trialLeadMailtoHref(lead.email, lead.parentName, t);
 
@@ -142,18 +139,11 @@ export function AdminTrialLeadsTable({
                           <Mail className="size-4" aria-hidden />
                         </a>
                       ) : null}
-                      {nextStatus && nextLabel ? (
-                        <button
-                          type="button"
-                          disabled={busy}
-                          onClick={() => onAdvanceStatus(lead, nextStatus)}
-                          className="inline-flex size-8 items-center justify-center rounded-lg border border-portal text-portal-muted transition hover:bg-portal-muted/50 hover:text-primary disabled:opacity-50"
-                          title={nextLabel}
-                          aria-label={nextLabel}
-                        >
-                          <MoreHorizontal className="size-4" aria-hidden />
-                        </button>
-                      ) : null}
+                      <TrialLeadStatusMenu
+                        lead={lead}
+                        busy={busy}
+                        onStatusChange={onAdvanceStatus}
+                      />
                     </div>
                   </td>
                 </tr>

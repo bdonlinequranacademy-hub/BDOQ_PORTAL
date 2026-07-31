@@ -11,6 +11,7 @@ import {
   admissionMailtoHref,
   admissionTelHref,
   getAdmissionCountry,
+  getAdmissionFeeSummary,
   getAdmissionProgram,
   getAdmissionProgramDetail,
   getAdmissionSource,
@@ -91,6 +92,11 @@ export function AdminStudentAdmissionsTable({
                     <p className="text-xs text-portal-muted">
                       {getAdmissionProgramDetail(app, t, dynamicLabel)}
                     </p>
+                    {getAdmissionFeeSummary(app, dynamicLabel) ? (
+                      <p className="mt-1 text-xs font-medium text-emerald-800">
+                        {getAdmissionFeeSummary(app, dynamicLabel)}
+                      </p>
+                    ) : null}
                   </td>
                   <td className="px-5 py-4">
                     <p className="text-sm font-medium text-portal-heading">

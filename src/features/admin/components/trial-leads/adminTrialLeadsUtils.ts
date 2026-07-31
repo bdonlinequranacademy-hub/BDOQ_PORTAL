@@ -193,6 +193,13 @@ export function nextTrialLeadStatus(
   }
 }
 
+export const TRIAL_LEAD_STATUSES: TrialBookingStatus[] = [
+  "new",
+  "contacted",
+  "scheduled",
+  "closed",
+];
+
 export function nextTrialLeadActionLabel(
   status: TrialBookingStatus,
   t: PortalTranslate,

@@ -37,7 +37,34 @@ function AdmissionSection({ section }: { section: IAdmissionDisplaySection }) {
           <div key={row.key} className={row.fullWidth ? "sm:col-span-2" : undefined}>
             <dt className="text-xs text-portal-muted">{row.label}</dt>
             <dd className="mt-0.5 whitespace-pre-wrap text-sm font-medium text-portal-heading">
-              {row.value}
+              {row.imageUrl ? (
+                <div className="space-y-2">
+                  <a
+                    href={row.href ?? row.imageUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-primary underline-offset-2 hover:underline"
+                  >
+                    {row.value}
+                  </a>
+                  <img
+                    src={row.imageUrl}
+                    alt={row.label}
+                    className="max-h-64 max-w-full rounded-xl border border-portal object-contain"
+                  />
+                </div>
+              ) : row.href ? (
+                <a
+                  href={row.href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-primary underline-offset-2 hover:underline"
+                >
+                  {row.value}
+                </a>
+              ) : (
+                row.value
+              )}
             </dd>
           </div>
         ))}

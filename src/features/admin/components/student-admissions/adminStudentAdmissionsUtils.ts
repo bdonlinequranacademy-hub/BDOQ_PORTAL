@@ -62,6 +62,22 @@ function formatRawValue(
       : str;
 }
 
+export function getAdmissionFeeSummary(
+  app: StudentAdmissionView,
+  dynamicLabel: DynamicLabelFn
+): string | null {
+  const formData = app.formData;
+  const amount = formatRawValue(formData.admissionFeeAmount, dynamicLabel);
+  const currency = formatRawValue(formData.admissionFeeCurrency, dynamicLabel);
+  const method = formatRawValue(formData.admissionFeePaymentMethod, dynamicLabel);
+
+  if (!amount && !method) return null;
+  if (amount && currency) {
+    return method ? `${amount} ${currency} · ${method}` : `${amount} ${currency}`;
+  }
+  return method;
+}
+
 export function getAdmissionCountry(app: StudentAdmissionView): string | null {
   const formData = app.formData;
   return (
@@ -125,11 +141,15 @@ export function getAdmissionSourceDetail(t: PortalTranslate): string {
 }
 
 export function admissionSearchText(app: StudentAdmissionView): string {
+  const fee = app.formData;
   return [
     app.fullName,
     app.email,
     app.whatsapp,
     getAdmissionCountry(app),
+    fee.admissionFeeAmount,
+    fee.admissionPaymentReference,
+    fee.admissionFeePaymentMethod,
     app.adminNote,
   ]
     .filter(Boolean)
