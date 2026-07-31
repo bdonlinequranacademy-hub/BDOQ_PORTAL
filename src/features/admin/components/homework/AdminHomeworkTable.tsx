@@ -4,14 +4,15 @@ import { MissingCurriculumBadge } from "@/components/curriculum/CurriculumProgra
 import type { AdminHomeworkItem } from "@/types/models";
 import { HomeworkGradingStatusBadge } from "@/features/admin/components/homework/HomeworkGradingStatusBadge";
 import {
-  formatDueDateDetailed,
   getHomeworkClassTitle,
   getHomeworkGradingStatus,
   getHomeworkProgramLabel,
   getHomeworkTeacherName,
   getSubmissionRate,
 } from "@/features/admin/components/homework/adminHomeworkUtils";
+import { formatHomeworkDueLabel } from "@/lib/homeworkDue";
 import { cn } from "@/lib/utils/cn";
+import { usePortalTranslation } from "@/i18n/LocaleProvider";
 
 interface IAdminHomeworkTableProps {
   items: AdminHomeworkItem[];
@@ -31,30 +32,31 @@ export function AdminHomeworkTable({
   onView,
   onDelete,
 }: IAdminHomeworkTableProps) {
+  const { t, formatDate, formatNumber } = usePortalTranslation();
+
   return (
     <Card className="overflow-hidden rounded-2xl border border-portal bg-portal-surface p-0 shadow-[0_8px_24px_-16px_rgba(13,74,47,0.18)]">
       <div className="flex items-center justify-between border-b border-portal px-5 py-4">
         <h2 className="text-sm font-bold text-portal-heading">
-          Assignments ({totalCount})
+          {t("admin.homework.assignmentsCount", { count: formatNumber(totalCount) })}
         </h2>
       </div>
       <div className="overflow-x-auto">
         <table className="w-full min-w-[1120px] border-collapse text-left">
           <thead>
             <tr className="border-b border-portal bg-portal-muted/40 text-xs font-semibold uppercase tracking-wide text-portal-muted">
-              <th className="px-5 py-3.5">Assignment</th>
-              <th className="px-5 py-3.5">Program</th>
-              <th className="px-5 py-3.5">Class / Teacher</th>
-              <th className="px-5 py-3.5">Due date</th>
-              <th className="px-5 py-3.5">Submissions</th>
-              <th className="px-5 py-3.5">Grading</th>
-              <th className="px-5 py-3.5">Status</th>
-              <th className="px-5 py-3.5 text-right">Actions</th>
+              <th className="px-5 py-3.5">{t("tables.assignment")}</th>
+              <th className="px-5 py-3.5">{t("tables.program")}</th>
+              <th className="px-5 py-3.5">{t("tables.classTeacher")}</th>
+              <th className="px-5 py-3.5">{t("tables.dueDate")}</th>
+              <th className="px-5 py-3.5">{t("tables.submissions")}</th>
+              <th className="px-5 py-3.5">{t("tables.grading")}</th>
+              <th className="px-5 py-3.5">{t("tables.status")}</th>
+              <th className="px-5 py-3.5 text-right">{t("tables.actions")}</th>
             </tr>
           </thead>
           <tbody>
             {items.map((item) => {
-              const due = formatDueDateDetailed(item.dueDate);
               const status = getHomeworkGradingStatus(item);
               const rate = getSubmissionRate(item);
               const total = item.totalStudents ?? 0;
@@ -93,20 +95,21 @@ export function AdminHomeworkTable({
                     <p className="text-xs text-portal-muted">{getHomeworkTeacherName(item)}</p>
                   </td>
                   <td className="px-5 py-4">
-                    <p className="text-xs font-bold tracking-wide text-portal-muted">{due.date}</p>
-                    <p className="mt-1 text-sm font-semibold text-portal-heading">{due.day}</p>
+                    <p className="text-xs font-bold tracking-wide text-portal-muted">
+                      {formatDate(item.dueDate)}
+                    </p>
                     <p
                       className={cn(
                         "mt-0.5 text-xs font-medium",
                         status === "overdue" ? "text-red-600" : "text-portal-muted"
                       )}
                     >
-                      {due.relative}
+                      {formatHomeworkDueLabel(item.dueDate, undefined, { t, formatDate })}
                     </p>
                   </td>
                   <td className="px-5 py-4">
                     <p className="text-sm font-semibold tabular-nums text-portal-heading">
-                      {item.submissionCount}/{total > 0 ? total : "—"}
+                      {formatNumber(item.submissionCount)}/{total > 0 ? formatNumber(total) : "—"}
                     </p>
                     {total > 0 ? (
                       <div className="mt-2 h-2 w-24 overflow-hidden rounded-full bg-portal-muted/50">
@@ -119,12 +122,17 @@ export function AdminHomeworkTable({
                   </td>
                   <td className="px-5 py-4">
                     <p className="text-sm text-portal-heading">
-                      <span className="font-semibold text-emerald-700">{graded}</span> graded
+                      <span className="font-semibold text-emerald-700">
+                        {formatNumber(graded)}
+                      </span>{" "}
+                      {t("admin.homework.gradedLabel")}
                     </p>
                     {pending > 0 ? (
-                      <p className="text-xs font-medium text-amber-700">{pending} pending</p>
+                      <p className="text-xs font-medium text-amber-700">
+                        {formatNumber(pending)} {t("admin.homework.pendingLabel")}
+                      </p>
                     ) : (
-                      <p className="text-xs text-portal-muted">No pending</p>
+                      <p className="text-xs text-portal-muted">{t("admin.homework.noPending")}</p>
                     )}
                   </td>
                   <td className="px-5 py-4">
@@ -136,8 +144,8 @@ export function AdminHomeworkTable({
                         type="button"
                         onClick={() => onView(item)}
                         className={actionClass}
-                        aria-label={`View ${item.title}`}
-                        title="View details"
+                        aria-label={t("admin.homework.viewAssignment", { title: item.title })}
+                        title={t("admin.homework.viewDetails")}
                       >
                         <Eye className="size-4" aria-hidden />
                       </button>
@@ -149,8 +157,8 @@ export function AdminHomeworkTable({
                           actionClass,
                           "hover:border-red-300 hover:bg-red-50 hover:text-red-600 disabled:opacity-50"
                         )}
-                        aria-label={`Delete ${item.title}`}
-                        title="Delete assignment"
+                        aria-label={t("admin.homework.deleteAssignmentAria", { title: item.title })}
+                        title={t("admin.homework.deleteAssignmentTitle")}
                       >
                         <Trash2 className="size-4" aria-hidden />
                       </button>
@@ -158,8 +166,8 @@ export function AdminHomeworkTable({
                         type="button"
                         onClick={() => onView(item)}
                         className={actionClass}
-                        aria-label={`More actions for ${item.title}`}
-                        title="More"
+                        aria-label={t("admin.homework.moreActionsFor", { title: item.title })}
+                        title={t("admin.homework.moreActions")}
                       >
                         <MoreHorizontal className="size-4" aria-hidden />
                       </button>

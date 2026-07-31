@@ -9,6 +9,7 @@ import {
 } from "lucide-react";
 import type { LiveMonitorSession } from "@/types/models";
 import { normalizeMeetingLink } from "@/lib/utils/meetingLink";
+import { usePortalTranslation } from "@/i18n/LocaleProvider";
 import { cn } from "@/lib/utils/cn";
 import { LiveMonitorJoinBadge } from "./LiveMonitorJoinBadge";
 import { LiveMonitorPhaseBadge } from "./LiveMonitorPhaseBadge";
@@ -51,6 +52,7 @@ export function LiveMonitorSessionCard({
   now,
   variant = "full",
 }: ILiveMonitorSessionCardProps) {
+  const { t, dynamicLabel, role } = usePortalTranslation();
   const navigate = useNavigate();
   const issue = sessionHasIssue(session);
   const issueMessage = sessionIssueMessage(session);
@@ -83,8 +85,8 @@ export function LiveMonitorSessionCard({
             {session.teacher.name} · {session.student.name}
           </p>
           <div className="flex flex-wrap gap-1.5">
-            <LiveMonitorJoinBadge role="Teacher" status={session.joins.teacherStatus} />
-            <LiveMonitorJoinBadge role="Student" status={session.joins.studentStatus} />
+            <LiveMonitorJoinBadge roleKey="teacher" status={session.joins.teacherStatus} />
+            <LiveMonitorJoinBadge roleKey="student" status={session.joins.studentStatus} />
           </div>
         </div>
         <ChevronRight className="size-4 shrink-0 self-center text-portal-muted transition group-hover:translate-x-0.5 group-hover:text-primary" />
@@ -132,7 +134,7 @@ export function LiveMonitorSessionCard({
                 {session.classTitle}
               </p>
               <p className="mt-0.5 text-xs font-medium uppercase tracking-wide text-portal-muted">
-                {session.courseType}
+                {dynamicLabel(session.courseType) || session.courseType}
               </p>
             </div>
           </div>
@@ -142,7 +144,7 @@ export function LiveMonitorSessionCard({
               <GraduationCap className="size-4 shrink-0 text-primary" aria-hidden />
               <div className="min-w-0">
                 <p className="text-[10px] font-semibold uppercase tracking-wide text-portal-muted">
-                  Teacher
+                  {role("teacher")}
                 </p>
                 <p className="truncate text-sm font-medium text-portal-heading">
                   {session.teacher.name}
@@ -153,7 +155,7 @@ export function LiveMonitorSessionCard({
               <User className="size-4 shrink-0 text-gold" aria-hidden />
               <div className="min-w-0">
                 <p className="text-[10px] font-semibold uppercase tracking-wide text-portal-muted">
-                  Student
+                  {role("student")}
                 </p>
                 <p className="truncate text-sm font-medium text-portal-heading">
                   {session.student.name}
@@ -168,8 +170,8 @@ export function LiveMonitorSessionCard({
           </div>
 
           <div className="flex flex-wrap gap-2">
-            <LiveMonitorJoinBadge role="Teacher" status={session.joins.teacherStatus} />
-            <LiveMonitorJoinBadge role="Student" status={session.joins.studentStatus} />
+            <LiveMonitorJoinBadge roleKey="teacher" status={session.joins.teacherStatus} />
+            <LiveMonitorJoinBadge roleKey="student" status={session.joins.studentStatus} />
           </div>
 
           {issueMessage ? (
@@ -189,7 +191,7 @@ export function LiveMonitorSessionCard({
               className="inline-flex flex-1 items-center justify-center gap-2 rounded-xl bg-[#2b7fff] px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-[#1a6fe8] lg:flex-none"
             >
               <Video className="size-4" />
-              Open link
+              {t("admin.liveMonitor.card.openLink")}
             </a>
           ) : null}
           <button
@@ -197,7 +199,7 @@ export function LiveMonitorSessionCard({
             onClick={() => navigate(`/admin/classes/${session.classId}`)}
             className="inline-flex flex-1 items-center justify-center gap-1.5 rounded-xl border border-portal bg-portal-surface px-4 py-2.5 text-sm font-semibold text-portal-heading transition hover:border-primary/30 hover:bg-portal-surface-muted lg:flex-none"
           >
-            Class details
+            {t("admin.liveMonitor.card.classDetails")}
             <ChevronRight className="size-4" />
           </button>
         </div>

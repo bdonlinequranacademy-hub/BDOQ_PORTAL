@@ -7,16 +7,19 @@ import {
 } from "lucide-react";
 import { Card } from "@/components/ui/Card";
 import { env } from "@/config/env";
+import { usePortalTranslation } from "@/i18n/LocaleProvider";
 
 const actionTileClass =
   "flex flex-col items-start gap-2 rounded-xl border border-portal bg-portal-muted/20 p-3.5 text-left transition hover:border-primary/25 hover:bg-primary/5";
 
 export function AdminBlogQuickActions() {
+  const { t } = usePortalTranslation();
+
   const navigate = useNavigate();
 
   return (
     <Card className="rounded-2xl border border-portal bg-portal-surface p-5 shadow-[0_8px_24px_-16px_rgba(13,74,47,0.18)]">
-      <h2 className="mb-4 text-sm font-bold text-portal-heading">Quick actions</h2>
+      <h2 className="mb-4 text-sm font-bold text-portal-heading">{t("admin.cms.shared.quickActions")}</h2>
       <div className="grid grid-cols-2 gap-2.5">
         <button
           type="button"
@@ -26,7 +29,7 @@ export function AdminBlogQuickActions() {
           <span className="flex size-9 items-center justify-center rounded-lg bg-primary/10">
             <Plus className="size-4 text-primary" aria-hidden />
           </span>
-          <span className="text-xs font-semibold text-portal-heading">New post</span>
+          <span className="text-xs font-semibold text-portal-heading">{t("admin.common.newPost")}</span>
         </button>
         <button
           type="button"

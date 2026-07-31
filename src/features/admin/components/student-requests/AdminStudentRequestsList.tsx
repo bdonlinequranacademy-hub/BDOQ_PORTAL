@@ -12,6 +12,7 @@ import {
   messagePreview,
 } from "@/features/admin/components/student-requests/adminStudentRequestsUtils";
 import { cn } from "@/lib/utils/cn";
+import { usePortalTranslation } from "@/i18n/LocaleProvider";
 
 interface IAdminStudentRequestsListProps {
   requests: StudentRequestView[];
@@ -28,6 +29,8 @@ export function AdminStudentRequestsList({
   onApprove,
   onReject,
 }: IAdminStudentRequestsListProps) {
+  const { t } = usePortalTranslation();
+
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [notes, setNotes] = useState<Record<string, string>>({});
 
@@ -97,18 +100,14 @@ export function AdminStudentRequestsList({
                           disabled={busy}
                           onClick={() => onApprove(request, note.trim() || undefined)}
                           className="h-9 rounded-xl bg-primary-dark px-4 text-sm text-white"
-                        >
-                          Approve
-                        </Button>
+                        >{t("admin.studentRequests.listApprove")}</Button>
                         <Button
                           type="button"
                           variant="ghost"
                           disabled={busy}
                           onClick={() => onReject(request, note.trim() || undefined)}
                           className="h-9 rounded-xl border border-red-200 px-4 text-sm text-red-600"
-                        >
-                          Reject
-                        </Button>
+                        >{t("admin.studentRequests.listReject")}</Button>
                       </>
                     ) : request.status === "approved" ? (
                       <Link
@@ -139,9 +138,7 @@ export function AdminStudentRequestsList({
                   <div className="border-t border-portal/80 bg-portal-muted/10 px-5 py-4">
                     {request.adminNote ? (
                       <div className="mb-3 rounded-xl border border-portal bg-portal-surface px-4 py-3">
-                        <p className="text-xs font-semibold uppercase tracking-wide text-portal-muted">
-                          Admin note
-                        </p>
+                        <p className="text-xs font-semibold uppercase tracking-wide text-portal-muted">{t("admin.admissions.modalAdminNote")}</p>
                         <p className="mt-1 text-sm text-portal-heading">{request.adminNote}</p>
                       </div>
                     ) : null}
@@ -160,7 +157,7 @@ export function AdminStudentRequestsList({
                             }))
                           }
                           rows={3}
-                          placeholder="Optional note for the teacher…"
+                          placeholder={t("admin.studentRequests.notePlaceholder")}
                           className={cn(
                             "mt-2 w-full resize-none rounded-xl border border-portal bg-portal-surface px-4 py-3 text-sm text-portal-heading",
                             "outline-none focus-visible:ring-2 focus-visible:ring-primary/25"

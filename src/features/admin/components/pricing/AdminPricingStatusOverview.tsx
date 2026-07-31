@@ -1,5 +1,6 @@
 import { Card } from "@/components/ui/Card";
 import type { IPricingStatusSlice } from "@/features/admin/components/pricing/adminPricingUtils";
+import { usePortalTranslation } from "@/i18n/LocaleProvider";
 
 interface IAdminPricingStatusOverviewProps {
   slices: IPricingStatusSlice[];
@@ -12,6 +13,8 @@ export function AdminPricingStatusOverview({
   total,
   onSelect,
 }: IAdminPricingStatusOverviewProps) {
+  const { t } = usePortalTranslation();
+
   const published = slices.find((s) => s.key === "published");
   const publishedPct = published?.percentage ?? 0;
 
@@ -32,7 +35,7 @@ export function AdminPricingStatusOverview({
         >
           <div className="absolute inset-3 flex flex-col items-center justify-center rounded-full bg-portal-surface">
             <span className="text-lg font-bold text-portal-heading">{publishedPct}%</span>
-            <span className="text-[10px] font-medium text-portal-muted">Published</span>
+            <span className="text-[10px] font-medium text-portal-muted">{t("admin.common.statPublished")}</span>
           </div>
         </div>
 

@@ -31,6 +31,7 @@ import { DashboardSection } from "@/components/dashboard/DashboardSection";
 import { DashboardTwoColumn } from "@/components/dashboard/DashboardTwoColumn";
 import { QuickActionGrid } from "@/components/dashboard/QuickActionGrid";
 import { DashboardNotificationFeed } from "@/components/dashboard/DashboardNotificationFeed";
+import { usePortalTranslation } from "@/i18n/LocaleProvider";
 
 function todayIsoDate() {
   return new Date().toISOString().split("T")[0];
@@ -38,6 +39,7 @@ function todayIsoDate() {
 
 export function TeacherDashboardPage() {
   const navigate = useNavigate();
+  const { t } = usePortalTranslation();
   const { data: classes = [], isLoading } = useTeacherClasses();
   const { data: notifications = [] } = useTeacherNotifications();
   const { data: homework = [] } = useTeacherHomework();
@@ -77,8 +79,11 @@ export function TeacherDashboardPage() {
       ? [
           {
             id: "hw-pending",
-            title: `${pendingGrades} homework submission${pendingGrades > 1 ? "s" : ""} to review`,
-            subtitle: "Tap to grade",
+            title:
+              pendingGrades === 1
+                ? t("teacher.homeworkSubmissionsReview", { count: String(pendingGrades) })
+                : t("teacher.homeworkSubmissionsReviewPlural", { count: String(pendingGrades) }),
+            subtitle: t("teacher.tapToGrade"),
             icon: <FileText className="size-4 text-amber-600" />,
             iconBg: "bg-amber-50",
             onClick: () => navigate("/teacher/homework"),
@@ -91,37 +96,37 @@ export function TeacherDashboardPage() {
     {
       icon: <ClipboardCheck className="size-5 text-teal-600" />,
       bg: "bg-teal-50",
-      label: "Mark attendance",
+      label: t("teacher.markAttendance"),
       to: "/teacher/attendance",
     },
     {
       icon: <FilePlus className="size-5 text-primary" />,
       bg: "bg-primary/10",
-      label: "Assign homework",
+      label: t("teacher.assignHomework"),
       to: "/teacher/homework?new=1",
     },
     {
       icon: <Star className="size-5 text-amber-500" />,
       bg: "bg-amber-50",
-      label: "Grade homework",
+      label: t("teacher.gradeHomework"),
       to: "/teacher/homework",
     },
     {
       icon: <TrendingUp className="size-5 text-emerald-600" />,
       bg: "bg-emerald-50",
-      label: "Update progress",
+      label: t("teacher.updateProgress"),
       to: "/teacher/progress",
     },
     {
       icon: <MessageSquare className="size-5 text-emerald-600" />,
       bg: "bg-emerald-50",
-      label: "Weekly report",
+      label: t("teacher.weeklyReport"),
       to: "/teacher/weekly-report",
     },
     {
       icon: <Calendar className="size-5 text-primary-dark" />,
       bg: "bg-bg-light",
-      label: "Today's schedule",
+      label: t("teacher.todaysSchedule"),
       to: "/teacher/schedule/today",
     },
   ];
@@ -131,35 +136,35 @@ export function TeacherDashboardPage() {
       <PageContainer className="flex flex-col gap-6 lg:gap-8">
         <div className="grid grid-cols-2 items-start gap-2.5 sm:gap-3 lg:grid-cols-4">
           <StatCard
-            label="Today's classes"
+            label={t("teacher.todaysClasses")}
             value={scheduleLoading ? "…" : todaySessions.length}
             icon={<Calendar className="size-5" />}
             iconBg="bg-primary/10"
-            hint="Scheduled sessions"
+            hint={t("teacher.scheduledSessions")}
             onClick={() => navigate("/teacher/schedule/today")}
           />
           <StatCard
-            label="My students"
+            label={t("teacher.myStudents")}
             value={isLoading ? "…" : studentCount}
             icon={<Users className="size-5" />}
             iconBg="bg-gold/15"
-            hint="Across all classes"
+            hint={t("teacher.acrossAllClasses")}
             onClick={() => navigate("/teacher/students")}
           />
           <StatCard
-            label="Homework to grade"
+            label={t("teacher.homeworkToGrade")}
             value={pendingGrades}
             icon={<BookOpenCheck className="size-5" />}
             iconBg="bg-amber-50"
-            hint="Pending submissions"
+            hint={t("teacher.pendingSubmissions")}
             onClick={() => navigate("/teacher/homework")}
           />
           <StatCard
-            label="Logs pending"
+            label={t("teacher.logsPending")}
             value={logStats?.pending ?? 0}
             icon={<FileText className="size-5" />}
             iconBg="bg-teal/10"
-            hint="Awaiting admin review"
+            hint={t("teacher.awaitingAdminReview")}
             onClick={() => navigate("/teacher/class-logs")}
           />
         </div>
@@ -168,14 +173,20 @@ export function TeacherDashboardPage() {
           main={
             <>
               <DashboardSection
-                title="Today's schedule"
+                title={t("teacher.todaysSchedule")}
                 badge={
                   scheduleLoading
                     ? "…"
-                    : `${todaySessions.length} session${todaySessions.length === 1 ? "" : "s"}`
+                    : todaySessions.length === 1
+                      ? t("teacher.sessionCount", { count: String(todaySessions.length) })
+                      : t("teacher.sessionsCount", { count: String(todaySessions.length) })
                 }
-                subtitle={todaySchedule?.day ? `Academy day: ${todaySchedule.day}` : undefined}
-                actionLabel="Full schedule"
+                subtitle={
+                  todaySchedule?.day
+                    ? t("teacher.academyDay", { day: todaySchedule.day })
+                    : undefined
+                }
+                actionLabel={t("teacher.fullSchedule")}
                 onAction={() => navigate("/teacher/schedule/today")}
                 elevated
               >
@@ -184,9 +195,9 @@ export function TeacherDashboardPage() {
                 ) : todaySessions.length === 0 ? (
                   <EmptyState
                     icon={Calendar}
-                    title="No classes today"
-                    description="Use this time for lesson prep or update student progress."
-                    actionLabel="View routine"
+                    title={t("teacher.noClassesToday")}
+                    description={t("teacher.noClassesTodayTeacherDesc")}
+                    actionLabel={t("teacher.viewRoutine")}
                     onAction={() => navigate("/teacher/schedule/routine")}
                   />
                 ) : (
@@ -208,7 +219,10 @@ export function TeacherDashboardPage() {
                 )}
               </DashboardSection>
 
-              <DashboardSection title="Quick actions" subtitle="Common tasks for today's teaching">
+              <DashboardSection
+                title={t("teacher.quickActionsTitle")}
+                subtitle={t("teacher.commonTasksToday")}
+              >
                 <QuickActionGrid
                   columns={3}
                   actions={quickActions.map((a) => ({
@@ -223,8 +237,8 @@ export function TeacherDashboardPage() {
           }
           aside={
             <DashboardSection
-              title="Notifications"
-              actionLabel="View all"
+              title={t("teacher.notifications")}
+              actionLabel={t("teacher.viewAll")}
               onAction={() => navigate("/teacher/notifications")}
               elevated
             >

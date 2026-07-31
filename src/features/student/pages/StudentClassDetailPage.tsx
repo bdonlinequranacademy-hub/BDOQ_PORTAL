@@ -7,10 +7,12 @@ import { Button } from "@/components/ui/Button";
 import { ClassHero } from "@/components/classes/ClassHero";
 import { classTitle, formatDuration, teacherName } from "@/lib/utils/class";
 import { PageLoading } from "@/components/ui/PageLoading";
+import { usePortalTranslation } from "@/i18n/LocaleProvider";
 
 export function StudentClassDetailPage() {
   const { id = "" } = useParams();
   const navigate = useNavigate();
+  const { t } = usePortalTranslation();
   const { data: cls, isLoading } = useStudentClass(id);
 
   return (
@@ -20,17 +22,17 @@ export function StudentClassDetailPage() {
           type="button"
           onClick={() => navigate("/student/classes")}
           className="flex size-9 items-center justify-center rounded-full bg-zinc-100"
-          aria-label="Back to classes"
+          aria-label={t("student.backToClasses")}
         >
           <ArrowLeft className="size-5 text-navy" />
         </button>
-        <h1 className="text-xl font-bold text-navy">Class details</h1>
+        <h1 className="text-xl font-bold text-navy">{t("student.classDetails")}</h1>
       </div>
 
       {isLoading ? (
         <PageLoading compact />
       ) : !cls ? (
-        <p className="text-sm text-zinc-400">Class not found.</p>
+        <p className="text-sm text-zinc-400">{t("student.classNotFound")}</p>
       ) : (
         <>
           <ClassHero
@@ -42,7 +44,9 @@ export function StudentClassDetailPage() {
             meta={
               cls.schedule?.duration ? (
                 <p className="text-sm text-white/75">
-                  Session length: {formatDuration(cls.schedule.duration)}
+                  {t("student.sessionLength", {
+                    duration: formatDuration(cls.schedule.duration),
+                  })}
                 </p>
               ) : undefined
             }
@@ -55,7 +59,7 @@ export function StudentClassDetailPage() {
               className="flex items-center justify-center gap-2 rounded-xl bg-navy py-2.5 text-sm text-white"
             >
               <BookOpenCheck className="size-4" />
-              View homework
+              {t("student.viewHomework")}
             </Button>
             <Button
               type="button"
@@ -64,7 +68,7 @@ export function StudentClassDetailPage() {
               className="flex items-center justify-center gap-2 rounded-xl border border-gold py-2.5 text-sm text-gold-dark"
             >
               <ClipboardList className="size-4" />
-              My attendance
+              {t("student.myAttendance")}
             </Button>
           </div>
 
@@ -73,10 +77,9 @@ export function StudentClassDetailPage() {
               <Lightbulb className="size-5 text-gold-dark" />
             </div>
             <div>
-              <p className="font-semibold text-navy">Before each session</p>
+              <p className="font-semibold text-navy">{t("student.beforeEachSession")}</p>
               <p className="mt-1 text-sm leading-relaxed text-zinc-600">
-                Join on time using the meeting link above. Complete homework before the due date.
-                Your teacher updates progress on the Progress page after each class.
+                {t("student.beforeEachSessionDesc")}
               </p>
             </div>
           </Card>

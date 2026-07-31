@@ -1,6 +1,7 @@
 import { ChevronDown, Download, Plus } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/Button";
+import { usePortalTranslation } from "@/i18n/LocaleProvider";
 
 interface IAdminTestimonialsOverviewHeaderProps {
   onExport: () => void;
@@ -9,6 +10,7 @@ interface IAdminTestimonialsOverviewHeaderProps {
 export function AdminTestimonialsOverviewHeader({
   onExport,
 }: IAdminTestimonialsOverviewHeaderProps) {
+  const { t, nav } = usePortalTranslation();
   const navigate = useNavigate();
 
   return (
@@ -30,13 +32,13 @@ export function AdminTestimonialsOverviewHeader({
       <div className="relative flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <div>
           <p className="text-xs font-semibold uppercase tracking-[0.18em] text-primary">
-            Public website
+            {t("admin.cms.shared.publicWebsite")}
           </p>
           <h1 className="portal-page-title mt-1 font-display text-2xl font-bold text-primary-dark sm:text-3xl">
-            Student Reviews
+            {nav("/admin/testimonials")}
           </h1>
           <p className="portal-page-subtitle mt-2 max-w-2xl text-sm text-portal-muted sm:text-base">
-            Manage student testimonials and reviews displayed on the public website homepage.
+            {t("admin.cms.testimonials.overviewSubtitle")}
           </p>
         </div>
         <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
@@ -46,7 +48,7 @@ export function AdminTestimonialsOverviewHeader({
             className="inline-flex shrink-0 items-center gap-2 rounded-xl bg-primary-dark px-4 text-white hover:bg-primary-dark/90"
           >
             <Plus className="size-4" aria-hidden />
-            New Review
+            {t("admin.common.newReview")}
           </Button>
           <Button
             type="button"
@@ -55,7 +57,7 @@ export function AdminTestimonialsOverviewHeader({
             className="inline-flex shrink-0 items-center gap-2 rounded-xl border border-portal bg-portal-surface/80 px-4 backdrop-blur-sm"
           >
             <Download className="size-4" aria-hidden />
-            Export Report
+            {t("admin.cms.shared.exportReport")}
             <ChevronDown className="size-3.5 opacity-60" aria-hidden />
           </Button>
         </div>

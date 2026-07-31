@@ -8,18 +8,20 @@ import { ClassCard } from "@/components/classes/ClassCard";
 import { TodayClassesBanner } from "@/components/classes/TodayClassesBanner";
 import { WeeklySchedule } from "@/components/schedule/WeeklySchedule";
 import { classTitle, classesScheduledToday, teacherName } from "@/lib/utils/class";
+import { usePortalTranslation } from "@/i18n/LocaleProvider";
 
 export function StudentClassesPage() {
   const navigate = useNavigate();
+  const { t } = usePortalTranslation();
   const { data: classes = [], isLoading } = useStudentClasses();
   const todayClasses = classesScheduledToday(classes);
 
   return (
     <PageContainer className="flex flex-col gap-6">
       <div>
-        <h1 className="text-2xl font-bold text-navy">My classes</h1>
+        <h1 className="text-2xl font-bold text-navy">{t("student.myClasses")}</h1>
         <p className="text-sm text-zinc-500">
-          {classes.length} enrolled · join live sessions and track your schedule
+          {t("student.classesSubtitle", { count: String(classes.length) })}
         </p>
       </div>
 
@@ -31,9 +33,9 @@ export function StudentClassesPage() {
       ) : null}
 
       <section>
-        <h2 className="mb-3 font-semibold text-navy">Weekly schedule</h2>
+        <h2 className="mb-3 font-semibold text-navy">{t("student.weeklySchedule")}</h2>
         {isLoading ? (
-          <PageLoading label="Loading schedule…" />
+          <PageLoading label={t("student.loadingSchedule")} />
         ) : (
           <WeeklySchedule
             classes={classes}
@@ -43,16 +45,16 @@ export function StudentClassesPage() {
       </section>
 
       {isLoading ? (
-        <PageLoading label="Loading classes…" />
+        <PageLoading label={t("student.loadingClasses")} />
       ) : classes.length === 0 ? (
         <EmptyState
           icon={BookOpen}
-          title="No classes yet"
-          description="Your admin will enroll you in a class. You will see your teacher, schedule, and meeting link here."
+          title={t("student.noClassesYet")}
+          description={t("student.noClassesYetDesc")}
         />
       ) : (
         <section>
-          <h2 className="mb-3 font-semibold text-navy">Your classes</h2>
+          <h2 className="mb-3 font-semibold text-navy">{t("student.yourClasses")}</h2>
           <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
             {classes.map((cls) => (
               <ClassCard
@@ -71,7 +73,7 @@ export function StudentClassesPage() {
                     className="inline-flex items-center gap-1.5 rounded-xl border border-gold/30 px-3 py-2 text-xs font-semibold text-gold-dark transition hover:bg-gold/10"
                   >
                     <ClipboardList className="size-3.5" />
-                    Homework
+                    {t("student.homework")}
                   </button>
                 }
               />

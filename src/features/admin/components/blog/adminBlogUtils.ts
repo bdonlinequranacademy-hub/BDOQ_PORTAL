@@ -1,4 +1,5 @@
 import type { AdminBlogPost, BlogCategory, BlogPostStatus } from "@/types/models";
+import type { PortalTranslate } from "@/features/admin/components/trial-leads/adminTrialLeadsUtils";
 
 export type AdminBlogTab = "all" | "published" | "draft" | "featured";
 
@@ -100,9 +101,10 @@ export function formatBlogDate(dateIso: string): string {
   });
 }
 
-export function pctOfTotal(part: number, total: number): string {
-  if (total <= 0) return "0% of total";
-  return `${Math.round((part / total) * 1000) / 10}% of total`;
+export function pctOfTotal(part: number, total: number, t: PortalTranslate): string {
+  if (total <= 0) return t("stats.zeroOfTotal");
+  const pctValue = Math.round((part / total) * 1000) / 10;
+  return t("stats.ofTotal", { pct: String(pctValue) });
 }
 
 function isInMonth(dateIso: string | undefined, year: number, month: number): boolean {

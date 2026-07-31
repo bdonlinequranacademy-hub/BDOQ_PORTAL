@@ -5,8 +5,10 @@ import { AuthLayout } from "@/components/layout/AuthLayout";
 import { resetPasswordRequest } from "@/features/auth/api/authApi";
 import { toast } from "@/stores/uiStore";
 import { formControlLgClass } from "@/lib/formControl";
+import { usePortalTranslation } from "@/i18n/LocaleProvider";
 
 export function ResetPasswordPage() {
+  const { t } = usePortalTranslation();
   const [params] = useSearchParams();
   const token = params.get("token") ?? "";
   const navigate = useNavigate();
@@ -17,20 +19,20 @@ export function ResetPasswordPage() {
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();
     if (!token) {
-      toast.error("Invalid reset link.");
+      toast.error(t("auth.invalidResetLink"));
       return;
     }
     if (password !== confirm) {
-      toast.error("Passwords do not match.");
+      toast.error(t("auth.passwordMismatch"));
       return;
     }
     setLoading(true);
     try {
       await resetPasswordRequest(token, password);
-      toast.success("Password updated. You can sign in now.");
+      toast.success(t("auth.passwordUpdated"));
       navigate("/login", { replace: true });
     } catch (err: unknown) {
-      toast.error(err instanceof Error ? err.message : "Reset failed");
+      toast.error(err instanceof Error ? err.message : t("auth.resetFailed"));
     } finally {
       setLoading(false);
     }
@@ -39,9 +41,9 @@ export function ResetPasswordPage() {
   if (!token) {
     return (
       <AuthLayout>
-        <p className="text-sm text-zinc-500">Invalid or missing reset token.</p>
+        <p className="text-sm text-zinc-500">{t("auth.invalidResetToken")}</p>
         <Link to="/forgot-password" className="text-sm font-semibold text-gold">
-          Request a new link
+          {t("auth.requestNewLink")}
         </Link>
       </AuthLayout>
     );
@@ -50,7 +52,7 @@ export function ResetPasswordPage() {
   return (
     <AuthLayout>
       <div className="flex w-full max-w-md flex-col gap-6 py-4">
-        <h1 className="text-2xl font-bold text-navy">Set a new password</h1>
+        <h1 className="text-2xl font-bold text-navy">{t("auth.resetPasswordTitle")}</h1>
         <form onSubmit={handleSubmit} className="flex flex-col gap-4">
           <div className="relative">
             <Lock className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-zinc-400" />
@@ -60,7 +62,7 @@ export function ResetPasswordPage() {
               minLength={6}
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              placeholder="New password"
+              placeholder={t("auth.newPasswordPlaceholder")}
               className={`h-11 ${formControlLgClass} pl-9 pr-4 bg-white`}
             />
           </div>
@@ -72,7 +74,7 @@ export function ResetPasswordPage() {
               minLength={6}
               value={confirm}
               onChange={(e) => setConfirm(e.target.value)}
-              placeholder="Confirm password"
+              placeholder={t("auth.confirmPasswordShort")}
               className={`h-11 ${formControlLgClass} pl-9 pr-4 bg-white`}
             />
           </div>
@@ -81,7 +83,7 @@ export function ResetPasswordPage() {
             disabled={loading}
             className="h-12 rounded-xl bg-brand-red text-sm font-semibold text-white transition hover:bg-brand-red-dark disabled:opacity-60"
           >
-            {loading ? "Saving…" : "Update password"}
+            {loading ? t("common.loading") : t("auth.updatePassword")}
           </button>
         </form>
       </div>

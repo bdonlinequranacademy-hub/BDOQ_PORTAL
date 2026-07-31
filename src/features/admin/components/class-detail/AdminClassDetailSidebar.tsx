@@ -11,6 +11,7 @@ import {
 import { Link } from "react-router-dom";
 import { Card } from "@/components/ui/Card";
 import { UserInitialAvatar } from "@/components/ui/UserInitialAvatar";
+import { usePortalTranslation } from "@/i18n/LocaleProvider";
 import type { AdminClass, PopulatedUserRef } from "@/types/models";
 import { teacherName } from "@/lib/utils/class";
 import { normalizeMeetingLink } from "@/lib/utils/meetingLink";
@@ -34,6 +35,7 @@ export function AdminClassDetailSidebar({
   onViewStudents,
   deactivating,
 }: IAdminClassDetailSidebarProps) {
+  const { t, statusLabel } = usePortalTranslation();
   const teacher = typeof cls.teacher === "object" ? cls.teacher : undefined;
   const teacherLabel = teacherName(teacher);
   const handle = teacherHandle(teacher);
@@ -44,7 +46,7 @@ export function AdminClassDetailSidebar({
     meetingLink
       ? {
           id: "meeting",
-          label: "Open Meeting Link",
+          label: t("admin.classDetail.openMeetingLinkAction"),
           icon: Video,
           href: meetingLink,
           external: true,
@@ -53,7 +55,7 @@ export function AdminClassDetailSidebar({
       : null,
     {
       id: "edit",
-      label: "Edit Class Details",
+      label: t("admin.classDetail.editClassDetails"),
       icon: Pencil,
       href: `/admin/classes/${classId}/edit`,
       external: false,
@@ -61,7 +63,7 @@ export function AdminClassDetailSidebar({
     },
     {
       id: "schedule",
-      label: "Manage Schedule",
+      label: t("admin.classDetail.manageSchedule"),
       icon: CalendarDays,
       href: `/admin/classes/${classId}/edit`,
       external: false,
@@ -69,7 +71,7 @@ export function AdminClassDetailSidebar({
     },
     {
       id: "logs",
-      label: "Class Reports",
+      label: t("admin.classes.classReports"),
       icon: ClipboardList,
       href: "/admin/class-logs",
       external: false,
@@ -87,7 +89,7 @@ export function AdminClassDetailSidebar({
   return (
     <div className="flex flex-col gap-4">
       <Card className="rounded-2xl border border-portal bg-portal-surface p-5 shadow-[0_8px_24px_-16px_rgba(13,74,47,0.18)]">
-        <h2 className="mb-4 text-sm font-bold text-portal-heading">Quick Actions</h2>
+        <h2 className="mb-4 text-sm font-bold text-portal-heading">{t("admin.classDetail.quickActions")}</h2>
         <div className="flex flex-col gap-2">
           {actions.map((action) => {
             const className =
@@ -132,14 +134,14 @@ export function AdminClassDetailSidebar({
             ) : (
               <Trash2 className="size-4" aria-hidden />
             )}
-            {inactive ? "Reactivate Class" : "Deactivate Class"}
+            {inactive ? t("admin.classDetail.reactivateClass") : t("admin.classDetail.deactivateClass")}
           </button>
         </div>
       </Card>
 
       {teacher ? (
         <Card className="rounded-2xl border border-portal bg-portal-surface p-5 shadow-[0_8px_24px_-16px_rgba(13,74,47,0.18)]">
-          <h2 className="mb-4 text-sm font-bold text-portal-heading">Teacher</h2>
+          <h2 className="mb-4 text-sm font-bold text-portal-heading">{t("admin.classDetail.teacher")}</h2>
           <div className="flex items-center gap-3">
             <UserInitialAvatar name={teacherLabel} size="md" />
             <div className="min-w-0">
@@ -155,17 +157,17 @@ export function AdminClassDetailSidebar({
 
       <Card className="rounded-2xl border border-portal bg-portal-surface p-5 shadow-[0_8px_24px_-16px_rgba(13,74,47,0.18)]">
         <div className="mb-4 flex items-center justify-between gap-2">
-          <h2 className="text-sm font-bold text-portal-heading">Student Roster</h2>
+          <h2 className="text-sm font-bold text-portal-heading">{t("admin.classDetail.studentRoster")}</h2>
           <button
             type="button"
             onClick={onViewStudents}
             className="text-xs font-semibold text-primary hover:underline"
           >
-            View all
+            {t("actions.viewAll")}
           </button>
         </div>
         {enrolled.length === 0 ? (
-          <p className="text-sm text-portal-muted">No students enrolled yet.</p>
+          <p className="text-sm text-portal-muted">{t("admin.classDetail.noStudentsEnrolled")}</p>
         ) : (
           <div className="flex flex-col gap-3">
             {enrolled.slice(0, 5).map((student) => (
@@ -178,7 +180,7 @@ export function AdminClassDetailSidebar({
                   <p className="truncate text-xs text-portal-muted">{student.email}</p>
                 </div>
                 <span className="rounded-full bg-emerald-100 px-2 py-0.5 text-[10px] font-bold uppercase text-emerald-800">
-                  Active
+                  {statusLabel("active")}
                 </span>
               </div>
             ))}
@@ -190,7 +192,7 @@ export function AdminClassDetailSidebar({
           className="mt-4 inline-flex items-center gap-2 text-sm font-semibold text-primary hover:underline"
         >
           <Users className="size-4" aria-hidden />
-          Manage students
+          {t("admin.classDetail.manageStudents")}
         </button>
       </Card>
     </div>

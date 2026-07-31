@@ -16,6 +16,7 @@ import {
   type ResourcesSort,
   type ResourcesTab,
 } from "@/features/admin/components/resources/adminResourcesUtils";
+import { usePortalTranslation } from "@/i18n/LocaleProvider";
 
 interface IAdminResourcesToolbarProps {
   tab: ResourcesTab;
@@ -66,6 +67,8 @@ export function AdminResourcesToolbar({
   onSortChange,
   onToggleAdvancedFilters,
 }: IAdminResourcesToolbarProps) {
+  const { t, statusLabel } = usePortalTranslation();
+
   return (
     <div className="flex flex-col gap-4">
       <div className="flex flex-wrap gap-2">
@@ -150,8 +153,8 @@ export function AdminResourcesToolbar({
               aria-label="Filter by status"
             >
               <option value="">All Status</option>
-              <option value="published">Published</option>
-              <option value="draft">Draft</option>
+              <option value="published">{t("admin.common.statPublished")}</option>
+              <option value="draft">{statusLabel("draft")}</option>
             </select>
 
             <button

@@ -6,6 +6,7 @@ import type {
   IHomeworkTrendPoint,
 } from "@/features/admin/components/homework/adminHomeworkUtils";
 import { cn } from "@/lib/utils/cn";
+import { usePortalTranslation } from "@/i18n/LocaleProvider";
 
 interface IAdminHomeworkSubmissionTrendChartProps {
   data: IHomeworkTrendPoint[];
@@ -50,6 +51,8 @@ export function AdminHomeworkSubmissionTrendChart({
   range,
   onRangeChange,
 }: IAdminHomeworkSubmissionTrendChartProps) {
+  const { t, formatNumber } = usePortalTranslation();
+
   const innerWidth = CHART_WIDTH - PADDING.left - PADDING.right;
   const innerHeight = CHART_HEIGHT - PADDING.top - PADDING.bottom;
 
@@ -64,24 +67,28 @@ export function AdminHomeworkSubmissionTrendChart({
 
   const gridLines = [0, 0.5, 1].map((ratio) => ({
     y: PADDING.top + innerHeight * (1 - ratio),
-    label: Math.round(maxValue * ratio),
+    label: formatNumber(Math.round(maxValue * ratio)),
   }));
 
   return (
     <Card className="flex h-full flex-col rounded-2xl border border-portal bg-portal-surface p-5 shadow-[0_8px_24px_-16px_rgba(13,74,47,0.18)]">
       <div className="flex items-start justify-between gap-3">
         <div>
-          <h2 className="text-sm font-bold text-portal-heading">Submission trend</h2>
-          <p className="mt-0.5 text-xs text-portal-muted">Student submissions over time</p>
+          <h2 className="text-sm font-bold text-portal-heading">
+            {t("admin.homework.submissionTrend")}
+          </h2>
+          <p className="mt-0.5 text-xs text-portal-muted">
+            {t("admin.homework.submissionTrendSubtitle")}
+          </p>
         </div>
         <select
           className={cn(formControlClass, "h-9 min-h-9 py-1.5 text-xs shadow-none")}
           value={range}
           onChange={(event) => onRangeChange(event.target.value as HomeworkTrendRange)}
-          aria-label="Trend range"
+          aria-label={t("admin.homework.trendRange")}
         >
-          <option value="year">This year</option>
-          <option value="six_months">Last 6 months</option>
+          <option value="year">{t("admin.homework.trendThisYear")}</option>
+          <option value="six_months">{t("admin.homework.trendSixMonths")}</option>
         </select>
       </div>
 
@@ -90,7 +97,7 @@ export function AdminHomeworkSubmissionTrendChart({
           viewBox={`0 0 ${CHART_WIDTH} ${CHART_HEIGHT}`}
           className="h-auto w-full min-w-[280px]"
           role="img"
-          aria-label="Homework submission trend chart"
+          aria-label={t("admin.homework.chartAria")}
         >
           {gridLines.map((line) => (
             <g key={line.y}>

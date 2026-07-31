@@ -3,12 +3,9 @@ import { Card } from "@/components/ui/Card";
 import { UserInitialAvatar } from "@/components/ui/UserInitialAvatar";
 import { MissingCurriculumBadge } from "@/components/curriculum/CurriculumProgramFilter";
 import { formatCurriculumPath } from "@/lib/api/curriculumApi";
+import { usePortalTranslation } from "@/i18n/LocaleProvider";
 import { ProgressStatusBadge } from "@/features/admin/components/progress/ProgressStatusBadge";
-import {
-  formatProgressDate,
-  getProgramLabel,
-  type IProgressRowView,
-} from "@/features/admin/components/progress/adminProgressUtils";
+import type { IProgressRowView } from "@/features/admin/components/progress/adminProgressUtils";
 
 interface IAdminProgressDetailModalProps {
   record: IProgressRowView | null;
@@ -16,7 +13,13 @@ interface IAdminProgressDetailModalProps {
 }
 
 export function AdminProgressDetailModal({ record, onClose }: IAdminProgressDetailModalProps) {
+  const { t, formatDate, formatNumber } = usePortalTranslation();
+
   if (!record) return null;
+
+  const programLabel = record.curriculumLabels?.program
+    ? formatCurriculumPath(record.curriculumLabels)
+    : t("admin.payments.notSet");
 
   return (
     <div
@@ -35,7 +38,7 @@ export function AdminProgressDetailModal({ record, onClose }: IAdminProgressDeta
             <UserInitialAvatar name={record.student?.name ?? "?"} size="md" />
             <div>
               <h2 id="progress-detail-title" className="text-lg font-bold text-portal-heading">
-                {record.student?.name ?? "Student"}
+                {record.student?.name ?? t("tables.student")}
               </h2>
               <p className="text-sm text-portal-muted">{record.class?.title ?? "—"}</p>
             </div>
@@ -44,7 +47,7 @@ export function AdminProgressDetailModal({ record, onClose }: IAdminProgressDeta
             type="button"
             onClick={onClose}
             className="inline-flex size-9 items-center justify-center rounded-lg border border-portal text-portal-muted transition hover:text-primary"
-            aria-label="Close"
+            aria-label={t("actions.close")}
           >
             <X className="size-4" />
           </button>
@@ -54,34 +57,42 @@ export function AdminProgressDetailModal({ record, onClose }: IAdminProgressDeta
           <div className="flex flex-wrap items-center gap-2">
             <ProgressStatusBadge status={record.status} />
             <span className="text-xs text-portal-muted">
-              Updated {formatProgressDate(record.updatedAt)}
+              {record.updatedAt
+                ? t("admin.progress.updated", { date: formatDate(record.updatedAt) })
+                : "—"}
             </span>
           </div>
 
           <div className="grid grid-cols-2 gap-3">
             <div className="rounded-xl border border-portal bg-portal-muted/15 p-3">
-              <p className="text-xs text-portal-muted">Tajweed</p>
-              <p className="text-xl font-bold text-primary">{record.tajweedScore ?? 0}%</p>
+              <p className="text-xs text-portal-muted">{t("tables.tajweed")}</p>
+              <p className="text-xl font-bold text-primary">
+                {formatNumber(record.tajweedScore ?? 0)}%
+              </p>
             </div>
             <div className="rounded-xl border border-portal bg-portal-muted/15 p-3">
-              <p className="text-xs text-portal-muted">Memorization</p>
-              <p className="text-xl font-bold text-amber-600">{record.memorizationPct}%</p>
+              <p className="text-xs text-portal-muted">{t("tables.memorization")}</p>
+              <p className="text-xl font-bold text-amber-600">
+                {formatNumber(record.memorizationPct)}%
+              </p>
             </div>
             <div className="rounded-xl border border-portal bg-portal-muted/15 p-3">
-              <p className="text-xs text-portal-muted">Surahs completed</p>
-              <p className="text-xl font-bold text-portal-heading">{record.surahCount}</p>
-            </div>
-            <div className="rounded-xl border border-portal bg-portal-muted/15 p-3">
-              <p className="text-xs text-portal-muted">Ayahs memorized</p>
+              <p className="text-xs text-portal-muted">{t("admin.progress.surahsCompleted")}</p>
               <p className="text-xl font-bold text-portal-heading">
-                {record.memorizedAyahs ?? 0}
+                {formatNumber(record.surahCount)}
+              </p>
+            </div>
+            <div className="rounded-xl border border-portal bg-portal-muted/15 p-3">
+              <p className="text-xs text-portal-muted">{t("admin.progress.ayahsMemorized")}</p>
+              <p className="text-xl font-bold text-portal-heading">
+                {formatNumber(record.memorizedAyahs ?? 0)}
               </p>
             </div>
           </div>
 
           <div>
             <p className="text-xs font-semibold uppercase tracking-wide text-portal-muted">
-              Program
+              {t("tables.program")}
             </p>
             <p className="mt-1 text-sm text-portal-heading">
               {record.curriculumLabels?.program ? (
@@ -95,7 +106,7 @@ export function AdminProgressDetailModal({ record, onClose }: IAdminProgressDeta
           {record.surahsMemorized && record.surahsMemorized.length > 0 ? (
             <div>
               <p className="text-xs font-semibold uppercase tracking-wide text-portal-muted">
-                Surahs memorized
+                {t("admin.progress.surahsMemorized")}
               </p>
               <div className="mt-2 flex flex-wrap gap-1.5">
                 {record.surahsMemorized.map((surah) => (
@@ -113,7 +124,7 @@ export function AdminProgressDetailModal({ record, onClose }: IAdminProgressDeta
           {record.notes ? (
             <div>
               <p className="text-xs font-semibold uppercase tracking-wide text-portal-muted">
-                Teacher notes
+                {t("admin.progress.teacherNotes")}
               </p>
               <p className="mt-1 text-sm leading-relaxed text-portal-heading">{record.notes}</p>
             </div>
@@ -121,7 +132,10 @@ export function AdminProgressDetailModal({ record, onClose }: IAdminProgressDeta
 
           {record.updatedBy?.name ? (
             <p className="text-xs text-portal-muted">
-              Last updated by {record.updatedBy.name} · {getProgramLabel(record)}
+              {t("admin.progress.lastUpdatedBy", {
+                name: record.updatedBy.name,
+                program: programLabel,
+              })}
             </p>
           ) : null}
         </div>

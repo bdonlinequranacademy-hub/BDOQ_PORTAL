@@ -11,6 +11,7 @@ import {
   isUpcomingPost,
 } from "@/features/admin/components/blog/adminBlogUtils";
 import { cn } from "@/lib/utils/cn";
+import { usePortalTranslation } from "@/i18n/LocaleProvider";
 
 interface IAdminBlogTableProps {
   posts: AdminBlogPost[];
@@ -28,6 +29,8 @@ export function AdminBlogTable({
   onEdit,
   onDelete,
 }: IAdminBlogTableProps) {
+  const { t } = usePortalTranslation();
+
   return (
     <Card className="overflow-hidden rounded-2xl border border-portal bg-portal-surface p-0 shadow-[0_8px_24px_-16px_rgba(13,74,47,0.18)]">
       <div className="overflow-x-auto">
@@ -37,10 +40,10 @@ export function AdminBlogTable({
               <th className="px-5 py-3.5">Title</th>
               <th className="px-5 py-3.5">Author</th>
               <th className="px-5 py-3.5">Category</th>
-              <th className="px-5 py-3.5">Status</th>
+              <th className="px-5 py-3.5">{t("tables.status")}</th>
               <th className="px-5 py-3.5">Published on</th>
               <th className="px-5 py-3.5">Read</th>
-              <th className="px-5 py-3.5 text-right">Actions</th>
+              <th className="px-5 py-3.5 text-right">{t("tables.actions")}</th>
             </tr>
           </thead>
           <tbody>
@@ -73,9 +76,7 @@ export function AdminBlogTable({
                           </p>
                           <p className="line-clamp-1 text-xs text-portal-muted">/blog/{post.slug}</p>
                           {post.featured ? (
-                            <span className="mt-1 inline-flex text-[10px] font-semibold uppercase tracking-wide text-gold">
-                              Featured
-                            </span>
+                            <span className="mt-1 inline-flex text-[10px] font-semibold uppercase tracking-wide text-gold">{t("admin.cms.shared.statFeatured")}</span>
                           ) : null}
                         </div>
                       </div>

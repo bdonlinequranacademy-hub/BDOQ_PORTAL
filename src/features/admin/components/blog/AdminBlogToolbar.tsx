@@ -7,6 +7,7 @@ import {
 } from "@/features/admin/components/blog/adminBlogUtils";
 import { formControlClass } from "@/lib/formControl";
 import { cn } from "@/lib/utils/cn";
+import { usePortalTranslation } from "@/i18n/LocaleProvider";
 
 interface IAdminBlogToolbarProps {
   tab: AdminBlogTab;
@@ -30,13 +31,6 @@ interface IAdminBlogToolbarProps {
   onSortChange: (value: BlogSort) => void;
   onToggleAdvancedFilters: () => void;
 }
-
-const TABS: { id: AdminBlogTab; label: string }[] = [
-  { id: "all", label: "All" },
-  { id: "published", label: "Published" },
-  { id: "draft", label: "Draft" },
-  { id: "featured", label: "Featured" },
-];
 
 const fieldClass = cn(formControlClass, "h-10 min-h-10 py-2 text-sm shadow-none");
 
@@ -62,6 +56,15 @@ export function AdminBlogToolbar({
   onSortChange,
   onToggleAdvancedFilters,
 }: IAdminBlogToolbarProps) {
+  const { t, statusLabel } = usePortalTranslation();
+
+  const tabs: { id: AdminBlogTab; label: string }[] = [
+    { id: "all", label: t("labels.all") },
+    { id: "published", label: t("admin.common.statPublished") },
+    { id: "draft", label: statusLabel("draft") },
+    { id: "featured", label: t("admin.cms.shared.statFeatured") },
+  ];
+
   return (
     <div className="flex flex-col gap-4 rounded-2xl border border-portal bg-portal-surface p-4 shadow-[0_8px_24px_-16px_rgba(13,74,47,0.18)] sm:p-5">
       <div>
@@ -72,7 +75,7 @@ export function AdminBlogToolbar({
       </div>
 
       <div className="flex flex-wrap gap-1 border-b border-portal pb-3">
-        {TABS.map((item) => (
+        {tabs.map((item) => (
           <button
             key={item.id}
             type="button"
@@ -99,7 +102,7 @@ export function AdminBlogToolbar({
             type="search"
             value={search}
             onChange={(event) => onSearchChange(event.target.value)}
-            placeholder="Search posts…"
+            placeholder={t("admin.cms.shared.searchPosts")}
             className={cn(fieldClass, "w-full pl-9")}
           />
         </label>
@@ -110,7 +113,7 @@ export function AdminBlogToolbar({
           onChange={(event) => onCategoryChange(event.target.value as BlogCategory | "")}
           aria-label="Filter by category"
         >
-          <option value="">All categories</option>
+          <option value="">{t("admin.cms.shared.allCategories")}</option>
           {BLOG_CATEGORIES.map((category) => (
             <option key={category} value={category}>
               {category}
@@ -139,8 +142,8 @@ export function AdminBlogToolbar({
           aria-label="Filter by status"
         >
           <option value="">All statuses</option>
-          <option value="published">Published</option>
-          <option value="draft">Draft</option>
+          <option value="published">{t("admin.common.statPublished")}</option>
+          <option value="draft">{statusLabel("draft")}</option>
         </select>
 
         <button
@@ -180,8 +183,8 @@ export function AdminBlogToolbar({
             onChange={(event) => onSortChange(event.target.value as BlogSort)}
             aria-label="Sort posts"
           >
-            <option value="newest">Newest first</option>
-            <option value="oldest">Oldest first</option>
+            <option value="newest">{t("admin.studentRequests.toolbarSortNewest")}</option>
+            <option value="oldest">{t("admin.studentRequests.toolbarSortOldest")}</option>
             <option value="title_asc">Title A–Z</option>
             <option value="title_desc">Title Z–A</option>
           </select>

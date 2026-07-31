@@ -25,6 +25,7 @@ import { PageLoading } from "@/components/ui/PageLoading";
 import { UserAvatar } from "@/components/ui/UserAvatar";
 import { formControlClass, formHintClass, formLabelClass } from "@/lib/formControl";
 import { cn } from "@/lib/utils/cn";
+import { usePortalTranslation } from "@/i18n/LocaleProvider";
 import type { TestimonialMediaType } from "@/types/models";
 
 const MEDIA_OPTIONS: {
@@ -73,6 +74,7 @@ function extractUploadError(err: unknown, fallback: string): string {
 }
 
 export function AdminTestimonialFormPage() {
+  const { t } = usePortalTranslation();
   const { id } = useParams<{ id: string }>();
   const isEdit = Boolean(id);
   const navigate = useNavigate();
@@ -219,7 +221,7 @@ export function AdminTestimonialFormPage() {
   if (isEdit && isLoading) {
     return (
       <PageContainer>
-        <PageLoading label="Loading review…" />
+        <PageLoading label={t("admin.common.loadingReview")} />
       </PageContainer>
     );
   }
@@ -248,7 +250,7 @@ export function AdminTestimonialFormPage() {
               Student Reviews
             </p>
             <h1 className="mt-1 font-display text-2xl font-bold text-primary-dark sm:text-3xl">
-              {isEdit ? "Edit review" : "New student review"}
+              {isEdit ? t("admin.cms.testimonials.editTitle") : t("admin.cms.testimonials.createTitle")}
             </h1>
             <p className="mt-2 max-w-2xl text-sm text-portal-muted">
               Create a polished testimonial for the homepage and /reviews page. Preview updates
@@ -264,7 +266,7 @@ export function AdminTestimonialFormPage() {
             )}
           >
             <Globe className="size-3.5" aria-hidden />
-            {showOnWebsite ? "Will publish" : "Saved as pending"}
+            {showOnWebsite ? t("admin.cms.testimonials.willPublish") : t("admin.cms.testimonials.savedPending")}
           </span>
         </div>
       </div>
@@ -619,12 +621,12 @@ export function AdminTestimonialFormPage() {
             >
               <Save className="size-4" aria-hidden />
               {saving
-                ? "Saving…"
+                ? t("admin.curriculum.saving")
                 : isEdit
-                  ? "Save changes"
+                  ? t("admin.common.save")
                   : showOnWebsite
-                    ? "Publish review"
-                    : "Save as pending"}
+                    ? t("admin.cms.testimonials.willPublish")
+                    : t("admin.cms.testimonials.savedPending")}
             </Button>
             <Button
               type="button"

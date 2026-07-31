@@ -21,6 +21,7 @@ import { AdminTestimonialsTopRated } from "@/features/admin/components/testimoni
 import { AdminTestimonialsQuickActions } from "@/features/admin/components/testimonials/AdminTestimonialsQuickActions";
 import { AdminTestimonialsTipBanner } from "@/features/admin/components/testimonials/AdminTestimonialsTipBanner";
 import { AdminSectionHeaderPanel } from "@/features/admin/components/sectionHeaders/AdminSectionHeaderPanel";
+import { usePortalTranslation } from "@/i18n/LocaleProvider";
 import {
   buildRatingDistribution,
   computeTestimonialsStats,
@@ -34,6 +35,7 @@ import {
 } from "@/features/admin/components/testimonials/adminTestimonialsUtils";
 
 export function AdminTestimonialsPage() {
+  const { t } = usePortalTranslation();
   const navigate = useNavigate();
   const [tab, setTab] = useState<AdminTestimonialsTab>("all");
   const [search, setSearch] = useState("");
@@ -108,7 +110,7 @@ export function AdminTestimonialsPage() {
   }
 
   function handleDelete(item: { id: string; name: string }) {
-    if (!window.confirm(`Delete review from ${item.name}?`)) return;
+    if (!window.confirm(t("admin.common.confirmDeleteReview", { name: item.name }))) return;
     deleteReview.mutate(item.id);
   }
 
@@ -133,13 +135,13 @@ export function AdminTestimonialsPage() {
       </div>
 
       {isLoading ? (
-        <PageLoading label="Loading reviews…" />
+        <PageLoading label={t("admin.common.loadingReviews")} />
       ) : testimonials.length === 0 ? (
         <EmptyState
           icon={MessageSquareQuote}
-          title="No reviews yet"
-          description="Add student testimonials to populate the homepage review section."
-          actionLabel="New review"
+          title={t("admin.common.noReviews")}
+          description={t("admin.common.noReviewsDesc")}
+          actionLabel={t("admin.common.newReview")}
           onAction={() => navigate("/admin/testimonials/new")}
         />
       ) : (
@@ -194,7 +196,7 @@ export function AdminTestimonialsPage() {
             <AdminTestimonialsQuickActions onExport={handleExport} />
             {isFetching ? (
               <p className="text-center text-xs text-portal-muted">
-                Refreshing reviews…
+                {t("admin.common.refreshingReviews")}
               </p>
             ) : (
               <button
@@ -202,7 +204,7 @@ export function AdminTestimonialsPage() {
                 onClick={() => void refetch()}
                 className="text-center text-xs font-semibold text-primary hover:underline"
               >
-                Refresh data
+                {t("admin.common.refreshData")}
               </button>
             )}
           </aside>

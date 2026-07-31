@@ -1,5 +1,6 @@
 import type { BlogPostStatus } from "@/types/models";
 import { cn } from "@/lib/utils/cn";
+import { usePortalTranslation } from "@/i18n/LocaleProvider";
 
 interface IBlogStatusBadgeProps {
   status: BlogPostStatus;
@@ -8,12 +9,12 @@ interface IBlogStatusBadgeProps {
 }
 
 export function BlogStatusBadge({ status, upcoming, className }: IBlogStatusBadgeProps) {
+  const { statusLabel } = usePortalTranslation();
+
   const label =
     upcoming && status === "published"
-      ? "Scheduled"
-      : status === "published"
-        ? "Published"
-        : "Draft";
+      ? statusLabel("scheduled")
+      : statusLabel(status);
 
   const dotClass =
     upcoming && status === "published"

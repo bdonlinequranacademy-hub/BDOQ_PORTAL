@@ -20,8 +20,10 @@ import {
 } from "@/lib/formControl";
 import { cn } from "@/lib/utils/cn";
 import { env } from "@/config/env";
+import { usePortalTranslation } from "@/i18n/LocaleProvider";
 
 export function AdminFaqFormPage() {
+  const { t } = usePortalTranslation();
   const { id } = useParams<{ id: string }>();
   const isEdit = Boolean(id);
   const navigate = useNavigate();
@@ -75,7 +77,7 @@ export function AdminFaqFormPage() {
   if (isEdit && isLoading) {
     return (
       <PageContainer>
-        <PageLoading label="Loading FAQ item…" />
+        <PageLoading label={t("admin.common.loadingFaqItem")} />
       </PageContainer>
     );
   }
@@ -96,7 +98,7 @@ export function AdminFaqFormPage() {
             Back to FAQ
           </button>
           <h1 className="mt-3 font-display text-2xl font-bold text-primary-dark sm:text-3xl">
-            {isEdit ? "Edit FAQ Item" : "Create FAQ Item"}
+            {isEdit ? t("admin.cms.faq.editTitle") : t("admin.cms.faq.createTitle")}
           </h1>
           <p className="mt-1.5 max-w-xl text-sm text-portal-muted">
             Add or update a question for the public website FAQ accordion.
@@ -119,7 +121,7 @@ export function AdminFaqFormPage() {
             className="inline-flex items-center gap-2 rounded-xl bg-primary px-4 text-white hover:bg-primary-dark"
           >
             <Save className="size-4" aria-hidden />
-            {isSaving ? "Saving…" : "Save FAQ"}
+            {isSaving ? t("admin.curriculum.saving") : t("admin.cms.faq.saveFaq")}
           </Button>
         </div>
       </div>

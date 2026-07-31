@@ -107,7 +107,8 @@ function groupsForRole(role: Role): Record<string, readonly string[]> | null {
 /** Split flat nav (from AppLayout) into mockup-style sections; keeps all items, data order within groups. */
 export function groupPortalNavItems(
   navItems: IPortalNavItem[],
-  role: Role
+  role: Role,
+  sectionLabel?: (id: string) => string
 ): IPortalNavSection[] {
   const byPath = new Map(navItems.map((item) => [item.path, item]));
   const dashboard = navItems.find(
@@ -138,7 +139,7 @@ export function groupPortalNavItems(
     if (items.length > 0) {
       sections.push({
         id,
-        label: SECTION_LABELS[id] ?? id,
+        label: sectionLabel?.(id) ?? SECTION_LABELS[id] ?? id,
         items,
       });
     }
@@ -148,7 +149,7 @@ export function groupPortalNavItems(
   if (leftovers.length > 0) {
     sections.push({
       id: "more",
-      label: "More",
+      label: sectionLabel?.("more") ?? "More",
       items: leftovers,
     });
   }

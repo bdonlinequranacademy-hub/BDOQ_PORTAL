@@ -11,13 +11,13 @@ import {
   formatCourseInterest,
   formatLeadSource,
   formatLeadSourceDetail,
-  formatRequestedAt,
   nextTrialLeadActionLabel,
   nextTrialLeadStatus,
   trialLeadMailtoHref,
   trialLeadTelHref,
   type AdminTrialLeadsTab,
 } from "@/features/admin/components/trial-leads/adminTrialLeadsUtils";
+import { usePortalTranslation } from "@/i18n/LocaleProvider";
 import { formControlClass } from "@/lib/formControl";
 import { cn } from "@/lib/utils/cn";
 
@@ -35,32 +35,34 @@ export function AdminTrialLeadsTable({
   busy,
   onAdvanceStatus,
 }: IAdminTrialLeadsTableProps) {
+  const { t, statusLabel, formatDateTime } = usePortalTranslation();
+
   return (
     <Card className="overflow-hidden rounded-2xl border border-portal bg-portal-surface p-0 shadow-[0_8px_24px_-16px_rgba(13,74,47,0.18)]">
       <div className="overflow-x-auto">
         <table className="w-full min-w-[1040px] border-collapse text-left">
           <thead>
             <tr className="border-b border-portal bg-portal-muted/40 text-xs font-semibold uppercase tracking-wide text-portal-muted">
-              <th className="px-5 py-3.5">Lead</th>
-              <th className="px-5 py-3.5">Program interested</th>
-              <th className="px-5 py-3.5">Source</th>
-              <th className="px-5 py-3.5">Status</th>
-              <th className="px-5 py-3.5">Requested at</th>
-              <th className="px-5 py-3.5 text-right">Actions</th>
+              <th className="px-5 py-3.5">{t("admin.trialLeads.tableLead")}</th>
+              <th className="px-5 py-3.5">{t("admin.trialLeads.tableProgramInterested")}</th>
+              <th className="px-5 py-3.5">{t("admin.trialLeads.tableSource")}</th>
+              <th className="px-5 py-3.5">{t("tables.status")}</th>
+              <th className="px-5 py-3.5">{t("admin.trialLeads.tableRequestedAt")}</th>
+              <th className="px-5 py-3.5 text-right">{t("tables.actions")}</th>
             </tr>
           </thead>
           <tbody>
             {leads.map((lead) => {
-              const requested = formatRequestedAt(lead.createdAt);
+              const requested = formatDateTime(lead.createdAt);
               const wa = waMeUrlFromRaw(
                 lead.whatsapp,
                 lead.country,
                 trialLeadFollowUpMessage(lead.parentName)
               );
               const nextStatus = nextTrialLeadStatus(lead.status);
-              const nextLabel = nextTrialLeadActionLabel(lead.status);
+              const nextLabel = nextTrialLeadActionLabel(lead.status, t, statusLabel);
               const telHref = trialLeadTelHref(lead.whatsapp, lead.country);
-              const mailHref = trialLeadMailtoHref(lead.email, lead.parentName);
+              const mailHref = trialLeadMailtoHref(lead.email, lead.parentName, t);
 
               return (
                 <tr
@@ -83,25 +85,26 @@ export function AdminTrialLeadsTable({
                   </td>
                   <td className="px-5 py-4">
                     <p className="text-sm font-semibold text-portal-heading">
-                      {formatCourseInterest(lead.courseSlug)}
+                      {formatCourseInterest(lead.courseSlug, t)}
                     </p>
-                    <p className="text-xs text-portal-muted">Free trial class</p>
+                    <p className="text-xs text-portal-muted">
+                      {t("admin.trialLeads.freeTrialClass")}
+                    </p>
                   </td>
                   <td className="px-5 py-4">
                     <p className="text-sm font-medium text-portal-heading">
-                      {formatLeadSource(lead)}
+                      {formatLeadSource(lead, t)}
                     </p>
-                    <p className="text-xs text-portal-muted">{formatLeadSourceDetail(lead)}</p>
+                    <p className="text-xs text-portal-muted">
+                      {formatLeadSourceDetail(lead, t)}
+                    </p>
                   </td>
                   <td className="px-5 py-4">
                     <TrialLeadStatusBadge status={lead.status} />
                   </td>
                   <td className="px-5 py-4">
-                    <p className="text-xs font-bold tracking-wide text-portal-muted">
-                      {requested.date}
-                    </p>
-                    <p className="mt-1 text-sm font-semibold tabular-nums text-portal-heading">
-                      {requested.time}
+                    <p className="text-sm font-semibold tabular-nums text-portal-heading">
+                      {requested}
                     </p>
                   </td>
                   <td className="px-5 py-4">
@@ -111,7 +114,9 @@ export function AdminTrialLeadsTable({
                         <a
                           href={telHref}
                           className={contactActionClass}
-                          aria-label={`Call ${lead.parentName}`}
+                          aria-label={t("admin.trialLeads.callPerson", {
+                            name: lead.parentName,
+                          })}
                           title={lead.whatsapp}
                         >
                           <Phone className="size-4" aria-hidden />
@@ -119,7 +124,7 @@ export function AdminTrialLeadsTable({
                       ) : (
                         <span
                           className={cn(contactActionClass, "cursor-not-allowed opacity-40")}
-                          title="Invalid phone number"
+                          title={t("admin.trialLeads.invalidPhone")}
                           aria-hidden
                         >
                           <Phone className="size-4" />
@@ -129,7 +134,9 @@ export function AdminTrialLeadsTable({
                         <a
                           href={mailHref}
                           className={contactActionClass}
-                          aria-label={`Email ${lead.parentName}`}
+                          aria-label={t("admin.trialLeads.emailPerson", {
+                            name: lead.parentName,
+                          })}
                           title={lead.email ?? undefined}
                         >
                           <Mail className="size-4" aria-hidden />
@@ -178,14 +185,6 @@ interface IAdminTrialLeadsToolbarProps {
   onExport: () => void;
 }
 
-const TABS: { id: AdminTrialLeadsTab; label: string }[] = [
-  { id: "all", label: "All leads" },
-  { id: "new", label: "New" },
-  { id: "contacted", label: "Contacted" },
-  { id: "scheduled", label: "Scheduled" },
-  { id: "closed", label: "Closed" },
-];
-
 const toolbarFieldClass = cn(formControlClass, "h-10 min-h-10 py-2 text-sm shadow-none");
 
 export function AdminTrialLeadsToolbar({
@@ -206,12 +205,24 @@ export function AdminTrialLeadsToolbar({
   onTabChange,
   onExport,
 }: IAdminTrialLeadsToolbarProps) {
+  const { t, statusLabel, formatNumber } = usePortalTranslation();
+
+  const tabs: { id: AdminTrialLeadsTab; label: string }[] = [
+    { id: "all", label: t("admin.trialLeads.tabAllLeads") },
+    { id: "new", label: statusLabel("new") },
+    { id: "contacted", label: statusLabel("contacted") },
+    { id: "scheduled", label: statusLabel("scheduled") },
+    { id: "closed", label: statusLabel("closed") },
+  ];
+
   return (
     <div className="flex flex-col gap-4 rounded-2xl border border-portal bg-portal-surface p-4 shadow-[0_8px_24px_-16px_rgba(13,74,47,0.18)] sm:p-5">
       <div>
-        <h2 className="text-sm font-bold text-portal-heading">Search &amp; filters</h2>
+        <h2 className="text-sm font-bold text-portal-heading">
+          {t("admin.trialLeads.toolbarTitle")}
+        </h2>
         <p className="mt-0.5 text-xs text-portal-muted">
-          Find leads by contact details, course interest, or submission date.
+          {t("admin.trialLeads.toolbarSubtitle")}
         </p>
       </div>
 
@@ -223,10 +234,10 @@ export function AdminTrialLeadsToolbar({
           />
           <input
             className={cn(toolbarFieldClass, "pl-9")}
-            placeholder="Search name, phone, email…"
+            placeholder={t("admin.trialLeads.searchPlaceholder")}
             value={search}
             onChange={(event) => onSearchChange(event.target.value)}
-            aria-label="Search trial leads"
+            aria-label={t("admin.trialLeads.searchAria")}
           />
         </div>
 
@@ -235,12 +246,12 @@ export function AdminTrialLeadsToolbar({
             value={courseFilter}
             onChange={(event) => onCourseChange(event.target.value)}
             className={cn(toolbarFieldClass, "w-full sm:min-w-[152px] xl:w-auto")}
-            aria-label="Filter by course"
+            aria-label={t("admin.trialLeads.filterCourse")}
           >
-            <option value="">All courses</option>
+            <option value="">{t("admin.trialLeads.allCourses")}</option>
             {courses.map((slug) => (
               <option key={slug} value={slug}>
-                {formatCourseInterest(slug)}
+                {formatCourseInterest(slug, t)}
               </option>
             ))}
           </select>
@@ -248,9 +259,9 @@ export function AdminTrialLeadsToolbar({
             value={sourceFilter}
             onChange={(event) => onSourceChange(event.target.value)}
             className={cn(toolbarFieldClass, "w-full sm:min-w-[152px] xl:w-auto")}
-            aria-label="Filter by source"
+            aria-label={t("admin.trialLeads.filterSource")}
           >
-            <option value="">All sources</option>
+            <option value="">{t("admin.trialLeads.allSources")}</option>
             {sources.map((source) => (
               <option key={source} value={source}>
                 {source}
@@ -262,21 +273,21 @@ export function AdminTrialLeadsToolbar({
             value={dateFrom}
             onChange={(event) => onDateFromChange(event.target.value)}
             className={cn(toolbarFieldClass, "w-full sm:min-w-[140px] xl:w-auto")}
-            aria-label="Date from"
+            aria-label={t("filters.dateFrom")}
           />
           <input
             type="date"
             value={dateTo}
             onChange={(event) => onDateToChange(event.target.value)}
             className={cn(toolbarFieldClass, "w-full sm:min-w-[140px] xl:w-auto")}
-            aria-label="Date to"
+            aria-label={t("filters.dateTo")}
           />
         </div>
       </div>
 
       <div className="flex flex-col gap-3 border-t border-portal pt-4 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex gap-1 overflow-x-auto">
-          {TABS.map((item) => (
+          {tabs.map((item) => (
             <button
               key={item.id}
               type="button"
@@ -288,7 +299,7 @@ export function AdminTrialLeadsToolbar({
                   : "border border-portal bg-portal-muted/20 text-portal-heading hover:bg-portal-muted/40"
               )}
             >
-              {item.label} ({tabCounts[item.id]})
+              {item.label} ({formatNumber(tabCounts[item.id])})
             </button>
           ))}
         </div>
@@ -299,7 +310,7 @@ export function AdminTrialLeadsToolbar({
           className="inline-flex items-center gap-2 rounded-xl border border-portal px-4"
         >
           <Download className="size-4" aria-hidden />
-          Export
+          {t("admin.common.export")}
         </Button>
       </div>
     </div>

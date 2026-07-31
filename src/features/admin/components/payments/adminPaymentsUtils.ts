@@ -1,4 +1,7 @@
 import type { BillingCurrency, OverdueBillingView, PaymentRecordView, PaymentStatus } from "@/types/models";
+import type { LocaleType } from "@/i18n/types";
+import { getStoredLocale } from "@/i18n/locale";
+import { formatLocaleMoney } from "@/i18n/format";
 
 export const PAYMENT_METHOD_LABELS: Record<string, string> = {
   zelle: "Zelle",
@@ -11,16 +14,12 @@ export const PAYMENT_METHOD_LABELS: Record<string, string> = {
   other: "Other",
 };
 
-export function formatPaymentAmount(amount: number, currency: string) {
-  try {
-    return new Intl.NumberFormat(undefined, {
-      style: "currency",
-      currency,
-      minimumFractionDigits: 2,
-    }).format(amount);
-  } catch {
-    return `${currency} ${amount.toFixed(2)}`;
-  }
+export function formatPaymentAmount(
+  amount: number,
+  currency: string,
+  locale: LocaleType = getStoredLocale() ?? "en"
+) {
+  return formatLocaleMoney(locale, amount, currency);
 }
 
 export function sumPaymentsByCurrency(

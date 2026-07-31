@@ -6,6 +6,7 @@ import {
 } from "@/features/admin/components/student-requests/adminStudentRequestsUtils";
 import { formControlClass } from "@/lib/formControl";
 import { cn } from "@/lib/utils/cn";
+import { usePortalTranslation } from "@/i18n/LocaleProvider";
 
 interface IAdminStudentRequestsToolbarProps {
   search: string;
@@ -27,13 +28,6 @@ interface IAdminStudentRequestsToolbarProps {
   onTabChange: (tab: AdminStudentRequestsTab) => void;
   onExport: () => void;
 }
-
-const TABS: { id: AdminStudentRequestsTab; label: string }[] = [
-  { id: "all", label: "All" },
-  { id: "pending", label: "Pending" },
-  { id: "approved", label: "Approved" },
-  { id: "rejected", label: "Rejected" },
-];
 
 const toolbarFieldClass = cn(formControlClass, "h-10 min-h-10 py-2 text-sm shadow-none");
 
@@ -57,10 +51,19 @@ export function AdminStudentRequestsToolbar({
   onTabChange,
   onExport,
 }: IAdminStudentRequestsToolbarProps) {
+  const { t, statusLabel } = usePortalTranslation();
+
+  const tabs: { id: AdminStudentRequestsTab; label: string }[] = [
+    { id: "all", label: t("labels.all") },
+    { id: "pending", label: t("admin.studentRequests.statsPending") },
+    { id: "approved", label: t("admin.admissions.tabApproved") },
+    { id: "rejected", label: statusLabel("rejected") },
+  ];
+
   return (
     <div className="flex flex-col gap-4 rounded-2xl border border-portal bg-portal-surface p-4 shadow-[0_8px_24px_-16px_rgba(13,74,47,0.18)] sm:p-5">
       <div>
-        <h2 className="text-sm font-bold text-portal-heading">Search &amp; filters</h2>
+        <h2 className="text-sm font-bold text-portal-heading">{t("admin.teacherApplications.toolbarTitle")}</h2>
         <p className="mt-0.5 text-xs text-portal-muted">
           Find requests by teacher, course preference, or submission date.
         </p>
@@ -113,21 +116,21 @@ export function AdminStudentRequestsToolbar({
             value={dateFrom}
             onChange={(event) => onDateFromChange(event.target.value)}
             className={cn(toolbarFieldClass, "w-full sm:min-w-[140px] xl:w-auto")}
-            aria-label="Date from"
+            aria-label={t("filters.dateFrom")}
           />
           <input
             type="date"
             value={dateTo}
             onChange={(event) => onDateToChange(event.target.value)}
             className={cn(toolbarFieldClass, "w-full sm:min-w-[140px] xl:w-auto")}
-            aria-label="Date to"
+            aria-label={t("filters.dateTo")}
           />
         </div>
       </div>
 
       <div className="flex flex-col gap-3 border-t border-portal pt-4 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex gap-1 overflow-x-auto">
-          {TABS.map((item) => (
+          {tabs.map((item) => (
             <button
               key={item.id}
               type="button"
@@ -150,8 +153,8 @@ export function AdminStudentRequestsToolbar({
             className={cn(toolbarFieldClass, "min-w-[140px]")}
             aria-label="Sort requests"
           >
-            <option value="newest">Newest first</option>
-            <option value="oldest">Oldest first</option>
+            <option value="newest">{t("admin.studentRequests.toolbarSortNewest")}</option>
+            <option value="oldest">{t("admin.studentRequests.toolbarSortOldest")}</option>
           </select>
           <Button
             type="button"
@@ -159,9 +162,7 @@ export function AdminStudentRequestsToolbar({
             onClick={onExport}
             className="inline-flex items-center gap-2 rounded-xl border border-portal px-4"
           >
-            <Download className="size-4" aria-hidden />
-            Export
-          </Button>
+            <Download className="size-4" aria-hidden />{t("admin.common.export")}</Button>
         </div>
       </div>
     </div>

@@ -35,8 +35,10 @@ import {
   newNodeId,
   updateNodeAtPath,
 } from "@/features/admin/components/curriculum/adminCurriculumUtils";
+import { usePortalTranslation } from "@/i18n/LocaleProvider";
 
 export function AdminCurriculumPage() {
+  const { t } = usePortalTranslation();
   const { data: serverTree = [], isLoading } = useAdminCurriculum();
   const updateCurriculum = useUpdateAdminCurriculum();
   const resetCurriculum = useResetAdminCurriculum();
@@ -168,7 +170,7 @@ export function AdminCurriculumPage() {
     if (!target) return;
     if (
       !window.confirm(
-        `Delete "${target.label}"? All sections and topics under this program will be removed.`
+        t("admin.curriculum.confirmDeleteNode", { label: target.label })
       )
     ) {
       return;
@@ -191,7 +193,7 @@ export function AdminCurriculumPage() {
     if (!target) return;
     if (
       !window.confirm(
-        `Delete "${target.label}"? All topics under this section will be removed.`
+        t("admin.curriculum.confirmDeleteNode", { label: target.label })
       )
     ) {
       return;
@@ -214,7 +216,7 @@ export function AdminCurriculumPage() {
   }
 
   async function handleReset() {
-    if (!window.confirm("Reset curriculum to factory defaults? This cannot be undone.")) {
+    if (!window.confirm(t("admin.curriculum.confirmReset"))) {
       return;
     }
     const res = await resetCurriculum.mutateAsync();
@@ -237,10 +239,10 @@ export function AdminCurriculumPage() {
       <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
         <div className="min-w-0">
           <h1 className="portal-page-title font-display text-2xl font-bold text-primary-dark sm:text-3xl">
-            Curriculum
+            {t("admin.curriculum.title")}
           </h1>
           <p className="portal-page-subtitle mt-1 max-w-2xl text-portal-muted">
-            Organize programs, sections and topics for structured learning across BOQ Academy.
+            {t("admin.curriculum.subtitle")}
           </p>
         </div>
         <div className="flex flex-wrap gap-2">
@@ -251,7 +253,7 @@ export function AdminCurriculumPage() {
             className="inline-flex items-center gap-2 rounded-xl px-5 py-2.5 text-sm font-semibold"
           >
             <Plus className="size-4" aria-hidden />
-            Add Program
+            {t("admin.curriculum.addProgram")}
           </Button>
           <Button
             type="button"
@@ -261,7 +263,7 @@ export function AdminCurriculumPage() {
             className="inline-flex items-center gap-2 rounded-xl border border-portal bg-portal-surface px-4 py-2.5 text-sm font-semibold text-portal-heading shadow-sm hover:bg-portal-muted/40"
           >
             <RotateCcw className="size-4" aria-hidden />
-            Reset Defaults
+            {t("admin.curriculum.resetDefaults")}
           </Button>
           <Button
             type="button"
@@ -270,7 +272,7 @@ export function AdminCurriculumPage() {
             className="inline-flex items-center gap-2 rounded-xl border border-primary bg-primary/10 px-4 py-2.5 text-sm font-semibold text-primary-dark hover:bg-primary/15 disabled:opacity-50"
           >
             <Save className="size-4" aria-hidden />
-            {updateCurriculum.isPending ? "Saving…" : "Save Changes"}
+            {updateCurriculum.isPending ? t("admin.curriculum.saving") : t("admin.curriculum.saveChanges")}
           </Button>
         </div>
       </div>
@@ -278,10 +280,10 @@ export function AdminCurriculumPage() {
       <AdminCurriculumStatsGrid stats={stats} dirty={dirty} isLoading={isLoading} />
 
       {isLoading ? (
-        <PageLoading label="Loading curriculum…" />
+        <PageLoading label={t("admin.common.loadingCurriculum")} />
       ) : tree.length === 0 ? (
         <Card className="rounded-2xl border border-portal bg-portal-surface p-6 text-sm text-portal-muted">
-          No curriculum loaded. Click Reset Defaults to load the factory tree.
+          {t("admin.curriculum.emptyTree")}
         </Card>
       ) : (
         <>

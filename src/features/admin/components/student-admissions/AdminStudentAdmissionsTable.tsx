@@ -10,7 +10,6 @@ import { AdmissionStatusBadge } from "@/features/admin/components/student-admiss
 import {
   admissionMailtoHref,
   admissionTelHref,
-  formatAppliedAt,
   getAdmissionCountry,
   getAdmissionProgram,
   getAdmissionProgramDetail,
@@ -20,6 +19,7 @@ import {
   nextAdmissionStatus,
   type AdminStudentAdmissionsTab,
 } from "@/features/admin/components/student-admissions/adminStudentAdmissionsUtils";
+import { usePortalTranslation } from "@/i18n/LocaleProvider";
 import { formControlClass } from "@/lib/formControl";
 import { cn } from "@/lib/utils/cn";
 
@@ -39,23 +39,24 @@ export function AdminStudentAdmissionsTable({
   onView,
   onAdvanceStatus,
 }: IAdminStudentAdmissionsTableProps) {
+  const { t, statusLabel, dynamicLabel, formatDateTime } = usePortalTranslation();
+
   return (
     <Card className="overflow-hidden rounded-2xl border border-portal bg-portal-surface p-0 shadow-[0_8px_24px_-16px_rgba(13,74,47,0.18)]">
       <div className="overflow-x-auto">
         <table className="w-full min-w-[1080px] border-collapse text-left">
           <thead>
             <tr className="border-b border-portal bg-portal-muted/40 text-xs font-semibold uppercase tracking-wide text-portal-muted">
-              <th className="px-5 py-3.5">Applicant</th>
-              <th className="px-5 py-3.5">Program interested</th>
-              <th className="px-5 py-3.5">Source</th>
-              <th className="px-5 py-3.5">Status</th>
-              <th className="px-5 py-3.5">Applied at</th>
-              <th className="px-5 py-3.5 text-right">Actions</th>
+              <th className="px-5 py-3.5">{t("admin.admissions.tableApplicant")}</th>
+              <th className="px-5 py-3.5">{t("admin.admissions.tableProgram")}</th>
+              <th className="px-5 py-3.5">{t("admin.admissions.tableSource")}</th>
+              <th className="px-5 py-3.5">{t("admin.trialLeads.tableStatus")}</th>
+              <th className="px-5 py-3.5">{t("admin.admissions.tableSubmitted")}</th>
+              <th className="px-5 py-3.5 text-right">{t("tables.actions")}</th>
             </tr>
           </thead>
           <tbody>
             {applications.map((app) => {
-              const applied = formatAppliedAt(app.createdAt);
               const country = getAdmissionCountry(app) ?? undefined;
               const wa = waMeUrlFromRaw(
                 app.whatsapp,
@@ -63,9 +64,10 @@ export function AdminStudentAdmissionsTable({
                 admissionFollowUpMessage(app.fullName)
               );
               const telHref = admissionTelHref(app.whatsapp, country);
-              const mailHref = admissionMailtoHref(app);
+              const mailHref = admissionMailtoHref(app, t);
               const nextStatus = nextAdmissionStatus(app.status);
-              const nextLabel = nextAdmissionActionLabel(app.status);
+              const nextLabel = nextAdmissionActionLabel(app.status, t, statusLabel);
+              const appliedParts = formatDateTime(app.createdAt).split(", ");
 
               return (
                 <tr
@@ -84,25 +86,27 @@ export function AdminStudentAdmissionsTable({
                   </td>
                   <td className="px-5 py-4">
                     <p className="text-sm font-semibold text-portal-heading">
-                      {getAdmissionProgram(app)}
+                      {getAdmissionProgram(app, t, dynamicLabel)}
                     </p>
-                    <p className="text-xs text-portal-muted">{getAdmissionProgramDetail(app)}</p>
+                    <p className="text-xs text-portal-muted">
+                      {getAdmissionProgramDetail(app, t, dynamicLabel)}
+                    </p>
                   </td>
                   <td className="px-5 py-4">
                     <p className="text-sm font-medium text-portal-heading">
-                      {getAdmissionSource(app)}
+                      {getAdmissionSource(app, t, dynamicLabel)}
                     </p>
-                    <p className="text-xs text-portal-muted">{getAdmissionSourceDetail()}</p>
+                    <p className="text-xs text-portal-muted">{getAdmissionSourceDetail(t)}</p>
                   </td>
                   <td className="px-5 py-4">
                     <AdmissionStatusBadge status={app.status} />
                   </td>
                   <td className="px-5 py-4">
                     <p className="text-xs font-bold tracking-wide text-portal-muted">
-                      {applied.date}
+                      {appliedParts[0]?.toUpperCase() ?? formatDateTime(app.createdAt)}
                     </p>
                     <p className="mt-1 text-sm font-semibold tabular-nums text-portal-heading">
-                      {applied.time}
+                      {appliedParts[1]?.trim() ?? ""}
                     </p>
                   </td>
                   <td className="px-5 py-4">
@@ -112,7 +116,7 @@ export function AdminStudentAdmissionsTable({
                         <a
                           href={telHref}
                           className={contactActionClass}
-                          aria-label={`Call ${app.fullName}`}
+                          aria-label={t("admin.trialLeads.callPerson", { name: app.fullName })}
                           title={app.whatsapp}
                         >
                           <Phone className="size-4" aria-hidden />
@@ -121,7 +125,7 @@ export function AdminStudentAdmissionsTable({
                       <a
                         href={mailHref}
                         className={contactActionClass}
-                        aria-label={`Email ${app.fullName}`}
+                        aria-label={t("admin.trialLeads.emailPerson", { name: app.fullName })}
                         title={app.email}
                       >
                         <Mail className="size-4" aria-hidden />
@@ -130,8 +134,8 @@ export function AdminStudentAdmissionsTable({
                         type="button"
                         onClick={() => onView(app)}
                         className={contactActionClass}
-                        aria-label={`View ${app.fullName}`}
-                        title="View application"
+                        aria-label={t("admin.admissions.viewApplication")}
+                        title={t("admin.admissions.viewApplication")}
                       >
                         <Eye className="size-4" aria-hidden />
                       </button>
@@ -181,14 +185,6 @@ interface IAdminStudentAdmissionsToolbarProps {
   onExport: () => void;
 }
 
-const TABS: { id: AdminStudentAdmissionsTab; label: string }[] = [
-  { id: "all", label: "All" },
-  { id: "new", label: "New" },
-  { id: "reviewing", label: "Under review" },
-  { id: "approved", label: "Approved" },
-  { id: "closed", label: "Closed" },
-];
-
 const toolbarFieldClass = cn(formControlClass, "h-10 min-h-10 py-2 text-sm shadow-none");
 
 export function AdminStudentAdmissionsToolbar({
@@ -212,12 +208,24 @@ export function AdminStudentAdmissionsToolbar({
   onTabChange,
   onExport,
 }: IAdminStudentAdmissionsToolbarProps) {
+  const { t, statusLabel, formatNumber } = usePortalTranslation();
+
+  const tabs: { id: AdminStudentAdmissionsTab; label: string }[] = [
+    { id: "all", label: t("admin.admissions.tabAll") },
+    { id: "new", label: statusLabel("new") },
+    { id: "reviewing", label: t("admin.admissions.tabReviewing") },
+    { id: "approved", label: statusLabel("approved") },
+    { id: "closed", label: statusLabel("closed") },
+  ];
+
   return (
     <div className="flex flex-col gap-4 rounded-2xl border border-portal bg-portal-surface p-4 shadow-[0_8px_24px_-16px_rgba(13,74,47,0.18)] sm:p-5">
       <div>
-        <h2 className="text-sm font-bold text-portal-heading">Search &amp; filters</h2>
+        <h2 className="text-sm font-bold text-portal-heading">
+          {t("admin.admissions.toolbarTitle")}
+        </h2>
         <p className="mt-0.5 text-xs text-portal-muted">
-          Find applications by name, contact details, program, or submission date.
+          {t("admin.admissions.toolbarSubtitle")}
         </p>
       </div>
 
@@ -229,10 +237,10 @@ export function AdminStudentAdmissionsToolbar({
           />
           <input
             className={cn(toolbarFieldClass, "pl-9")}
-            placeholder="Search name, email, phone…"
+            placeholder={t("admin.admissions.searchPlaceholder")}
             value={search}
             onChange={(event) => onSearchChange(event.target.value)}
-            aria-label="Search admission applications"
+            aria-label={t("admin.admissions.searchPlaceholder")}
           />
         </div>
 
@@ -241,9 +249,9 @@ export function AdminStudentAdmissionsToolbar({
             value={programFilter}
             onChange={(event) => onProgramChange(event.target.value)}
             className={cn(toolbarFieldClass, "w-full sm:min-w-[152px] xl:w-auto")}
-            aria-label="Filter by program"
+            aria-label={t("admin.admissions.tableProgram")}
           >
-            <option value="">All programs</option>
+            <option value="">{t("admin.admissions.allPrograms")}</option>
             {programs.map((program) => (
               <option key={program} value={program}>
                 {program}
@@ -254,9 +262,9 @@ export function AdminStudentAdmissionsToolbar({
             value={countryFilter}
             onChange={(event) => onCountryChange(event.target.value)}
             className={cn(toolbarFieldClass, "w-full sm:min-w-[152px] xl:w-auto")}
-            aria-label="Filter by country"
+            aria-label={t("admin.admissions.tableCountry")}
           >
-            <option value="">All countries</option>
+            <option value="">{t("admin.admissions.allCountries")}</option>
             {countries.map((country) => (
               <option key={country} value={country}>
                 {country}
@@ -267,9 +275,9 @@ export function AdminStudentAdmissionsToolbar({
             value={sourceFilter}
             onChange={(event) => onSourceChange(event.target.value)}
             className={cn(toolbarFieldClass, "w-full sm:min-w-[152px] xl:w-auto")}
-            aria-label="Filter by source"
+            aria-label={t("admin.admissions.tableSource")}
           >
-            <option value="">All sources</option>
+            <option value="">{t("admin.admissions.allSources")}</option>
             {sources.map((source) => (
               <option key={source} value={source}>
                 {source}
@@ -281,21 +289,21 @@ export function AdminStudentAdmissionsToolbar({
             value={dateFrom}
             onChange={(event) => onDateFromChange(event.target.value)}
             className={cn(toolbarFieldClass, "w-full sm:min-w-[140px] xl:w-auto")}
-            aria-label="Date from"
+            aria-label={t("filters.dateFrom")}
           />
           <input
             type="date"
             value={dateTo}
             onChange={(event) => onDateToChange(event.target.value)}
             className={cn(toolbarFieldClass, "w-full sm:min-w-[140px] xl:w-auto")}
-            aria-label="Date to"
+            aria-label={t("filters.dateTo")}
           />
         </div>
       </div>
 
       <div className="flex flex-col gap-3 border-t border-portal pt-4 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex gap-1 overflow-x-auto">
-          {TABS.map((item) => (
+          {tabs.map((item) => (
             <button
               key={item.id}
               type="button"
@@ -307,7 +315,7 @@ export function AdminStudentAdmissionsToolbar({
                   : "border border-portal bg-portal-muted/20 text-portal-heading hover:bg-portal-muted/40"
               )}
             >
-              {item.label} ({tabCounts[item.id]})
+              {item.label} ({formatNumber(tabCounts[item.id])})
             </button>
           ))}
         </div>
@@ -318,7 +326,7 @@ export function AdminStudentAdmissionsToolbar({
           className="inline-flex items-center gap-2 rounded-xl border border-portal px-4"
         >
           <Download className="size-4" aria-hidden />
-          Export
+          {t("admin.common.export")}
         </Button>
       </div>
     </div>

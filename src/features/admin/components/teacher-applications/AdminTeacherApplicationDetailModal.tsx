@@ -18,6 +18,7 @@ import {
   type ITeacherApplicationDisplaySection,
 } from "@/features/admin/components/teacher-applications/adminTeacherApplicationsUtils";
 import { cn } from "@/lib/utils/cn";
+import { usePortalTranslation } from "@/i18n/LocaleProvider";
 
 interface IAdminTeacherApplicationDetailModalProps {
   application: TeacherApplicationView | null;
@@ -52,6 +53,8 @@ export function AdminTeacherApplicationDetailModal({
   onClose,
   onUpdateStatus,
 }: IAdminTeacherApplicationDetailModalProps) {
+  const { t } = usePortalTranslation();
+
   if (!application) return null;
 
   const country = getTeacherCountry(application) ?? undefined;
@@ -75,7 +78,7 @@ export function AdminTeacherApplicationDetailModal({
       <button
         type="button"
         className="absolute inset-0 bg-[#0A1628]/55 backdrop-blur-[2px]"
-        aria-label="Close application details"
+        aria-label={t("admin.admissions.modalClose")}
         onClick={onClose}
       />
       <div
@@ -143,7 +146,7 @@ export function AdminTeacherApplicationDetailModal({
                 {application.phone}
               </span>
             )}
-            <WhatsAppLinkButton href={wa} label="WhatsApp" size="sm" />
+            <WhatsAppLinkButton href={wa} label={t("admin.admissions.modalWhatsApp")} size="sm" />
             <p className="text-xs text-portal-muted sm:ml-auto">
               Applied {applied.date} · {applied.time}
             </p>
@@ -151,18 +154,14 @@ export function AdminTeacherApplicationDetailModal({
 
           {application.adminNote ? (
             <div className="mt-4 rounded-xl border border-amber-500/25 bg-amber-500/10 p-4">
-              <p className="text-xs font-semibold uppercase tracking-wide text-amber-800">
-                Admin note
-              </p>
+              <p className="text-xs font-semibold uppercase tracking-wide text-amber-800">{t("admin.admissions.modalAdminNote")}</p>
               <p className="mt-1 text-sm text-portal-heading">{application.adminNote}</p>
             </div>
           ) : null}
 
           {fileLinks.length > 0 ? (
             <div className="mt-5">
-              <h4 className="text-xs font-semibold uppercase tracking-wide text-portal-muted">
-                Uploaded documents
-              </h4>
+              <h4 className="text-xs font-semibold uppercase tracking-wide text-portal-muted">{t("admin.teacherApplications.modalDocuments")}</h4>
               <div className="mt-2 flex flex-wrap gap-2">
                 {fileLinks.map((link) => (
                   <a
@@ -193,9 +192,7 @@ export function AdminTeacherApplicationDetailModal({
             <a
               href={mailHref}
               className="inline-flex h-10 items-center justify-center rounded-xl border border-portal px-4 text-sm font-semibold text-portal-heading transition hover:border-primary/30 hover:text-primary"
-            >
-              Reply via email
-            </a>
+            >{t("admin.admissions.modalReplyEmail")}</a>
             {actions.map((action) => (
               <Button
                 key={action.status}

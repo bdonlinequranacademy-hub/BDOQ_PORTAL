@@ -1,11 +1,10 @@
+import type { LocaleType } from "@/i18n/types";
+import { translate } from "@/i18n/messages";
+import { formatLocaleDate } from "@/i18n/messages";
+
 /** Islamic copy & helpers for the authenticated portal */
 
 export const BISMILLAH = "بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ";
-
-export const PORTAL_BRANDING_HADITH = {
-  text: "The best among you are those who learn the Quran and teach it.",
-  source: "Sahih Bukhari",
-} as const;
 
 export interface IPortalQuote {
   arabic: string;
@@ -13,99 +12,128 @@ export interface IPortalQuote {
   source: string;
 }
 
-/** Emotional Quran / Hadith slides for branding header carousel */
-export const PORTAL_BRANDING_QUOTES: IPortalQuote[] = [
-  {
-    arabic: "خَيْرُكُمْ مَنْ تَعَلَّمَ الْقُرْآنَ وَعَلَّمَهُ",
-    translation:
-      "The best among you are those who learn the Quran and teach it.",
-    source: "Sahih Bukhari",
-  },
-  {
-    arabic: "إِنَّ هَٰذَا الْقُرْآنَ يَهْدِي لِلَّتِي هِيَ أَقْوَمُ",
-    translation:
-      "Indeed, this Quran guides to that which is most upright.",
-    source: "Quran 17:9",
-  },
-  {
-    arabic: "وَنُنَزِّلُ مِنَ الْقُرْآنِ مَا هُوَ شِفَاءٌ وَرَحْمَةٌ لِّلْمُؤْمِنِينَ",
-    translation:
-      "And We send down of the Quran that which is healing and mercy for the believers.",
-    source: "Quran 17:82",
-  },
-  {
-    arabic: "الَّذِينَ آمَنُوا وَتَطْمَئِنُّ قُلُوبُهُم بِذِكْرِ اللَّهِ",
-    translation:
-      "Those who believe and whose hearts find rest in the remembrance of Allah.",
-    source: "Quran 13:28",
-  },
-  {
-    arabic: "اقْرَءُوا الْقُرْآنَ فَإِنَّهُ يَأْتِي يَوْمَ الْقِيَامَةِ شَفِيعًا لِأَصْحَابِهِ",
-    translation:
-      "Recite the Quran, for it will come as an intercessor for its companions on the Day of Resurrection.",
-    source: "Sahih Muslim",
-  },
-  {
-    arabic: "كِتَابٌ أَنزَلْنَاهُ إِلَيْكَ مُبَارَكٌ لِّيَدَّبَّرُوا آيَاتِهِ",
-    translation:
-      "A blessed Book We have revealed to you, that they may reflect upon its verses.",
-    source: "Quran 38:29",
-  },
-  {
-    arabic: "رَبِّ زِدْنِي عِلْمًا",
-    translation: "My Lord, increase me in knowledge.",
-    source: "Quran 20:114",
-  },
-];
-
-export const PORTAL_QUOTES: IPortalQuote[] = [
+const QUOTE_KEYS: Array<{ arabic: string; translationKey: string; sourceKey: string }> = [
   {
     arabic: "اقْرَأْ بِاسْمِ رَبِّكَ الَّذِي خَلَقَ",
-    translation: "Read in the name of your Lord who created.",
-    source: "Quran 96:1",
+    translationKey: "islamic.quote961",
+    sourceKey: "islamic.quote961Source",
   },
   {
     arabic: "رَبِّ زِدْنِي عِلْمًا",
-    translation: "My Lord, increase me in knowledge.",
-    source: "Quran 20:114",
+    translationKey: "islamic.quote20114",
+    sourceKey: "islamic.quote20114Source",
   },
   {
     arabic: "يَرْفَعِ اللَّهُ الَّذِينَ آمَنُوا مِنكُمْ وَالَّذِينَ أُوتُوا الْعِلْمَ دَرَجَاتٍ",
-    translation:
-      "Allah will raise those who have believed among you and those who were given knowledge, by degrees.",
-    source: "Quran 58:11",
+    translationKey: "islamic.quote5811",
+    sourceKey: "islamic.quote5811Source",
   },
   {
     arabic: "وَقُل رَّبِّ اجْعَلْنِي مُقِيمَ الصَّلَاةِ وَمِن ذُرِّيَّتِي",
-    translation: "And say: My Lord, make me an establisher of prayer, and from my descendants.",
-    source: "Quran 14:40",
+    translationKey: "islamic.quote1440",
+    sourceKey: "islamic.quote1440Source",
   },
   {
     arabic: "فَاذْكُرُونِي أَذْكُرْكُمْ",
-    translation: "So remember Me; I will remember you.",
-    source: "Quran 2:152",
+    translationKey: "islamic.quote2152",
+    sourceKey: "islamic.quote2152Source",
   },
   {
     arabic: "وَمَن يَتَّقِ اللَّهَ يَجْعَل لَّهُ مَخْرَجًا",
-    translation: "And whoever fears Allah — He will make for him a way out.",
-    source: "Quran 65:2",
+    translationKey: "islamic.quote652",
+    sourceKey: "islamic.quote652Source",
   },
   {
     arabic: "إِنَّ مَعَ الْعُسْرِ يُسْرًا",
-    translation: "Indeed, with hardship comes ease.",
-    source: "Quran 94:6",
+    translationKey: "islamic.quote946",
+    sourceKey: "islamic.quote946Source",
   },
 ];
 
-export function dailyPortalQuote(): IPortalQuote {
-  const dayIndex = Math.floor(Date.now() / 86_400_000);
-  return PORTAL_QUOTES[dayIndex % PORTAL_QUOTES.length] ?? PORTAL_QUOTES[0];
+const BRANDING_QUOTE_KEYS: Array<{ arabic: string; translationKey: string; sourceKey: string }> = [
+  {
+    arabic: "خَيْرُكُمْ مَنْ تَعَلَّمَ الْقُرْآنَ وَعَلَّمَهُ",
+    translationKey: "islamic.hadithBest",
+    sourceKey: "islamic.hadithSourceBukhari",
+  },
+  {
+    arabic: "إِنَّ هَٰذَا الْقُرْآنَ يَهْدِي لِلَّتِي هِيَ أَقْوَمُ",
+    translationKey: "islamic.quote179",
+    sourceKey: "islamic.quote179Source",
+  },
+  {
+    arabic: "وَنُنَزِّلُ مِنَ الْقُرْآنِ مَا هُوَ شِفَاءٌ وَرَحْمَةٌ لِّلْمُؤْمِنِينَ",
+    translationKey: "islamic.quote1782",
+    sourceKey: "islamic.quote1782Source",
+  },
+  {
+    arabic: "الَّذِينَ آمَنُوا وَتَطْمَئِنُّ قُلُوبُهُم بِذِكْرِ اللَّهِ",
+    translationKey: "islamic.quote1328",
+    sourceKey: "islamic.quote1328Source",
+  },
+  {
+    arabic: "اقْرَءُوا الْقُرْآنَ فَإِنَّهُ يَأْتِي يَوْمَ الْقِيَامَةِ شَفِيعًا لِأَصْحَابِهِ",
+    translationKey: "islamic.quoteRecite",
+    sourceKey: "islamic.quoteReciteSource",
+  },
+  {
+    arabic: "كِتَابٌ أَنزَلْنَاهُ إِلَيْكَ مُبَارَكٌ لِّيَدَّبَّرُوا آيَاتِهِ",
+    translationKey: "islamic.quote3829",
+    sourceKey: "islamic.quote3829Source",
+  },
+  {
+    arabic: "رَبِّ زِدْنِي عِلْمًا",
+    translationKey: "islamic.quote20114",
+    sourceKey: "islamic.quote20114Source",
+  },
+];
+
+function localizeQuotes(
+  locale: LocaleType,
+  keys: Array<{ arabic: string; translationKey: string; sourceKey: string }>
+): IPortalQuote[] {
+  return keys.map((entry) => ({
+    arabic: entry.arabic,
+    translation: translate(locale, entry.translationKey),
+    source: translate(locale, entry.sourceKey),
+  }));
 }
 
-export function hijriDateLabel(): string {
+export function portalQuotes(locale: LocaleType = "en"): IPortalQuote[] {
+  return localizeQuotes(locale, QUOTE_KEYS);
+}
+
+export function portalBrandingQuotes(locale: LocaleType = "en"): IPortalQuote[] {
+  return localizeQuotes(locale, BRANDING_QUOTE_KEYS);
+}
+
+export function portalBrandingHadith(locale: LocaleType = "en"): IPortalQuote {
+  return {
+    arabic: "خَيْرُكُمْ مَنْ تَعَلَّمَ الْقُرْآنَ وَعَلَّمَهُ",
+    translation: translate(locale, "islamic.hadithBest"),
+    source: translate(locale, "islamic.hadithSourceBukhari"),
+  };
+}
+
+/** @deprecated Use portalBrandingHadith(locale) */
+export const PORTAL_BRANDING_HADITH = portalBrandingHadith("en");
+
+/** @deprecated Use portalBrandingQuotes(locale) */
+export const PORTAL_BRANDING_QUOTES = portalBrandingQuotes("en");
+
+/** @deprecated Use portalQuotes(locale) */
+export const PORTAL_QUOTES = portalQuotes("en");
+
+export function dailyPortalQuote(locale: LocaleType = "en"): IPortalQuote {
+  const quotes = portalQuotes(locale);
+  const dayIndex = Math.floor(Date.now() / 86_400_000);
+  return quotes[dayIndex % quotes.length] ?? quotes[0];
+}
+
+export function hijriDateLabel(locale: LocaleType = "en"): string {
   try {
-    return new Date().toLocaleDateString("en-US", {
-      calendar: "islamic",
+    const tag = locale === "bn" ? "bn-BD-u-ca-islamic" : "en-US-u-ca-islamic";
+    return new Date().toLocaleDateString(tag, {
       day: "numeric",
       month: "long",
       year: "numeric",
@@ -113,4 +141,8 @@ export function hijriDateLabel(): string {
   } catch {
     return "";
   }
+}
+
+export function formatPortalDateLabel(iso: string, locale: LocaleType = "en"): string {
+  return formatLocaleDate(locale, iso);
 }

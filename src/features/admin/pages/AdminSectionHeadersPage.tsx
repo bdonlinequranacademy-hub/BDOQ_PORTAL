@@ -4,14 +4,16 @@ import { useAdminSectionHeaders } from "@/features/admin/hooks/useAdmin";
 import { AdminSectionHeaderPanel } from "@/features/admin/components/sectionHeaders/AdminSectionHeaderPanel";
 import { SECTION_HEADER_CONFIGS } from "@/features/admin/components/sectionHeaders/adminSectionHeaderUtils";
 import { formHintClass } from "@/lib/formControl";
+import { usePortalTranslation } from "@/i18n/LocaleProvider";
 
 export function AdminSectionHeadersPage() {
+  const { t } = usePortalTranslation();
   const { isLoading } = useAdminSectionHeaders();
 
   if (isLoading) {
     return (
       <PageContainer>
-        <PageLoading label="Loading section headers…" />
+        <PageLoading label={t("admin.common.loadingSectionHeaders")} />
       </PageContainer>
     );
   }
@@ -20,15 +22,13 @@ export function AdminSectionHeadersPage() {
     <PageContainer>
       <div className="mb-6">
         <p className="text-xs font-bold uppercase tracking-[0.14em] text-primary">
-          Website CMS
+          {t("admin.common.websiteCms")}
         </p>
         <h1 className="mt-1 text-2xl font-bold text-primary-dark">
-          Section Headers
+          {t("admin.cms.sectionHeaders.title")}
         </h1>
         <p className={formHintClass}>
-          Edit badge, headline, and subheadline for home sections and public
-          pages. Item CMS pages (FAQ, testimonials, gallery, etc.) also include
-          a quick header panel at the top.
+          {t("admin.cms.sectionHeaders.subtitle")}
         </p>
       </div>
 

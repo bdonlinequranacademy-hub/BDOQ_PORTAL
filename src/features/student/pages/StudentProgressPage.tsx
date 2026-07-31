@@ -11,8 +11,10 @@ import { TrendingUp, BookOpen } from "lucide-react";
 import { classTitle } from "@/lib/utils/class";
 import { formatCurriculumPath } from "@/lib/api/curriculumApi";
 import { MissingCurriculumBadge } from "@/components/curriculum/CurriculumProgramFilter";
+import { usePortalTranslation } from "@/i18n/LocaleProvider";
 
 export function StudentProgressPage() {
+  const { t, formatDate } = usePortalTranslation();
   const { data: records = [], isLoading } = useStudentProgress();
   const { data: curriculumPlan = [] } = useStudentCurriculumPlan();
   const pagination = usePaginatedList(records);
@@ -20,15 +22,15 @@ export function StudentProgressPage() {
   return (
     <PageContainer className="flex flex-col gap-6">
       <div>
-        <h1 className="text-2xl font-bold text-primary-dark">My Progress</h1>
-        <p className="text-sm text-zinc-500">Teacher feedback on your learning</p>
+        <h1 className="text-2xl font-bold text-primary-dark">{t("student.myProgress")}</h1>
+        <p className="text-sm text-zinc-500">{t("student.progressSubtitle")}</p>
       </div>
 
       {curriculumPlan.length > 0 ? (
         <Card className="flex flex-col gap-4 rounded-2xl border-0 p-5 shadow-sm">
           <div className="flex items-center gap-2">
             <BookOpen className="size-5 text-gold" />
-            <span className="font-bold text-primary-dark">My curriculum plan</span>
+            <span className="font-bold text-primary-dark">{t("student.myCurriculumPlan")}</span>
           </div>
           <StudentCurriculumPlan assignments={curriculumPlan} />
         </Card>
@@ -41,77 +43,78 @@ export function StudentProgressPage() {
       ) : records.length === 0 ? (
         <EmptyState
           icon={TrendingUp}
-          title="No progress records yet"
-          description="Your teacher will update your Tajweed score and surah progress here."
+          title={t("student.noProgressRecords")}
+          description={t("student.noProgressRecordsDesc")}
         />
       ) : (
         <>
-        <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
-          {pagination.paginatedItems.map((r) => (
-            <Card key={r._id} className="flex flex-col gap-4 rounded-2xl border-0 p-5 shadow-sm">
-              <div className="flex items-start justify-between gap-2">
-                <div>
-                  <p className="font-semibold text-primary-dark">
-                    {r.class ? classTitle(r.class) : "Overall progress"}
-                  </p>
-                  {r.curriculumLabels?.program ? (
-                    <p className="text-xs font-medium text-gold">
-                      {formatCurriculumPath(r.curriculumLabels)}
+          <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
+            {pagination.paginatedItems.map((r) => (
+              <Card key={r._id} className="flex flex-col gap-4 rounded-2xl border-0 p-5 shadow-sm">
+                <div className="flex items-start justify-between gap-2">
+                  <div>
+                    <p className="font-semibold text-primary-dark">
+                      {r.class ? classTitle(r.class) : t("student.overallProgress")}
                     </p>
-                  ) : (
-                    <MissingCurriculumBadge />
-                  )}
-                  {r.updatedAt && (
-                    <p className="text-xs text-zinc-400">
-                      Updated {new Date(r.updatedAt).toLocaleDateString()}
-                    </p>
-                  )}
-                </div>
-                <span className="rounded-full bg-[#EEF2F8] px-3 py-1 text-sm font-bold text-primary-dark">
-                  {r.tajweedScore}%
-                </span>
-              </div>
-
-              <div className="h-2 overflow-hidden rounded-full bg-zinc-100">
-                <div
-                  className="h-full rounded-full bg-[#C4922B]"
-                  style={{ width: `${r.tajweedScore}%` }}
-                />
-              </div>
-
-              {r.surahsCompleted && r.surahsCompleted.length > 0 && (
-                <div>
-                  <p className="mb-2 text-xs font-semibold text-zinc-500">Surahs completed</p>
-                  <div className="flex flex-wrap gap-2">
-                    {r.surahsCompleted.map((s) => (
-                      <span
-                        key={s}
-                        className="rounded-full bg-emerald-50 px-2.5 py-0.5 text-xs font-medium text-emerald-700"
-                      >
-                        {s}
-                      </span>
-                    ))}
+                    {r.curriculumLabels?.program ? (
+                      <p className="text-xs font-medium text-gold">
+                        {formatCurriculumPath(r.curriculumLabels)}
+                      </p>
+                    ) : (
+                      <MissingCurriculumBadge />
+                    )}
+                    {r.updatedAt && (
+                      <p className="text-xs text-zinc-400">
+                        {t("student.updatedOn", { date: formatDate(r.updatedAt) })}
+                      </p>
+                    )}
                   </div>
+                  <span className="rounded-full bg-[#EEF2F8] px-3 py-1 text-sm font-bold text-primary-dark">
+                    {r.tajweedScore}%
+                  </span>
                 </div>
-              )}
 
-              {r.memorizedAyahs != null && (
-                <p className="text-sm text-zinc-600">
-                  <span className="font-semibold text-primary-dark">{r.memorizedAyahs}</span>{" "}
-                  ayahs memorized
-                </p>
-              )}
-
-              {r.notes && (
-                <div className="rounded-xl bg-[#F8FAFF] px-4 py-3">
-                  <p className="text-xs font-semibold text-gold">Notes</p>
-                  <p className="mt-1 text-sm text-zinc-700">{r.notes}</p>
+                <div className="h-2 overflow-hidden rounded-full bg-zinc-100">
+                  <div
+                    className="h-full rounded-full bg-[#C4922B]"
+                    style={{ width: `${r.tajweedScore}%` }}
+                  />
                 </div>
-              )}
-            </Card>
-          ))}
-        </div>
-        <Pagination pagination={pagination} itemLabel="records" />
+
+                {r.surahsCompleted && r.surahsCompleted.length > 0 && (
+                  <div>
+                    <p className="mb-2 text-xs font-semibold text-zinc-500">
+                      {t("student.surahsCompleted")}
+                    </p>
+                    <div className="flex flex-wrap gap-2">
+                      {r.surahsCompleted.map((s) => (
+                        <span
+                          key={s}
+                          className="rounded-full bg-emerald-50 px-2.5 py-0.5 text-xs font-medium text-emerald-700"
+                        >
+                          {s}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {r.memorizedAyahs != null && (
+                  <p className="text-sm text-zinc-600">
+                    {t("student.ayahsMemorized", { count: String(r.memorizedAyahs) })}
+                  </p>
+                )}
+
+                {r.notes && (
+                  <div className="rounded-xl bg-[#F8FAFF] px-4 py-3">
+                    <p className="text-xs font-semibold text-gold">{t("student.notes")}</p>
+                    <p className="mt-1 text-sm text-zinc-700">{r.notes}</p>
+                  </div>
+                )}
+              </Card>
+            ))}
+          </div>
+          <Pagination pagination={pagination} itemLabel="records" />
         </>
       )}
     </PageContainer>

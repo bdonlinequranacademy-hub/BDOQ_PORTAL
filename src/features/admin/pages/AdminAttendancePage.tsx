@@ -30,8 +30,10 @@ import {
   type AttendanceRateFilter,
   type AttendanceSort,
 } from "@/features/admin/components/attendance/adminAttendanceUtils";
+import { usePortalTranslation } from "@/i18n/LocaleProvider";
 
 export function AdminAttendancePage() {
+  const { t } = usePortalTranslation();
   const [params, setParams] = useSearchParams();
   const initialClassId = params.get("classId") ?? "";
   const [classFilter, setClassFilter] = useState(initialClassId);
@@ -125,17 +127,13 @@ export function AdminAttendancePage() {
       <AdminAttendanceStatsGrid stats={attendanceStats} isLoading={isLoading} />
 
       {isLoading ? (
-        <PageLoading label="Loading attendance…" />
+        <PageLoading label={t("admin.common.loadingAttendance")} />
       ) : overview.length === 0 ? (
         <EmptyState
           icon={ClipboardList}
-          title="No attendance data yet"
-          description={
-            classFilter
-              ? "No attendance records for this class yet. Clear the class filter to see all classes."
-              : "Overview appears once teachers start marking attendance in classes."
-          }
-          actionLabel={classFilter ? "Clear class filter" : undefined}
+          title={t("admin.common.noAttendance")}
+          description={t("admin.common.noAttendanceDesc")}
+          actionLabel={classFilter ? t("admin.attendance.clearClassFilter") : undefined}
           onAction={classFilter ? handleClearFilters : undefined}
         />
       ) : (
@@ -166,9 +164,9 @@ export function AdminAttendancePage() {
             {visibleRows.length === 0 ? (
               <EmptyState
                 icon={ClipboardList}
-                title="No classes match your filters"
-                description="Try clearing search, rate filter, or selecting a different class."
-                actionLabel="Clear all filters"
+                title={t("admin.common.noAttendanceMatch")}
+                description={t("admin.common.clearFiltersHint")}
+                actionLabel={t("admin.attendance.clearAllFilters")}
                 onAction={handleClearFilters}
               />
             ) : (

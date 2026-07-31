@@ -1,5 +1,6 @@
 import { cn } from "@/lib/utils/cn";
 import { dailyPortalQuote, hijriDateLabel } from "@/lib/islamicPortal";
+import { usePortalTranslation } from "@/i18n/LocaleProvider";
 
 interface IDashboardHeroProps {
   eyebrow?: string;
@@ -12,7 +13,7 @@ interface IDashboardHeroProps {
 }
 
 export function DashboardHero({
-  eyebrow = "Assalamu Alaikum,",
+  eyebrow,
   name,
   subtitle,
   dateLabel,
@@ -20,9 +21,11 @@ export function DashboardHero({
   showQuote = true,
   className,
 }: IDashboardHeroProps) {
-  const quote = dailyPortalQuote();
-  const hijri = hijriDateLabel();
+  const { t, locale } = usePortalTranslation();
+  const quote = dailyPortalQuote(locale);
+  const hijri = hijriDateLabel(locale);
   const displayDate = [dateLabel, hijri].filter(Boolean).join(" · ");
+  const displayEyebrow = eyebrow ?? t("dashboard.assalamuAlaikum");
 
   return (
     <div
@@ -34,7 +37,7 @@ export function DashboardHero({
       <div className="flex flex-col gap-3 sm:gap-4 lg:flex-row lg:items-start lg:justify-between">
         <div className="min-w-0 flex-1">
           <div className="flex flex-wrap items-center gap-2">
-            <span className="text-sm font-medium text-primary dark:text-gold">{eyebrow}</span>
+            <span className="text-sm font-medium text-primary dark:text-gold">{displayEyebrow}</span>
             {roleBadge ? (
               <span className="rounded-full border border-gold/30 bg-gold/10 px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-primary-dark dark:text-gold sm:text-xs">
                 {roleBadge}

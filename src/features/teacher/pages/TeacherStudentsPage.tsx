@@ -12,6 +12,7 @@ import { formControlClass } from "@/lib/formControl";
 import { PageLoading } from "@/components/ui/PageLoading";
 import { Pagination } from "@/components/ui/Pagination";
 import { usePaginatedList } from "@/lib/hooks/usePaginatedList";
+import { usePortalTranslation } from "@/i18n/LocaleProvider";
 
 const AVATAR_COLORS = [
   "bg-teal-100 text-teal-700",
@@ -32,6 +33,7 @@ function initials(name: string) {
 
 export function TeacherStudentsPage() {
   const navigate = useNavigate();
+  const { t, statusLabel } = usePortalTranslation();
   const [search, setSearch] = useState("");
   const { data: students = [], isLoading } = useTeacherStudents();
 
@@ -46,9 +48,11 @@ export function TeacherStudentsPage() {
   return (
     <PageContainer className="flex flex-col gap-6">
       <div>
-        <h1 className="font-bold text-primary-dark text-2xl leading-8">Student Directory</h1>
+        <h1 className="font-bold text-primary-dark text-2xl leading-8">
+          {t("teacher.studentDirectory")}
+        </h1>
         <p className="text-zinc-500 text-sm mt-0.5">
-          {students.length} students in your classes
+          {t("teacher.studentsInClasses", { count: String(students.length) })}
         </p>
       </div>
 
@@ -56,14 +60,14 @@ export function TeacherStudentsPage() {
         <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-zinc-400" />
         <input
           className={`${formControlClass} pl-10`}
-          placeholder="Search students…"
+          placeholder={t("teacher.searchStudents")}
           value={search}
           onChange={(e) => setSearch(e.target.value)}
         />
       </div>
 
       {isLoading ? (
-        <PageLoading label="Loading students…" />
+        <PageLoading label={t("teacher.loadingStudents")} />
       ) : (
         <>
         <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
@@ -89,7 +93,7 @@ export function TeacherStudentsPage() {
                 <div className="flex justify-between items-center gap-2">
                   <span className="truncate font-semibold text-primary-dark">{student.name}</span>
                   <span className="shrink-0 font-medium rounded-full bg-emerald-100 text-emerald-700 text-[11px] px-2 py-0.5">
-                    Active
+                    {statusLabel("active")}
                   </span>
                 </div>
                 <p className="text-zinc-400 text-xs mt-0.5">
@@ -117,21 +121,21 @@ export function TeacherStudentsPage() {
                     ))}
                   </div>
                 ) : (
-                  <p className="mt-1 text-[10px] text-zinc-400">All programs (none assigned)</p>
+                  <p className="mt-1 text-[10px] text-zinc-400">{t("teacher.allProgramsNone")}</p>
                 )}
               </div>
               <div className="flex shrink-0 flex-col items-end gap-2">
                 <WhatsAppLinkButton
                   href={wa}
-                  label="WhatsApp"
+                  label={t("teacher.whatsApp")}
                   size="sm"
-                  disabledReason="Student has no WhatsApp on profile"
+                  disabledReason={t("teacher.whatsAppNoProfile")}
                 />
                 <button
                   type="button"
                   onClick={() => navigate(`/teacher/progress?studentId=${student._id}`)}
                   className="rounded-lg p-2 text-zinc-400 hover:bg-zinc-50 hover:text-primary-dark"
-                  aria-label={`View progress for ${student.name}`}
+                  aria-label={t("teacher.viewProgressFor", { name: student.name })}
                 >
                   <ChevronRight className="size-5" />
                 </button>

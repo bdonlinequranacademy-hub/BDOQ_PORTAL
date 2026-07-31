@@ -4,6 +4,7 @@ import { CountryLabel } from "@/components/ui/CountryLabel";
 import { SessionActionButtons } from "@/components/schedule/SessionActionButtons";
 import { SessionStatusBadge } from "@/components/schedule/SessionStatusBadge";
 import { Card } from "@/components/ui/Card";
+import { usePortalTranslation } from "@/i18n/LocaleProvider";
 
 interface SessionScheduleTableProps {
   sessions: SessionSlotView[];
@@ -24,6 +25,8 @@ export function SessionScheduleTable({
   onLogSession,
   onMarkAttendance,
 }: SessionScheduleTableProps) {
+  const { t } = usePortalTranslation();
+
   return (
     <Card className="overflow-hidden p-0">
       <div className="overflow-x-auto">
@@ -34,11 +37,11 @@ export function SessionScheduleTable({
               <th className="px-3 py-2.5">BD</th>
               <th className="px-3 py-2.5">Stu time</th>
               {adminMode ? <th className="px-3 py-2.5">Tea time</th> : null}
-              <th className="px-3 py-2.5">Student</th>
+              <th className="px-3 py-2.5">{t("shared.schedule.student")}</th>
               <th className="px-3 py-2.5">Stu country</th>
               {adminMode ? (
                 <>
-                  <th className="px-3 py-2.5">Teacher</th>
+                  <th className="px-3 py-2.5">{t("shared.schedule.teacher")}</th>
                   <th className="px-3 py-2.5">Tea country</th>
                 </>
               ) : (

@@ -6,6 +6,7 @@ import {
 } from "lucide-react";
 import { StatCard } from "@/components/ui/shared/StatCard";
 import type { IAdminHomeworkStats } from "@/features/admin/components/homework/adminHomeworkUtils";
+import { usePortalTranslation } from "@/i18n/LocaleProvider";
 
 interface IAdminHomeworkStatsGridProps {
   stats: IAdminHomeworkStats;
@@ -15,11 +16,6 @@ interface IAdminHomeworkStatsGridProps {
   onSubmittedClick?: () => void;
 }
 
-function pct(part: number, total: number): string {
-  if (total <= 0) return "0% of total";
-  return `${Math.round((part / total) * 100)}% of total`;
-}
-
 export function AdminHomeworkStatsGrid({
   stats,
   isLoading,
@@ -27,50 +23,62 @@ export function AdminHomeworkStatsGrid({
   onOverdueClick,
   onSubmittedClick,
 }: IAdminHomeworkStatsGridProps) {
+  const { t, formatNumber } = usePortalTranslation();
+
+  const pctOfTotal = (part: number, total: number): string => {
+    const pctValue =
+      total <= 0 ? 0 : Math.round((part / total) * 100);
+    return t("labels.of_total", { pct: `${formatNumber(pctValue)}%` });
+  };
+
   const totalDelta =
     stats.submissionRateDelta !== null
-      ? `${stats.submissionRateDelta >= 0 ? "+" : ""}${stats.submissionRateDelta}% vs last month`
+      ? t("admin.homework.statsVsLastMonth", {
+          delta: `${stats.submissionRateDelta >= 0 ? "+" : ""}${formatNumber(stats.submissionRateDelta)}`,
+        })
       : undefined;
 
   return (
     <div className="grid grid-cols-2 items-start gap-2.5 sm:gap-3 xl:grid-cols-4">
       <StatCard
-        label="Total Assignments"
-        value={isLoading ? "—" : stats.total}
+        label={t("admin.homework.statsTotalAssignments")}
+        value={isLoading ? "—" : formatNumber(stats.total)}
         icon={<BookOpenCheck className="size-5 text-primary" />}
         iconBg="bg-primary/10"
         hint={
           stats.newThisMonth > 0
-            ? `+${stats.newThisMonth} this month`
-            : totalDelta ?? "Academy-wide homework"
+            ? t("admin.homework.statsNewThisMonth", {
+                count: String(stats.newThisMonth),
+              })
+            : totalDelta ?? t("admin.homework.statsAcademyWide")
         }
       />
       <StatCard
-        label="Submitted"
-        value={isLoading ? "—" : stats.totalSubmissions}
+        label={t("admin.homework.statsSubmitted")}
+        value={isLoading ? "—" : formatNumber(stats.totalSubmissions)}
         icon={<Send className="size-5 text-emerald-600" />}
         iconBg="bg-emerald-100"
-        hint={pct(stats.totalSubmissions, Math.max(stats.totalStudents, 1))}
+        hint={pctOfTotal(stats.totalSubmissions, Math.max(stats.totalStudents, 1))}
         onClick={onSubmittedClick}
       />
       <StatCard
-        label="Awaiting Grade"
-        value={isLoading ? "—" : stats.awaitingGrade}
+        label={t("admin.homework.statsAwaitingGrade")}
+        value={isLoading ? "—" : formatNumber(stats.awaitingGrade)}
         icon={<ClipboardCheck className="size-5 text-amber-600" />}
         iconBg="bg-amber-100"
         hint={
           stats.totalSubmissions > 0
-            ? pct(stats.awaitingGrade, stats.totalSubmissions)
-            : "No submissions yet"
+            ? pctOfTotal(stats.awaitingGrade, stats.totalSubmissions)
+            : t("admin.homework.statsNoSubmissionsYet")
         }
         onClick={onAwaitingGradeClick}
       />
       <StatCard
-        label="Overdue"
-        value={isLoading ? "—" : stats.overdue}
+        label={t("admin.homework.statsOverdue")}
+        value={isLoading ? "—" : formatNumber(stats.overdue)}
         icon={<AlertCircle className="size-5 text-red-600" />}
         iconBg="bg-red-100"
-        hint={pct(stats.overdue, stats.total)}
+        hint={pctOfTotal(stats.overdue, stats.total)}
         onClick={onOverdueClick}
       />
     </div>

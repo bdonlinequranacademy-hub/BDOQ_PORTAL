@@ -29,8 +29,10 @@ import {
   type AdminBlogTab,
   type BlogSort,
 } from "@/features/admin/components/blog/adminBlogUtils";
+import { usePortalTranslation } from "@/i18n/LocaleProvider";
 
 export function AdminBlogPage() {
+  const { t } = usePortalTranslation();
   const navigate = useNavigate();
   const [tab, setTab] = useState<AdminBlogTab>("all");
   const [search, setSearch] = useState("");
@@ -95,7 +97,7 @@ export function AdminBlogPage() {
   }
 
   function handleDelete(post: { id: string; title: string }) {
-    if (!window.confirm(`Delete "${post.title}"?`)) return;
+    if (!window.confirm(t("admin.common.confirmDeletePost", { name: post.title }))) return;
     deletePost.mutate(post.id);
   }
 
@@ -111,13 +113,13 @@ export function AdminBlogPage() {
       />
 
       {isLoading ? (
-        <PageLoading label="Loading posts…" />
+        <PageLoading label={t("admin.common.loadingPosts")} />
       ) : posts.length === 0 ? (
         <EmptyState
           icon={Newspaper}
-          title="No blog posts yet"
-          description="Create your first educational article for the public website."
-          actionLabel="New post"
+          title={t("admin.common.noBlogPosts")}
+          description={t("admin.common.noBlogPostsDesc")}
+          actionLabel={t("admin.common.newPost")}
           onAction={() => navigate("/admin/blog/new")}
         />
       ) : (
@@ -169,14 +171,14 @@ export function AdminBlogPage() {
             />
             <AdminBlogQuickActions />
             {isFetching ? (
-              <p className="text-center text-xs text-portal-muted">Refreshing posts…</p>
+              <p className="text-center text-xs text-portal-muted">{t("admin.common.refreshingPosts")}</p>
             ) : (
               <button
                 type="button"
                 onClick={() => void refetch()}
                 className="text-center text-xs font-semibold text-primary hover:underline"
               >
-                Refresh data
+                {t("admin.common.refreshData")}
               </button>
             )}
           </aside>

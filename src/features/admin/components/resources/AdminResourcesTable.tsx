@@ -18,6 +18,7 @@ import {
   RESOURCE_TYPE_LABELS,
   resourceMetaLine,
 } from "@/features/admin/components/resources/adminResourcesUtils";
+import { usePortalTranslation } from "@/i18n/LocaleProvider";
 
 interface IAdminResourcesTableProps {
   items: AdminResource[];
@@ -50,6 +51,8 @@ export function AdminResourcesTable({
   onEdit,
   onDelete,
 }: IAdminResourcesTableProps) {
+  const { t } = usePortalTranslation();
+
   if (items.length === 0) {
     return (
       <Card className="rounded-2xl border border-portal p-8 text-center shadow-sm">
@@ -79,8 +82,8 @@ export function AdminResourcesTable({
               <th className="px-5 py-3.5">Type</th>
               <th className="px-5 py-3.5">Author / Date</th>
               <th className="px-5 py-3.5">Section</th>
-              <th className="px-5 py-3.5">Status</th>
-              <th className="px-5 py-3.5 text-right">Actions</th>
+              <th className="px-5 py-3.5">{t("tables.status")}</th>
+              <th className="px-5 py-3.5 text-right">{t("tables.actions")}</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-portal/80">
@@ -151,6 +154,7 @@ function ResourceRow({
   onEdit: (item: AdminResource) => void;
   onDelete: (item: AdminResource) => void;
 }) {
+  const { t } = usePortalTranslation();
   const typeMeta = TYPE_STYLE[item.type];
 
   return (
@@ -163,9 +167,7 @@ function ResourceRow({
               <p className="font-semibold text-portal-heading">{item.title}</p>
               {item.featured ? (
                 <span className="inline-flex items-center gap-0.5 rounded-full bg-gold/20 px-1.5 py-0.5 text-[10px] font-bold text-gold-dark">
-                  <Star className="size-3 fill-gold text-gold" aria-hidden />
-                  Featured
-                </span>
+                  <Star className="size-3 fill-gold text-gold" aria-hidden />{t("admin.cms.shared.statFeatured")}</span>
               ) : null}
             </div>
             {item.description ? (

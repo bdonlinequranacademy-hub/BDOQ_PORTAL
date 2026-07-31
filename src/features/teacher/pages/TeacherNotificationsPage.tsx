@@ -5,12 +5,13 @@ import {
 } from "@/features/teacher/hooks/useTeacher";
 import { PageContainer } from "@/components/layout/PageContainer";
 import { Card } from "@/components/ui/Card";
-
 import { PageLoading } from "@/components/ui/PageLoading";
 import { Pagination } from "@/components/ui/Pagination";
 import { usePaginatedList } from "@/lib/hooks/usePaginatedList";
+import { usePortalTranslation } from "@/i18n/LocaleProvider";
 
 export function TeacherNotificationsPage() {
+  const { t, formatDate } = usePortalTranslation();
   const { data: notifications = [], isLoading } = useTeacherNotifications();
   const markRead = useMarkTeacherNotificationRead();
 
@@ -21,9 +22,12 @@ export function TeacherNotificationsPage() {
     <PageContainer className="flex flex-col gap-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-primary-dark">Notifications</h1>
+          <h1 className="text-2xl font-bold text-primary-dark">{t("teacher.notificationsTitle")}</h1>
           <p className="text-sm text-zinc-500">
-            {unread.length} unread of {notifications.length}
+            {t("teacher.unreadOfTotal", {
+              unread: String(unread.length),
+              total: String(notifications.length),
+            })}
           </p>
         </div>
         <Bell className="size-6 text-gold" />
@@ -33,7 +37,7 @@ export function TeacherNotificationsPage() {
         <PageLoading />
       ) : notifications.length === 0 ? (
         <Card className="rounded-2xl border-0 p-8 text-center shadow-sm">
-          <p className="text-sm text-zinc-400">No notifications yet.</p>
+          <p className="text-sm text-zinc-400">{t("teacher.noNotificationsYet")}</p>
         </Card>
       ) : (
         <>
@@ -48,16 +52,14 @@ export function TeacherNotificationsPage() {
               <div className="min-w-0 flex-1">
                 <p className="font-semibold text-primary-dark">{n.title}</p>
                 <p className="mt-1 text-sm text-zinc-500">{n.message}</p>
-                <p className="mt-2 text-xs text-zinc-400">
-                  {new Date(n.createdAt).toLocaleString()}
-                </p>
+                <p className="mt-2 text-xs text-zinc-400">{formatDate(n.createdAt)}</p>
               </div>
               {!n.isRead ? (
                 <button
                   type="button"
                   onClick={() => markRead.mutate(n._id)}
                   className="flex size-9 shrink-0 items-center justify-center rounded-xl bg-primary-dark/8 text-primary-dark"
-                  title="Mark as read"
+                  title={t("teacher.markAsRead")}
                 >
                   <Check className="size-4" />
                 </button>

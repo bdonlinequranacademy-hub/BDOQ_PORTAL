@@ -25,8 +25,10 @@ import {
 } from "@/lib/formControl";
 import { cn } from "@/lib/utils/cn";
 import { env } from "@/config/env";
+import { usePortalTranslation } from "@/i18n/LocaleProvider";
 
 export function AdminTeacherProfileFormPage() {
+  const { t } = usePortalTranslation();
   const { id } = useParams<{ id: string }>();
   const isEdit = Boolean(id);
   const navigate = useNavigate();
@@ -116,7 +118,7 @@ export function AdminTeacherProfileFormPage() {
   if (isEdit && isLoading) {
     return (
       <PageContainer>
-        <PageLoading label="Loading teacher profile…" />
+        <PageLoading label={t("admin.common.loadingTeacherProfile")} />
       </PageContainer>
     );
   }
@@ -138,7 +140,7 @@ export function AdminTeacherProfileFormPage() {
             Back to teachers
           </button>
           <h1 className="mt-3 font-display text-2xl font-bold text-primary-dark sm:text-3xl">
-            {isEdit ? "Edit Teacher Profile" : "Create Teacher Profile"}
+            {isEdit ? t("admin.cms.teachers.editTitle") : t("admin.cms.teachers.createTitle")}
           </h1>
           <p className="mt-1.5 max-w-xl text-sm text-portal-muted">
             Public-facing teacher card and profile for the website /teachers page.
@@ -163,7 +165,7 @@ export function AdminTeacherProfileFormPage() {
             className="inline-flex items-center gap-2 rounded-xl bg-primary px-4 text-white hover:bg-primary-dark"
           >
             <Save className="size-4" aria-hidden />
-            {isSaving ? "Saving…" : "Save Profile"}
+            {isSaving ? t("admin.curriculum.saving") : t("admin.cms.teachers.saveProfile")}
           </Button>
         </div>
       </div>

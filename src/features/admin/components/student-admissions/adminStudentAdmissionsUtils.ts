@@ -1,5 +1,9 @@
 import type { StudentAdmissionStatus, StudentAdmissionView } from "@/types/models";
 import { parseWhatsApp } from "@/lib/whatsapp";
+import type {
+  PortalTranslate,
+  StatusLabelFn,
+} from "@/features/admin/components/trial-leads/adminTrialLeadsUtils";
 
 export type AdminStudentAdmissionsTab = "all" | StudentAdmissionStatus;
 
@@ -15,32 +19,7 @@ export interface IAdminStudentAdmissionsStats {
   conversionRate: number;
 }
 
-const STATUS_LABELS: Record<StudentAdmissionStatus, string> = {
-  new: "New",
-  reviewing: "Under review",
-  approved: "Approved",
-  closed: "Closed",
-};
-
-const VALUE_LABELS: Record<string, string> = {
-  "noorani-qaida": "Noorani Qaida",
-  "quran-recitation": "Quran recitation",
-  tajweed: "Tajweed",
-  hifz: "Hifz",
-  "islamic-history": "Islamic history",
-  "islamic-studies": "Islamic studies",
-  arabic: "Arabic language",
-  facebook: "Facebook",
-  youtube: "YouTube",
-  google: "Google search",
-  friend: "Friend or family",
-  private: "Private (one-to-one)",
-  batch: "Batch (group)",
-};
-
-export function admissionStatusLabel(status: StudentAdmissionStatus): string {
-  return STATUS_LABELS[status];
-}
+export type DynamicLabelFn = (key: string) => string;
 
 export function admissionStatusStyles(status: StudentAdmissionStatus): string {
   switch (status) {
@@ -62,77 +41,87 @@ function formatSlug(value: string): string {
     .join(" ");
 }
 
-function formatRawValue(value: unknown): string | null {
+function formatRawValue(
+  value: unknown,
+  dynamicLabel: DynamicLabelFn
+): string | null {
   if (value === null || value === undefined || value === "") return null;
   if (Array.isArray(value)) {
     const parts = value
-      .map((item) => formatRawValue(item))
+      .map((item) => formatRawValue(item, dynamicLabel))
       .filter((part): part is string => Boolean(part));
     return parts.length > 0 ? parts.join(", ") : null;
   }
   if (typeof value === "object") return null;
   const str = String(value).trim();
   if (!str) return null;
-  return VALUE_LABELS[str] ?? str;
+  return dynamicLabel(str) !== str.replace(/_/g, " ")
+    ? dynamicLabel(str)
+    : dynamicLabel(str.replace(/-/g, "_")) !== str.replace(/-/g, "_")
+      ? dynamicLabel(str.replace(/-/g, "_"))
+      : str;
 }
 
 export function getAdmissionCountry(app: StudentAdmissionView): string | null {
   const formData = app.formData;
   return (
-    formatRawValue(formData.currentCountry) ??
-    formatRawValue(formData.country) ??
-    formatRawValue(formData.nationality)
+    formatRawValue(formData.currentCountry, (k) => k) ??
+    formatRawValue(formData.country, (k) => k) ??
+    formatRawValue(formData.nationality, (k) => k)
   );
 }
 
-export function getAdmissionProgram(app: StudentAdmissionView): string {
+export function getAdmissionProgram(
+  app: StudentAdmissionView,
+  t: PortalTranslate,
+  dynamicLabel: DynamicLabelFn
+): string {
   const formData = app.formData;
   const course =
-    formatRawValue(formData.courseInterest) ??
-    formatRawValue(formData.programInterest) ??
-    formatRawValue(formData.topicsOfInterest);
+    formatRawValue(formData.courseInterest, dynamicLabel) ??
+    formatRawValue(formData.programInterest, dynamicLabel) ??
+    formatRawValue(formData.topicsOfInterest, dynamicLabel);
 
-  if (!course) return "General admission";
+  if (!course) return t("admin.admissions.generalProgram");
   if (course.includes(",")) {
     return course
       .split(",")
-      .map((part) => VALUE_LABELS[part.trim()] ?? formatSlug(part.trim()))
+      .map((part) => {
+        const trimmed = part.trim();
+        const labeled = dynamicLabel(trimmed.replace(/-/g, "_"));
+        return labeled !== trimmed.replace(/-/g, "_") ? labeled : formatSlug(trimmed);
+      })
       .join(", ");
   }
-  return VALUE_LABELS[course] ?? formatSlug(course);
+  const labeled = dynamicLabel(course.replace(/-/g, "_"));
+  return labeled !== course.replace(/-/g, "_") ? labeled : formatSlug(course);
 }
 
-export function getAdmissionProgramDetail(app: StudentAdmissionView): string {
+export function getAdmissionProgramDetail(
+  app: StudentAdmissionView,
+  t: PortalTranslate,
+  dynamicLabel: DynamicLabelFn
+): string {
   const formData = app.formData;
   const parts = [
-    formatRawValue(formData.classType),
-    formatRawValue(formData.packagePlan ?? formData.packageName),
+    formatRawValue(formData.classType, dynamicLabel),
+    formatRawValue(formData.packagePlan ?? formData.packageName, dynamicLabel),
   ].filter((part): part is string => Boolean(part));
 
-  return parts.length > 0 ? parts.join(" · ") : "Student admission form";
+  return parts.length > 0 ? parts.join(" · ") : t("admin.admissions.sourceAdmissionForm");
 }
 
-export function getAdmissionSource(app: StudentAdmissionView): string {
-  const source = formatRawValue(app.formData.referralSources);
-  return source ?? "Website";
+export function getAdmissionSource(
+  app: StudentAdmissionView,
+  t: PortalTranslate,
+  dynamicLabel: DynamicLabelFn
+): string {
+  const source = formatRawValue(app.formData.referralSources, dynamicLabel);
+  return source ?? t("admin.admissions.sourceWebsite");
 }
 
-export function getAdmissionSourceDetail(): string {
-  return "Admission form";
-}
-
-export function formatAppliedAt(iso: string): { date: string; time: string } {
-  const value = new Date(iso);
-  return {
-    date: value
-      .toLocaleDateString("en-US", {
-        month: "short",
-        day: "numeric",
-        year: "numeric",
-      })
-      .toUpperCase(),
-    time: value.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
-  };
+export function getAdmissionSourceDetail(t: PortalTranslate): string {
+  return t("admin.admissions.sourceAdmissionForm");
 }
 
 export function admissionSearchText(app: StudentAdmissionView): string {
@@ -141,8 +130,6 @@ export function admissionSearchText(app: StudentAdmissionView): string {
     app.email,
     app.whatsapp,
     getAdmissionCountry(app),
-    getAdmissionProgram(app),
-    getAdmissionSource(app),
     app.adminNote,
   ]
     .filter(Boolean)
@@ -185,11 +172,15 @@ export function computeStudentAdmissionsStats(
   };
 }
 
-export function extractProgramOptions(applications: StudentAdmissionView[]): string[] {
+export function extractProgramOptions(
+  applications: StudentAdmissionView[],
+  t: PortalTranslate,
+  dynamicLabel: DynamicLabelFn
+): string[] {
   const programs = new Set<string>();
   for (const app of applications) {
-    const program = getAdmissionProgram(app);
-    if (program !== "General admission") programs.add(program);
+    const program = getAdmissionProgram(app, t, dynamicLabel);
+    if (program !== t("admin.admissions.generalProgram")) programs.add(program);
   }
   return [...programs].sort((a, b) => a.localeCompare(b));
 }
@@ -203,10 +194,14 @@ export function extractCountryOptions(applications: StudentAdmissionView[]): str
   return [...countries].sort((a, b) => a.localeCompare(b));
 }
 
-export function extractSourceOptions(applications: StudentAdmissionView[]): string[] {
+export function extractSourceOptions(
+  applications: StudentAdmissionView[],
+  t: PortalTranslate,
+  dynamicLabel: DynamicLabelFn
+): string[] {
   const sources = new Set<string>();
   for (const app of applications) {
-    sources.add(getAdmissionSource(app));
+    sources.add(getAdmissionSource(app, t, dynamicLabel));
   }
   return [...sources].sort((a, b) => a.localeCompare(b));
 }
@@ -221,6 +216,8 @@ export function filterStudentAdmissions(
     sourceFilter: string;
     dateFrom: string;
     dateTo: string;
+    t: PortalTranslate;
+    dynamicLabel: DynamicLabelFn;
   }
 ): StudentAdmissionView[] {
   const query = options.search.trim().toLowerCase();
@@ -228,13 +225,19 @@ export function filterStudentAdmissions(
   return applications
     .filter((app) => {
       if (options.tab !== "all" && app.status !== options.tab) return false;
-      if (options.programFilter && getAdmissionProgram(app) !== options.programFilter) {
+      if (
+        options.programFilter &&
+        getAdmissionProgram(app, options.t, options.dynamicLabel) !== options.programFilter
+      ) {
         return false;
       }
       if (options.countryFilter && getAdmissionCountry(app) !== options.countryFilter) {
         return false;
       }
-      if (options.sourceFilter && getAdmissionSource(app) !== options.sourceFilter) {
+      if (
+        options.sourceFilter &&
+        getAdmissionSource(app, options.t, options.dynamicLabel) !== options.sourceFilter
+      ) {
         return false;
       }
 
@@ -263,34 +266,39 @@ export function nextAdmissionStatus(
   }
 }
 
-export function nextAdmissionActionLabel(status: StudentAdmissionStatus): string | null {
+export function nextAdmissionActionLabel(
+  status: StudentAdmissionStatus,
+  t: PortalTranslate,
+  statusLabel: StatusLabelFn
+): string | null {
   const next = nextAdmissionStatus(status);
   if (!next) return null;
   switch (next) {
     case "reviewing":
-      return "Start review";
+      return t("admin.admissions.actionStartReview");
     case "approved":
-      return "Approve";
+      return t("admin.admissions.actionApprove");
     case "closed":
-      return "Close";
+      return t("admin.admissions.actionClose");
     default:
-      return `Mark ${admissionStatusLabel(next).toLowerCase()}`;
+      return statusLabel(next);
   }
 }
 
 export function admissionStatusActions(
-  status: StudentAdmissionStatus
+  status: StudentAdmissionStatus,
+  t: PortalTranslate
 ): { label: string; status: StudentAdmissionStatus }[] {
   switch (status) {
     case "new":
-      return [{ label: "Start review", status: "reviewing" }];
+      return [{ label: t("admin.admissions.actionStartReview"), status: "reviewing" }];
     case "reviewing":
       return [
-        { label: "Approve", status: "approved" },
-        { label: "Close", status: "closed" },
+        { label: t("admin.admissions.actionApprove"), status: "approved" },
+        { label: t("admin.admissions.actionClose"), status: "closed" },
       ];
     case "approved":
-      return [{ label: "Close", status: "closed" }];
+      return [{ label: t("admin.admissions.actionClose"), status: "closed" }];
     default:
       return [];
   }
@@ -302,20 +310,25 @@ export function admissionTelHref(raw: string, countryHint?: string): string | nu
   return `tel:${parsed.value.e164}`;
 }
 
-export function admissionMailtoHref(app: StudentAdmissionView): string {
-  const subject = encodeURIComponent("BD Online Quran Academy — Student admission");
+export function admissionMailtoHref(
+  app: StudentAdmissionView,
+  t: PortalTranslate
+): string {
+  const subject = encodeURIComponent(t("admin.admissions.modalTitle"));
   const body = encodeURIComponent(
-    `Assalamu alaikum ${app.fullName},\n\nThank you for your student admission application at BD Online Quran Academy.\n\n`
+    t("admin.trialLeads.mailBodyIntro", { name: app.fullName })
   );
   return `mailto:${app.email}?subject=${subject}&body=${body}`;
 }
 
 export function groupAdmissionSources(
-  applications: StudentAdmissionView[]
+  applications: StudentAdmissionView[],
+  t: PortalTranslate,
+  dynamicLabel: DynamicLabelFn
 ): { label: string; count: number }[] {
   const map = new Map<string, number>();
   for (const app of applications) {
-    const label = getAdmissionSource(app);
+    const label = getAdmissionSource(app, t, dynamicLabel);
     map.set(label, (map.get(label) ?? 0) + 1);
   }
   return [...map.entries()]
@@ -324,11 +337,13 @@ export function groupAdmissionSources(
 }
 
 export function groupAdmissionPrograms(
-  applications: StudentAdmissionView[]
+  applications: StudentAdmissionView[],
+  t: PortalTranslate,
+  dynamicLabel: DynamicLabelFn
 ): { label: string; count: number }[] {
   const map = new Map<string, number>();
   for (const app of applications) {
-    const label = getAdmissionProgram(app);
+    const label = getAdmissionProgram(app, t, dynamicLabel);
     map.set(label, (map.get(label) ?? 0) + 1);
   }
   return [...map.entries()]
@@ -352,18 +367,20 @@ function downloadBlob(blob: Blob, filename: string): void {
 
 export function exportStudentAdmissionsFile(
   applications: StudentAdmissionView[],
-  filenamePrefix: string
+  filenamePrefix: string,
+  t: PortalTranslate,
+  dynamicLabel: DynamicLabelFn
 ): void {
   const filename = `${filenamePrefix}-${new Date().toISOString().slice(0, 10)}.csv`;
   const header = [
-    "Name",
-    "Email",
-    "WhatsApp",
-    "Program",
-    "Country",
-    "Source",
-    "Status",
-    "Applied At",
+    t("admin.trialLeads.csvName"),
+    t("admin.trialLeads.csvEmail"),
+    t("admin.trialLeads.csvWhatsapp"),
+    t("admin.admissions.tableProgram"),
+    t("admin.admissions.tableCountry"),
+    t("admin.admissions.tableSource"),
+    t("admin.trialLeads.csvStatus"),
+    t("admin.admissions.tableSubmitted"),
   ];
   const lines = [
     header.join(","),
@@ -372,9 +389,9 @@ export function exportStudentAdmissionsFile(
         csvEscape(app.fullName),
         csvEscape(app.email),
         csvEscape(app.whatsapp),
-        csvEscape(getAdmissionProgram(app)),
+        csvEscape(getAdmissionProgram(app, t, dynamicLabel)),
         csvEscape(getAdmissionCountry(app) ?? ""),
-        csvEscape(getAdmissionSource(app)),
+        csvEscape(getAdmissionSource(app, t, dynamicLabel)),
         csvEscape(app.status),
         csvEscape(app.createdAt),
       ].join(",")

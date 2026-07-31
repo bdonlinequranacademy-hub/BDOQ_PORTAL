@@ -7,6 +7,7 @@ import type {
   PricingSort,
   PricingStatusFilter,
 } from "@/features/admin/components/pricing/adminPricingUtils";
+import { usePortalTranslation } from "@/i18n/LocaleProvider";
 
 interface IAdminPricingToolbarProps {
   search: string;
@@ -37,6 +38,8 @@ export function AdminPricingToolbar({
   onToggleAdvancedFilters,
   onNewPackage,
 }: IAdminPricingToolbarProps) {
+  const { t, statusLabel } = usePortalTranslation();
+
   return (
     <Card className="rounded-2xl border border-portal bg-portal-surface p-4 shadow-sm sm:p-5">
       <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
@@ -75,8 +78,8 @@ export function AdminPricingToolbar({
             aria-label="Filter by status"
           >
             <option value="all">All status</option>
-            <option value="published">Published</option>
-            <option value="draft">Draft</option>
+            <option value="published">{t("admin.common.statPublished")}</option>
+            <option value="draft">{statusLabel("draft")}</option>
             <option value="popular">Popular</option>
           </select>
 

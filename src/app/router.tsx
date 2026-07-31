@@ -3,6 +3,7 @@ import { ProtectedRoute } from "@/components/guards/ProtectedRoute";
 import { PublicOnlyRoute } from "@/components/guards/PublicOnlyRoute";
 import { RoleRoute } from "@/components/guards/RoleRoute";
 import { AppLayout } from "@/components/layout/AppLayout";
+import { RootLayout } from "@/components/layout/RootLayout";
 import {
   suspend,
   LoginPage,
@@ -96,6 +97,9 @@ import {
 } from "@/app/lazyPages";
 
 export const router = createBrowserRouter([
+  {
+    element: <RootLayout />,
+    children: [
   { path: "/", element: suspend(PortalHomePage) },
 
   {
@@ -248,4 +252,6 @@ export const router = createBrowserRouter([
 
   { path: "/403", element: suspend(ForbiddenPage) },
   { path: "*", element: suspend(NotFoundPage) },
+    ],
+  },
 ]);

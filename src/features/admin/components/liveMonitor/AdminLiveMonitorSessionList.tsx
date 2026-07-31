@@ -7,6 +7,7 @@ import {
   sessionHasIssue,
   sessionIssueMessage,
 } from "@/features/admin/components/liveMonitor/liveMonitorUtils";
+import { usePortalTranslation } from "@/i18n/LocaleProvider";
 import { cn } from "@/lib/utils/cn";
 
 interface IAdminLiveMonitorSessionListProps {
@@ -22,13 +23,17 @@ export function AdminLiveMonitorSessionList({
   now,
   onSelect,
 }: IAdminLiveMonitorSessionListProps) {
+  const { t } = usePortalTranslation();
+
   if (sessions.length === 0) return null;
 
   return (
     <div className="rounded-2xl border border-portal bg-portal-surface shadow-[0_8px_24px_-16px_rgba(13,74,47,0.18)]">
       <div className="border-b border-portal px-4 py-3.5 sm:px-5">
-        <h2 className="text-sm font-bold text-portal-heading">Today&apos;s sessions</h2>
-        <p className="text-xs text-portal-muted">Select a session to inspect join status and details.</p>
+        <h2 className="text-sm font-bold text-portal-heading">
+          {t("admin.liveMonitor.sessionList.title")}
+        </h2>
+        <p className="text-xs text-portal-muted">{t("admin.liveMonitor.sessionList.subtitle")}</p>
       </div>
       <div className="divide-y divide-portal">
         {sessions.map((session) => {
@@ -64,8 +69,8 @@ export function AdminLiveMonitorSessionList({
                 {session.teacher.name} · {session.student.name}
               </p>
               <div className="flex flex-wrap gap-1.5">
-                <LiveMonitorJoinBadge role="Teacher" status={session.joins.teacherStatus} />
-                <LiveMonitorJoinBadge role="Student" status={session.joins.studentStatus} />
+                <LiveMonitorJoinBadge roleKey="teacher" status={session.joins.teacherStatus} />
+                <LiveMonitorJoinBadge roleKey="student" status={session.joins.studentStatus} />
               </div>
               {issue && issueMessage ? (
                 <p className="text-xs font-semibold text-amber-700">{issueMessage}</p>

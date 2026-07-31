@@ -13,6 +13,7 @@ import {
   getTodayRoutineSessions,
   type IAdminRoutineStats,
 } from "@/features/admin/components/routine/adminRoutineUtils";
+import { usePortalTranslation } from "@/i18n/LocaleProvider";
 import { cn } from "@/lib/utils/cn";
 
 interface IAdminRoutineSidebarProps {
@@ -31,18 +32,21 @@ function AdminRoutineTodaySchedule({
   sessions: SessionSlotView[];
   nowMs: number;
 }) {
+  const { t } = usePortalTranslation();
   const todaySessions = getTodayRoutineSessions(sessions, nowMs);
 
   return (
     <Card className="rounded-2xl border border-portal bg-portal-surface p-5 shadow-[0_8px_24px_-16px_rgba(13,74,47,0.18)]">
       <div className="mb-4 flex items-center justify-between gap-2">
-        <h2 className="text-sm font-bold text-portal-heading">Today&apos;s Schedule</h2>
+        <h2 className="text-sm font-bold text-portal-heading">
+          {t("admin.routine.sidebar.todaySchedule")}
+        </h2>
         <Link to="/admin/live-monitor" className="text-xs font-semibold text-primary hover:underline">
-          View all
+          {t("actions.viewAll")}
         </Link>
       </div>
       {todaySessions.length === 0 ? (
-        <p className="text-sm text-portal-muted">No sessions scheduled for today.</p>
+        <p className="text-sm text-portal-muted">{t("admin.routine.sidebar.noSessionsToday")}</p>
       ) : (
         <div className="flex flex-col gap-3">
           {todaySessions.slice(0, 5).map((session) => (
@@ -66,11 +70,25 @@ function AdminRoutineTodaySchedule({
 }
 
 function AdminRoutineWeeklyOverview({ stats }: { stats: IAdminRoutineStats }) {
+  const { t } = usePortalTranslation();
+
   const segments = [
-    { label: "Live now", value: stats.liveNow, color: "#32C991" },
-    { label: "Starting soon", value: stats.upcomingToday, color: "#F59E0B" },
-    { label: "Weekly scheduled", value: stats.scheduledWeekly, color: "#3B82F6" },
-    { label: "Completed today", value: stats.completedToday, color: "#9CA3AF" },
+    { label: t("admin.routine.sidebar.segmentLiveNow"), value: stats.liveNow, color: "#32C991" },
+    {
+      label: t("admin.routine.sidebar.segmentStartingSoon"),
+      value: stats.upcomingToday,
+      color: "#F59E0B",
+    },
+    {
+      label: t("admin.routine.sidebar.segmentWeeklyScheduled"),
+      value: stats.scheduledWeekly,
+      color: "#3B82F6",
+    },
+    {
+      label: t("admin.routine.sidebar.segmentCompletedToday"),
+      value: stats.completedToday,
+      color: "#9CA3AF",
+    },
   ].filter((segment) => segment.value > 0);
 
   const total = stats.total || 1;
@@ -87,9 +105,11 @@ function AdminRoutineWeeklyOverview({ stats }: { stats: IAdminRoutineStats }) {
   return (
     <Card className="rounded-2xl border border-portal bg-portal-surface p-5 shadow-[0_8px_24px_-16px_rgba(13,74,47,0.18)]">
       <div className="mb-4 flex items-center justify-between gap-2">
-        <h2 className="text-sm font-bold text-portal-heading">Weekly Overview</h2>
+        <h2 className="text-sm font-bold text-portal-heading">
+          {t("admin.routine.sidebar.weeklyOverview")}
+        </h2>
         <span className="rounded-lg border border-portal px-2 py-1 text-[10px] font-semibold text-portal-muted">
-          This week
+          {t("admin.routine.sidebar.thisWeek")}
         </span>
       </div>
 
@@ -102,14 +122,14 @@ function AdminRoutineWeeklyOverview({ stats }: { stats: IAdminRoutineStats }) {
           <div className="absolute inset-4 flex flex-col items-center justify-center rounded-full bg-portal-surface text-center">
             <p className="text-xl font-bold text-portal-heading">{stats.total}</p>
             <p className="text-[10px] font-semibold uppercase tracking-wide text-portal-muted">
-              Total
+              {t("admin.routine.sidebar.total")}
             </p>
           </div>
         </div>
 
         <div className="flex min-w-0 flex-1 flex-col gap-2 text-xs">
           {segments.length === 0 ? (
-            <p className="text-portal-muted">No session data yet.</p>
+            <p className="text-portal-muted">{t("admin.routine.sidebar.noSessionData")}</p>
           ) : (
             segments.map((segment) => (
               <div key={segment.label} className="flex items-center justify-between gap-2">
@@ -141,28 +161,30 @@ function AdminRoutineQuickActions({
   onResync: () => void;
   resyncPending: boolean;
 }) {
+  const { t } = usePortalTranslation();
+
   const actions = [
     {
-      label: "New Class",
+      label: t("admin.routine.sidebar.newClass"),
       icon: Plus,
       to: "/admin/classes/new",
       onClick: undefined as (() => void) | undefined,
     },
     {
-      label: "Resync Slots",
+      label: t("admin.routine.sidebar.resyncSlots"),
       icon: RefreshCw,
       to: undefined,
       onClick: onResync,
       pending: resyncPending,
     },
     {
-      label: "Export Routine",
+      label: t("admin.routine.sidebar.exportRoutine"),
       icon: Download,
       to: undefined,
       onClick: () => exportRoutineFile(allSessions),
     },
     {
-      label: "Live Monitor",
+      label: t("admin.routine.sidebar.liveMonitor"),
       icon: MonitorPlay,
       to: "/admin/live-monitor",
       onClick: undefined as (() => void) | undefined,
@@ -171,7 +193,9 @@ function AdminRoutineQuickActions({
 
   return (
     <Card className="rounded-2xl border border-portal bg-portal-surface p-5 shadow-[0_8px_24px_-16px_rgba(13,74,47,0.18)]">
-      <h2 className="mb-4 text-sm font-bold text-portal-heading">Quick Actions</h2>
+      <h2 className="mb-4 text-sm font-bold text-portal-heading">
+        {t("admin.routine.sidebar.quickActions")}
+      </h2>
       <div className="grid grid-cols-2 gap-2.5">
         {actions.map(({ label, icon: Icon, to, onClick, pending }) => {
           const className = cn(
@@ -199,7 +223,7 @@ function AdminRoutineQuickActions({
                 className={cn("size-4 text-primary", pending && "animate-spin")}
                 aria-hidden
               />
-              {pending ? "Syncing…" : label}
+              {pending ? t("admin.routine.syncing") : label}
             </button>
           );
         })}

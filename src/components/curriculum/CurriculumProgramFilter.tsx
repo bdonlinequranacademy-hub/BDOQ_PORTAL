@@ -30,10 +30,14 @@ export function CurriculumProgramFilter({
   );
 }
 
+import { usePortalTranslation } from "@/i18n/LocaleProvider";
+
 export function MissingCurriculumBadge() {
+  const { t } = usePortalTranslation();
+
   return (
     <span className="inline-flex rounded-full bg-amber-50 px-2 py-0.5 text-[10px] font-semibold text-amber-700">
-      No program
+      {t("student.noProgram")}
     </span>
   );
 }

@@ -11,6 +11,7 @@ import {
   type GalleryListStyle,
   type IGalleryFormState,
 } from "@/features/admin/components/gallery/adminGalleryUtils";
+import { usePortalTranslation } from "@/i18n/LocaleProvider";
 
 interface IAdminGallerySettingsPanelProps {
   form: IGalleryFormState;
@@ -45,6 +46,8 @@ export function AdminGallerySettingsPanel({
   onCancel,
   onSave,
 }: IAdminGallerySettingsPanelProps) {
+  const { t, statusLabel } = usePortalTranslation();
+
   return (
     <div className="flex flex-col gap-4">
       <Card className="rounded-2xl border border-portal bg-portal-surface p-5 shadow-sm">
@@ -108,8 +111,8 @@ export function AdminGallerySettingsPanel({
               onChange({ showOnWebsite: e.target.value === "published" })
             }
           >
-            <option value="published">Published</option>
-            <option value="draft">Draft</option>
+            <option value="published">{t("admin.common.statPublished")}</option>
+            <option value="draft">{statusLabel("draft")}</option>
           </select>
         </label>
 

@@ -2,13 +2,11 @@ import { Eye, Pencil, RotateCcw, Trash2 } from "lucide-react";
 import { Link } from "react-router-dom";
 import { ClassScheduleChip } from "@/components/classes/ClassScheduleChip";
 import { UserInitialAvatar } from "@/components/ui/UserInitialAvatar";
+import { usePortalTranslation } from "@/i18n/LocaleProvider";
 import { cn } from "@/lib/utils/cn";
 import type { AdminClass } from "@/types/models";
 import { classTitle, studentCount, teacherName } from "@/lib/utils/class";
-import {
-  classStatusLabel,
-  classStatusStyles,
-} from "@/features/admin/components/classes/adminClassesUtils";
+import { classStatusStyles } from "@/features/admin/components/classes/adminClassesUtils";
 
 interface IAdminClassesGridProps {
   classes: AdminClass[];
@@ -21,6 +19,12 @@ export function AdminClassesGrid({
   togglingId,
   onToggleActive,
 }: IAdminClassesGridProps) {
+  const { t, statusLabel, formatNumber } = usePortalTranslation();
+
+  function classActiveStatus(cls: AdminClass): string {
+    return statusLabel(cls.isActive === false ? "inactive" : "active");
+  }
+
   return (
     <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
       {classes.map((cls) => {
@@ -51,7 +55,7 @@ export function AdminClassesGrid({
                         classStatusStyles(cls)
                       )}
                     >
-                      {classStatusLabel(cls)}
+                      {classActiveStatus(cls)}
                     </span>
                   </div>
                   {cls.description ? (
@@ -69,7 +73,7 @@ export function AdminClassesGrid({
                     {teacherLabel}
                   </p>
                   <p className="text-xs text-portal-muted">
-                    {count} student{count === 1 ? "" : "s"}
+                    {t("admin.classes.studentCount", { count: formatNumber(count) })}
                   </p>
                 </div>
               </div>
@@ -81,16 +85,16 @@ export function AdminClassesGrid({
               <Link
                 to={`/admin/classes/${cls._id}`}
                 className="rounded-lg p-2 text-portal-muted transition hover:bg-portal-muted/50 hover:text-primary"
-                aria-label="View class"
-                title="View"
+                aria-label={t("actions.viewClass")}
+                title={t("actions.view")}
               >
                 <Eye className="size-4" />
               </Link>
               <Link
                 to={`/admin/classes/${cls._id}/edit`}
                 className="rounded-lg p-2 text-portal-muted transition hover:bg-portal-muted/50 hover:text-primary"
-                aria-label="Edit class"
-                title="Edit"
+                aria-label={t("actions.editClass")}
+                title={t("actions.edit")}
               >
                 <Pencil className="size-4" />
               </Link>
@@ -104,8 +108,8 @@ export function AdminClassesGrid({
                     ? "text-emerald-600 hover:bg-emerald-50"
                     : "text-red-600 hover:bg-red-50"
                 )}
-                aria-label={inactive ? "Reactivate class" : "Deactivate class"}
-                title={inactive ? "Reactivate" : "Deactivate"}
+                aria-label={inactive ? t("actions.reactivateClass") : t("actions.deactivateClass")}
+                title={inactive ? t("admin.classes.reactivate") : t("admin.classes.deactivate")}
               >
                 {inactive ? (
                   <RotateCcw className={cn("size-4", toggling && "animate-spin")} />

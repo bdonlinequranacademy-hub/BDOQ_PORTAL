@@ -35,8 +35,10 @@ import {
   type HomeworkSort,
   type HomeworkTrendRange,
 } from "@/features/admin/components/homework/adminHomeworkUtils";
+import { usePortalTranslation } from "@/i18n/LocaleProvider";
 
 export function AdminHomeworkPage() {
+  const { t } = usePortalTranslation();
   const [tab, setTab] = useState<AdminHomeworkTab>("all");
   const [search, setSearch] = useState("");
   const [programFilter, setProgramFilter] = useState("");
@@ -115,7 +117,7 @@ export function AdminHomeworkPage() {
 
   async function handleDelete(item: AdminHomeworkItem) {
     const ok = window.confirm(
-      `Delete "${item.title}"? This removes all student submissions.`
+      t("admin.homework.confirmDelete", { title: item.title })
     );
     if (!ok) return;
     await deleteHomework.mutateAsync(item._id);
@@ -147,18 +149,18 @@ export function AdminHomeworkPage() {
       {isError ? (
         <EmptyState
           icon={BookOpenCheck}
-          title="Could not load homework"
-          description="The server failed to return assignments. Try again in a moment."
-          actionLabel="Retry"
+          title={t("admin.homework.loadError")}
+          description={t("admin.common.loadErrorDesc")}
+          actionLabel={t("admin.common.retry")}
           onAction={() => void refetch()}
         />
       ) : isLoading ? (
-        <PageLoading label="Loading homework…" />
+        <PageLoading label={t("admin.common.loadingHomework")} />
       ) : homework.length === 0 ? (
         <EmptyState
           icon={BookOpenCheck}
-          title="No homework yet"
-          description="Assignments appear here when teachers create them for their classes."
+          title={t("admin.common.noHomework")}
+          description={t("admin.common.noHomeworkDesc")}
         />
       ) : (
         <>
@@ -204,8 +206,8 @@ export function AdminHomeworkPage() {
               {visibleHomework.length === 0 ? (
                 <EmptyState
                   icon={BookOpenCheck}
-                  title="No assignments match your filters"
-                  description="Try clearing search, program, class, teacher, or date filters."
+                  title={t("admin.common.noHomeworkMatch")}
+                  description={t("admin.common.clearFiltersHint")}
                 />
               ) : (
                 <>

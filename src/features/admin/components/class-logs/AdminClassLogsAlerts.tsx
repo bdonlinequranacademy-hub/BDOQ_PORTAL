@@ -1,4 +1,5 @@
 import { AlertCircle, BookOpen, ChevronRight, Clock } from "lucide-react";
+import { usePortalTranslation } from "@/i18n/LocaleProvider";
 import { cn } from "@/lib/utils/cn";
 
 interface IAdminClassLogsPendingAlertProps {
@@ -10,6 +11,8 @@ export function AdminClassLogsPendingAlert({
   pendingCount,
   onReview,
 }: IAdminClassLogsPendingAlertProps) {
+  const { t, formatNumber } = usePortalTranslation();
+
   if (pendingCount <= 0) return null;
 
   return (
@@ -25,12 +28,11 @@ export function AdminClassLogsPendingAlert({
           <Clock className="size-5" aria-hidden />
         </div>
         <div className="min-w-0">
-          <p className="text-sm font-bold text-portal-heading">Action required</p>
+          <p className="text-sm font-bold text-portal-heading">{t("admin.classLogs.actionRequired")}</p>
           <p className="mt-0.5 text-sm text-portal-muted">
-            <span className="font-semibold text-amber-800">
-              {pendingCount} log{pendingCount === 1 ? "" : "s"}
-            </span>{" "}
-            awaiting your approval before they count as verified sessions.
+            {t("admin.classLogs.pendingApprovalMessage", {
+              count: formatNumber(pendingCount),
+            })}
           </p>
         </div>
       </div>
@@ -39,7 +41,7 @@ export function AdminClassLogsPendingAlert({
         onClick={onReview}
         className="inline-flex shrink-0 items-center justify-center gap-1 rounded-xl bg-amber-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-amber-700"
       >
-        Review pending
+        {t("admin.classLogs.reviewPending")}
         <ChevronRight className="size-4" aria-hidden />
       </button>
     </div>
@@ -51,6 +53,8 @@ interface IAdminClassLogsProgramNoticeProps {
 }
 
 export function AdminClassLogsProgramNotice({ count }: IAdminClassLogsProgramNoticeProps) {
+  const { t, formatNumber } = usePortalTranslation();
+
   if (count <= 0) return null;
 
   return (
@@ -60,8 +64,7 @@ export function AdminClassLogsProgramNotice({ count }: IAdminClassLogsProgramNot
       </div>
       <p className="text-sm text-portal-muted">
         <AlertCircle className="mr-1 inline size-3.5 text-amber-600" aria-hidden />
-        {count} log{count === 1 ? "" : "s"} in this view have no study program (submitted before
-        curriculum tracking).
+        {t("admin.classLogs.missingProgramNotice", { count: formatNumber(count) })}
       </p>
     </div>
   );

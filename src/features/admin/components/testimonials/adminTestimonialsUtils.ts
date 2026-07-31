@@ -33,15 +33,21 @@ const RATING_COLORS: Record<number, string> = {
   1: "#EF4444",
 };
 
-export function pctOfTotal(part: number, total: number): string {
-  if (total <= 0) return "0% of total";
-  return `${Math.round((part / total) * 100)}% of total`;
+export type PortalTranslate = (key: string, params?: Record<string, string>) => string;
+
+export function pctOfTotal(part: number, total: number, t: PortalTranslate): string {
+  if (total <= 0) return t("stats.zeroOfTotal");
+  const pctValue = Math.round((part / total) * 1000) / 10;
+  return t("stats.ofTotal", { pct: String(pctValue) });
 }
 
-export function mediaTypeLabel(type: TestimonialMediaType): string {
-  if (type === "audio") return "Audio";
-  if (type === "video") return "Video";
-  return "Text";
+export function mediaTypeLabel(
+  type: TestimonialMediaType,
+  t: PortalTranslate
+): string {
+  if (type === "audio") return t("admin.cms.testimonials.mediaAudio");
+  if (type === "video") return t("admin.cms.testimonials.mediaVideo");
+  return t("admin.cms.testimonials.mediaText");
 }
 
 export function isPublished(item: AdminTestimonial): boolean {

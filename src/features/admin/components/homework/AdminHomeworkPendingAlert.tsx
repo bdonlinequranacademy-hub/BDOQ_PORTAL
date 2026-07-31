@@ -1,5 +1,6 @@
 import { AlertTriangle } from "lucide-react";
 import { Card } from "@/components/ui/Card";
+import { usePortalTranslation } from "@/i18n/LocaleProvider";
 
 interface IAdminHomeworkPendingAlertProps {
   awaitingGradeCount: number;
@@ -14,6 +15,8 @@ export function AdminHomeworkPendingAlert({
   onReviewAwaitingGrade,
   onReviewOverdue,
 }: IAdminHomeworkPendingAlertProps) {
+  const { t, formatNumber } = usePortalTranslation();
+
   if (awaitingGradeCount <= 0 && overdueCount <= 0) return null;
 
   return (
@@ -23,14 +26,20 @@ export function AdminHomeworkPendingAlert({
           <AlertTriangle className="size-5 text-amber-700" aria-hidden />
         </div>
         <div>
-          <p className="text-sm font-bold text-amber-900">Action needed on homework</p>
+          <p className="text-sm font-bold text-amber-900">
+            {t("admin.homework.actionNeeded")}
+          </p>
           <p className="mt-0.5 text-sm text-amber-800/90">
             {awaitingGradeCount > 0
-              ? `${awaitingGradeCount} submission${awaitingGradeCount === 1 ? "" : "s"} awaiting teacher grade.`
+              ? t("admin.homework.awaitingGradeSubmissions", {
+                  count: formatNumber(awaitingGradeCount),
+                })
               : null}
             {awaitingGradeCount > 0 && overdueCount > 0 ? " " : null}
             {overdueCount > 0
-              ? `${overdueCount} assignment${overdueCount === 1 ? "" : "s"} overdue with missing submissions.`
+              ? t("admin.homework.overdueAssignments", {
+                  count: formatNumber(overdueCount),
+                })
               : null}
           </p>
         </div>
@@ -42,7 +51,7 @@ export function AdminHomeworkPendingAlert({
             onClick={onReviewAwaitingGrade}
             className="inline-flex h-9 items-center justify-center rounded-xl bg-amber-700 px-4 text-sm font-semibold text-white transition hover:bg-amber-800"
           >
-            Review awaiting grade
+            {t("admin.homework.reviewAwaitingGrade")}
           </button>
         ) : null}
         {overdueCount > 0 ? (
@@ -51,7 +60,7 @@ export function AdminHomeworkPendingAlert({
             onClick={onReviewOverdue}
             className="inline-flex h-9 items-center justify-center rounded-xl border border-amber-700/30 bg-white px-4 text-sm font-semibold text-amber-900 transition hover:border-amber-700/50"
           >
-            View overdue
+            {t("actions.viewOverdue")}
           </button>
         ) : null}
       </div>

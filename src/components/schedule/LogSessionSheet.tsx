@@ -10,6 +10,7 @@ import type { CurriculumPath } from "@/lib/api/curriculumApi";
 import { Textarea } from "@/components/ui/Textarea";
 import { Button } from "@/components/ui/Button";
 import { formControlClass } from "@/lib/formControl";
+import { usePortalTranslation } from "@/i18n/LocaleProvider";
 
 import { PageLoading } from "@/components/ui/PageLoading";
 interface LogSessionSheetProps {
@@ -39,6 +40,8 @@ export function LogSessionSheet({
   onSubmit,
   isSubmitting,
 }: LogSessionSheetProps) {
+  const { t } = usePortalTranslation();
+
   const [lessonReport, setLessonReport] = useState("");
   const [topicsInput, setTopicsInput] = useState("");
   const [sessionDate, setSessionDate] = useState(todayIsoDate());
@@ -136,7 +139,7 @@ export function LogSessionSheet({
           <div>
             <div className="flex items-center gap-2">
               <ClipboardList className="size-5 text-gold" />
-              <h2 className="text-lg font-bold text-primary-dark">Log Session</h2>
+              <h2 className="text-lg font-bold text-primary-dark">{t("shared.schedule.logSession")}</h2>
             </div>
             <p className="mt-1 text-sm text-zinc-500">
               {session.student.name} · {session.classTitle}
@@ -146,14 +149,14 @@ export function LogSessionSheet({
             type="button"
             onClick={onClose}
             className="rounded-xl p-2 text-zinc-400 hover:bg-zinc-100"
-            aria-label="Close"
+            aria-label={t("shared.schedule.close")}
           >
             <X className="size-5" />
           </button>
         </div>
 
         <label className="flex flex-col gap-1.5">
-          <span className="text-sm font-medium text-primary-dark">Session date</span>
+          <span className="text-sm font-medium text-primary-dark">{t("shared.schedule.sessionDate")}</span>
           <input
             type="date"
             value={sessionDate}
@@ -175,9 +178,9 @@ export function LogSessionSheet({
         )}
 
         <div className="flex flex-col gap-1.5">
-          <span className="text-sm font-medium text-primary-dark">Lesson report</span>
+          <span className="text-sm font-medium text-primary-dark">{t("shared.schedule.lessonReport")}</span>
           <Textarea
-            placeholder="What was covered in today's class? Tajweed corrections, surahs revised, homework assigned…"
+            placeholder={t("shared.schedule.lessonReportPlaceholder")}
             value={lessonReport}
             onChange={(e) => setLessonReport(e.target.value)}
             rows={6}
@@ -197,10 +200,10 @@ export function LogSessionSheet({
         ) : null}
 
         <label className="flex flex-col gap-1.5">
-          <span className="text-sm font-medium text-primary-dark">Topics covered (optional)</span>
+          <span className="text-sm font-medium text-primary-dark">{t("shared.schedule.topicsCovered")}</span>
           <input
             type="text"
-            placeholder="e.g. Surah Al-Mulk, Madd rules, homework review"
+            placeholder={t("shared.schedule.topicsPlaceholder")}
             value={topicsInput}
             onChange={(e) => setTopicsInput(e.target.value)}
             className={formControlClass}

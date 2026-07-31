@@ -3,6 +3,7 @@ import type { SessionSlotView } from "@/types/models";
 import { Button } from "@/components/ui/Button";
 import { useSessionJoin } from "@/hooks/useSessionJoin";
 import { normalizeMeetingLink } from "@/lib/utils/meetingLink";
+import { usePortalTranslation } from "@/i18n/LocaleProvider";
 
 interface SessionActionButtonsProps {
   session: SessionSlotView;
@@ -20,6 +21,7 @@ export function SessionActionButtons({
   compact = false,
   joinRole,
 }: SessionActionButtonsProps) {
+  const { t } = usePortalTranslation();
   const { trackAndOpenMeeting } = useSessionJoin(joinRole ?? "student");
   const meetingHref = normalizeMeetingLink(session.meetingLink);
 
@@ -37,7 +39,7 @@ export function SessionActionButtons({
             }`}
           >
             <Video className="size-3.5" />
-            Launch
+            {t("shared.schedule.launch")}
           </button>
         ) : (
           <a
@@ -49,7 +51,7 @@ export function SessionActionButtons({
             }`}
           >
             <Video className="size-3.5" />
-            Launch
+            {t("shared.schedule.launch")}
           </a>
         )
       ) : null}
@@ -62,7 +64,7 @@ export function SessionActionButtons({
           }`}
         >
           <ClipboardList className="size-3.5" />
-          Log
+          {t("shared.schedule.logShort")}
         </Button>
       ) : null}
       {onMarkAttendance ? (
@@ -75,7 +77,7 @@ export function SessionActionButtons({
           }`}
         >
           <User className="size-3.5" />
-          Attendance
+          {t("shared.schedule.markAttendance")}
         </Button>
       ) : null}
     </div>

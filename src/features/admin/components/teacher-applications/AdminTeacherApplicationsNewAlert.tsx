@@ -1,4 +1,5 @@
 import { ChevronRight, Clock } from "lucide-react";
+import { usePortalTranslation } from "@/i18n/LocaleProvider";
 import { cn } from "@/lib/utils/cn";
 
 interface IAdminTeacherApplicationsNewAlertProps {
@@ -10,6 +11,8 @@ export function AdminTeacherApplicationsNewAlert({
   newCount,
   onReview,
 }: IAdminTeacherApplicationsNewAlertProps) {
+  const { t, formatNumber } = usePortalTranslation();
+
   if (newCount <= 0) return null;
 
   return (
@@ -25,12 +28,11 @@ export function AdminTeacherApplicationsNewAlert({
           <Clock className="size-5" aria-hidden />
         </div>
         <div className="min-w-0">
-          <p className="text-sm font-bold text-portal-heading">New applications need review</p>
+          <p className="text-sm font-bold text-portal-heading">
+            {t("admin.teacherApplications.alertTitle")}
+          </p>
           <p className="mt-0.5 text-sm text-portal-muted">
-            <span className="font-semibold text-amber-800">
-              {newCount} application{newCount === 1 ? "" : "s"}
-            </span>{" "}
-            are waiting for your first review.
+            {t("admin.teacherApplications.alertBody", { count: formatNumber(newCount) })}
           </p>
         </div>
       </div>
@@ -39,7 +41,7 @@ export function AdminTeacherApplicationsNewAlert({
         onClick={onReview}
         className="inline-flex shrink-0 items-center justify-center gap-1 rounded-xl bg-amber-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-amber-700"
       >
-        Review new applications
+        {t("admin.teacherApplications.alertCta")}
         <ChevronRight className="size-4" aria-hidden />
       </button>
     </div>

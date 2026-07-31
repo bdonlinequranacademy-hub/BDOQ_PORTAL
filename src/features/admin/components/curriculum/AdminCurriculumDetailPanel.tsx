@@ -8,8 +8,9 @@ import {
   TAJWEED_RULE_CATALOG,
   isSurahTopicId,
 } from "@/lib/curriculumCatalog";
+import { usePortalTranslation } from "@/i18n/LocaleProvider";
 import { AdminCurriculumCatalogMultiSelect } from "@/features/admin/components/curriculum/AdminCurriculumCatalogMultiSelect";
-import { rowTypeLabel, rowTypeStyles } from "@/features/admin/components/curriculum/adminCurriculumUtils";
+import { rowTypeStyles } from "@/features/admin/components/curriculum/adminCurriculumUtils";
 import { cn } from "@/lib/utils/cn";
 
 interface IAdminCurriculumDetailPanelProps {
@@ -49,6 +50,8 @@ export function AdminCurriculumDetailPanel({
   onTajweedSelection,
   onGrammarSelection,
 }: IAdminCurriculumDetailPanelProps) {
+  const { t, dynamicLabel } = usePortalTranslation();
+
   if (!program) {
     return (
       <Card
@@ -57,27 +60,28 @@ export function AdminCurriculumDetailPanel({
           "h-[420px]"
         )}
       >
-        <h2 className="text-sm font-bold text-portal-heading">Details</h2>
-        <p className="mt-4 text-sm text-portal-muted">Select a program to view details.</p>
+        <h2 className="text-sm font-bold text-portal-heading">{t("admin.curriculum.details")}</h2>
+        <p className="mt-4 text-sm text-portal-muted">{t("admin.curriculum.selectProgram")}</p>
       </Card>
     );
   }
 
   const detailType = topic ? (isSurahTopicId(topic.id) ? "surah" : "topic") : section ? "section" : "program";
   const detailLabel = topic?.label ?? section?.label ?? program.label;
+  const typeLabel = dynamicLabel(detailType);
 
   return (
     <Card className="flex h-[420px] flex-col overflow-hidden rounded-2xl border border-portal bg-portal-surface shadow-[0_8px_24px_-16px_rgba(13,74,47,0.18)]">
       <div className="flex shrink-0 items-center justify-between gap-2 border-b border-portal px-4 py-3">
         <div className="min-w-0">
           <p className="text-xs font-semibold uppercase tracking-wide text-portal-muted">
-            {rowTypeLabel(detailType)} Details
+            {t("admin.curriculum.detailsTitle", { type: typeLabel })}
           </p>
           <h2 className="truncate text-sm font-bold text-portal-heading">{detailLabel}</h2>
         </div>
         <span className="inline-flex items-center gap-1 rounded-full bg-primary/10 px-2.5 py-1 text-[10px] font-semibold text-primary">
           <Pencil className="size-3" aria-hidden />
-          Edit
+          {t("actions.edit")}
         </span>
       </div>
 
@@ -85,7 +89,7 @@ export function AdminCurriculumDetailPanel({
         <div className="flex flex-col gap-3">
         <div className="flex flex-wrap gap-2">
           <span className={cn("rounded-full px-2.5 py-1 text-[10px] font-semibold", rowTypeStyles(detailType))}>
-            {rowTypeLabel(detailType)}
+            {typeLabel}
           </span>
           {section ? (
             <span className="rounded-full bg-portal-muted/50 px-2.5 py-1 text-[10px] font-semibold text-portal-muted">
@@ -96,7 +100,7 @@ export function AdminCurriculumDetailPanel({
 
         <div className="grid gap-3 sm:grid-cols-2">
           <label className="flex flex-col gap-1.5">
-            <span className="text-xs font-medium text-portal-muted">Program name (EN)</span>
+            <span className="text-xs font-medium text-portal-muted">{t("admin.curriculum.programNameEn")}</span>
             <input
               value={program.label}
               onChange={(event) =>
@@ -106,7 +110,7 @@ export function AdminCurriculumDetailPanel({
             />
           </label>
           <label className="flex flex-col gap-1.5">
-            <span className="text-xs font-medium text-portal-muted">Program name (BN)</span>
+            <span className="text-xs font-medium text-portal-muted">{t("admin.curriculum.programNameBn")}</span>
             <input
               value={program.labelBn ?? ""}
               onChange={(event) =>
@@ -124,7 +128,7 @@ export function AdminCurriculumDetailPanel({
           <>
             <div className="grid gap-3 sm:grid-cols-2">
               <label className="flex flex-col gap-1.5">
-                <span className="text-xs font-medium text-portal-muted">Section name (EN)</span>
+                <span className="text-xs font-medium text-portal-muted">{t("admin.curriculum.sectionNameEn")}</span>
                 <input
                   value={section.label}
                   onChange={(event) =>
@@ -134,7 +138,7 @@ export function AdminCurriculumDetailPanel({
                 />
               </label>
               <label className="flex flex-col gap-1.5">
-                <span className="text-xs font-medium text-portal-muted">Section name (BN)</span>
+                <span className="text-xs font-medium text-portal-muted">{t("admin.curriculum.sectionNameBn")}</span>
                 <input
                   value={section.labelBn ?? ""}
                   onChange={(event) =>
@@ -150,8 +154,8 @@ export function AdminCurriculumDetailPanel({
 
             {showSurahPicker ? (
               <AdminCurriculumCatalogMultiSelect
-                label="Surahs in this track"
-                hint="Students & homework will pick from this list."
+                label={t("admin.curriculum.surahsInTrack")}
+                hint={t("admin.curriculum.surahsInTrackHint")}
                 options={SELECTABLE_SURAHS.map((surah) => ({ id: surah, label: surah }))}
                 selectedIds={selectedSurahs}
                 onChange={onSurahSelection}
@@ -160,8 +164,8 @@ export function AdminCurriculumDetailPanel({
 
             {showTajweedPicker ? (
               <AdminCurriculumCatalogMultiSelect
-                label="Tajweed rules"
-                hint="Select rules for this tajweed category."
+                label={t("admin.curriculum.tajweedRules")}
+                hint={t("admin.curriculum.tajweedRulesHint")}
                 options={TAJWEED_RULE_CATALOG}
                 selectedIds={selectedTajweedIds}
                 onChange={onTajweedSelection}
@@ -170,8 +174,8 @@ export function AdminCurriculumDetailPanel({
 
             {showGrammarPicker ? (
               <AdminCurriculumCatalogMultiSelect
-                label="Grammar lessons"
-                hint="Select nahw / grammar topics for this section."
+                label={t("admin.curriculum.grammarLessons")}
+                hint={t("admin.curriculum.grammarLessonsHint")}
                 options={GRAMMAR_LESSON_CATALOG}
                 selectedIds={selectedGrammarIds}
                 onChange={onGrammarSelection}
@@ -183,11 +187,11 @@ export function AdminCurriculumDetailPanel({
         {topic && topicPath && !isSurahTopicId(topic.id) ? (
           <div className="rounded-xl border border-dashed border-portal bg-portal-muted/20 p-4">
             <p className="mb-3 text-xs font-semibold uppercase tracking-wide text-portal-muted">
-              Topic labels
+              {t("admin.curriculum.topicLabels")}
             </p>
             <div className="grid gap-3 sm:grid-cols-2">
               <label className="flex flex-col gap-1.5">
-                <span className="text-xs font-medium text-portal-muted">Topic (EN)</span>
+                <span className="text-xs font-medium text-portal-muted">{t("admin.curriculum.topicEn")}</span>
                 <input
                   value={topic.label}
                   onChange={(event) =>
@@ -197,7 +201,7 @@ export function AdminCurriculumDetailPanel({
                 />
               </label>
               <label className="flex flex-col gap-1.5">
-                <span className="text-xs font-medium text-portal-muted">Topic (BN)</span>
+                <span className="text-xs font-medium text-portal-muted">{t("admin.curriculum.topicBn")}</span>
                 <input
                   value={topic.labelBn ?? ""}
                   onChange={(event) =>

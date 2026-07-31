@@ -6,6 +6,7 @@ import {
   resolveDisplayPhase,
 } from "@/lib/utils/sessionTiming";
 import { useSessionClock } from "@/hooks/useSessionClock";
+import { usePortalTranslation } from "@/i18n/LocaleProvider";
 
 interface SessionStatusBadgeProps {
   session: SessionSlotView;
@@ -18,9 +19,19 @@ export function SessionStatusBadge({
   routineView = false,
   compact = false,
 }: SessionStatusBadgeProps) {
+  const { t } = usePortalTranslation();
   const now = useSessionClock();
+  const labels = {
+    inProgress: t("session.inProgress"),
+    finished: t("session.finished"),
+    scheduled: t("session.scheduled"),
+    startsIn: (time: string) => t("session.startsIn", { time }),
+    startingNow: t("session.startingNow"),
+    weeklyDay: (day: string) => t("session.weeklyDay", { day }),
+    timeLeft: (time: string) => t("session.timeLeft", { time }),
+  };
   const phase = resolveDisplayPhase(session, now, { routineView });
-  const label = getSessionCountdownLabel(session, now, { routineView, compact });
+  const label = getSessionCountdownLabel(session, now, { routineView, compact }, labels);
   const endsInMs =
     session.endsAt && phase === "live"
       ? new Date(session.endsAt).getTime() - now
@@ -28,7 +39,7 @@ export function SessionStatusBadge({
 
   const text =
     phase === "live" && endsInMs > 0
-      ? `${formatCountdown(endsInMs)} left`
+      ? labels.timeLeft(formatCountdown(endsInMs))
       : label;
 
   const sizeClass = compact
@@ -41,7 +52,7 @@ export function SessionStatusBadge({
         className={`inline-flex shrink-0 items-center rounded-md bg-red-500 font-bold uppercase tracking-wide text-white shadow-sm ${sizeClass}`}
       >
         <span className="size-1.5 animate-pulse rounded-full bg-white" />
-        Live
+        {t("session.live")}
       </span>
     );
   }
@@ -51,7 +62,7 @@ export function SessionStatusBadge({
       <span
         className={`inline-flex shrink-0 items-center rounded-md border border-portal bg-portal-muted font-medium text-portal-muted ${sizeClass}`}
       >
-        Done
+        {t("session.done")}
       </span>
     );
   }

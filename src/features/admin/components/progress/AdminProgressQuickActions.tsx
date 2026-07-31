@@ -7,6 +7,7 @@ import {
   Users,
 } from "lucide-react";
 import { Card } from "@/components/ui/Card";
+import { usePortalTranslation } from "@/i18n/LocaleProvider";
 import { cn } from "@/lib/utils/cn";
 
 interface IAdminProgressQuickActionsProps {
@@ -23,33 +24,43 @@ export function AdminProgressQuickActions({
   onExport,
   onRefresh,
 }: IAdminProgressQuickActionsProps) {
+  const { t } = usePortalTranslation();
+
   return (
     <Card className="rounded-2xl border border-portal bg-portal-surface p-5 shadow-[0_8px_24px_-16px_rgba(13,74,47,0.18)]">
-      <h2 className="mb-4 text-sm font-bold text-portal-heading">Quick actions</h2>
+      <h2 className="mb-4 text-sm font-bold text-portal-heading">{t("admin.progress.quickActions")}</h2>
       <div className="grid grid-cols-2 gap-2.5">
         <button type="button" onClick={onExport} className={actionTileClass}>
           <span className="flex size-9 items-center justify-center rounded-lg bg-primary/10">
             <Download className="size-4 text-primary" aria-hidden />
           </span>
-          <span className="text-xs font-semibold text-portal-heading">Student progress report</span>
+          <span className="text-xs font-semibold text-portal-heading">
+            {t("admin.progress.studentProgressReport")}
+          </span>
         </button>
         <Link to="/admin/classes" className={actionTileClass}>
           <span className="flex size-9 items-center justify-center rounded-lg bg-blue-100">
             <GraduationCap className="size-4 text-blue-600" aria-hidden />
           </span>
-          <span className="text-xs font-semibold text-portal-heading">Class progress report</span>
+          <span className="text-xs font-semibold text-portal-heading">
+            {t("admin.progress.classProgressReport")}
+          </span>
         </Link>
         <Link to="/admin/curriculum" className={actionTileClass}>
           <span className="flex size-9 items-center justify-center rounded-lg bg-violet-100">
             <BarChart3 className="size-4 text-violet-600" aria-hidden />
           </span>
-          <span className="text-xs font-semibold text-portal-heading">Program analysis</span>
+          <span className="text-xs font-semibold text-portal-heading">
+            {t("admin.progress.programAnalysis")}
+          </span>
         </Link>
         <Link to="/admin/users?role=student" className={actionTileClass}>
           <span className="flex size-9 items-center justify-center rounded-lg bg-emerald-100">
             <Users className="size-4 text-emerald-600" aria-hidden />
           </span>
-          <span className="text-xs font-semibold text-portal-heading">Student list</span>
+          <span className="text-xs font-semibold text-portal-heading">
+            {t("actions.studentList")}
+          </span>
         </Link>
       </div>
       <button
@@ -62,7 +73,7 @@ export function AdminProgressQuickActions({
           className={cn("size-4 text-primary", isFetching && "animate-spin")}
           aria-hidden
         />
-        {isFetching ? "Refreshing…" : "Refresh data"}
+        {isFetching ? t("actions.refreshing") : t("actions.refreshData")}
       </button>
     </Card>
   );

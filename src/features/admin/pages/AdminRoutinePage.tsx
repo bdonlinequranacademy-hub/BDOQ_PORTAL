@@ -30,10 +30,12 @@ import { usePaginatedList } from "@/lib/hooks/usePaginatedList";
 import { useSessionClock } from "@/hooks/useSessionClock";
 import type { SessionSlotView } from "@/types/models";
 import { cn } from "@/lib/utils/cn";
+import { usePortalTranslation } from "@/i18n/LocaleProvider";
 
 type DayFilter = "" | (typeof SCHEDULE_DAYS)[number];
 
 export function AdminRoutinePage() {
+  const { t } = usePortalTranslation();
   const navigate = useNavigate();
   const nowMs = useSessionClock();
 
@@ -122,10 +124,10 @@ export function AdminRoutinePage() {
       <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
         <div className="min-w-0">
           <h1 className="portal-page-title font-display text-2xl font-bold text-primary-dark sm:text-3xl">
-            Academy Routine
+            {t("admin.routine.title")}
           </h1>
           <p className="portal-page-subtitle mt-1 max-w-2xl text-portal-muted">
-            Weekly session slots — Saturday → Friday (Bangladesh time)
+            {t("admin.routine.subtitle")}
           </p>
         </div>
         <div className="flex flex-wrap items-center gap-2">
@@ -138,7 +140,7 @@ export function AdminRoutinePage() {
             className="inline-flex items-center gap-2 rounded-xl border border-portal bg-portal-surface px-4 py-2.5 text-sm font-semibold text-portal-heading hover:bg-portal-muted/50"
           >
             <RefreshCw className={cn("size-4", resync.isPending && "animate-spin")} aria-hidden />
-            {resync.isPending ? "Syncing…" : "Resync slots"}
+            {resync.isPending ? t("admin.routine.syncing") : t("admin.routine.resyncSlots")}
           </Button>
         </div>
       </div>
@@ -169,23 +171,23 @@ export function AdminRoutinePage() {
           {isError ? (
             <EmptyState
               icon={CalendarDays}
-              title="Could not load routine"
-              description="The server failed to return session slots. Try resyncing or refresh the page."
-              actionLabel="Retry"
+              title={t("admin.routine.loadError")}
+              description={t("admin.common.loadErrorDesc")}
+              actionLabel={t("admin.common.retry")}
               onAction={() => refetch()}
             />
           ) : isLoading ? (
-            <PageLoading label="Loading routine…" />
+            <PageLoading label={t("admin.common.loadingRoutine")} />
           ) : filteredSessions.length === 0 ? (
             <EmptyState
               icon={CalendarDays}
-              title="No session slots"
+              title={t("admin.routine.noRoutine")}
               description={
                 hasFilters
-                  ? "No sessions match your filters. Try clearing filters or resync slots."
-                  : "Assign students to classes with a schedule, then use Resync slots if needed."
+                  ? t("admin.common.clearFiltersHint")
+                  : t("admin.routine.noRoutineDesc")
               }
-              actionLabel={hasFilters ? "Clear filters" : undefined}
+              actionLabel={hasFilters ? t("admin.routine.clearFilters") : undefined}
               onAction={hasFilters ? clearFilters : undefined}
             />
           ) : view === "table" ? (

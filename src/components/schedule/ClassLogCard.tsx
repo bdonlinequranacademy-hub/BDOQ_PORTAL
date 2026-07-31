@@ -7,6 +7,7 @@ import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { ClassLogStatusBadge } from "@/components/schedule/ClassLogStatusBadge";
 import { printClassLogReport } from "@/lib/utils/classLog";
+import { usePortalTranslation } from "@/i18n/LocaleProvider";
 
 interface ClassLogCardProps {
   log: ClassLogView;
@@ -23,8 +24,11 @@ export function ClassLogCard({
   onApprove,
   onReject,
   actionPending,
-  approveLabel = "Approve",
+  approveLabel,
 }: ClassLogCardProps) {
+  const { t, formatBdt } = usePortalTranslation();
+  const resolvedApproveLabel = approveLabel ?? t("admin.studentRequests.listApprove");
+
   return (
     <Card className="flex flex-col gap-4 rounded-2xl border border-zinc-100 bg-white p-5 shadow-sm">
       <div className="flex flex-wrap items-start justify-between gap-3">
@@ -37,7 +41,7 @@ export function ClassLogCard({
             {showTeacher ? log.teacher.name : log.student.name}
           </p>
           <p className="text-xs text-zinc-500">
-            {showTeacher ? "Teacher" : log.student.studentId ? `${log.student.studentId} · ` : ""}
+            {showTeacher ? t("shared.schedule.teacher") : log.student.studentId ? `${log.student.studentId} · ` : ""}
             {showTeacher ? (
               log.classTitle
             ) : (
@@ -56,27 +60,27 @@ export function ClassLogCard({
         </div>
         <div className="rounded-xl bg-primary/10 px-3 py-2 text-center">
           <p className="text-sm font-bold text-primary">{log.times.academy.time}</p>
-          <p className="text-[10px] font-medium uppercase text-zinc-400">BD</p>
+          <p className="text-[10px] font-medium uppercase text-zinc-400">{t("shared.schedule.bd")}</p>
         </div>
       </div>
 
       <div className="grid grid-cols-3 gap-2 rounded-xl bg-[#F8FAFF] p-3 text-center">
         <div>
-          <p className="text-[10px] font-semibold uppercase text-zinc-400">Stu</p>
+          <p className="text-[10px] font-semibold uppercase text-zinc-400">{t("shared.schedule.stu")}</p>
           <p className="text-xs font-semibold text-primary-dark">{log.times.student.time}</p>
         </div>
         <div>
-          <p className="text-[10px] font-semibold uppercase text-zinc-400">Tea</p>
+          <p className="text-[10px] font-semibold uppercase text-zinc-400">{t("shared.schedule.tea")}</p>
           <p className="text-xs font-semibold text-primary-dark">{log.times.teacher.time}</p>
         </div>
         <div>
-          <p className="text-[10px] font-semibold uppercase text-zinc-400">BD</p>
+          <p className="text-[10px] font-semibold uppercase text-zinc-400">{t("shared.schedule.bd")}</p>
           <p className="text-xs font-semibold text-primary-dark">{log.times.academy.time}</p>
         </div>
       </div>
 
       <div className="rounded-xl bg-zinc-50 p-3">
-        <p className="text-xs font-semibold uppercase text-zinc-400">Lesson report</p>
+        <p className="text-xs font-semibold uppercase text-zinc-400">{t("shared.schedule.lessonReport")}</p>
         <p className="mt-1 whitespace-pre-wrap text-sm text-primary-dark">{log.lessonReport}</p>
         {log.topicsCovered.length > 0 ? (
           <div className="mt-2 flex flex-wrap gap-1">
@@ -92,11 +96,13 @@ export function ClassLogCard({
         ) : null}
         {log.status === "approved" && log.earningsBdt != null ? (
           <p className="text-sm font-semibold text-gold">
-            Earnings: ৳{log.earningsBdt.toLocaleString("en-BD")}
+            {t("shared.schedule.earnings")}: {formatBdt(log.earningsBdt)}
           </p>
         ) : null}
         {log.status === "rejected" && log.adminNote ? (
-          <p className="mt-2 text-xs text-red-600">Admin note: {log.adminNote}</p>
+          <p className="mt-2 text-xs text-red-600">
+            {t("admin.admissions.modalAdminNote")}: {log.adminNote}
+          </p>
         ) : null}
       </div>
 
@@ -108,7 +114,7 @@ export function ClassLogCard({
           className="inline-flex items-center gap-2 rounded-xl"
         >
           <FileDown className="size-4" />
-          Export Report
+          {t("admin.classLogs.exportReport")}
         </Button>
         {onApprove ? (
           <Button
@@ -117,7 +123,7 @@ export function ClassLogCard({
             disabled={actionPending}
             className="flex-1 rounded-xl bg-emerald-600 text-white"
           >
-            {approveLabel}
+            {resolvedApproveLabel}
           </Button>
         ) : null}
         {onReject ? (
@@ -128,7 +134,7 @@ export function ClassLogCard({
             disabled={actionPending}
             className="flex-1 rounded-xl border-red-200 text-red-600"
           >
-            Reject
+            {t("admin.studentRequests.listReject")}
           </Button>
         ) : null}
       </div>

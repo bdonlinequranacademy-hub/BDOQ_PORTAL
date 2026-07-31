@@ -1,6 +1,7 @@
 import { Plus, Search } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
+import { usePortalTranslation } from "@/i18n/LocaleProvider";
 import { formControlClass } from "@/lib/formControl";
 import { cn } from "@/lib/utils/cn";
 import type { CmsStatusFilter } from "@/features/admin/lib/adminCmsUtils";
@@ -23,11 +24,14 @@ export function AdminCmsListToolbar({
   search,
   status,
   newLabel,
-  searchPlaceholder = "Search…",
+  searchPlaceholder,
   onSearchChange,
   onStatusChange,
   onNew,
 }: IAdminCmsListToolbarProps) {
+  const { t } = usePortalTranslation();
+  const placeholder = searchPlaceholder ?? t("search.placeholderShort");
+
   return (
     <Card className="rounded-2xl border border-portal bg-portal-surface p-4 shadow-sm sm:p-5">
       <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
@@ -50,7 +54,7 @@ export function AdminCmsListToolbar({
           <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-portal-muted" />
           <input
             className={cn(formControlClass, "py-2.5 pl-10")}
-            placeholder={searchPlaceholder}
+            placeholder={placeholder}
             value={search}
             onChange={(e) => onSearchChange(e.target.value)}
           />
@@ -59,11 +63,11 @@ export function AdminCmsListToolbar({
           className={cn(formControlClass, "w-full sm:w-auto sm:min-w-[140px] py-2.5")}
           value={status}
           onChange={(e) => onStatusChange(e.target.value as CmsStatusFilter)}
-          aria-label="Filter by visibility"
+          aria-label={t("filters.filterVisibility")}
         >
-          <option value="all">All status</option>
-          <option value="published">Published</option>
-          <option value="draft">Draft</option>
+          <option value="all">{t("filters.allStatus")}</option>
+          <option value="published">{t("status.published")}</option>
+          <option value="draft">{t("status.draft")}</option>
         </select>
       </div>
     </Card>

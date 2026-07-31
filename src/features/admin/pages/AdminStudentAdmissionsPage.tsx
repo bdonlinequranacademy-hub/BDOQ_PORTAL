@@ -28,8 +28,10 @@ import {
   filterStudentAdmissions,
   type AdminStudentAdmissionsTab,
 } from "@/features/admin/components/student-admissions/adminStudentAdmissionsUtils";
+import { usePortalTranslation } from "@/i18n/LocaleProvider";
 
 export function AdminStudentAdmissionsPage() {
+  const { t, dynamicLabel } = usePortalTranslation();
   const [tab, setTab] = useState<AdminStudentAdmissionsTab>("all");
   const [search, setSearch] = useState("");
   const [programFilter, setProgramFilter] = useState("");
@@ -44,9 +46,15 @@ export function AdminStudentAdmissionsPage() {
   const updateStatus = useUpdateStudentAdmissionStatus();
 
   const stats = useMemo(() => computeStudentAdmissionsStats(applications), [applications]);
-  const programOptions = useMemo(() => extractProgramOptions(applications), [applications]);
+  const programOptions = useMemo(
+    () => extractProgramOptions(applications, t, dynamicLabel),
+    [applications, t, dynamicLabel]
+  );
   const countryOptions = useMemo(() => extractCountryOptions(applications), [applications]);
-  const sourceOptions = useMemo(() => extractSourceOptions(applications), [applications]);
+  const sourceOptions = useMemo(
+    () => extractSourceOptions(applications, t, dynamicLabel),
+    [applications, t, dynamicLabel]
+  );
 
   const tabCounts = useMemo(
     () => ({
@@ -69,8 +77,21 @@ export function AdminStudentAdmissionsPage() {
         sourceFilter,
         dateFrom,
         dateTo,
+        t,
+        dynamicLabel,
       }),
-    [applications, tab, search, programFilter, countryFilter, sourceFilter, dateFrom, dateTo]
+    [
+      applications,
+      tab,
+      search,
+      programFilter,
+      countryFilter,
+      sourceFilter,
+      dateFrom,
+      dateTo,
+      t,
+      dynamicLabel,
+    ]
   );
 
   const pagination = usePaginatedList(visibleApplications, {
@@ -94,7 +115,7 @@ export function AdminStudentAdmissionsPage() {
   }
 
   function handleExport() {
-    exportStudentAdmissionsFile(visibleApplications, "student-admissions-filtered");
+    exportStudentAdmissionsFile(visibleApplications, "student-admissions-filtered", t, dynamicLabel);
   }
 
   return (
@@ -102,11 +123,10 @@ export function AdminStudentAdmissionsPage() {
       <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
         <div>
           <h1 className="portal-page-title font-display text-2xl font-bold text-primary-dark sm:text-3xl">
-            Student Admission Leads
+            {t("admin.admissions.title")}
           </h1>
           <p className="portal-page-subtitle mt-1 max-w-3xl text-portal-muted">
-            Applications from the public website — review and create portal accounts when
-            approved.
+            {t("admin.admissions.subtitle")}
           </p>
         </div>
         <Button
@@ -116,7 +136,7 @@ export function AdminStudentAdmissionsPage() {
           className="inline-flex shrink-0 items-center gap-2 rounded-xl border border-portal px-4"
         >
           <Download className="size-4" aria-hidden />
-          Export
+          {t("admin.common.export")}
         </Button>
       </div>
 
@@ -149,24 +169,24 @@ export function AdminStudentAdmissionsPage() {
       {isError ? (
         <EmptyState
           icon={GraduationCap}
-          title="Could not load admission applications"
-          description="The server failed to return student admissions. Try again in a moment."
-          actionLabel="Retry"
+          title={t("admin.admissions.loadError")}
+          description={t("admin.admissions.loadErrorDesc")}
+          actionLabel={t("admin.common.retry")}
           onAction={() => void refetch()}
         />
       ) : isLoading ? (
-        <PageLoading label="Loading admission applications…" />
+        <PageLoading label={t("admin.common.loadingAdmissions")} />
       ) : applications.length === 0 ? (
         <EmptyState
           icon={GraduationCap}
-          title="No admission applications yet"
-          description="Applications appear here when visitors submit the student admission form on your website."
+          title={t("admin.admissions.noAdmissions")}
+          description={t("admin.admissions.noAdmissionsDesc")}
         />
       ) : visibleApplications.length === 0 ? (
         <EmptyState
           icon={GraduationCap}
-          title="No applications match your filters"
-          description="Try clearing search, program, country, source, or date filters."
+          title={t("admin.admissions.noMatch")}
+          description={t("admin.admissions.noMatchDesc")}
         />
       ) : (
         <div className="grid grid-cols-1 items-start gap-4 xl:gap-5 xl:grid-cols-[minmax(0,1fr)_300px]">
@@ -177,7 +197,7 @@ export function AdminStudentAdmissionsPage() {
               onView={setSelectedApp}
               onAdvanceStatus={handleUpdateStatus}
             />
-            <Pagination pagination={pagination} itemLabel="applications" />
+            <Pagination pagination={pagination} itemLabel={t("admin.common.applicationsItemLabel")} />
           </div>
           <AdminStudentAdmissionsSidebar
             applications={applications}

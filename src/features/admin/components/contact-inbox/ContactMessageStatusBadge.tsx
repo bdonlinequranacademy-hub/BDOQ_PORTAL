@@ -1,11 +1,11 @@
 import type { ContactMessageStatus } from "@/types/models";
-import {
-  contactMessageStatusLabel,
-  contactMessageStatusStyles,
-} from "@/features/admin/components/contact-inbox/adminContactInboxUtils";
+import { contactMessageStatusStyles } from "@/features/admin/components/contact-inbox/adminContactInboxUtils";
 import { cn } from "@/lib/utils/cn";
+import { usePortalTranslation } from "@/i18n/LocaleProvider";
 
 export function ContactMessageStatusBadge({ status }: { status: ContactMessageStatus }) {
+  const { statusLabel } = usePortalTranslation();
+
   return (
     <span
       className={cn(
@@ -13,7 +13,7 @@ export function ContactMessageStatusBadge({ status }: { status: ContactMessageSt
         contactMessageStatusStyles(status)
       )}
     >
-      {contactMessageStatusLabel(status)}
+      {statusLabel(status)}
     </span>
   );
 }

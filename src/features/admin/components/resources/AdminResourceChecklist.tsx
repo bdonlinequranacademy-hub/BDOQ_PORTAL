@@ -1,6 +1,7 @@
 import { Check, Circle, Lightbulb, Star } from "lucide-react";
 import { Card } from "@/components/ui/Card";
 import { cn } from "@/lib/utils/cn";
+import { usePortalTranslation } from "@/i18n/LocaleProvider";
 
 interface IChecklistItem {
   id: string;
@@ -13,13 +14,17 @@ interface IAdminResourceChecklistProps {
 }
 
 export function AdminResourceChecklist({ items }: IAdminResourceChecklistProps) {
+  const { t } = usePortalTranslation();
+
   const doneCount = items.filter((i) => i.done).length;
   const pct = items.length ? Math.round((doneCount / items.length) * 100) : 0;
 
   return (
     <Card className="rounded-2xl border border-portal bg-portal-surface p-5 shadow-sm">
       <div className="flex items-center justify-between gap-2">
-        <h2 className="text-sm font-bold text-primary-dark">Resource Checklist</h2>
+        <h2 className="text-sm font-bold text-primary-dark">
+          {t("admin.cms.resources.resourceChecklist")}
+        </h2>
         <span className="text-xs font-bold text-primary">{pct}%</span>
       </div>
       <div className="mt-3 h-1.5 overflow-hidden rounded-full bg-portal-muted/40">
@@ -52,23 +57,29 @@ export function AdminResourceChecklist({ items }: IAdminResourceChecklistProps) 
   );
 }
 
+const FORM_TIP_KEYS = [
+  "admin.cms.resources.formTip1",
+  "admin.cms.resources.formTip2",
+  "admin.cms.resources.formTip3",
+  "admin.cms.resources.formTip4",
+] as const;
+
 export function AdminResourceFormTips() {
+  const { t } = usePortalTranslation();
+
   return (
     <Card className="rounded-2xl border border-primary/20 bg-primary/5 p-4 shadow-sm">
       <div className="flex items-center gap-2">
         <Lightbulb className="size-4 text-primary-dark" aria-hidden />
-        <h2 className="text-sm font-bold text-primary-dark">Tips</h2>
+        <h2 className="text-sm font-bold text-primary-dark">
+          {t("admin.cms.resources.tipsTitle")}
+        </h2>
       </div>
       <ul className="mt-3 space-y-2 text-xs leading-relaxed text-portal-muted">
-        {[
-          "Use a clear title visitors will recognize on /resources pages.",
-          "Write a short description so cards look complete.",
-          "Upload PDF or media before publishing e-book / audio items.",
-          "Mark Featured only for hero / playlist placement.",
-        ].map((tip) => (
-          <li key={tip} className="flex items-start gap-2">
+        {FORM_TIP_KEYS.map((key) => (
+          <li key={key} className="flex items-start gap-2">
             <Star className="mt-0.5 size-3 shrink-0 fill-primary text-primary" aria-hidden />
-            <span>{tip}</span>
+            <span>{t(key)}</span>
           </li>
         ))}
       </ul>

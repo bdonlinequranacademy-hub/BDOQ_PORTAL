@@ -5,6 +5,7 @@ import { TestimonialMediaBadge } from "@/features/admin/components/testimonials/
 import { isPublished } from "@/features/admin/components/testimonials/adminTestimonialsUtils";
 import { cn } from "@/lib/utils/cn";
 import type { AdminTestimonial } from "@/types/models";
+import { usePortalTranslation } from "@/i18n/LocaleProvider";
 
 interface IAdminTestimonialsTableProps {
   items: AdminTestimonial[];
@@ -14,7 +15,7 @@ interface IAdminTestimonialsTableProps {
   onDelete: (item: AdminTestimonial) => void;
 }
 
-function formatDate(iso?: string): string {
+function formatTestimonialDate(iso?: string): string {
   if (!iso) return "—";
   return new Date(iso).toLocaleDateString("en-GB", {
     day: "numeric",
@@ -50,6 +51,8 @@ export function AdminTestimonialsTable({
   onEdit,
   onDelete,
 }: IAdminTestimonialsTableProps) {
+  const { t } = usePortalTranslation();
+
   if (items.length === 0) {
     return (
       <Card className="rounded-2xl border border-portal p-8 text-center shadow-sm">
@@ -73,14 +76,14 @@ export function AdminTestimonialsTable({
         <table className="w-full min-w-[900px] border-collapse text-left">
           <thead>
             <tr className="border-b border-portal bg-portal-muted/30 text-xs font-semibold uppercase tracking-wide text-portal-muted">
-              <th className="px-5 py-3.5">Student</th>
+              <th className="px-5 py-3.5">{t("shared.schedule.student")}</th>
               <th className="px-5 py-3.5">Review</th>
               <th className="px-5 py-3.5">Type</th>
               <th className="px-5 py-3.5">Role / Course</th>
               <th className="px-5 py-3.5">Rating</th>
-              <th className="px-5 py-3.5">Status</th>
+              <th className="px-5 py-3.5">{t("tables.status")}</th>
               <th className="px-5 py-3.5">Date</th>
-              <th className="px-5 py-3.5 text-right">Actions</th>
+              <th className="px-5 py-3.5 text-right">{t("tables.actions")}</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-portal/80">
@@ -131,7 +134,7 @@ export function AdminTestimonialsTable({
                     </span>
                   </td>
                   <td className="px-5 py-4 text-sm text-portal-muted">
-                    {formatDate(item.createdAt)}
+                    {formatTestimonialDate(item.createdAt)}
                   </td>
                   <td className="px-5 py-4">
                     <div className="flex justify-end gap-1">
@@ -207,7 +210,7 @@ export function AdminTestimonialsTable({
                   <div className="mt-2 flex items-center justify-between gap-2">
                     <Stars rating={item.rating || 0} />
                     <span className="text-xs text-portal-muted">
-                      {formatDate(item.createdAt)}
+                      {formatTestimonialDate(item.createdAt)}
                     </span>
                   </div>
                 </div>

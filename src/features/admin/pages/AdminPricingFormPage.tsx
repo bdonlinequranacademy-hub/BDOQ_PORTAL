@@ -27,6 +27,7 @@ import { cn } from "@/lib/utils/cn";
 import { env } from "@/config/env";
 import { AdminPricingFormSection } from "@/features/admin/components/pricing/AdminPricingFormSection";
 import { AdminPricingLivePreview } from "@/features/admin/components/pricing/AdminPricingLivePreview";
+import { usePortalTranslation } from "@/i18n/LocaleProvider";
 
 function slugify(value: string): string {
   return value
@@ -45,6 +46,7 @@ const DEFAULT_FEATURES = [
 ];
 
 export function AdminPricingFormPage() {
+  const { t } = usePortalTranslation();
   const { id } = useParams<{ id: string }>();
   const isEdit = Boolean(id);
   const navigate = useNavigate();
@@ -142,7 +144,7 @@ export function AdminPricingFormPage() {
   if (isEdit && isLoading) {
     return (
       <PageContainer>
-        <PageLoading label="Loading package…" />
+        <PageLoading label={t("admin.common.loadingPackage")} />
       </PageContainer>
     );
   }
@@ -167,7 +169,7 @@ export function AdminPricingFormPage() {
             Back to pricing
           </button>
           <h1 className="mt-3 font-display text-2xl font-bold text-primary-dark sm:text-3xl">
-            {isEdit ? "Edit Pricing Package" : "Create New Pricing Package"}
+            {isEdit ? t("admin.cms.pricing.editTitle") : t("admin.cms.pricing.createTitle")}
           </h1>
           <p className="mt-1.5 max-w-xl text-sm text-portal-muted">
             {isEdit
@@ -193,7 +195,7 @@ export function AdminPricingFormPage() {
             className="inline-flex items-center gap-2 rounded-xl bg-primary px-4 text-white hover:bg-primary-dark"
           >
             <Save className="size-4" aria-hidden />
-            {isSaving ? "Saving…" : "Save Package"}
+            {isSaving ? t("admin.curriculum.saving") : t("admin.cms.pricing.savePackage")}
           </Button>
         </div>
       </div>

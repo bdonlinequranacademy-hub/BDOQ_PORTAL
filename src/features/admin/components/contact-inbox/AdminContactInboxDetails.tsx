@@ -19,6 +19,7 @@ import {
   nextContactStatus,
 } from "@/features/admin/components/contact-inbox/adminContactInboxUtils";
 import { cn } from "@/lib/utils/cn";
+import { usePortalTranslation } from "@/i18n/LocaleProvider";
 
 interface IAdminContactInboxDetailsProps {
   message: ContactMessageView | null;
@@ -48,6 +49,8 @@ export function AdminContactInboxDetails({
   onRefresh,
   onUpdateStatus,
 }: IAdminContactInboxDetailsProps) {
+  const { t } = usePortalTranslation();
+
   const activity = message ? buildContactActivity(message) : [];
   const nextStatus = message ? nextContactStatus(message.status) : null;
   const nextLabel = message ? nextContactActionLabel(message.status) : null;
@@ -73,7 +76,7 @@ export function AdminContactInboxDetails({
       to: "/admin/trial-bookings",
     },
     {
-      label: "Admissions",
+      label: t("admin.admissions.title"),
       icon: GraduationCap,
       to: "/admin/student-admissions",
     },
@@ -121,7 +124,7 @@ export function AdminContactInboxDetails({
       </Card>
 
       <Card className="rounded-2xl border border-portal bg-portal-surface p-5 shadow-[0_8px_24px_-16px_rgba(13,74,47,0.18)]">
-        <h2 className="mb-4 text-sm font-bold text-portal-heading">Quick actions</h2>
+        <h2 className="mb-4 text-sm font-bold text-portal-heading">{t("admin.cms.shared.quickActions")}</h2>
         <div className="grid grid-cols-2 gap-2.5">
           {actions.map(({ label, icon: Icon, href, to, onClick, disabled }) => {
             const className =

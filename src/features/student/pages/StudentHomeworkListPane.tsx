@@ -1,27 +1,38 @@
 import { useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { CheckCircle, Clock, AlertCircle } from "lucide-react";
+import { CheckCircle, Clock, AlertCircle, BookOpenCheck } from "lucide-react";
 import { useStudentHomework } from "@/features/student/hooks/useStudent";
 import { PageLoading } from "@/components/ui/PageLoading";
 import { EmptyState } from "@/components/ui/EmptyState";
-import { BookOpenCheck } from "lucide-react";
 import type { StudentHomeworkItem } from "@/types/models";
 import { formatHomeworkDueLabel, isHomeworkOverdue } from "@/lib/homeworkDue";
 import { formatCurriculumPath } from "@/lib/api/curriculumApi";
+import { usePortalTranslation } from "@/i18n/LocaleProvider";
 
 type Filter = "all" | "pending" | "review" | "submitted" | "overdue";
 
-function hwClassTitle(hw: StudentHomeworkItem) {
+const FILTER_KEYS: Record<Filter, string> = {
+  all: "student.filterAll",
+  pending: "student.filterPending",
+  review: "student.filterInReview",
+  submitted: "student.filterSubmitted",
+  overdue: "student.filterOverdue",
+};
+
+function hwClassTitle(hw: StudentHomeworkItem, fallback: string) {
   const cls = hw.class;
   if (cls && typeof cls === "object") return cls.title;
-  return "Class";
+  return fallback;
 }
 
 export function StudentHomeworkListPane() {
   const navigate = useNavigate();
   const { id: activeId } = useParams();
+  const { t, formatDate } = usePortalTranslation();
   const [filter, setFilter] = useState<Filter>("all");
   const { data: homework = [], isLoading } = useStudentHomework();
+
+  const dueOptions = { t, formatDate };
 
   const filtered = homework.filter((hw) => {
     if (filter === "pending") return hw.canSubmit !== false && !hw.submitted && !hw.underReview;
@@ -35,8 +46,12 @@ export function StudentHomeworkListPane() {
   return (
     <div className="flex flex-col gap-4 p-4 lg:max-h-[calc(100vh-8rem)] lg:overflow-y-auto lg:p-5">
       <div>
-        <h1 className="text-xl font-bold text-primary-dark lg:text-lg">Homework</h1>
-        <p className="text-xs text-zinc-500">{homework.length} assignments</p>
+        <h1 className="text-xl font-bold text-primary-dark lg:text-lg">
+          {t("student.homework")}
+        </h1>
+        <p className="text-xs text-zinc-500">
+          {t("student.assignmentCount", { count: String(homework.length) })}
+        </p>
       </div>
 
       <div className="flex flex-wrap gap-1.5">
@@ -44,13 +59,13 @@ export function StudentHomeworkListPane() {
           <button
             key={f}
             onClick={() => setFilter(f)}
-            className={`rounded-full px-3 py-1 text-xs font-medium capitalize ${
+            className={`rounded-full px-3 py-1 text-xs font-medium ${
               filter === f
                 ? "bg-primary-dark text-white"
                 : "border border-zinc-200 bg-white text-primary-dark"
             }`}
           >
-            {f === "review" ? "In review" : f}
+            {t(FILTER_KEYS[f])}
           </button>
         ))}
       </div>
@@ -60,11 +75,11 @@ export function StudentHomeworkListPane() {
       ) : filtered.length === 0 ? (
         <EmptyState
           icon={BookOpenCheck}
-          title="No homework"
+          title={t("student.noHomework")}
           description={
             filter === "all"
-              ? "You're all caught up — no assignments right now."
-              : `Nothing in the "${filter}" filter.`
+              ? t("student.allCaughtUpDesc")
+              : t("student.noHomeworkFilter", { filter: t(FILTER_KEYS[filter]) })
           }
         />
       ) : (
@@ -92,13 +107,13 @@ export function StudentHomeworkListPane() {
                 <div className="min-w-0 flex-1">
                   <p className="truncate font-semibold text-sm text-primary-dark">{hw.title}</p>
                   <p className="truncate text-xs text-zinc-400">
-                    {hwClassTitle(hw)}
+                    {hwClassTitle(hw, t("student.classFallback"))}
                     {hw.curriculumLabels?.program
                       ? ` · ${formatCurriculumPath(hw.curriculumLabels)}`
                       : ""}
                   </p>
                   <p className="mt-0.5 text-[10px] text-zinc-400">
-                    {formatHomeworkDueLabel(hw.dueDate, hw.submitted)}
+                    {formatHomeworkDueLabel(hw.dueDate, hw.submitted, dueOptions)}
                   </p>
                 </div>
                 {hw.underReview ? (

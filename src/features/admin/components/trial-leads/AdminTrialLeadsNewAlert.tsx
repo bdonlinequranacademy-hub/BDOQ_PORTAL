@@ -1,4 +1,5 @@
 import { ChevronRight, Clock } from "lucide-react";
+import { usePortalTranslation } from "@/i18n/LocaleProvider";
 import { cn } from "@/lib/utils/cn";
 
 interface IAdminTrialLeadsNewAlertProps {
@@ -7,6 +8,8 @@ interface IAdminTrialLeadsNewAlertProps {
 }
 
 export function AdminTrialLeadsNewAlert({ newCount, onReview }: IAdminTrialLeadsNewAlertProps) {
+  const { t, formatNumber } = usePortalTranslation();
+
   if (newCount <= 0) return null;
 
   return (
@@ -22,12 +25,11 @@ export function AdminTrialLeadsNewAlert({ newCount, onReview }: IAdminTrialLeads
           <Clock className="size-5" aria-hidden />
         </div>
         <div className="min-w-0">
-          <p className="text-sm font-bold text-portal-heading">New leads need follow-up</p>
+          <p className="text-sm font-bold text-portal-heading">
+            {t("admin.trialLeads.alertTitle")}
+          </p>
           <p className="mt-0.5 text-sm text-portal-muted">
-            <span className="font-semibold text-amber-800">
-              {newCount} lead{newCount === 1 ? "" : "s"}
-            </span>{" "}
-            are waiting for your first contact via WhatsApp or phone.
+            {t("admin.trialLeads.alertBody", { count: formatNumber(newCount) })}
           </p>
         </div>
       </div>
@@ -36,7 +38,7 @@ export function AdminTrialLeadsNewAlert({ newCount, onReview }: IAdminTrialLeads
         onClick={onReview}
         className="inline-flex shrink-0 items-center justify-center gap-1 rounded-xl bg-amber-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-amber-700"
       >
-        Review new leads
+        {t("admin.trialLeads.alertCta")}
         <ChevronRight className="size-4" aria-hidden />
       </button>
     </div>

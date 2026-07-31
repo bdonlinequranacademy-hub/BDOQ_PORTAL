@@ -8,6 +8,7 @@ import {
 } from "@/features/admin/components/homework/adminHomeworkUtils";
 import { formControlClass } from "@/lib/formControl";
 import { cn } from "@/lib/utils/cn";
+import { usePortalTranslation } from "@/i18n/LocaleProvider";
 
 interface IAdminHomeworkToolbarProps {
   search: string;
@@ -33,12 +34,7 @@ interface IAdminHomeworkToolbarProps {
   onExport: () => void;
 }
 
-const TABS: { id: AdminHomeworkTab; label: string }[] = [
-  { id: "all", label: "All" },
-  { id: "awaiting_grade", label: "Awaiting grade" },
-  { id: "overdue", label: "Overdue" },
-  { id: "fully_graded", label: "Fully graded" },
-];
+const TABS: AdminHomeworkTab[] = ["all", "awaiting_grade", "overdue", "fully_graded"];
 
 const toolbarFieldClass = cn(formControlClass, "h-10 min-h-10 py-2 text-sm shadow-none");
 
@@ -65,13 +61,29 @@ export function AdminHomeworkToolbar({
   onTabChange,
   onExport,
 }: IAdminHomeworkToolbarProps) {
+  const { t, statusLabel, formatNumber } = usePortalTranslation();
+
+  const tabLabel = (id: AdminHomeworkTab): string => {
+    if (id === "all") return t("labels.all");
+    return statusLabel(id);
+  };
+
+  const sortOptions: { value: HomeworkSort; labelKey: string }[] = [
+    { value: "due_soonest", labelKey: "admin.homework.sortDueSoonest" },
+    { value: "due_latest", labelKey: "admin.homework.sortDueLatest" },
+    { value: "newest", labelKey: "admin.homework.sortNewest" },
+    { value: "most_submissions", labelKey: "admin.homework.sortMostSubmissions" },
+  ];
+
   return (
     <div className="flex flex-col gap-4 rounded-2xl border border-portal bg-portal-surface p-4 shadow-[0_8px_24px_-16px_rgba(13,74,47,0.18)] sm:p-5">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
         <div>
-          <h2 className="text-sm font-bold text-portal-heading">Assignments</h2>
+          <h2 className="text-sm font-bold text-portal-heading">
+            {t("admin.homework.toolbarTitle")}
+          </h2>
           <p className="mt-0.5 text-xs text-portal-muted">
-            Filter by program, class, teacher, or due date.
+            {t("admin.homework.toolbarSubtitle")}
           </p>
         </div>
         <Button
@@ -81,31 +93,31 @@ export function AdminHomeworkToolbar({
           className="inline-flex shrink-0 items-center gap-2 rounded-xl border border-portal px-4"
         >
           <Download className="size-4" aria-hidden />
-          Export
+          {t("filters.export")}
         </Button>
       </div>
 
       <div className="flex flex-wrap gap-2 border-b border-portal pb-4">
         {TABS.map((item) => (
           <button
-            key={item.id}
+            key={item}
             type="button"
-            onClick={() => onTabChange(item.id)}
+            onClick={() => onTabChange(item)}
             className={cn(
               "inline-flex h-9 items-center gap-1.5 rounded-[8px] px-4 text-sm font-semibold transition",
-              tab === item.id
+              tab === item
                 ? "bg-primary text-white shadow-sm"
                 : "bg-portal-muted/50 text-portal-muted hover:text-portal-heading"
             )}
           >
-            {item.label}
+            {tabLabel(item)}
             <span
               className={cn(
                 "tabular-nums",
-                tab === item.id ? "text-white/90" : "text-portal-muted"
+                tab === item ? "text-white/90" : "text-portal-muted"
               )}
             >
-              ({tabCounts[item.id]})
+              ({formatNumber(tabCounts[item])})
             </span>
           </button>
         ))}
@@ -119,10 +131,10 @@ export function AdminHomeworkToolbar({
           />
           <input
             className={cn(toolbarFieldClass, "pl-9")}
-            placeholder="Search assignments…"
+            placeholder={t("admin.homework.searchPlaceholder")}
             value={search}
             onChange={(event) => onSearchChange(event.target.value)}
-            aria-label="Search homework"
+            aria-label={t("admin.homework.searchAria")}
           />
         </div>
 
@@ -137,9 +149,9 @@ export function AdminHomeworkToolbar({
             className={toolbarFieldClass}
             value={classFilter}
             onChange={(event) => onClassChange(event.target.value)}
-            aria-label="Filter by class"
+            aria-label={t("filters.filterByClass")}
           >
-            <option value="">All classes</option>
+            <option value="">{t("filters.allClasses")}</option>
             {classes.map((cls) => (
               <option key={cls.id} value={cls.id}>
                 {cls.title}
@@ -150,9 +162,9 @@ export function AdminHomeworkToolbar({
             className={toolbarFieldClass}
             value={teacherFilter}
             onChange={(event) => onTeacherChange(event.target.value)}
-            aria-label="Filter by teacher"
+            aria-label={t("filters.filterByTeacher")}
           >
-            <option value="">All teachers</option>
+            <option value="">{t("filters.allTeachers")}</option>
             {teachers.map((teacher) => (
               <option key={teacher.id} value={teacher.id}>
                 {teacher.name}
@@ -163,12 +175,13 @@ export function AdminHomeworkToolbar({
             className={toolbarFieldClass}
             value={sortBy}
             onChange={(event) => onSortChange(event.target.value as HomeworkSort)}
-            aria-label="Sort assignments"
+            aria-label={t("admin.homework.sortAssignments")}
           >
-            <option value="due_soonest">Due soonest</option>
-            <option value="due_latest">Due latest</option>
-            <option value="newest">Newest first</option>
-            <option value="most_submissions">Most submissions</option>
+            {sortOptions.map((option) => (
+              <option key={option.value} value={option.value}>
+                {t(option.labelKey)}
+              </option>
+            ))}
           </select>
         </div>
       </div>
@@ -179,15 +192,17 @@ export function AdminHomeworkToolbar({
           className={cn(toolbarFieldClass, "sm:max-w-[180px]")}
           value={dateFrom}
           onChange={(event) => onDateFromChange(event.target.value)}
-          aria-label="Due date from"
+          aria-label={t("admin.homework.dueDateFrom")}
         />
-        <span className="hidden text-sm text-portal-muted sm:inline">to</span>
+        <span className="hidden text-sm text-portal-muted sm:inline">
+          {t("admin.homework.dateTo")}
+        </span>
         <input
           type="date"
           className={cn(toolbarFieldClass, "sm:max-w-[180px]")}
           value={dateTo}
           onChange={(event) => onDateToChange(event.target.value)}
-          aria-label="Due date to"
+          aria-label={t("admin.homework.dueDateTo")}
         />
       </div>
     </div>

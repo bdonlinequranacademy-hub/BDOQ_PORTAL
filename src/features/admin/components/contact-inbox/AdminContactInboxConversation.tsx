@@ -13,6 +13,7 @@ import {
   nextContactStatus,
 } from "@/features/admin/components/contact-inbox/adminContactInboxUtils";
 import { cn } from "@/lib/utils/cn";
+import { usePortalTranslation } from "@/i18n/LocaleProvider";
 
 interface IAdminContactInboxConversationProps {
   message: ContactMessageView | null;
@@ -25,6 +26,8 @@ export function AdminContactInboxConversation({
   busy,
   onUpdateStatus,
 }: IAdminContactInboxConversationProps) {
+  const { t } = usePortalTranslation();
+
   const [replyDraft, setReplyDraft] = useState("");
 
   useEffect(() => {
@@ -96,9 +99,7 @@ export function AdminContactInboxConversation({
             <a
               href={mailHref}
               className="inline-flex h-9 items-center rounded-xl border border-portal px-4 text-sm font-semibold text-portal-heading transition hover:border-primary/30 hover:text-primary"
-            >
-              Reply via email
-            </a>
+            >{t("admin.admissions.modalReplyEmail")}</a>
           </div>
         </div>
       </div>
@@ -139,7 +140,7 @@ export function AdminContactInboxConversation({
             value={replyDraft}
             onChange={(event) => setReplyDraft(event.target.value)}
             rows={4}
-            placeholder="Type your reply…"
+            placeholder={t("admin.contact.conversationReplyPlaceholder")}
             className={cn(
               "mt-2 w-full resize-none rounded-xl border border-portal bg-portal-surface px-4 py-3 text-sm text-portal-heading",
               "outline-none focus-visible:ring-2 focus-visible:ring-primary/25"

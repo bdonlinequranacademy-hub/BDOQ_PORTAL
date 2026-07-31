@@ -15,6 +15,7 @@ import { formatCertificateDate } from "@/lib/certificateFormat";
 import type { CertificateView } from "@/types/models";
 import type { IPaginatedListResult } from "@/lib/hooks/usePaginatedList";
 import { UserAvatar } from "@/components/ui/UserAvatar";
+import { usePortalTranslation } from "@/i18n/LocaleProvider";
 
 interface IAdminCertificatesHistoryProps {
   items: CertificateView[];
@@ -39,6 +40,8 @@ export function AdminCertificatesHistory({
   onClearFilters,
   onShare,
 }: IAdminCertificatesHistoryProps) {
+  const { t } = usePortalTranslation();
+
   const hasFilters = Boolean(nameQuery.trim() || issueDateFilter);
 
   return (
@@ -104,13 +107,13 @@ export function AdminCertificatesHistory({
             <table className="w-full min-w-[860px] border-collapse text-left">
               <thead>
                 <tr className="border-b border-portal bg-portal-muted/30 text-xs font-semibold uppercase tracking-wide text-portal-muted">
-                  <th className="px-5 py-3.5">Student</th>
+                  <th className="px-5 py-3.5">{t("shared.schedule.student")}</th>
                   <th className="px-5 py-3.5">Course / Achievement</th>
                   <th className="px-5 py-3.5">Certificate ID</th>
                   <th className="px-5 py-3.5">Date</th>
-                  <th className="px-5 py-3.5">Status</th>
+                  <th className="px-5 py-3.5">{t("tables.status")}</th>
                   <th className="px-5 py-3.5">Template</th>
-                  <th className="px-5 py-3.5 text-right">Actions</th>
+                  <th className="px-5 py-3.5 text-right">{t("tables.actions")}</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-portal/80">
@@ -153,9 +156,7 @@ export function AdminCertificatesHistory({
                       {formatCertificateDate(certificate.issueDate)}
                     </td>
                     <td className="px-5 py-4">
-                      <span className="inline-flex rounded-full bg-primary/15 px-2.5 py-1 text-xs font-semibold text-primary-dark">
-                        Issued
-                      </span>
+                      <span className="inline-flex rounded-full bg-primary/15 px-2.5 py-1 text-xs font-semibold text-primary-dark">{t("admin.certificates.statsIssued")}</span>
                     </td>
                     <td className="px-5 py-4 text-sm text-portal-muted">
                       Official BDOQ
@@ -214,9 +215,7 @@ export function AdminCertificatesHistory({
                       {certificate.certificateId}
                     </p>
                   </div>
-                  <span className="rounded-full bg-primary/15 px-2 py-0.5 text-[10px] font-bold text-primary-dark">
-                    Issued
-                  </span>
+                  <span className="rounded-full bg-primary/15 px-2 py-0.5 text-[10px] font-bold text-primary-dark">{t("admin.certificates.statsIssued")}</span>
                 </div>
                 <div className="flex gap-2">
                   <Button

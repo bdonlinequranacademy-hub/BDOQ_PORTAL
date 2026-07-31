@@ -17,6 +17,7 @@ import {
 } from "lucide-react";
 import { searchApi } from "@/lib/api/searchApi";
 import { filterPortalPages } from "@/lib/portalNav";
+import { usePortalTranslation } from "@/i18n/LocaleProvider";
 import { isStaffAdmin } from "@/lib/assignableRoles";
 import { useCurriculumTree } from "@/components/curriculum/NestedCurriculumSelect";
 import type { Role, SearchResultItem } from "@/types/models";
@@ -130,6 +131,7 @@ export function GlobalSearch({
   className?: string;
 }) {
   const navigate = useNavigate();
+  const { t, nav, locale } = usePortalTranslation();
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState("");
   const [debounced, setDebounced] = useState("");
@@ -169,7 +171,12 @@ export function GlobalSearch({
     };
   }, [variant]);
 
-  const pages = useMemo(() => filterPortalPages(role, debounced), [role, debounced]);
+  const pages = useMemo(() => {
+    return filterPortalPages(role, debounced).map((page) => ({
+      ...page,
+      label: nav(page.path) !== page.path ? nav(page.path) : page.label,
+    }));
+  }, [role, debounced, nav, locale]);
 
   const { data: curriculumTree = [] } = useCurriculumTree(undefined, {
     enabled: open && debounced.trim().length >= 2,
@@ -210,7 +217,7 @@ export function GlobalSearch({
             onClick={() => setOpen(false)}
             role="dialog"
             aria-modal="true"
-            aria-label="Search"
+            aria-label={t("search.dialogLabel")}
           >
             <div
               className="w-full max-w-lg overflow-hidden rounded-xl border border-[rgb(220_235_228/0.7)] bg-portal-surface shadow-[var(--portal-card-shadow)] animate-page-in"
@@ -224,14 +231,14 @@ export function GlobalSearch({
                   autoFocus
                   value={query}
                   onChange={(e) => setQuery(e.target.value)}
-                  placeholder="Search students, classes, pages…"
+                  placeholder={t("search.placeholderModal")}
                   className={`${formControlClass} border-0 bg-transparent px-0 shadow-none focus-visible:ring-0`}
                 />
                 <button
                   type="button"
                   onClick={() => setOpen(false)}
                   className="rounded p-1.5 text-portal-muted transition hover:bg-[#f6fcf9] hover:text-portal-heading"
-                  aria-label="Close search"
+                  aria-label={t("search.closeSearch")}
                 >
                   <X className="size-4" />
                 </button>
@@ -239,7 +246,7 @@ export function GlobalSearch({
 
               <div className="max-h-[min(60vh,420px)] overflow-y-auto p-3">
                 {pages.length > 0 ? (
-                  <SearchListSection title="Pages">
+                  <SearchListSection title={t("search.sectionPages")}>
                     {pages.map((page) => {
                       const Icon = pageIcon(page.path);
                       return (
@@ -256,26 +263,26 @@ export function GlobalSearch({
                 ) : null}
 
                 {programHits.length > 0 ? (
-                  <SearchListSection title="Study programs">
+                  <SearchListSection title={t("search.sectionPrograms")}>
                     {programHits.map((program) => (
                       <SearchListRow
                         key={program.id}
                         onClick={() => go(programLink)}
                         icon={<Library className="size-4" aria-hidden />}
                         title={program.label}
-                        subtitle="Open progress & curriculum"
+                        subtitle={t("search.openProgress")}
                       />
                     ))}
                   </SearchListSection>
                 ) : null}
 
                 {debounced.trim().length >= 2 ? (
-                  <SearchListSection title="Results">
+                  <SearchListSection title={t("search.sectionResults")}>
                     {isFetching ? (
-                      <li className="px-3 py-4 text-sm text-portal-muted">Searching…</li>
+                      <li className="px-3 py-4 text-sm text-portal-muted">{t("search.searching")}</li>
                     ) : apiResults.length === 0 ? (
                       <li className="px-3 py-4 text-sm text-portal-muted">
-                        No matches for “{debounced}”.
+                        {t("search.noMatches", { query: debounced })}
                       </li>
                     ) : (
                       apiResults.map((item) => {
@@ -295,7 +302,7 @@ export function GlobalSearch({
                   </SearchListSection>
                 ) : (
                   <p className="px-2 py-3 text-sm text-portal-muted">
-                    Type at least 2 characters to search students and classes.
+                    {t("search.minChars")}
                   </p>
                 )}
               </div>
@@ -319,11 +326,11 @@ export function GlobalSearch({
             "flex h-10 w-full min-w-0 items-center gap-2.5 rounded-xl border border-portal bg-portal-surface px-3.5 text-left text-sm text-portal-muted shadow-[var(--portal-card-shadow)] transition hover:border-primary/30 hover:text-portal-heading",
             className
           )}
-          aria-label="Open search"
+          aria-label={t("search.openSearch")}
         >
           <Search className="size-4 shrink-0 text-primary" aria-hidden />
           <span className="min-w-0 flex-1 truncate font-medium">
-            Search students, teachers, classes…
+            {t("search.placeholder")}
           </span>
           <kbd className="hidden shrink-0 rounded-md bg-[#f0fbf6] px-1.5 py-0.5 text-[10px] font-semibold text-portal-muted sm:inline-block dark:bg-white/10">
             Ctrl K
@@ -340,10 +347,10 @@ export function GlobalSearch({
           "hidden items-center gap-2 rounded border border-[rgb(220_235_228/0.7)] bg-portal-surface px-3 py-1.5 text-sm text-portal-muted shadow-[var(--portal-card-shadow)] transition hover:text-portal-heading sm:flex",
           className
         )}
-        aria-label="Open search"
+        aria-label={t("search.openSearch")}
       >
         <Search className="size-4" />
-        <span>Search…</span>
+        <span>{t("search.placeholderShort")}</span>
         <kbd className="rounded bg-[#f6fcf9] px-1.5 py-0.5 text-[10px] font-medium text-portal-muted">
           Ctrl K
         </kbd>
@@ -364,7 +371,7 @@ export function GlobalSearch({
           tabIndex={-1}
         >
           <Search className="size-4 shrink-0 text-primary" aria-hidden />
-          <span className="min-w-0 flex-1 truncate font-medium">Search open…</span>
+          <span className="min-w-0 flex-1 truncate font-medium">{t("search.placeholderOpen")}</span>
         </button>
       ) : null}
       {modal}

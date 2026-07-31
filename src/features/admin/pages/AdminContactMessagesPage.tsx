@@ -21,8 +21,10 @@ import {
   filterContactMessages,
   type AdminContactInboxTab,
 } from "@/features/admin/components/contact-inbox/adminContactInboxUtils";
+import { usePortalTranslation } from "@/i18n/LocaleProvider";
 
 export function AdminContactMessagesPage() {
+  const { t } = usePortalTranslation();
   const [tab, setTab] = useState<AdminContactInboxTab>("all");
   const [search, setSearch] = useState("");
   const [selectedId, setSelectedId] = useState<string | null>(null);
@@ -85,10 +87,10 @@ export function AdminContactMessagesPage() {
       <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
         <div>
           <h1 className="portal-page-title font-display text-2xl font-bold text-primary-dark sm:text-3xl">
-            Contact Inbox
+            {t("admin.contact.title")}
           </h1>
           <p className="portal-page-subtitle mt-1 max-w-3xl text-portal-muted">
-            Enquiries from the website contact form — reply within 24 hours.
+            {t("admin.contact.subtitle")}
           </p>
         </div>
         <Button
@@ -98,7 +100,7 @@ export function AdminContactMessagesPage() {
           className="inline-flex shrink-0 items-center gap-2 rounded-xl border border-portal px-4"
         >
           <Download className="size-4" aria-hidden />
-          Export
+          {t("admin.common.export")}
         </Button>
       </div>
 
@@ -109,24 +111,24 @@ export function AdminContactMessagesPage() {
       {isError ? (
         <EmptyState
           icon={Inbox}
-          title="Could not load contact inbox"
-          description="The server failed to return contact messages. Try again in a moment."
-          actionLabel="Retry"
+          title={t("admin.contact.loadError")}
+          description={t("admin.contact.loadErrorDesc")}
+          actionLabel={t("admin.common.retry")}
           onAction={() => void refetch()}
         />
       ) : isLoading ? (
-        <PageLoading label="Loading contact inbox…" />
+        <PageLoading label={t("admin.common.loadingContactInbox")} />
       ) : messages.length === 0 ? (
         <EmptyState
           icon={Inbox}
-          title="No contact messages yet"
-          description="Messages appear here when visitors submit the contact form on your website."
+          title={t("admin.contact.noMessages")}
+          description={t("admin.contact.noMessagesDesc")}
         />
       ) : visibleMessages.length === 0 ? (
         <EmptyState
           icon={Inbox}
-          title="No messages match your filters"
-          description="Try clearing search or switching to another status tab."
+          title={t("admin.contact.noMatch")}
+          description={t("admin.contact.noMatchDesc")}
         />
       ) : (
         <div className="grid grid-cols-1 gap-4 xl:grid-cols-[minmax(280px,320px)_minmax(0,1fr)_minmax(240px,280px)] xl:gap-5">

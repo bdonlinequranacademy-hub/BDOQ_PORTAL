@@ -1,5 +1,6 @@
 import { LayoutList, Rows3 } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
+import { usePortalTranslation } from "@/i18n/LocaleProvider";
 
 export type ScheduleViewMode = "timeline" | "table";
 
@@ -9,16 +10,18 @@ interface ScheduleViewToggleProps {
 }
 
 export function ScheduleViewToggle({ value, onChange }: ScheduleViewToggleProps) {
+  const { t } = usePortalTranslation();
+
   const options: { id: ScheduleViewMode; label: string; icon: typeof Rows3 }[] = [
-    { id: "timeline", label: "Timeline", icon: Rows3 },
-    { id: "table", label: "Table", icon: LayoutList },
+    { id: "timeline", label: t("shared.schedule.timelineView"), icon: Rows3 },
+    { id: "table", label: t("shared.schedule.tableView"), icon: LayoutList },
   ];
 
   return (
     <div
       className="inline-flex rounded-xl border border-portal bg-portal-surface p-1 shadow-sm"
       role="tablist"
-      aria-label="Schedule view"
+      aria-label={t("shared.schedule.scheduleView")}
     >
       {options.map(({ id, label, icon: Icon }) => {
         const active = value === id;

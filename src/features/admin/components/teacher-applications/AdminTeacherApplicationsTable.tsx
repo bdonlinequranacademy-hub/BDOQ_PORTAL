@@ -23,6 +23,7 @@ import {
 } from "@/features/admin/components/teacher-applications/adminTeacherApplicationsUtils";
 import { formControlClass } from "@/lib/formControl";
 import { cn } from "@/lib/utils/cn";
+import { usePortalTranslation } from "@/i18n/LocaleProvider";
 
 interface IAdminTeacherApplicationsTableProps {
   applications: TeacherApplicationView[];
@@ -40,19 +41,21 @@ export function AdminTeacherApplicationsTable({
   onView,
   onAdvanceStatus,
 }: IAdminTeacherApplicationsTableProps) {
+  const { t } = usePortalTranslation();
+
   return (
     <Card className="overflow-hidden rounded-2xl border border-portal bg-portal-surface p-0 shadow-[0_8px_24px_-16px_rgba(13,74,47,0.18)]">
       <div className="overflow-x-auto">
         <table className="w-full min-w-[1180px] border-collapse text-left">
           <thead>
             <tr className="border-b border-portal bg-portal-muted/40 text-xs font-semibold uppercase tracking-wide text-portal-muted">
-              <th className="px-5 py-3.5">Applicant</th>
-              <th className="px-5 py-3.5">Subjects</th>
-              <th className="px-5 py-3.5">Experience</th>
-              <th className="px-5 py-3.5">Qualification</th>
-              <th className="px-5 py-3.5">Applied on</th>
-              <th className="px-5 py-3.5">Status</th>
-              <th className="px-5 py-3.5 text-right">Actions</th>
+              <th className="px-5 py-3.5">{t("admin.teacherApplications.tableApplicant")}</th>
+              <th className="px-5 py-3.5">{t("admin.teacherApplications.tableSubject")}</th>
+              <th className="px-5 py-3.5">{t("admin.experience")}</th>
+              <th className="px-5 py-3.5">{t("admin.qualifications")}</th>
+              <th className="px-5 py-3.5">{t("admin.teacherApplications.tableSubmitted")}</th>
+              <th className="px-5 py-3.5">{t("tables.status")}</th>
+              <th className="px-5 py-3.5 text-right">{t("tables.actions")}</th>
             </tr>
           </thead>
           <tbody>
@@ -92,7 +95,7 @@ export function AdminTeacherApplicationsTable({
                   <td className="px-5 py-4">
                     <p className="text-sm font-semibold text-portal-heading">{subjects.visible}</p>
                     {subjects.extra > 0 ? (
-                      <p className="text-xs text-portal-muted">+{subjects.extra} more</p>
+                      <p className="text-xs text-portal-muted">+{subjects.extra} {t("labels.more")}</p>
                     ) : null}
                   </td>
                   <td className="px-5 py-4">
@@ -144,8 +147,8 @@ export function AdminTeacherApplicationsTable({
                         type="button"
                         onClick={() => onView(app)}
                         className={contactActionClass}
-                        aria-label={`View ${app.fullName}`}
-                        title="View application"
+                        aria-label={t("admin.teacherApplications.viewApplication")}
+                        title={t("admin.teacherApplications.viewApplication")}
                       >
                         <Eye className="size-4" aria-hidden />
                       </button>
@@ -192,15 +195,6 @@ interface IAdminTeacherApplicationsToolbarProps {
   onExport: () => void;
 }
 
-const TABS: { id: AdminTeacherApplicationsTab; label: string }[] = [
-  { id: "all", label: "All" },
-  { id: "new", label: "New" },
-  { id: "reviewing", label: "Under review" },
-  { id: "approved", label: "Approved" },
-  { id: "rejected", label: "Rejected" },
-  { id: "closed", label: "Closed" },
-];
-
 const toolbarFieldClass = cn(formControlClass, "h-10 min-h-10 py-2 text-sm shadow-none");
 
 export function AdminTeacherApplicationsToolbar({
@@ -221,10 +215,21 @@ export function AdminTeacherApplicationsToolbar({
   onTabChange,
   onExport,
 }: IAdminTeacherApplicationsToolbarProps) {
+  const { t, statusLabel } = usePortalTranslation();
+
+  const tabs: { id: AdminTeacherApplicationsTab; label: string }[] = [
+    { id: "all", label: t("admin.teacherApplications.tabAll") },
+    { id: "new", label: t("admin.admissions.tabNew") },
+    { id: "reviewing", label: t("admin.admissions.tabReviewing") },
+    { id: "approved", label: t("admin.admissions.tabApproved") },
+    { id: "rejected", label: statusLabel("rejected") },
+    { id: "closed", label: t("admin.admissions.tabClosed") },
+  ];
+
   return (
     <div className="flex flex-col gap-4 rounded-2xl border border-portal bg-portal-surface p-4 shadow-[0_8px_24px_-16px_rgba(13,74,47,0.18)] sm:p-5">
       <div>
-        <h2 className="text-sm font-bold text-portal-heading">Search &amp; filters</h2>
+        <h2 className="text-sm font-bold text-portal-heading">{t("admin.teacherApplications.toolbarTitle")}</h2>
         <p className="mt-0.5 text-xs text-portal-muted">
           Find applications by name, contact details, subject, or submission date.
         </p>
@@ -238,10 +243,10 @@ export function AdminTeacherApplicationsToolbar({
           />
           <input
             className={cn(toolbarFieldClass, "pl-9")}
-            placeholder="Search name, email, phone…"
+            placeholder={t("admin.admissions.searchPlaceholder")}
             value={search}
             onChange={(event) => onSearchChange(event.target.value)}
-            aria-label="Search teacher applications"
+            aria-label={t("admin.teacherApplications.searchPlaceholder")}
           />
         </div>
 
@@ -250,9 +255,9 @@ export function AdminTeacherApplicationsToolbar({
             value={subjectFilter}
             onChange={(event) => onSubjectChange(event.target.value)}
             className={cn(toolbarFieldClass, "w-full sm:min-w-[152px] xl:w-auto")}
-            aria-label="Filter by subject"
+            aria-label={t("admin.teacherApplications.tableSubject")}
           >
-            <option value="">All subjects</option>
+            <option value="">{t("admin.teacherApplications.allSubjects")}</option>
             {subjects.map((subject) => (
               <option key={subject} value={subject}>
                 {subject}
@@ -263,9 +268,9 @@ export function AdminTeacherApplicationsToolbar({
             value={countryFilter}
             onChange={(event) => onCountryChange(event.target.value)}
             className={cn(toolbarFieldClass, "w-full sm:min-w-[152px] xl:w-auto")}
-            aria-label="Filter by country"
+            aria-label={t("admin.teacherApplications.tableCountry")}
           >
-            <option value="">All countries</option>
+            <option value="">{t("admin.teacherApplications.allCountries")}</option>
             {countries.map((country) => (
               <option key={country} value={country}>
                 {country}
@@ -277,21 +282,21 @@ export function AdminTeacherApplicationsToolbar({
             value={dateFrom}
             onChange={(event) => onDateFromChange(event.target.value)}
             className={cn(toolbarFieldClass, "w-full sm:min-w-[140px] xl:w-auto")}
-            aria-label="Date from"
+            aria-label={t("filters.dateFrom")}
           />
           <input
             type="date"
             value={dateTo}
             onChange={(event) => onDateToChange(event.target.value)}
             className={cn(toolbarFieldClass, "w-full sm:min-w-[140px] xl:w-auto")}
-            aria-label="Date to"
+            aria-label={t("filters.dateTo")}
           />
         </div>
       </div>
 
       <div className="flex flex-col gap-3 border-t border-portal pt-4 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex gap-1 overflow-x-auto">
-          {TABS.map((item) => (
+          {tabs.map((item) => (
             <button
               key={item.id}
               type="button"
@@ -313,9 +318,7 @@ export function AdminTeacherApplicationsToolbar({
           onClick={onExport}
           className="inline-flex items-center gap-2 rounded-xl border border-portal px-4"
         >
-          <Download className="size-4" aria-hidden />
-          Export
-        </Button>
+          <Download className="size-4" aria-hidden />{t("admin.common.export")}</Button>
       </div>
     </div>
   );

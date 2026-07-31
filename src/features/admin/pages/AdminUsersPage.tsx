@@ -16,8 +16,8 @@ import {
   canManageUserAccount,
   displayRole,
   isSuperAdmin,
-  roleLabel,
 } from "@/lib/assignableRoles";
+import { usePortalTranslation } from "@/i18n/LocaleProvider";
 import { useAuthStore } from "@/stores/authStore";
 import { useCurriculumTree } from "@/components/curriculum/NestedCurriculumSelect";
 import { AdminCreateUserModal } from "@/features/admin/components/AdminCreateUserModal";
@@ -43,6 +43,7 @@ type GenderFilter = "all" | "male" | "female";
 type SortOption = "newest" | "oldest" | "name";
 
 export function AdminUsersPage() {
+  const { t, role: translateRole, formatDate, statusLabel } = usePortalTranslation();
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   const currentUser = useAuthStore((s) => s.user);
@@ -137,7 +138,7 @@ export function AdminUsersPage() {
   function handleDeactivate(user: (typeof users)[number]) {
     if (
       !window.confirm(
-        `Deactivate ${user.name}? They will not be able to sign in until reactivated.`
+        t("admin.users.confirmDeactivate", { name: user.name })
       )
     ) {
       return;
@@ -198,10 +199,10 @@ export function AdminUsersPage() {
       <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
         <div className="min-w-0">
           <h1 className="portal-page-title font-display text-2xl font-bold text-primary-dark sm:text-3xl">
-            User Management
+            {t("admin.users.title")}
           </h1>
           <p className="portal-page-subtitle mt-1 max-w-2xl text-portal-muted">
-            Create, manage and organize users across the platform.
+            {t("admin.users.subtitle")}
           </p>
         </div>
         <Button
@@ -209,7 +210,7 @@ export function AdminUsersPage() {
           className="inline-flex shrink-0 items-center gap-2 rounded-xl bg-primary px-5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-primary-dark"
         >
           <UserPlus className="size-4" aria-hidden />
-          Add New User
+          {t("admin.common.addNewUser")}
         </Button>
       </div>
 
@@ -229,8 +230,22 @@ export function AdminUsersPage() {
           onDateFromChange={setDateFrom}
           onDateToChange={setDateTo}
           onClearFilters={clearFilters}
-          onExportCsv={() => exportUsersFile(filtered, "csv")}
-          onExportExcel={() => exportUsersFile(filtered, "excel")}
+          onExportCsv={() =>
+            exportUsersFile(filtered, "csv", {
+              t,
+              role: translateRole,
+              formatDate,
+              statusLabel,
+            })
+          }
+          onExportExcel={() =>
+            exportUsersFile(filtered, "excel", {
+              t,
+              role: translateRole,
+              formatDate,
+              statusLabel,
+            })
+          }
           roleFilterOptions={roleFilterOptions}
           roleFilter={roleFilter}
           onRoleFilterChange={setRoleFilter}
@@ -251,7 +266,7 @@ export function AdminUsersPage() {
                       : "border border-portal bg-portal-surface text-portal-heading hover:border-primary/30"
                   )}
                 >
-                  {role === "all" ? "All Users" : roleLabel(role as Role)}
+                  {role === "all" ? t("admin.common.allUsers") : translateRole(role as Role)}
                 </button>
               ))}
             </div>
@@ -262,11 +277,11 @@ export function AdminUsersPage() {
                   value={sortBy}
                   onChange={(event) => setSortBy(event.target.value as SortOption)}
                   className="py-2 text-sm"
-                  aria-label="Sort users"
+                  aria-label={t("admin.common.sortUsers")}
                 >
-                  <option value="newest">Newest first</option>
-                  <option value="oldest">Oldest first</option>
-                  <option value="name">Name A–Z</option>
+                  <option value="newest">{t("sort.newest")}</option>
+                  <option value="oldest">{t("sort.oldest")}</option>
+                  <option value="name">{t("admin.common.sortNameAz")}</option>
                 </Select>
               </div>
               <div className="hidden items-center gap-1 rounded-xl border border-portal bg-portal-surface p-1 sm:flex">
@@ -281,16 +296,16 @@ export function AdminUsersPage() {
           </div>
 
           {isLoading ? (
-            <PageLoading label="Loading users…" />
+            <PageLoading label={t("admin.common.loadingUsers")} />
           ) : filtered.length === 0 ? (
             <EmptyState
-              title="No users found"
+              title={t("admin.common.noUsers")}
               description={
                 search
-                  ? "Try a different name or email."
-                  : "No users match the selected filters."
+                  ? t("admin.common.noUsersSearch")
+                  : t("admin.common.noUsersFilter")
               }
-              actionLabel={creatableRoles.length > 0 ? "Add New User" : undefined}
+              actionLabel={creatableRoles.length > 0 ? t("admin.common.addNewUser") : undefined}
               onAction={creatableRoles.length > 0 ? () => setShowForm(true) : undefined}
             />
           ) : (
@@ -302,7 +317,7 @@ export function AdminUsersPage() {
                 onDeactivate={handleDeactivate}
                 canManage={(targetRole) => canManageUserAccount(actorRole, targetRole)}
               />
-              <Pagination pagination={pagination} itemLabel="users" />
+              <Pagination pagination={pagination} itemLabel={t("admin.common.usersItemLabel")} />
             </>
           )}
         </div>

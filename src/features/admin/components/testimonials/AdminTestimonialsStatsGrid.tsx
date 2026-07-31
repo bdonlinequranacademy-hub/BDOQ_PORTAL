@@ -4,6 +4,7 @@ import {
   pctOfTotal,
   type IAdminTestimonialsStats,
 } from "@/features/admin/components/testimonials/adminTestimonialsUtils";
+import { usePortalTranslation } from "@/i18n/LocaleProvider";
 
 interface IAdminTestimonialsStatsGridProps {
   stats: IAdminTestimonialsStats;
@@ -20,49 +21,55 @@ export function AdminTestimonialsStatsGrid({
   onPendingClick,
   onFeaturedClick,
 }: IAdminTestimonialsStatsGridProps) {
+  const { t, formatNumber } = usePortalTranslation();
+
   return (
     <div className="grid grid-cols-2 items-start gap-2.5 sm:gap-3 lg:grid-cols-5">
       <StatCard
-        label="Total Reviews"
+        label={t("admin.cms.testimonials.statsTotalReviews")}
         value={isLoading ? "—" : stats.total}
         icon={<MessageSquareQuote className="size-4 text-primary" />}
         iconBg="bg-primary/10"
         hint={
           stats.newThisMonth > 0
-            ? `+${stats.newThisMonth} this month`
-            : "All student testimonials"
+            ? t("stats.thisMonth", { count: formatNumber(stats.newThisMonth) })
+            : t("admin.cms.testimonials.hintAllReviews")
         }
       />
       <StatCard
-        label="Published"
+        label={t("admin.common.statPublished")}
         value={isLoading ? "—" : stats.published}
         icon={<Eye className="size-4 text-orange-600" />}
         iconBg="bg-orange-100"
-        hint={pctOfTotal(stats.published, stats.total)}
+        hint={pctOfTotal(stats.published, stats.total, t)}
         onClick={onPublishedClick}
       />
       <StatCard
-        label="Pending"
+        label={t("shared.status.pending")}
         value={isLoading ? "—" : stats.pending}
         icon={<Clock className="size-4 text-amber-600" />}
         iconBg="bg-amber-100"
-        hint={pctOfTotal(stats.pending, stats.total)}
+        hint={pctOfTotal(stats.pending, stats.total, t)}
         onClick={onPendingClick}
       />
       <StatCard
-        label="Featured"
+        label={t("admin.cms.shared.statFeatured")}
         value={isLoading ? "—" : stats.featured}
         icon={<Trophy className="size-4 text-violet-600" />}
         iconBg="bg-violet-100"
-        hint="5★ & on website"
+        hint={t("admin.cms.testimonials.featuredHint")}
         onClick={onFeaturedClick}
       />
       <StatCard
-        label="Avg. Rating"
-        value={isLoading ? "—" : `${stats.avgRating}${stats.avgRating === "—" ? "" : " / 5"}`}
+        label={t("admin.cms.testimonials.avgRating")}
+        value={
+          isLoading
+            ? "—"
+            : `${stats.avgRating}${stats.avgRating === "—" ? "" : " / 5"}`
+        }
         icon={<Star className="size-4 text-gold-dark" />}
         iconBg="bg-gold/20"
-        hint="Across all reviews"
+        hint={t("admin.cms.testimonials.avgRatingHint")}
         className="col-span-2 lg:col-span-1"
       />
     </div>

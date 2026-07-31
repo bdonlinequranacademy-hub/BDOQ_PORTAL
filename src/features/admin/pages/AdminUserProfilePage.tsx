@@ -8,11 +8,12 @@ import { PageContainer } from "@/components/layout/PageContainer";
 import { PageLoading } from "@/components/ui/PageLoading";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { UserAvatar } from "@/components/ui/UserAvatar";
-import { roleLabel } from "@/lib/assignableRoles";
 import { AdminTeacherProfileView } from "@/features/admin/components/users/AdminTeacherProfileView";
 import { AdminStudentProfileView } from "@/features/admin/components/users/AdminStudentProfileView";
+import { usePortalTranslation } from "@/i18n/LocaleProvider";
 
 export function AdminUserProfilePage() {
+  const { t, role: translateRole } = usePortalTranslation();
   const { id = "" } = useParams();
   const navigate = useNavigate();
   const { data, isLoading, isError } = useAdminUserProfile(id);
@@ -27,7 +28,7 @@ export function AdminUserProfilePage() {
     if (!data?.user) return;
     if (
       !window.confirm(
-        `Deactivate ${data.user.name}? They will not be able to sign in until reactivated.`
+        t("admin.userProfile.confirmDeactivate", { name: data.user.name })
       )
     ) {
       return;
@@ -40,7 +41,7 @@ export function AdminUserProfilePage() {
   if (isLoading) {
     return (
       <PageContainer>
-        <PageLoading label="Loading profile…" />
+        <PageLoading label={t("admin.common.loadingProfile")} />
       </PageContainer>
     );
   }
@@ -49,9 +50,9 @@ export function AdminUserProfilePage() {
     return (
       <PageContainer>
         <EmptyState
-          title="Profile not found"
-          description="This user profile could not be loaded."
-          actionLabel="Back to Users"
+          title={t("admin.userProfile.notFound")}
+          description={t("admin.common.loadErrorDesc")}
+          actionLabel={t("admin.userProfile.backToUsers")}
           onAction={() => navigate("/admin/users")}
         />
       </PageContainer>
@@ -91,7 +92,7 @@ export function AdminUserProfilePage() {
         className="inline-flex items-center gap-2 text-sm font-medium text-portal-muted transition hover:text-primary"
       >
         <ArrowLeft className="size-4" aria-hidden />
-        Back to Users
+        {t("admin.userProfile.backToUsers")}
       </Link>
 
       <section className="rounded-3xl border border-portal bg-portal-surface p-6 shadow-sm sm:p-8">
@@ -108,18 +109,19 @@ export function AdminUserProfilePage() {
               {user.name}
             </h1>
             <p className="mt-1 text-sm text-portal-muted">
-              {roleLabel(user.role)} · {user.email}
+              {translateRole(user.role)} · {user.email}
             </p>
             <p className="mt-1 text-sm text-portal-muted">
-              On platform: {stats.yearsOnPlatform} year
-              {stats.yearsOnPlatform === 1 ? "" : "s"}
+              {t("admin.userProfile.onPlatformYears", {
+                count: String(stats.yearsOnPlatform),
+              })}
             </p>
             <button
               type="button"
               onClick={handleEdit}
               className="mt-4 rounded-full border border-primary/30 bg-primary/10 px-4 py-2 text-sm font-semibold text-primary-dark transition hover:bg-primary hover:text-white"
             >
-              Edit User
+              {t("admin.userProfile.editUser")}
             </button>
           </div>
         </div>

@@ -1,11 +1,14 @@
 import { Download } from "lucide-react";
 import { Button } from "@/components/ui/Button";
+import { usePortalTranslation } from "@/i18n/LocaleProvider";
 
 interface IAdminHomeworkOverviewHeaderProps {
   onExport: () => void;
 }
 
 export function AdminHomeworkOverviewHeader({ onExport }: IAdminHomeworkOverviewHeaderProps) {
+  const { t } = usePortalTranslation();
+
   return (
     <div className="portal-card-islamic portal-card--lg relative overflow-hidden rounded-2xl border border-portal bg-portal-surface px-5 py-6 shadow-[0_8px_24px_-16px_rgba(13,74,47,0.18)] sm:px-8 sm:py-8">
       <div
@@ -25,14 +28,13 @@ export function AdminHomeworkOverviewHeader({ onExport }: IAdminHomeworkOverview
       <div className="relative flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <div>
           <p className="text-xs font-semibold uppercase tracking-[0.18em] text-primary">
-            Academy overview
+            {t("admin.homework.overviewBadge")}
           </p>
           <h1 className="portal-page-title mt-1 font-display text-2xl font-bold text-primary-dark sm:text-3xl">
-            Homework Overview
+            {t("admin.homework.overviewTitle")}
           </h1>
           <p className="portal-page-subtitle mt-2 max-w-2xl text-sm text-portal-muted sm:text-base">
-            Assignments and submissions from all teacher classes — track grading, deadlines, and
-            program coverage.
+            {t("admin.homework.overviewSubtitle")}
           </p>
         </div>
         <Button
@@ -42,7 +44,7 @@ export function AdminHomeworkOverviewHeader({ onExport }: IAdminHomeworkOverview
           className="inline-flex shrink-0 items-center gap-2 rounded-xl border border-portal bg-portal-surface/80 px-4 backdrop-blur-sm"
         >
           <Download className="size-4" aria-hidden />
-          Export
+          {t("filters.export")}
         </Button>
       </div>
     </div>

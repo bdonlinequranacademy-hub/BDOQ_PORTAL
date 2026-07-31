@@ -16,6 +16,7 @@ import { formControlClass } from "@/lib/formControl";
 import type { CurriculumNode } from "@/lib/api/curriculumApi";
 import { isSurahTopicId, normalizeProgramId } from "@/lib/curriculumCatalog";
 import { AdminCurriculumDetailPanel } from "@/features/admin/components/curriculum/AdminCurriculumDetailPanel";
+import { usePortalTranslation } from "@/i18n/LocaleProvider";
 import { cn } from "@/lib/utils/cn";
 
 const COLUMN_HEIGHT = "h-[420px]";
@@ -116,6 +117,8 @@ function ItemActions({
   onEdit: () => void;
   onDelete: () => void;
 }) {
+  const { t } = usePortalTranslation();
+
   return (
     <div className="flex shrink-0 items-center gap-0.5">
       <button
@@ -125,8 +128,8 @@ function ItemActions({
           onEdit();
         }}
         className="rounded-lg p-1.5 text-portal-muted transition hover:bg-primary/10 hover:text-primary"
-        aria-label={`Edit ${label}`}
-        title="Edit"
+        aria-label={t("admin.curriculum.editItem", { label })}
+        title={t("actions.edit")}
       >
         <Pencil className="size-3.5" aria-hidden />
       </button>
@@ -137,8 +140,8 @@ function ItemActions({
           onDelete();
         }}
         className="rounded-lg p-1.5 text-portal-muted transition hover:bg-red-50 hover:text-red-600"
-        aria-label={`Delete ${label}`}
-        title="Delete"
+        aria-label={t("admin.curriculum.deleteItem", { label })}
+        title={t("actions.delete")}
       >
         <Trash2 className="size-3.5" aria-hidden />
       </button>
@@ -172,6 +175,7 @@ export function AdminCurriculumDrillDown({
   onTajweedSelection,
   onGrammarSelection,
 }: IAdminCurriculumDrillDownProps) {
+  const { t, formatNumber } = usePortalTranslation();
   const [programSearch, setProgramSearch] = useState("");
 
   const program = tree[programIdx];
@@ -203,7 +207,7 @@ export function AdminCurriculumDrillDown({
   return (
     <div className="grid grid-cols-1 items-stretch gap-4 xl:grid-cols-2 2xl:grid-cols-4">
       <ColumnShell
-        title="Programs"
+        title={t("admin.curriculum.programs")}
         toolbar={
           <div className="relative">
             <Search
@@ -212,7 +216,7 @@ export function AdminCurriculumDrillDown({
             />
             <input
               className={`${formControlClass} py-2 pl-9 text-sm`}
-              placeholder="Search programs…"
+              placeholder={t("admin.curriculum.searchPrograms")}
               value={programSearch}
               onChange={(event) => setProgramSearch(event.target.value)}
             />
@@ -225,12 +229,12 @@ export function AdminCurriculumDrillDown({
             className="inline-flex w-full items-center justify-center gap-2 rounded-xl border border-dashed border-primary/40 px-3 py-2 text-sm font-semibold text-primary transition hover:bg-primary/5"
           >
             <Plus className="size-4" aria-hidden />
-            Add New Program
+            {t("admin.curriculum.addNewProgram")}
           </button>
         }
       >
         {filteredPrograms.length === 0 ? (
-          <p className="text-sm text-portal-muted">No programs match your search.</p>
+          <p className="text-sm text-portal-muted">{t("admin.curriculum.noProgramsMatch")}</p>
         ) : (
           filteredPrograms.map(({ item, index }) => {
             const Icon = programIcon(item.id);
@@ -260,8 +264,9 @@ export function AdminCurriculumDrillDown({
                     {item.label}
                   </span>
                   <span className="text-xs text-portal-muted">
-                    {item.children?.length ?? 0} section
-                    {(item.children?.length ?? 0) === 1 ? "" : "s"}
+                    {t("admin.curriculum.sectionCount", {
+                      count: formatNumber(item.children?.length ?? 0),
+                    })}
                   </span>
                 </span>
                 <ItemActions
@@ -276,8 +281,12 @@ export function AdminCurriculumDrillDown({
       </ColumnShell>
 
       <ColumnShell
-        title="Sections"
-        breadcrumb={program ? `${program.label} / Sections` : undefined}
+        title={t("admin.curriculum.sectionsTitle")}
+        breadcrumb={
+          program
+            ? t("admin.curriculum.sectionsBreadcrumb", { program: program.label })
+            : undefined
+        }
         action={
           program ? (
             <button
@@ -286,15 +295,15 @@ export function AdminCurriculumDrillDown({
               className="inline-flex items-center gap-1 rounded-lg bg-primary px-2.5 py-1.5 text-[11px] font-semibold text-white"
             >
               <Plus className="size-3" aria-hidden />
-              Add
+              {t("admin.curriculum.add")}
             </button>
           ) : null
         }
       >
         {!program ? (
-          <p className="text-sm text-portal-muted">Select a program first.</p>
+          <p className="text-sm text-portal-muted">{t("admin.curriculum.selectProgramFirst")}</p>
         ) : sections.length === 0 ? (
-          <p className="text-sm text-portal-muted">No sections yet. Add one to continue.</p>
+          <p className="text-sm text-portal-muted">{t("admin.curriculum.noSectionsYet")}</p>
         ) : (
           sections.map((item, index) => {
             const active = sectionIdx === index;
@@ -318,8 +327,9 @@ export function AdminCurriculumDrillDown({
                     {item.label}
                   </span>
                   <span className="text-xs text-portal-muted">
-                    {item.children?.length ?? 0} topic
-                    {(item.children?.length ?? 0) === 1 ? "" : "s"}
+                    {t("admin.curriculum.topicCount", {
+                      count: formatNumber(item.children?.length ?? 0),
+                    })}
                   </span>
                 </span>
                 <ItemActions
@@ -334,16 +344,26 @@ export function AdminCurriculumDrillDown({
       </ColumnShell>
 
       <ColumnShell
-        title={showSurahPicker ? "Surahs" : showTajweedPicker ? "Tajweed Rules" : "Topics"}
-        breadcrumb={program && section ? `${section.label} / Items` : undefined}
+        title={
+          showSurahPicker
+            ? t("admin.curriculum.surahsTitle")
+            : showTajweedPicker
+              ? t("admin.curriculum.tajweedRulesTitle")
+              : t("admin.curriculum.topicsTitle")
+        }
+        breadcrumb={
+          program && section
+            ? t("admin.curriculum.itemsBreadcrumb", { section: section.label })
+            : undefined
+        }
       >
         {!section ? (
-          <p className="text-sm text-portal-muted">Select a section to view topics.</p>
+          <p className="text-sm text-portal-muted">{t("admin.curriculum.selectSectionForTopics")}</p>
         ) : visibleTopics.length === 0 ? (
           <p className="text-sm text-portal-muted">
             {showSurahPicker || showTajweedPicker || showGrammarPicker
-              ? "Use the details panel to pick catalog items."
-              : "No topics in this section yet."}
+              ? t("admin.curriculum.useDetailsPanel")
+              : t("admin.curriculum.noTopicsYet")}
           </p>
         ) : (
           visibleTopics.map((item) => {

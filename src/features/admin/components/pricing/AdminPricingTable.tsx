@@ -5,11 +5,10 @@ import { env } from "@/config/env";
 import { cn } from "@/lib/utils/cn";
 import type { AdminPricingPackage } from "@/types/models";
 import {
-  formatBdt,
-  formatUsd,
   packageIconClass,
   periodBadgeClass,
 } from "@/features/admin/components/pricing/adminPricingUtils";
+import { usePortalTranslation } from "@/i18n/LocaleProvider";
 
 interface IAdminPricingTableProps {
   items: AdminPricingPackage[];
@@ -24,6 +23,8 @@ export function AdminPricingTable({
   onEdit,
   onDelete,
 }: IAdminPricingTableProps) {
+  const { t, formatBdt, formatUsd } = usePortalTranslation();
+
   if (items.length === 0) {
     return (
       <Card className="rounded-2xl border border-portal p-8 text-center shadow-sm">
@@ -52,9 +53,9 @@ export function AdminPricingTable({
               <th className="px-5 py-3.5">Type</th>
               <th className="px-5 py-3.5">Price</th>
               <th className="px-5 py-3.5">Duration</th>
-              <th className="px-5 py-3.5">Status</th>
+              <th className="px-5 py-3.5">{t("tables.status")}</th>
               <th className="px-5 py-3.5">Features</th>
-              <th className="px-5 py-3.5 text-right">Actions</th>
+              <th className="px-5 py-3.5 text-right">{t("tables.actions")}</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-portal/80">
@@ -170,6 +171,7 @@ function PackageCell({
 }
 
 function StatusChip({ published }: { published: boolean }) {
+  
   return (
     <span
       className={cn(

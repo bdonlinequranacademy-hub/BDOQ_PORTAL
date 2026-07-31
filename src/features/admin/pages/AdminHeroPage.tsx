@@ -32,6 +32,8 @@ import { PageLoading } from "@/components/ui/PageLoading";
 import { Card } from "@/components/ui/Card";
 import { formControlClass, formHintClass, formLabelClass } from "@/lib/formControl";
 import { cn } from "@/lib/utils/cn";
+import { usePortalTranslation } from "@/i18n/LocaleProvider";
+import { pickLocaleField } from "@/i18n/pickContent";
 import type { AdminHomeHeroSlide, IHomeHeroLocaleContent } from "@/types/models";
 
 function HighlightedPreview({
@@ -53,6 +55,7 @@ function HighlightedPreview({
 }
 
 export function AdminHeroPage() {
+  const { t, locale: portalLocale } = usePortalTranslation();
   const { data: apiSlides, isLoading } = useAdminHomeHeroSlides();
   const saveHero = useSaveHomeHeroSlides();
   const uploadFile = useUploadResourceFile();
@@ -109,6 +112,47 @@ export function AdminHeroPage() {
       : activeSlide.contentEn;
   }, [activeSlide, contentLocale]);
 
+  const previewContent = useMemo(() => {
+    if (!activeSlide) return null;
+    return {
+      badge: pickLocaleField(
+        portalLocale,
+        activeSlide.contentEn.badge,
+        activeSlide.contentBn.badge
+      ),
+      title: pickLocaleField(
+        portalLocale,
+        activeSlide.contentEn.title,
+        activeSlide.contentBn.title
+      ),
+      titleHighlight: pickLocaleField(
+        portalLocale,
+        activeSlide.contentEn.titleHighlight,
+        activeSlide.contentBn.titleHighlight
+      ),
+      subtitle: pickLocaleField(
+        portalLocale,
+        activeSlide.contentEn.subtitle,
+        activeSlide.contentBn.subtitle
+      ),
+      primaryCta: pickLocaleField(
+        portalLocale,
+        activeSlide.contentEn.primaryCta,
+        activeSlide.contentBn.primaryCta
+      ),
+      secondaryCta: pickLocaleField(
+        portalLocale,
+        activeSlide.contentEn.secondaryCta,
+        activeSlide.contentBn.secondaryCta
+      ),
+      imageAlt: pickLocaleField(
+        portalLocale,
+        activeSlide.contentEn.imageAlt,
+        activeSlide.contentBn.imageAlt
+      ),
+    };
+  }, [activeSlide, portalLocale]);
+
   const objectPos = useMemo(
     () =>
       parseObjectPosition(activeSlide?.imageObjectPosition ?? "50% 25%"),
@@ -126,10 +170,10 @@ export function AdminHeroPage() {
           imagePublicId: res.data.publicId ?? "",
         });
       } else {
-        setError("Upload failed. Please try again.");
+        setError(t("admin.cms.hero.uploadFailed"));
       }
     } catch {
-      setError("Upload failed. Please try again.");
+      setError(t("admin.cms.hero.uploadFailed"));
     } finally {
       setUploading(false);
     }
@@ -138,7 +182,7 @@ export function AdminHeroPage() {
   async function handleSave(): Promise<void> {
     setError(null);
     if (!canSaveHeroSlides(slides)) {
-      setError("Each slide needs an image plus EN/BN badge and title.");
+      setError(t("admin.cms.hero.saveValidation"));
       return;
     }
 
@@ -149,16 +193,16 @@ export function AdminHeroPage() {
       if (res.success) {
         setDirty(false);
       } else {
-        setError(res.message || "Failed to save home hero.");
+        setError(res.message || t("admin.cms.hero.saveFailed"));
       }
     } catch {
-      setError("Something went wrong while saving.");
+      setError(t("admin.cms.hero.saveError"));
     }
   }
 
   function handleAddSlide(): void {
     if (slides.length >= MAX_HERO_SLIDES) {
-      setError(`You can add up to ${MAX_HERO_SLIDES} hero slides.`);
+      setError(t("admin.cms.hero.maxSlides", { max: String(MAX_HERO_SLIDES) }));
       return;
     }
 
@@ -171,15 +215,16 @@ export function AdminHeroPage() {
 
   function handleRemoveSlide(): void {
     if (slides.length <= MIN_HERO_SLIDES) {
-      setError("At least one hero slide must remain.");
+      setError(t("admin.cms.hero.minSlides"));
       return;
     }
 
     const label =
-      activeSlide.contentEn.title.trim() || `Slide ${activeIndex + 1}`;
+      activeSlide.contentEn.title.trim() ||
+      t("admin.cms.hero.slide", { n: String(activeIndex + 1) });
     if (
       !window.confirm(
-        `Remove "${label}" from the hero carousel? Save Hero to apply on the website.`
+        t("admin.cms.hero.confirmRemove", { label })
       )
     ) {
       return;
@@ -195,15 +240,15 @@ export function AdminHeroPage() {
   if (isLoading) {
     return (
       <PageContainer>
-        <PageLoading label="Loading home hero CMS…" />
+        <PageLoading label={t("admin.common.loadingHero")} />
       </PageContainer>
     );
   }
 
-  if (!activeSlide || !localeContent) {
+  if (!activeSlide || !localeContent || !previewContent) {
     return (
       <PageContainer>
-        <p className="text-sm text-portal-muted">No hero slides available.</p>
+        <p className="text-sm text-portal-muted">{t("admin.cms.hero.noSlides")}</p>
       </PageContainer>
     );
   }
@@ -213,14 +258,13 @@ export function AdminHeroPage() {
       <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
         <div>
           <p className="text-xs font-bold uppercase tracking-[0.14em] text-primary">
-            Website CMS
+            {t("admin.common.websiteCms")}
           </p>
           <h1 className="mt-1 text-2xl font-bold text-primary-dark">
-            Home Hero Section
+            {t("admin.cms.hero.title")}
           </h1>
           <p className={cn(formHintClass, "mt-2 max-w-2xl")}>
-            Manage carousel images and headline copy for the public homepage — all
-            slides on one workspace with live preview.
+            {t("admin.cms.hero.subtitle")}
           </p>
         </div>
         <button
@@ -230,7 +274,7 @@ export function AdminHeroPage() {
           className="inline-flex items-center justify-center gap-2 rounded-full bg-primary px-6 py-3 text-sm font-semibold text-white transition hover:brightness-95 disabled:cursor-not-allowed disabled:opacity-60"
         >
           <Save className="size-4" aria-hidden="true" />
-          {saveHero.isPending ? "Saving…" : "Save Hero"}
+          {saveHero.isPending ? t("admin.curriculum.saving") : t("admin.cms.hero.saveHero")}
         </button>
       </div>
 
@@ -253,7 +297,7 @@ export function AdminHeroPage() {
                 : "border border-portal bg-portal-surface text-portal-muted hover:border-primary/30"
             )}
           >
-            Slide {index + 1}
+            {t("admin.cms.hero.slide", { n: String(index + 1) })}
           </button>
         ))}
 
@@ -264,12 +308,15 @@ export function AdminHeroPage() {
             className="inline-flex items-center gap-1.5 rounded-full border border-dashed border-primary/40 bg-primary/5 px-4 py-2 text-sm font-semibold text-primary transition hover:border-primary hover:bg-primary/10"
           >
             <Plus className="size-4" aria-hidden="true" />
-            Add Slide
+            {t("admin.cms.hero.addSlide")}
           </button>
         ) : null}
 
         <span className="ml-auto text-xs text-portal-muted">
-          {slides.length}/{MAX_HERO_SLIDES} slides
+          {t("admin.cms.hero.slidesCount", {
+            current: String(slides.length),
+            max: String(MAX_HERO_SLIDES),
+          })}
         </span>
       </div>
 
@@ -279,7 +326,7 @@ export function AdminHeroPage() {
             <div className="flex items-center gap-2">
               <LayoutTemplate className="size-5 text-primary" aria-hidden="true" />
               <h2 className="text-base font-bold text-primary-dark">
-                Headline & CTAs
+                {t("admin.cms.hero.headlineCtas")}
               </h2>
             </div>
             <div className="inline-flex rounded-full border border-portal p-1">
@@ -303,7 +350,7 @@ export function AdminHeroPage() {
 
           <div className="space-y-4">
             <label className="block">
-              <span className={formLabelClass}>Badge</span>
+              <span className={formLabelClass}>{t("admin.cms.hero.badge")}</span>
               <input
                 className={formControlClass}
                 value={localeContent.badge}
@@ -316,7 +363,7 @@ export function AdminHeroPage() {
             </label>
 
             <label className="block">
-              <span className={formLabelClass}>Title</span>
+              <span className={formLabelClass}>{t("admin.cms.hero.titleLabel")}</span>
               <input
                 className={formControlClass}
                 value={localeContent.title}
@@ -329,7 +376,7 @@ export function AdminHeroPage() {
             </label>
 
             <label className="block">
-              <span className={formLabelClass}>Title highlight (optional)</span>
+              <span className={formLabelClass}>{t("admin.cms.hero.titleHighlight")}</span>
               <input
                 className={formControlClass}
                 value={localeContent.titleHighlight ?? ""}
@@ -342,7 +389,7 @@ export function AdminHeroPage() {
             </label>
 
             <label className="block">
-              <span className={formLabelClass}>Subtitle</span>
+              <span className={formLabelClass}>{t("admin.cms.hero.subtitleLabel")}</span>
               <textarea
                 className={cn(formControlClass, "min-h-[96px]")}
                 value={localeContent.subtitle}
@@ -356,7 +403,7 @@ export function AdminHeroPage() {
 
             <div className="grid gap-4 sm:grid-cols-2">
               <label className="block">
-                <span className={formLabelClass}>Primary CTA</span>
+                <span className={formLabelClass}>{t("admin.cms.hero.primaryCta")}</span>
                 <input
                   className={formControlClass}
                   value={localeContent.primaryCta}
@@ -368,7 +415,7 @@ export function AdminHeroPage() {
                 />
               </label>
               <label className="block">
-                <span className={formLabelClass}>Secondary CTA</span>
+                <span className={formLabelClass}>{t("admin.cms.hero.secondaryCta")}</span>
                 <input
                   className={formControlClass}
                   value={localeContent.secondaryCta}
@@ -383,7 +430,7 @@ export function AdminHeroPage() {
 
             <div className="grid gap-4 sm:grid-cols-2">
               <label className="block">
-                <span className={formLabelClass}>Primary link</span>
+                <span className={formLabelClass}>{t("admin.cms.hero.primaryLink")}</span>
                 <input
                   className={formControlClass}
                   value={activeSlide.primaryHref}
@@ -393,7 +440,7 @@ export function AdminHeroPage() {
                 />
               </label>
               <label className="block">
-                <span className={formLabelClass}>Secondary link</span>
+                <span className={formLabelClass}>{t("admin.cms.hero.secondaryLink")}</span>
                 <input
                   className={formControlClass}
                   value={activeSlide.secondaryHref}
@@ -405,7 +452,7 @@ export function AdminHeroPage() {
             </div>
 
             <label className="block">
-              <span className={formLabelClass}>Image alt text</span>
+              <span className={formLabelClass}>{t("admin.cms.hero.imageAlt")}</span>
               <input
                 className={formControlClass}
                 value={localeContent.imageAlt}
@@ -425,7 +472,7 @@ export function AdminHeroPage() {
                   patchSlide(activeIndex, { showOnWebsite: e.target.checked })
                 }
               />
-              Show this slide on website
+              {t("admin.cms.hero.showOnWebsite")}
             </label>
           </div>
         </Card>
@@ -435,7 +482,7 @@ export function AdminHeroPage() {
             <div className="flex items-center gap-2">
               <ImageIcon className="size-5 text-primary" aria-hidden="true" />
               <h2 className="text-base font-bold text-primary-dark">
-                Carousel Image
+                {t("admin.cms.hero.carouselImage")}
               </h2>
             </div>
             {slides.length > MIN_HERO_SLIDES ? (
@@ -445,13 +492,13 @@ export function AdminHeroPage() {
                 className="inline-flex items-center gap-1.5 rounded-full border border-red-200 px-3 py-1.5 text-xs font-semibold text-red-600 transition hover:bg-red-50"
               >
                 <Trash2 className="size-3.5" aria-hidden="true" />
-                Remove slide
+                {t("admin.cms.hero.removeSlide")}
               </button>
             ) : null}
           </div>
 
           <label className="block">
-            <span className={formLabelClass}>Image URL</span>
+            <span className={formLabelClass}>{t("admin.cms.hero.imageUrl")}</span>
             <input
               className={formControlClass}
               value={activeSlide.imageUrl}
@@ -463,11 +510,11 @@ export function AdminHeroPage() {
           </label>
 
           <label className="mt-4 block">
-            <span className={formLabelClass}>Upload image</span>
+            <span className={formLabelClass}>{t("admin.cms.hero.uploadImage")}</span>
             <div className="mt-2 flex items-center gap-3">
               <label className="inline-flex cursor-pointer items-center gap-2 rounded-full border border-portal px-4 py-2 text-sm font-semibold text-primary-dark transition hover:border-primary/30">
                 <Upload className="size-4" aria-hidden="true" />
-                {uploading ? "Uploading…" : "Choose file"}
+                {uploading ? t("admin.cms.hero.uploading") : t("admin.cms.hero.chooseFile")}
                 <input
                   type="file"
                   accept="image/*"
@@ -485,7 +532,7 @@ export function AdminHeroPage() {
           <div className="mt-5 space-y-4">
             <label className="block">
               <span className={formLabelClass}>
-                Horizontal focus ({objectPos.x}%)
+                {t("admin.cms.hero.horizontalFocus", { pct: String(objectPos.x) })}
               </span>
               <input
                 type="range"
@@ -506,7 +553,7 @@ export function AdminHeroPage() {
 
             <label className="block">
               <span className={formLabelClass}>
-                Vertical focus ({objectPos.y}%) — lower shows more head
+                {t("admin.cms.hero.verticalFocus", { pct: String(objectPos.y) })}
               </span>
               <input
                 type="range"
@@ -527,7 +574,7 @@ export function AdminHeroPage() {
 
             <label className="block">
               <span className={formLabelClass}>
-                Image scale ({activeSlide.imageScale}%)
+                {t("admin.cms.hero.imageScale", { pct: String(activeSlide.imageScale) })}
               </span>
               <input
                 type="range"
@@ -549,29 +596,32 @@ export function AdminHeroPage() {
           <Card className="overflow-hidden rounded-2xl border border-portal bg-[#F7FCF9] p-5 shadow-sm">
             <div className="mb-4 flex items-center gap-2 text-sm font-semibold text-primary-dark">
               <Globe2 className="size-4 text-primary" aria-hidden="true" />
-              Live preview — Slide {activeIndex + 1} ({contentLocale.toUpperCase()})
+              {t("admin.cms.hero.livePreview", {
+                n: String(activeIndex + 1),
+                locale: portalLocale.toUpperCase(),
+              })}
             </div>
 
             <div className="grid gap-4">
               <div>
                 <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-primary">
-                  {localeContent.badge}
+                  {previewContent.badge}
                 </p>
                 <h3 className="mt-2 font-serif text-lg font-bold leading-snug text-primary-dark">
                   <HighlightedPreview
-                    title={localeContent.title}
-                    highlight={localeContent.titleHighlight}
+                    title={previewContent.title}
+                    highlight={previewContent.titleHighlight}
                   />
                 </h3>
                 <p className="mt-2 text-xs leading-relaxed text-portal-muted">
-                  {localeContent.subtitle}
+                  {previewContent.subtitle}
                 </p>
                 <div className="mt-3 flex flex-wrap gap-2">
                   <span className="rounded-full bg-primary px-3 py-1 text-[11px] font-semibold text-white">
-                    {localeContent.primaryCta}
+                    {previewContent.primaryCta}
                   </span>
                   <span className="rounded-full border border-primary px-3 py-1 text-[11px] font-semibold text-primary">
-                    {localeContent.secondaryCta}
+                    {previewContent.secondaryCta}
                   </span>
                 </div>
               </div>
@@ -597,7 +647,7 @@ export function AdminHeroPage() {
                     >
                       <img
                         src={activeSlide.imageUrl}
-                        alt={localeContent.imageAlt}
+                        alt={previewContent.imageAlt}
                         className="h-full w-full object-cover"
                         style={{
                           objectPosition: activeSlide.imageObjectPosition,
@@ -606,14 +656,14 @@ export function AdminHeroPage() {
                     </div>
                   ) : (
                     <div className="absolute inset-0 flex items-center justify-center text-xs text-portal-muted">
-                      No image
+                      {t("admin.cms.hero.noImage")}
                     </div>
                   )}
                 </div>
 
                 <button
                   type="button"
-                  aria-label="Previous slide preview"
+                  aria-label={t("admin.cms.hero.prevSlide")}
                   onClick={() =>
                     setActiveIndex((i) =>
                       i === 0 ? slides.length - 1 : i - 1
@@ -625,7 +675,7 @@ export function AdminHeroPage() {
                 </button>
                 <button
                   type="button"
-                  aria-label="Next slide preview"
+                  aria-label={t("admin.cms.hero.nextSlide")}
                   onClick={() =>
                     setActiveIndex((i) => (i + 1) % slides.length)
                   }

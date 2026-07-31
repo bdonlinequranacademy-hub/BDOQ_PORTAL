@@ -6,11 +6,12 @@ import { CountrySelect } from "@/components/ui/CountrySelect";
 import { WhatsAppPhoneField } from "@/components/whatsapp/WhatsAppPhoneField";
 import { CurriculumAssignmentEditor } from "@/components/curriculum/NestedCurriculumSelect";
 import { PROFILE_TIMEZONES } from "@/lib/profileTimezones";
-import { ASSIGNABLE_ROLES, roleLabel } from "@/lib/assignableRoles";
+import { ASSIGNABLE_ROLES } from "@/lib/assignableRoles";
 import {
   AdminUserFormFullWidth,
   AdminUserFormSection,
 } from "@/features/admin/components/AdminUserFormSection";
+import { usePortalTranslation } from "@/i18n/LocaleProvider";
 import type { AdminUser, CurriculumAssignment, Role } from "@/types/models";
 import type { CurriculumNode } from "@/lib/api/curriculumApi";
 
@@ -60,6 +61,8 @@ export function AdminEditUserModal({
   onClose,
   onSubmit,
 }: IAdminEditUserModalProps) {
+  const { t, role, dynamicLabel } = usePortalTranslation();
+
   const needsContact = form.role === "student" || form.role === "teacher";
   const isStudent = form.role === "student";
   const isTeacher = form.role === "teacher";
@@ -93,8 +96,10 @@ export function AdminEditUserModal({
       open={Boolean(user)}
       onClose={onClose}
       size="xl"
-      title="Edit user"
-      description={user ? `Update account details for ${user.name}.` : undefined}
+      title={t("admin.users.editTitle")}
+      description={
+        user ? t("admin.users.editDescFor", { name: user.name }) : undefined
+      }
       footer={
         <div className="flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
           <Button
@@ -103,7 +108,7 @@ export function AdminEditUserModal({
             onClick={onClose}
             className="rounded-xl border border-portal"
           >
-            Cancel
+            {t("admin.common.cancel")}
           </Button>
           <Button
             type="button"
@@ -111,36 +116,36 @@ export function AdminEditUserModal({
             disabled={!canSubmit || isPending}
             className="rounded-xl bg-primary-dark text-white"
           >
-            {isPending ? "Saving changes…" : "Save changes"}
+            {isPending ? t("admin.users.saving") : t("admin.users.saveChanges")}
           </Button>
         </div>
       }
     >
       <div className="flex flex-col gap-4">
-        <AdminUserFormSection title="Account details" columns={2}>
+        <AdminUserFormSection title={t("admin.users.sectionAccount")} columns={2}>
           <Input
-            label="Full name *"
+            label={t("admin.users.fullName")}
             value={form.name}
             onChange={(event) => onChange("name", event.target.value)}
             required
           />
           <Input
-            label="Email address *"
+            label={t("admin.users.email")}
             type="email"
             value={form.email}
             onChange={(event) => onChange("email", event.target.value)}
             required
           />
           <Select
-            label="Account role"
+            label={t("admin.users.accountRole")}
             value={form.role}
             onChange={(event) =>
               onChange("role", event.target.value as (typeof ASSIGNABLE_ROLES)[number])
             }
           >
-            {[...new Set([form.role, ...creatableRoles])].map((role) => (
-              <option key={role} value={role}>
-                {roleLabel(role)}
+            {[...new Set([form.role, ...creatableRoles])].map((roleKey) => (
+              <option key={roleKey} value={roleKey}>
+                {role(roleKey)}
               </option>
             ))}
           </Select>
@@ -151,28 +156,30 @@ export function AdminEditUserModal({
               onChange={(event) => onChange("isActive", event.target.checked)}
               className="size-4 rounded border-portal text-primary focus:ring-primary"
             />
-            <span className="text-sm font-medium text-portal-heading">Account active</span>
+            <span className="text-sm font-medium text-portal-heading">
+              {t("admin.users.accountActive")}
+            </span>
           </label>
         </AdminUserFormSection>
 
         {isTeacher ? (
-          <AdminUserFormSection title="Teacher profile" columns={2}>
+          <AdminUserFormSection title={t("admin.users.sectionTeacher")} columns={2}>
             <Select
-              label="Teacher gender"
+              label={t("admin.users.teacherGenderLabel")}
               value={form.gender}
               onChange={(event) =>
                 onChange("gender", event.target.value as "" | "male" | "female")
               }
             >
-              <option value="">Not set</option>
-              <option value="female">Female</option>
-              <option value="male">Male</option>
+              <option value="">{dynamicLabel("not_set")}</option>
+              <option value="female">{dynamicLabel("female")}</option>
+              <option value="male">{dynamicLabel("male")}</option>
             </Select>
           </AdminUserFormSection>
         ) : null}
 
         {needsContact ? (
-          <AdminUserFormSection title="Contact & location" columns={2}>
+          <AdminUserFormSection title={t("admin.users.sectionContact")} columns={2}>
             <CountrySelect value={form.country} onChange={(value) => onChange("country", value)} />
             <WhatsAppPhoneField
               country={form.country}
@@ -183,9 +190,9 @@ export function AdminEditUserModal({
         ) : null}
 
         {isStudent ? (
-          <AdminUserFormSection title="Student learning setup" columns={2}>
+          <AdminUserFormSection title={t("admin.users.sectionStudentLearning")} columns={2}>
             <Select
-              label="Timezone"
+              label={t("admin.users.timezone")}
               value={form.timezone}
               onChange={(event) => onChange("timezone", event.target.value)}
             >

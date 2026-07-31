@@ -17,6 +17,7 @@ import {
 import { UserAvatar } from "@/components/ui/UserAvatar";
 import { formatCountryWithFlag } from "@/lib/utils/countryDisplay";
 import { waMeUrlFromRaw } from "@/lib/whatsapp";
+import { usePortalTranslation } from "@/i18n/LocaleProvider";
 import { cn } from "@/lib/utils/cn";
 import type { AdminStudentProfileDetail } from "@/types/models";
 
@@ -28,32 +29,28 @@ interface IAdminStudentProfileViewProps {
 
 type TabId = "overview" | "classes" | "learning" | "finance";
 
-const TABS: { id: TabId; label: string }[] = [
-  { id: "overview", label: "Overview" },
-  { id: "classes", label: "Classes & Teachers" },
-  { id: "learning", label: "Learning Activity" },
-  { id: "finance", label: "Billing & Certificates" },
-];
-
-function formatJoined(iso?: string | null): string {
-  if (!iso) return "—";
-  return new Date(iso).toLocaleDateString("en-US", {
-    month: "short",
-    day: "numeric",
-    year: "numeric",
-  });
-}
-
-function formatMoney(amount: number, currency: string): string {
-  return `${currency} ${amount.toLocaleString()}`;
-}
-
 export function AdminStudentProfileView({
   data,
   onEdit,
   onDeactivate,
 }: IAdminStudentProfileViewProps) {
+  const {
+    t,
+    formatDate,
+    formatMoney,
+    formatNumber,
+    statusLabel,
+    dynamicLabel,
+    paymentMethod,
+  } = usePortalTranslation();
   const [tab, setTab] = useState<TabId>("overview");
+
+  const tabs: { id: TabId; label: string }[] = [
+    { id: "overview", label: t("admin.studentProfile.tabOverview") },
+    { id: "classes", label: t("admin.studentProfile.tabClasses") },
+    { id: "learning", label: t("admin.studentProfile.tabLearning") },
+    { id: "finance", label: t("admin.studentProfile.tabFinance") },
+  ];
   const {
     user,
     stats,
@@ -69,22 +66,22 @@ export function AdminStudentProfileView({
   const waUrl = user.whatsapp ? waMeUrlFromRaw(user.whatsapp, user.country) : null;
 
   const statCards = [
-    { label: "Active Classes", value: String(stats.activeClasses), icon: BookOpen },
+    { label: t("admin.studentProfile.activeClasses"), value: formatNumber(stats.activeClasses), icon: BookOpen },
     {
-      label: "Attendance",
-      value: stats.attendanceRate != null ? `${stats.attendanceRate}%` : "—",
+      label: t("admin.studentProfile.attendance"),
+      value: stats.attendanceRate != null ? `${formatNumber(stats.attendanceRate)}%` : "—",
       icon: CheckCircle2,
     },
-    { label: "HW Done", value: String(stats.submittedHomework), icon: ClipboardList },
-    { label: "HW Pending", value: String(stats.pendingHomework), icon: Clock },
+    { label: t("admin.studentProfile.hwDone"), value: formatNumber(stats.submittedHomework), icon: ClipboardList },
+    { label: t("admin.studentProfile.hwPending"), value: formatNumber(stats.pendingHomework), icon: Clock },
     {
-      label: "Certificates",
-      value: String(stats.certificatesCount),
+      label: t("admin.studentProfile.certificates"),
+      value: formatNumber(stats.certificatesCount),
       icon: Award,
     },
     {
-      label: "Payments",
-      value: String(stats.paymentsCount),
+      label: t("admin.studentProfile.payments"),
+      value: formatNumber(stats.paymentsCount),
       icon: Wallet,
     },
   ];
@@ -96,7 +93,7 @@ export function AdminStudentProfileView({
         className="inline-flex items-center gap-2 text-sm font-medium text-portal-muted transition hover:text-primary"
       >
         <ArrowLeft className="size-4" aria-hidden />
-        Back to Users
+        {t("admin.studentProfile.backToUsers")}
       </Link>
 
       <section className="overflow-hidden rounded-3xl border border-portal shadow-[0_12px_40px_-24px_rgba(38,155,111,0.45)]">
@@ -114,7 +111,7 @@ export function AdminStudentProfileView({
           <div className="relative z-10 flex h-full flex-col justify-between p-4 sm:p-6 lg:p-7">
             <div className="flex items-start justify-between gap-3">
               <p className="font-display text-sm font-semibold tracking-wide text-white/90">
-                Student Profile · Full dossier
+                {t("admin.studentProfile.headerBadge")}
               </p>
               <button
                 type="button"
@@ -122,7 +119,7 @@ export function AdminStudentProfileView({
                 className="inline-flex items-center gap-2 rounded-xl bg-white/15 px-3 py-2 text-sm font-semibold text-white backdrop-blur-sm transition hover:bg-white/25"
               >
                 <Pencil className="size-3.5" aria-hidden />
-                Edit Profile
+                {t("admin.studentProfile.editProfile")}
               </button>
             </div>
 
@@ -144,7 +141,7 @@ export function AdminStudentProfileView({
                     user.isActive !== false ? "bg-primary" : "bg-red-500"
                   )}
                 >
-                  {user.isActive !== false ? "Active" : "Inactive"}
+                  {statusLabel(user.isActive !== false ? "active" : "inactive")}
                 </span>
               </div>
 
@@ -153,9 +150,11 @@ export function AdminStudentProfileView({
                   {user.name}
                 </h1>
                 <p className="mt-1 text-sm text-white/85">
-                  {user.studentId ? `ID: ${user.studentId}` : "Student"}
+                  {user.studentId
+                    ? t("admin.studentProfile.studentIdLabel", { id: user.studentId })
+                    : t("admin.studentProfile.student")}
                   {user.gender
-                    ? ` · ${user.gender === "female" ? "Female" : "Male"}`
+                    ? ` · ${dynamicLabel(user.gender)}`
                     : ""}
                 </p>
                 <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-2 text-xs text-white/80 sm:text-sm">
@@ -177,7 +176,9 @@ export function AdminStudentProfileView({
                   ) : null}
                   <span className="inline-flex items-center gap-1.5">
                     <Clock className="size-3.5 shrink-0" aria-hidden />
-                    Joined {formatJoined(user.createdAt)}
+                    {t("admin.studentProfile.joined", {
+                      date: user.createdAt ? formatDate(user.createdAt) : "—",
+                    })}
                   </span>
                 </div>
               </div>
@@ -208,7 +209,7 @@ export function AdminStudentProfileView({
       </div>
 
       <div className="flex flex-wrap gap-2 border-b border-portal pb-2">
-        {TABS.map((item) => (
+        {tabs.map((item) => (
           <button
             key={item.id}
             type="button"
@@ -229,22 +230,33 @@ export function AdminStudentProfileView({
         <div className="grid grid-cols-1 gap-5 lg:grid-cols-2">
           <section className="rounded-2xl border border-portal bg-portal-surface p-5">
             <h2 className="font-display text-lg font-semibold text-primary-dark">
-              Account identity
+              {t("admin.studentProfile.accountIdentity")}
             </h2>
             <dl className="mt-3 grid grid-cols-1 gap-2 text-sm sm:grid-cols-2">
               {[
-                ["Name", user.name],
-                ["Student ID", user.studentId || "—"],
-                ["Email", user.email],
-                ["Gender", user.gender || "—"],
-                ["Country", user.country ? formatCountryWithFlag(user.country) : "—"],
-                ["WhatsApp", user.whatsapp || "—"],
-                ["Timezone", user.timezone || "Asia/Dhaka"],
-                ["Auth", user.authProvider || "local"],
-                ["Email verified", user.emailVerified ? "Yes" : "No"],
-                ["Status", user.isActive !== false ? "Active" : "Inactive"],
-                ["Joined", formatJoined(user.createdAt)],
-                ["On platform", `${stats.yearsOnPlatform} yr(s)`],
+                [t("admin.studentProfile.name"), user.name],
+                [t("admin.studentProfile.studentId"), user.studentId || "—"],
+                [t("labels.email"), user.email],
+                [t("labels.gender"), user.gender ? dynamicLabel(user.gender) : "—"],
+                [t("labels.country"), user.country ? formatCountryWithFlag(user.country) : "—"],
+                [t("admin.studentProfile.whatsapp"), user.whatsapp || "—"],
+                [t("admin.studentProfile.timezone"), user.timezone || "Asia/Dhaka"],
+                [t("admin.studentProfile.auth"), user.authProvider || "local"],
+                [
+                  t("admin.studentProfile.emailVerified"),
+                  user.emailVerified ? t("labels.yes") : t("labels.no"),
+                ],
+                [
+                  t("tables.status"),
+                  statusLabel(user.isActive !== false ? "active" : "inactive"),
+                ],
+                [t("labels.joined"), user.createdAt ? formatDate(user.createdAt) : "—"],
+                [
+                  t("admin.studentProfile.onPlatform"),
+                  t("admin.studentProfile.yearsOnPlatform", {
+                    count: formatNumber(stats.yearsOnPlatform),
+                  }),
+                ],
               ].map(([label, value]) => (
                 <div key={label} className="rounded-xl bg-portal-muted/20 px-3 py-2">
                   <dt className="text-[11px] font-medium uppercase tracking-wide text-portal-muted">
@@ -258,7 +270,7 @@ export function AdminStudentProfileView({
 
           <section className="rounded-2xl border border-portal bg-portal-surface p-5">
             <h2 className="font-display text-lg font-semibold text-primary-dark">
-              Curriculum assignments
+              {t("admin.studentProfile.curriculumAssignments")}
             </h2>
             {(user.curriculumAssignments?.length ?? 0) > 0 ? (
               <div className="mt-3 flex flex-wrap gap-2">
@@ -275,31 +287,31 @@ export function AdminStudentProfileView({
                 ))}
               </div>
             ) : (
-              <p className="mt-3 text-sm text-portal-muted">No curriculum assigned yet.</p>
+              <p className="mt-3 text-sm text-portal-muted">{t("admin.studentProfile.noCurriculum")}</p>
             )}
 
             <h3 className="mb-2 mt-6 text-sm font-semibold text-primary-dark">
-              Attendance snapshot
+              {t("admin.studentProfile.attendanceSnapshot")}
             </h3>
             <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
               <div className="rounded-xl bg-primary-light/40 p-3">
-                <p className="text-xs text-portal-muted">Present</p>
+                <p className="text-xs text-portal-muted">{statusLabel("present")}</p>
                 <p className="text-lg font-bold text-primary-dark">
-                  {stats.attendancePresent}
+                  {formatNumber(stats.attendancePresent)}
                 </p>
               </div>
               <div className="rounded-xl bg-amber-50 p-3">
-                <p className="text-xs text-portal-muted">Late</p>
-                <p className="text-lg font-bold text-amber-700">{stats.attendanceLate}</p>
+                <p className="text-xs text-portal-muted">{statusLabel("late")}</p>
+                <p className="text-lg font-bold text-amber-700">{formatNumber(stats.attendanceLate)}</p>
               </div>
               <div className="rounded-xl bg-red-50 p-3">
-                <p className="text-xs text-portal-muted">Absent</p>
-                <p className="text-lg font-bold text-red-600">{stats.attendanceAbsent}</p>
+                <p className="text-xs text-portal-muted">{statusLabel("absent")}</p>
+                <p className="text-lg font-bold text-red-600">{formatNumber(stats.attendanceAbsent)}</p>
               </div>
               <div className="rounded-xl bg-portal-muted/30 p-3">
-                <p className="text-xs text-portal-muted">Total</p>
+                <p className="text-xs text-portal-muted">{t("admin.studentProfile.total")}</p>
                 <p className="text-lg font-bold text-portal-heading">
-                  {stats.attendanceTotal}
+                  {formatNumber(stats.attendanceTotal)}
                 </p>
               </div>
             </div>
@@ -313,7 +325,7 @@ export function AdminStudentProfileView({
                   className="inline-flex items-center gap-2 rounded-xl bg-primary px-4 py-2.5 text-sm font-semibold text-white hover:bg-primary-dark"
                 >
                   <MessageCircle className="size-4" aria-hidden />
-                  Message Student
+                  {t("admin.studentProfile.messageStudent")}
                 </a>
               ) : null}
               {onDeactivate && user.isActive !== false ? (
@@ -322,7 +334,7 @@ export function AdminStudentProfileView({
                   onClick={onDeactivate}
                   className="inline-flex items-center gap-2 rounded-xl border border-red-200 bg-red-50 px-4 py-2.5 text-sm font-semibold text-red-600 hover:bg-red-100"
                 >
-                  Deactivate Account
+                  {t("admin.studentProfile.deactivateAccount")}
                 </button>
               ) : null}
             </div>
@@ -333,10 +345,10 @@ export function AdminStudentProfileView({
       {tab === "classes" ? (
         <section className="rounded-2xl border border-portal bg-portal-surface p-5">
           <h2 className="font-display text-lg font-semibold text-primary-dark">
-            Enrolled Classes ({classes.length})
+            {t("admin.studentProfile.enrolledClasses", { count: formatNumber(classes.length) })}
           </h2>
           {classes.length === 0 ? (
-            <p className="mt-3 text-sm text-portal-muted">Not enrolled in any class.</p>
+            <p className="mt-3 text-sm text-portal-muted">{t("admin.studentProfile.notEnrolled")}</p>
           ) : (
             <ul className="mt-4 space-y-3">
               {classes.map((cls) => (
@@ -353,7 +365,7 @@ export function AdminStudentProfileView({
                         {cls.title}
                       </Link>
                       <p className="mt-1 text-xs text-portal-muted">
-                        Teacher:{" "}
+                        {t("admin.studentProfile.teacherLabel")}{" "}
                         {cls.teacher ? (
                           <Link
                             to={`/admin/users/${cls.teacher._id}`}
@@ -383,7 +395,7 @@ export function AdminStudentProfileView({
                           : "bg-red-50 text-red-600"
                       )}
                     >
-                      {cls.isActive ? "Active" : "Off"}
+                      {statusLabel(cls.isActive ? "active" : "inactive")}
                     </span>
                   </div>
                 </li>
@@ -398,17 +410,17 @@ export function AdminStudentProfileView({
           <section className="rounded-2xl border border-portal bg-portal-surface p-5">
             <div className="mb-3 flex items-center justify-between">
               <h2 className="font-display text-lg font-semibold text-primary-dark">
-                Attendance
+                {t("admin.studentProfile.attendanceSection")}
               </h2>
               <Link
                 to="/admin/attendance"
                 className="text-xs font-semibold text-primary hover:underline"
               >
-                Open →
+                {t("admin.studentProfile.openLink")}
               </Link>
             </div>
             {recentAttendance.length === 0 ? (
-              <p className="text-sm text-portal-muted">No attendance records.</p>
+              <p className="text-sm text-portal-muted">{t("admin.studentProfile.noAttendanceRecords")}</p>
             ) : (
               <ul className="space-y-2">
                 {recentAttendance.map((a) => (
@@ -418,10 +430,10 @@ export function AdminStudentProfileView({
                   >
                     <div>
                       <p className="font-medium text-portal-heading">{a.classTitle}</p>
-                      <p className="text-xs text-portal-muted">{formatJoined(a.date)}</p>
+                      <p className="text-xs text-portal-muted">{formatDate(a.date)}</p>
                     </div>
                     <span className="text-xs font-bold uppercase text-portal-muted">
-                      {a.status}
+                      {statusLabel(a.status)}
                     </span>
                   </li>
                 ))}
@@ -432,26 +444,29 @@ export function AdminStudentProfileView({
           <section className="rounded-2xl border border-portal bg-portal-surface p-5">
             <div className="mb-3 flex items-center justify-between">
               <h2 className="font-display text-lg font-semibold text-primary-dark">
-                Progress
+                {t("admin.studentProfile.progress")}
               </h2>
               <Link
                 to="/admin/progress"
                 className="text-xs font-semibold text-primary hover:underline"
               >
-                Open →
+                {t("admin.studentProfile.openLink")}
               </Link>
             </div>
             {progress.length === 0 ? (
-              <p className="text-sm text-portal-muted">No progress records.</p>
+              <p className="text-sm text-portal-muted">{t("admin.studentProfile.noProgressRecords")}</p>
             ) : (
               <ul className="space-y-2.5">
                 {progress.map((p) => (
                   <li key={p._id} className="rounded-xl border border-portal px-3 py-2.5">
                     <p className="text-sm font-semibold text-portal-heading">
-                      {p.classTitle || p.curriculumProgram || "Progress"}
+                      {p.classTitle || p.curriculumProgram || t("admin.studentProfile.progress")}
                     </p>
                     <p className="mt-1 text-xs text-portal-muted">
-                      Tajweed {p.tajweedScore ?? "—"} · Ayahs {p.memorizedAyahs}
+                      {t("admin.studentProfile.tajweedAyahs", {
+                        score: p.tajweedScore != null ? formatNumber(p.tajweedScore) : "—",
+                        ayahs: formatNumber(p.memorizedAyahs),
+                      })}
                       {p.surahs.length ? ` · ${p.surahs.join(", ")}` : ""}
                     </p>
                   </li>
@@ -463,17 +478,17 @@ export function AdminStudentProfileView({
           <section className="rounded-2xl border border-portal bg-portal-surface p-5">
             <div className="mb-3 flex items-center justify-between">
               <h2 className="font-display text-lg font-semibold text-primary-dark">
-                Homework
+                {t("admin.studentProfile.homework")}
               </h2>
               <Link
                 to="/admin/homework"
                 className="text-xs font-semibold text-primary hover:underline"
               >
-                Open →
+                {t("admin.studentProfile.openLink")}
               </Link>
             </div>
             {homework.length === 0 ? (
-              <p className="text-sm text-portal-muted">No homework yet.</p>
+              <p className="text-sm text-portal-muted">{t("admin.studentProfile.noHomework")}</p>
             ) : (
               <ul className="space-y-2.5">
                 {homework.map((hw) => (
@@ -488,12 +503,12 @@ export function AdminStudentProfileView({
                             : "bg-amber-50 text-amber-700"
                         )}
                       >
-                        {hw.submitted ? "Done" : "Pending"}
+                        {statusLabel(hw.submitted ? "submitted" : "pending")}
                       </span>
                     </div>
                     <p className="mt-1 text-xs text-portal-muted">
-                      {hw.classTitle} · {hw.teacherName} · Due {formatJoined(hw.dueDate)}
-                      {hw.grade ? ` · Grade ${hw.grade}` : ""}
+                      {hw.classTitle} · {hw.teacherName} · {t("admin.studentProfile.due", { date: formatDate(hw.dueDate) })}
+                      {hw.grade ? ` · ${t("admin.studentProfile.grade", { grade: hw.grade })}` : ""}
                     </p>
                   </li>
                 ))}
@@ -508,46 +523,46 @@ export function AdminStudentProfileView({
           <section className="rounded-2xl border border-portal bg-portal-surface p-5">
             <div className="mb-3 flex items-center justify-between">
               <h2 className="font-display text-lg font-semibold text-primary-dark">
-                Billing & Payments
+                {t("admin.studentProfile.billingPayments")}
               </h2>
               <Link
                 to="/admin/payments"
                 className="text-xs font-semibold text-primary hover:underline"
               >
-                Open →
+                {t("admin.studentProfile.openLink")}
               </Link>
             </div>
             {billing ? (
               <div className="mb-4 grid grid-cols-2 gap-2 text-sm">
                 <div className="rounded-xl bg-portal-muted/20 px-3 py-2">
-                  <p className="text-xs text-portal-muted">Monthly fee</p>
+                  <p className="text-xs text-portal-muted">{t("admin.studentProfile.monthlyFee")}</p>
                   <p className="font-semibold text-portal-heading">
                     {formatMoney(billing.monthlyFee, billing.currency)}
                   </p>
                 </div>
                 <div className="rounded-xl bg-portal-muted/20 px-3 py-2">
-                  <p className="text-xs text-portal-muted">Due day</p>
-                  <p className="font-semibold text-portal-heading">{billing.dueDay}</p>
+                  <p className="text-xs text-portal-muted">{t("admin.studentProfile.dueDay")}</p>
+                  <p className="font-semibold text-portal-heading">{formatNumber(billing.dueDay)}</p>
                 </div>
                 <div className="rounded-xl bg-portal-muted/20 px-3 py-2">
-                  <p className="text-xs text-portal-muted">Paid until</p>
+                  <p className="text-xs text-portal-muted">{t("admin.studentProfile.paidUntil")}</p>
                   <p className="font-semibold text-portal-heading">
-                    {formatJoined(billing.paidUntil)}
+                    {billing.paidUntil ? formatDate(billing.paidUntil) : "—"}
                   </p>
                 </div>
                 <div className="rounded-xl bg-portal-muted/20 px-3 py-2">
-                  <p className="text-xs text-portal-muted">Billing status</p>
+                  <p className="text-xs text-portal-muted">{t("admin.studentProfile.billingStatus")}</p>
                   <p className="font-semibold text-portal-heading">
-                    {billing.isActive ? "Active" : "Inactive"}
+                    {statusLabel(billing.isActive ? "active" : "inactive")}
                   </p>
                 </div>
               </div>
             ) : (
-              <p className="mb-4 text-sm text-portal-muted">No billing setup yet.</p>
+              <p className="mb-4 text-sm text-portal-muted">{t("admin.studentProfile.noBillingSetup")}</p>
             )}
 
             {recentPayments.length === 0 ? (
-              <p className="text-sm text-portal-muted">No payments recorded.</p>
+              <p className="text-sm text-portal-muted">{t("admin.studentProfile.noPayments")}</p>
             ) : (
               <ul className="space-y-2">
                 {recentPayments.map((p) => (
@@ -560,12 +575,12 @@ export function AdminStudentProfileView({
                         {formatMoney(p.amount, p.currency)}
                       </p>
                       <p className="text-xs text-portal-muted">
-                        {formatJoined(p.createdAt)}
-                        {p.method ? ` · ${p.method}` : ""}
+                        {p.createdAt ? formatDate(p.createdAt) : "—"}
+                        {p.method ? ` · ${paymentMethod(p.method)}` : ""}
                       </p>
                     </div>
                     <span className="text-xs font-bold uppercase text-portal-muted">
-                      {p.status}
+                      {statusLabel(p.status)}
                     </span>
                   </li>
                 ))}
@@ -576,17 +591,17 @@ export function AdminStudentProfileView({
           <section className="rounded-2xl border border-portal bg-portal-surface p-5">
             <div className="mb-3 flex items-center justify-between">
               <h2 className="font-display text-lg font-semibold text-primary-dark">
-                Certificates
+                {t("admin.studentProfile.certificates")}
               </h2>
               <Link
                 to="/admin/certificates"
                 className="text-xs font-semibold text-primary hover:underline"
               >
-                Open →
+                {t("admin.studentProfile.openLink")}
               </Link>
             </div>
             {certificates.length === 0 ? (
-              <p className="text-sm text-portal-muted">No certificates issued yet.</p>
+              <p className="text-sm text-portal-muted">{t("admin.studentProfile.noCertificates")}</p>
             ) : (
               <ul className="space-y-2.5">
                 {certificates.map((c) => (
@@ -595,14 +610,16 @@ export function AdminStudentProfileView({
                       {c.courseName}
                     </p>
                     <p className="mt-1 text-xs text-portal-muted">
-                      {c.certificateId} · Grade {c.grade} · Issued{" "}
-                      {formatJoined(c.issueDate)}
+                      {c.certificateId} · {t("admin.studentProfile.grade", { grade: c.grade })} ·{" "}
+                      {t("admin.studentProfile.issued", {
+                        date: c.issueDate ? formatDate(c.issueDate) : "—",
+                      })}
                     </p>
                     <Link
                       to={`/admin/certificates/${c._id}`}
                       className="mt-2 inline-flex text-xs font-semibold text-primary hover:underline"
                     >
-                      View certificate →
+                      {t("admin.studentProfile.viewCertificate")}
                     </Link>
                   </li>
                 ))}

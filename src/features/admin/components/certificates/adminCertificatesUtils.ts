@@ -7,6 +7,8 @@ export interface ICertificateStats {
   thisMonth: number;
 }
 
+export type PortalTranslate = (key: string, params?: Record<string, string>) => string;
+
 export function computeCertificateStats(
   items: CertificateView[]
 ): ICertificateStats {
@@ -25,7 +27,8 @@ export function computeCertificateStats(
   };
 }
 
-export function pctOfTotal(part: number, total: number): string {
-  if (total <= 0) return "0%";
-  return `${((part / total) * 100).toFixed(1)}% of total`;
+export function pctOfTotal(part: number, total: number, t: PortalTranslate): string {
+  if (total <= 0) return t("stats.zeroOfTotal");
+  const pctValue = Math.round((part / total) * 1000) / 10;
+  return t("stats.ofTotal", { pct: String(pctValue) });
 }

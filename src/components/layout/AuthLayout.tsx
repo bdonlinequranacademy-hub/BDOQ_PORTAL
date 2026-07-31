@@ -1,10 +1,14 @@
 import type { ReactNode } from "react";
 import { AuthBrandingPanel } from "@/components/auth/AuthBrandingPanel";
+import { LanguageToggle } from "@/components/shared/LanguageToggle";
 import { BISMILLAH } from "@/lib/islamicPortal";
 
 export function AuthLayout({ children }: { children: ReactNode }) {
   return (
-    <div className="flex min-h-[100dvh] min-h-[webkit-fill-available]">
+    <div className="relative flex min-h-[100dvh] min-h-[webkit-fill-available]">
+      <div className="absolute right-4 top-[max(1rem,env(safe-area-inset-top))] z-20 sm:right-6">
+        <LanguageToggle variant="light" />
+      </div>
       <AuthBrandingPanel />
 
       <div className="portal-auth-bg flex flex-1 flex-col">

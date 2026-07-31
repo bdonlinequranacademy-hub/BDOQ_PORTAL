@@ -22,13 +22,7 @@ import {
 import type { AdminCourse, AdminCourseCategory } from "@/types/models";
 import { AdminSectionHeaderPanel } from "@/features/admin/components/sectionHeaders/AdminSectionHeaderPanel";
 import { cn } from "@/lib/utils/cn";
-
-const CATEGORY_LABELS: Record<AdminCourseCategory, string> = {
-  private: "Private (1-to-1)",
-  record: "Record Course",
-  live: "Live Course",
-  free: "Free Course",
-};
+import { usePortalTranslation } from "@/i18n/LocaleProvider";
 
 function categoryBadgeClass(category: AdminCourseCategory): string {
   switch (category) {
@@ -60,6 +54,7 @@ function filterCourses(
 }
 
 export function AdminCoursesPage() {
+  const { t } = usePortalTranslation();
   const navigate = useNavigate();
   const [search, setSearch] = useState("");
   const [status, setStatus] = useState<CmsStatusFilter>("all");
@@ -87,8 +82,15 @@ export function AdminCoursesPage() {
     resetDeps: [search, status],
   });
 
+  const categoryLabels: Record<AdminCourseCategory, string> = {
+    private: t("admin.common.categoryPrivate"),
+    record: t("admin.common.categoryRecord"),
+    live: t("admin.common.categoryLive"),
+    free: t("admin.common.categoryFree"),
+  };
+
   function handleDelete(item: AdminCourse) {
-    if (!window.confirm(`Delete course "${item.title}"?`)) return;
+    if (!window.confirm(t("admin.common.confirmDeleteCourse", { name: item.title }))) return;
     deleteCourse.mutate(item.id);
   }
 
@@ -98,11 +100,10 @@ export function AdminCoursesPage() {
       <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
         <div>
           <h1 className="font-display text-2xl font-bold text-primary-dark sm:text-3xl">
-            Courses CMS
+            {t("admin.cms.courses.title")}
           </h1>
           <p className="mt-1.5 max-w-2xl text-sm text-portal-muted">
-            Manage public website courses — listings, detail pages, and pricing
-            hints shown on bdonlinequranacademy.com/courses.
+            {t("admin.cms.courses.subtitle")}
           </p>
         </div>
         <Button
@@ -111,16 +112,16 @@ export function AdminCoursesPage() {
           className="hidden shrink-0 items-center gap-2 rounded-xl bg-primary px-5 py-2.5 text-white hover:bg-primary-dark sm:inline-flex"
         >
           <Plus className="size-4" aria-hidden />
-          New Course
+          {t("admin.common.newCourse")}
         </Button>
       </div>
 
       {!isLoading && courses.length > 0 ? (
         <div className="mt-6 grid grid-cols-3 gap-3 sm:gap-4">
           {[
-            { label: "Total courses", value: stats.total },
-            { label: "Published", value: stats.published },
-            { label: "Draft", value: stats.draft },
+            { label: t("admin.common.statTotal"), value: stats.total },
+            { label: t("admin.common.statPublished"), value: stats.published },
+            { label: t("admin.common.statDraft"), value: stats.draft },
           ].map((stat) => (
             <Card
               key={stat.label}
@@ -136,23 +137,23 @@ export function AdminCoursesPage() {
       ) : null}
 
       {isLoading ? (
-        <PageLoading label="Loading courses…" />
+        <PageLoading label={t("admin.common.loadingCourses")} />
       ) : courses.length === 0 ? (
         <EmptyState
           icon={BookOpen}
-          title="No courses yet"
-          description="Add courses to populate the public /courses page and individual course detail pages."
-          actionLabel="New Course"
+          title={t("admin.common.noCourses")}
+          description={t("admin.common.noCoursesDesc")}
+          actionLabel={t("admin.common.newCourse")}
           onAction={() => navigate("/admin/courses/new")}
         />
       ) : (
         <div className="mt-6 flex flex-col gap-5">
           <AdminCmsListToolbar
-            title="Website Courses"
-            subtitle="Courses shown on the public website"
+            title={t("admin.common.websiteCourses")}
+            subtitle={t("admin.common.websiteCoursesDesc")}
             search={search}
             status={status}
-            newLabel="New Course"
+            newLabel={t("admin.common.newCourse")}
             searchPlaceholder="Search by title or slug…"
             onSearchChange={setSearch}
             onStatusChange={setStatus}
@@ -162,10 +163,10 @@ export function AdminCoursesPage() {
           {visible.length === 0 ? (
             <Card className="rounded-2xl border border-portal p-8 text-center shadow-sm">
               <p className="font-semibold text-portal-heading">
-                No courses match filters
+                {t("admin.common.noMatchFilters")}
               </p>
               <p className="mt-1 text-sm text-portal-muted">
-                Try clearing search or status filters.
+                {t("admin.common.clearFiltersHint")}
               </p>
             </Card>
           ) : (
@@ -216,7 +217,7 @@ export function AdminCoursesPage() {
                               categoryBadgeClass(item.category)
                             )}
                           >
-                            {CATEGORY_LABELS[item.category]}
+                            {categoryLabels[item.category]}
                           </span>
                         </td>
                         <td className="px-5 py-4 text-sm text-portal-muted">
@@ -241,7 +242,7 @@ export function AdminCoursesPage() {
                               className="inline-flex items-center gap-1.5 rounded-lg border border-portal px-3 py-1.5 text-xs font-semibold text-primary transition hover:bg-primary/5"
                             >
                               <Pencil className="size-3.5" aria-hidden />
-                              Edit
+                              {t("admin.common.edit")}
                             </button>
                             <button
                               type="button"
@@ -249,7 +250,7 @@ export function AdminCoursesPage() {
                               className="inline-flex items-center gap-1.5 rounded-lg border border-red-200 px-3 py-1.5 text-xs font-semibold text-red-600 transition hover:bg-red-50"
                             >
                               <Trash2 className="size-3.5" aria-hidden />
-                              Delete
+                              {t("admin.common.delete")}
                             </button>
                           </div>
                         </td>
@@ -265,7 +266,7 @@ export function AdminCoursesPage() {
 
           {isFetching ? (
             <p className="text-center text-xs text-portal-muted">
-              Refreshing courses…
+              {t("admin.common.loadingCourses")}
             </p>
           ) : (
             <button
@@ -273,7 +274,7 @@ export function AdminCoursesPage() {
               onClick={() => void refetch()}
               className="text-center text-xs font-semibold text-primary hover:underline"
             >
-              Refresh data
+              {t("admin.common.refreshData")}
             </button>
           )}
         </div>

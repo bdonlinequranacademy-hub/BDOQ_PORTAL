@@ -1,6 +1,7 @@
 import { ArrowLeft, BookOpen, Pencil, Video } from "lucide-react";
 import { Link } from "react-router-dom";
 import { ClassScheduleChip } from "@/components/classes/ClassScheduleChip";
+import { usePortalTranslation } from "@/i18n/LocaleProvider";
 import type { AdminClass } from "@/types/models";
 import { classTitle, teacherName } from "@/lib/utils/class";
 import { normalizeMeetingLink } from "@/lib/utils/meetingLink";
@@ -13,8 +14,10 @@ interface IAdminClassDetailHeroProps {
 }
 
 export function AdminClassDetailHero({ cls, classId, onBack }: IAdminClassDetailHeroProps) {
+  const { t, statusLabel } = usePortalTranslation();
   const meetingLink = normalizeMeetingLink(cls.meetingLink);
   const teacher = typeof cls.teacher === "object" ? cls.teacher : undefined;
+  const isActive = cls.isActive !== false;
 
   return (
     <div className="overflow-hidden rounded-2xl border border-primary/20 bg-gradient-to-br from-primary-dark via-primary to-teal shadow-[0_12px_32px_-16px_rgba(13,74,47,0.45)]">
@@ -26,14 +29,14 @@ export function AdminClassDetailHero({ cls, classId, onBack }: IAdminClassDetail
             className="inline-flex items-center gap-2 rounded-full bg-white/15 px-3 py-1.5 text-sm font-semibold text-white transition hover:bg-white/25"
           >
             <ArrowLeft className="size-4" aria-hidden />
-            Back to Classes
+            {t("admin.classDetail.backToClasses")}
           </button>
           <Link
             to={`/admin/classes/${classId}/edit`}
             className="inline-flex items-center gap-2 rounded-xl bg-white px-4 py-2 text-sm font-semibold text-primary-dark transition hover:bg-white/90"
           >
             <Pencil className="size-4" aria-hidden />
-            Edit Class
+            {t("admin.classDetail.editClass")}
           </Link>
         </div>
 
@@ -45,12 +48,12 @@ export function AdminClassDetailHero({ cls, classId, onBack }: IAdminClassDetail
             <span
               className={cn(
                 "rounded-full px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wide",
-                cls.isActive === false
-                  ? "bg-amber-400/90 text-amber-950"
-                  : "bg-white/20 text-white"
+                isActive
+                  ? "bg-white/20 text-white"
+                  : "bg-amber-400/90 text-amber-950"
               )}
             >
-              {cls.isActive === false ? "Inactive" : "Active"}
+              {statusLabel(isActive ? "active" : "inactive")}
             </span>
           </div>
 
@@ -63,7 +66,7 @@ export function AdminClassDetailHero({ cls, classId, onBack }: IAdminClassDetail
           <div className="flex flex-wrap items-center gap-3 text-sm text-white/85">
             {teacher ? (
               <span>
-                <span className="text-white/60">Teacher · </span>
+                <span className="text-white/60">{t("admin.classDetail.teacherPrefix")}</span>
                 {teacherName(teacher)}
               </span>
             ) : null}
@@ -78,7 +81,7 @@ export function AdminClassDetailHero({ cls, classId, onBack }: IAdminClassDetail
               className="inline-flex w-fit items-center gap-2 rounded-xl bg-white/15 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-white/25"
             >
               <Video className="size-4" aria-hidden />
-              Open meeting link
+              {t("admin.classDetail.openMeetingLink")}
             </a>
           ) : null}
         </div>

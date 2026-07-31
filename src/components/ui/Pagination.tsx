@@ -1,4 +1,5 @@
 import { ChevronLeft, ChevronRight } from "lucide-react";
+import { usePortalTranslation } from "@/i18n/LocaleProvider";
 import { cn } from "@/lib/utils/cn";
 import {
   PAGE_SIZE_OPTIONS,
@@ -9,6 +10,7 @@ import {
 interface IPaginationProps<T> {
   pagination: IPaginatedListResult<T>;
   className?: string;
+  /** Translation key suffix under pagination.items.* or raw label */
   itemLabel?: string;
 }
 
@@ -29,6 +31,7 @@ export function Pagination<T>({
   className,
   itemLabel = "items",
 }: IPaginationProps<T>) {
+  const { t } = usePortalTranslation();
   const {
     page,
     setPage,
@@ -49,6 +52,10 @@ export function Pagination<T>({
   }
 
   const pages = pageNumbers(page, totalPages);
+  const label =
+    t(`pagination.${itemLabel}`) !== `pagination.${itemLabel}`
+      ? t(`pagination.${itemLabel}`)
+      : itemLabel;
 
   return (
     <div
@@ -57,29 +64,29 @@ export function Pagination<T>({
         className
       )}
       role="navigation"
-      aria-label="Pagination"
+      aria-label={t("pagination.navLabel")}
     >
       <p className="text-sm text-portal-muted">
-        Showing{" "}
+        {t("pagination.showing")}{" "}
         <span className="font-medium text-portal-heading">
           {rangeStart}–{rangeEnd}
         </span>{" "}
-        of{" "}
-        <span className="font-medium text-portal-heading">{totalItems}</span> {itemLabel}
+        {t("pagination.of")}{" "}
+        <span className="font-medium text-portal-heading">{totalItems}</span> {label}
       </p>
 
       <div className="flex flex-wrap items-center gap-2 sm:justify-end">
         <label className="flex items-center gap-2 text-sm text-portal-muted">
-          <span className="sr-only">Rows per page</span>
+          <span className="sr-only">{t("pagination.rowsPerPage")}</span>
           <select
             value={pageSize}
             onChange={(event) => setPageSize(Number(event.target.value) as PageSizeOption)}
             className="min-h-11 rounded-lg border border-portal bg-portal-surface px-3 text-base text-portal-heading outline-none focus-visible:ring-2 focus-visible:ring-primary/25 sm:min-h-9 sm:px-2.5 sm:text-sm"
-            aria-label="Rows per page"
+            aria-label={t("pagination.rowsPerPage")}
           >
             {PAGE_SIZE_OPTIONS.map((size) => (
               <option key={size} value={size}>
-                {size} / page
+                {t("pagination.perPage", { size: String(size) })}
               </option>
             ))}
           </select>
@@ -91,7 +98,7 @@ export function Pagination<T>({
             onClick={goToPrevPage}
             disabled={!hasPrevPage}
             className="inline-flex min-h-11 min-w-11 items-center justify-center rounded-lg border border-portal text-portal-heading transition hover:bg-portal-muted active:scale-95 disabled:cursor-not-allowed disabled:opacity-40 sm:min-h-9 sm:min-w-9"
-            aria-label="Previous page"
+            aria-label={t("pagination.prevPage")}
           >
             <ChevronLeft className="size-4" aria-hidden />
           </button>
@@ -129,7 +136,7 @@ export function Pagination<T>({
             onClick={goToNextPage}
             disabled={!hasNextPage}
             className="inline-flex min-h-11 min-w-11 items-center justify-center rounded-lg border border-portal text-portal-heading transition hover:bg-portal-muted active:scale-95 disabled:cursor-not-allowed disabled:opacity-40 sm:min-h-9 sm:min-w-9"
-            aria-label="Next page"
+            aria-label={t("pagination.nextPage")}
           >
             <ChevronRight className="size-4" aria-hidden />
           </button>

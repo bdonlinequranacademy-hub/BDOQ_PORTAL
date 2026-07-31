@@ -17,6 +17,7 @@ import type {
   AdminSectionHeader,
   ISectionHeaderLocaleContent,
 } from "@/types/models";
+import { usePortalTranslation } from "@/i18n/LocaleProvider";
 
 const FIELD_LABELS: Record<SectionHeaderField, string> = {
   eyebrow: "Badge / Eyebrow",
@@ -38,6 +39,8 @@ export function AdminSectionHeaderPanel({
   sectionKey,
   defaultOpen = false,
 }: IAdminSectionHeaderPanelProps) {
+  const { t } = usePortalTranslation();
+
   const config = getSectionHeaderConfig(sectionKey);
   const { data: headers = [] } = useAdminSectionHeaders();
   const upsert = useUpsertSectionHeader();
@@ -151,9 +154,7 @@ export function AdminSectionHeaderPanel({
                     prev ? { ...prev, showOnWebsite: e.target.checked } : prev
                   )
                 }
-              />
-              Published
-            </label>
+              />{t("admin.common.statPublished")}</label>
           </div>
 
           {config.fields.map((field) => (

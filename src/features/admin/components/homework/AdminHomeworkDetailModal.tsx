@@ -4,14 +4,14 @@ import { MissingCurriculumBadge } from "@/components/curriculum/CurriculumProgra
 import type { AdminHomeworkItem } from "@/types/models";
 import { HomeworkGradingStatusBadge } from "@/features/admin/components/homework/HomeworkGradingStatusBadge";
 import {
-  formatCreatedAt,
-  formatDueDateDetailed,
   getHomeworkClassTitle,
   getHomeworkGradingStatus,
   getHomeworkProgramLabel,
   getHomeworkTeacherName,
   getSubmissionRate,
 } from "@/features/admin/components/homework/adminHomeworkUtils";
+import { formatHomeworkDueLabel } from "@/lib/homeworkDue";
+import { usePortalTranslation } from "@/i18n/LocaleProvider";
 
 interface IAdminHomeworkDetailModalProps {
   item: AdminHomeworkItem | null;
@@ -26,20 +26,21 @@ export function AdminHomeworkDetailModal({
   onClose,
   onDelete,
 }: IAdminHomeworkDetailModalProps) {
+  const { t, formatDate, formatDateTime, formatNumber } = usePortalTranslation();
+
   if (!item) return null;
 
-  const due = formatDueDateDetailed(item.dueDate);
-  const created = formatCreatedAt(item.createdAt);
   const status = getHomeworkGradingStatus(item);
   const total = item.totalStudents ?? 0;
   const hasProgram = Boolean(item.curriculumLabels?.program);
+  const submissionRate = getSubmissionRate(item);
 
   return (
     <div className="fixed inset-0 z-[100] flex items-end justify-center p-0 sm:items-center sm:p-4">
       <button
         type="button"
         className="absolute inset-0 bg-[#0A1628]/55 backdrop-blur-[2px]"
-        aria-label="Close homework details"
+        aria-label={t("admin.homework.closeDetails")}
         onClick={onClose}
       />
       <div
@@ -51,7 +52,7 @@ export function AdminHomeworkDetailModal({
         <div className="flex items-start justify-between gap-4 border-b border-portal px-5 py-4 sm:px-6">
           <div className="min-w-0">
             <p className="text-xs font-semibold uppercase tracking-wide text-portal-muted">
-              Assignment details
+              {t("admin.homework.detailAssignmentDetails")}
             </p>
             <h2 id="homework-detail-title" className="mt-1 text-xl font-bold text-portal-heading">
               {item.title}
@@ -64,7 +65,7 @@ export function AdminHomeworkDetailModal({
             type="button"
             onClick={onClose}
             className="inline-flex size-9 shrink-0 items-center justify-center rounded-xl border border-portal text-portal-muted transition hover:text-portal-heading"
-            aria-label="Close"
+            aria-label={t("common.cancel")}
           >
             <X className="size-4" aria-hidden />
           </button>
@@ -79,7 +80,7 @@ export function AdminHomeworkDetailModal({
 
           <dl className="grid gap-4 sm:grid-cols-2">
             <div>
-              <dt className="text-xs text-portal-muted">Program</dt>
+              <dt className="text-xs text-portal-muted">{t("admin.homework.program")}</dt>
               <dd className="mt-0.5 text-sm font-medium text-portal-heading">
                 {hasProgram ? (
                   <span className="text-gold">{getHomeworkProgramLabel(item)}</span>
@@ -89,43 +90,55 @@ export function AdminHomeworkDetailModal({
               </dd>
             </div>
             <div>
-              <dt className="text-xs text-portal-muted">Class</dt>
+              <dt className="text-xs text-portal-muted">{t("admin.homework.class")}</dt>
               <dd className="mt-0.5 text-sm font-medium text-portal-heading">
                 {getHomeworkClassTitle(item)}
               </dd>
             </div>
             <div>
-              <dt className="text-xs text-portal-muted">Teacher</dt>
+              <dt className="text-xs text-portal-muted">{t("admin.homework.teacher")}</dt>
               <dd className="mt-0.5 text-sm font-medium text-portal-heading">
                 {getHomeworkTeacherName(item)}
               </dd>
             </div>
             <div>
-              <dt className="text-xs text-portal-muted">Due date</dt>
+              <dt className="text-xs text-portal-muted">{t("admin.homework.dueDate")}</dt>
               <dd className="mt-0.5 text-sm font-medium text-portal-heading">
-                {due.date} · {due.day}
+                {formatDate(item.dueDate)}
               </dd>
-              <dd className="text-xs text-portal-muted">{due.relative}</dd>
+              <dd className="text-xs text-portal-muted">
+                {formatHomeworkDueLabel(item.dueDate, undefined, { t, formatDate })}
+              </dd>
             </div>
             <div>
-              <dt className="text-xs text-portal-muted">Submissions</dt>
+              <dt className="text-xs text-portal-muted">{t("admin.homework.submissions")}</dt>
               <dd className="mt-0.5 text-sm font-medium text-portal-heading">
-                {item.submissionCount}/{total > 0 ? total : "—"} submitted
+                {t("admin.homework.submittedCount", {
+                  submitted: formatNumber(item.submissionCount),
+                  total: total > 0 ? formatNumber(total) : "—",
+                })}
               </dd>
               {total > 0 ? (
-                <dd className="text-xs text-primary">{getSubmissionRate(item)}% rate</dd>
+                <dd className="text-xs text-primary">
+                  {t("admin.homework.submissionRate", {
+                    rate: formatNumber(submissionRate),
+                  })}
+                </dd>
               ) : null}
             </div>
             <div>
-              <dt className="text-xs text-portal-muted">Grading</dt>
+              <dt className="text-xs text-portal-muted">{t("admin.homework.grading")}</dt>
               <dd className="mt-0.5 text-sm font-medium text-portal-heading">
-                {item.gradedCount ?? 0} graded · {item.pendingGradeCount ?? 0} pending
+                {t("admin.homework.gradedPending", {
+                  graded: formatNumber(item.gradedCount ?? 0),
+                  pending: formatNumber(item.pendingGradeCount ?? 0),
+                })}
               </dd>
             </div>
             <div>
-              <dt className="text-xs text-portal-muted">Created</dt>
+              <dt className="text-xs text-portal-muted">{t("admin.homework.created")}</dt>
               <dd className="mt-0.5 text-sm font-medium text-portal-heading">
-                {created.date} · {created.time}
+                {formatDateTime(item.createdAt)}
               </dd>
             </div>
           </dl>
@@ -133,7 +146,7 @@ export function AdminHomeworkDetailModal({
 
         <div className="flex flex-col-reverse gap-2 border-t border-portal px-5 py-4 sm:flex-row sm:justify-end sm:px-6">
           <Button type="button" variant="ghost" onClick={onClose} className="rounded-xl">
-            Close
+            {t("common.cancel")}
           </Button>
           <Button
             type="button"
@@ -143,7 +156,7 @@ export function AdminHomeworkDetailModal({
             className="inline-flex items-center gap-2 rounded-xl border border-red-200 text-red-600 hover:bg-red-50"
           >
             <Trash2 className="size-4" aria-hidden />
-            Delete assignment
+            {t("admin.homework.deleteAssignment")}
           </Button>
         </div>
       </div>

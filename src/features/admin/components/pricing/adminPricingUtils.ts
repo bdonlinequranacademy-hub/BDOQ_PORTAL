@@ -1,4 +1,7 @@
 import type { AdminPricingPackage } from "@/types/models";
+import type { LocaleType } from "@/i18n/types";
+import { getStoredLocale } from "@/i18n/locale";
+import { formatLocaleBdt, formatLocaleUsd } from "@/i18n/format";
 
 export type PricingStatusFilter = "all" | "published" | "draft" | "popular";
 export type PricingSort = "newest" | "oldest" | "price-asc" | "price-desc" | "name" | "sort-order";
@@ -20,9 +23,12 @@ export interface IPricingStatusSlice {
   color: string;
 }
 
-export function pctOfTotal(part: number, total: number): string {
-  if (total <= 0) return "0%";
-  return `${Math.round((part / total) * 100)}% of total`;
+export type PortalTranslate = (key: string, params?: Record<string, string>) => string;
+
+export function pctOfTotal(part: number, total: number, t: PortalTranslate): string {
+  if (total <= 0) return t("stats.zeroOfTotal");
+  const pctValue = Math.round((part / total) * 1000) / 10;
+  return t("stats.ofTotal", { pct: String(pctValue) });
 }
 
 export function computePricingStats(
@@ -177,12 +183,12 @@ export function packageIconClass(index: number, popular: boolean): string {
   return PACKAGE_ICON_COLORS[index % PACKAGE_ICON_COLORS.length];
 }
 
-export function formatBdt(amount: number): string {
-  return `৳ ${amount.toLocaleString("en-BD")}`;
+export function formatBdt(amount: number, locale: LocaleType = getStoredLocale() ?? "en"): string {
+  return formatLocaleBdt(locale, amount);
 }
 
-export function formatUsd(amount: number): string {
-  return `$${amount.toLocaleString("en-US")}`;
+export function formatUsd(amount: number, locale: LocaleType = getStoredLocale() ?? "en"): string {
+  return formatLocaleUsd(locale, amount);
 }
 
 export function exportPricingFile(packages: AdminPricingPackage[]): void {

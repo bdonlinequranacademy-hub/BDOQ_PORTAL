@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
 import { Card } from "@/components/ui/Card";
+import { usePortalTranslation } from "@/i18n/LocaleProvider";
 import type { AttendanceOverview, ClassLogView } from "@/types/models";
 import { ClassLogCard } from "@/components/schedule/ClassLogCard";
 import { cn } from "@/lib/utils/cn";
@@ -11,18 +12,20 @@ interface IAdminClassDetailAttendanceTabProps {
 export function AdminClassDetailAttendanceTab({
   overview,
 }: IAdminClassDetailAttendanceTabProps) {
+  const { t, statusLabel, formatNumber } = usePortalTranslation();
+
   if (overview.length === 0) {
     return (
       <Card className="rounded-2xl border border-portal bg-portal-surface p-6 shadow-[0_8px_24px_-16px_rgba(13,74,47,0.18)]">
-        <h2 className="text-sm font-bold text-portal-heading">Attendance Overview</h2>
+        <h2 className="text-sm font-bold text-portal-heading">{t("admin.classDetail.attendanceOverview")}</h2>
         <p className="mt-2 text-sm text-portal-muted">
-          No attendance records for this class yet.
+          {t("admin.classDetail.noAttendanceRecords")}
         </p>
         <Link
           to="/admin/attendance"
           className="mt-4 inline-flex text-sm font-semibold text-primary hover:underline"
         >
-          Open attendance analytics
+          {t("admin.classDetail.openAttendanceAnalytics")}
         </Link>
       </Card>
     );
@@ -40,7 +43,7 @@ export function AdminClassDetailAttendanceTab({
   return (
     <div className="grid grid-cols-1 gap-5 xl:grid-cols-[280px_minmax(0,1fr)]">
       <Card className="rounded-2xl border border-portal bg-portal-surface p-5 shadow-[0_8px_24px_-16px_rgba(13,74,47,0.18)]">
-        <h2 className="text-sm font-bold text-portal-heading">Attendance Overview</h2>
+        <h2 className="text-sm font-bold text-portal-heading">{t("admin.classDetail.attendanceOverview")}</h2>
         <div className="mt-4 flex flex-col items-center gap-4">
           <div
             className="relative size-36 rounded-full"
@@ -50,9 +53,9 @@ export function AdminClassDetailAttendanceTab({
             aria-hidden
           >
             <div className="absolute inset-5 flex flex-col items-center justify-center rounded-full bg-portal-surface text-center">
-              <p className="text-2xl font-bold text-portal-heading">{avgPct}%</p>
+              <p className="text-2xl font-bold text-portal-heading">{formatNumber(avgPct)}%</p>
               <p className="text-[10px] font-semibold uppercase tracking-wide text-portal-muted">
-                Avg
+                {t("admin.classDetail.avg")}
               </p>
             </div>
           </div>
@@ -60,23 +63,23 @@ export function AdminClassDetailAttendanceTab({
             <div className="flex items-center justify-between">
               <span className="flex items-center gap-2 text-portal-heading">
                 <span className="size-2.5 rounded-full bg-primary" />
-                Present
+                {statusLabel("present")}
               </span>
-              <span className="font-semibold">{totalPresent}</span>
+              <span className="font-semibold">{formatNumber(totalPresent)}</span>
             </div>
             <div className="flex items-center justify-between">
               <span className="flex items-center gap-2 text-portal-heading">
                 <span className="size-2.5 rounded-full bg-amber-500" />
-                Absent
+                {statusLabel("absent")}
               </span>
-              <span className="font-semibold">{totalAbsent}</span>
+              <span className="font-semibold">{formatNumber(totalAbsent)}</span>
             </div>
           </div>
         </div>
       </Card>
 
       <Card className="rounded-2xl border border-portal bg-portal-surface p-5 shadow-[0_8px_24px_-16px_rgba(13,74,47,0.18)]">
-        <h2 className="mb-4 text-sm font-bold text-portal-heading">Student Attendance</h2>
+        <h2 className="mb-4 text-sm font-bold text-portal-heading">{t("admin.classDetail.studentAttendance")}</h2>
         <div className="flex flex-col gap-3">
           {overview.map((item) => (
             <div
@@ -87,7 +90,10 @@ export function AdminClassDetailAttendanceTab({
                 <div>
                   <p className="text-sm font-semibold text-portal-heading">{item.class.title}</p>
                   <p className="text-xs text-portal-muted">
-                    {item.present} present · {item.absent} absent
+                    {t("admin.classDetail.presentAbsent", {
+                      present: formatNumber(item.present),
+                      absent: formatNumber(item.absent),
+                    })}
                   </p>
                 </div>
                 <span
@@ -98,7 +104,7 @@ export function AdminClassDetailAttendanceTab({
                       : "bg-amber-100 text-amber-800"
                   )}
                 >
-                  {item.percentage}%
+                  {formatNumber(item.percentage)}%
                 </span>
               </div>
               <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-portal-muted/60">
@@ -120,18 +126,20 @@ interface IAdminClassDetailActivityTabProps {
 }
 
 export function AdminClassDetailActivityTab({ logs }: IAdminClassDetailActivityTabProps) {
+  const { t } = usePortalTranslation();
+
   if (logs.length === 0) {
     return (
       <Card className="rounded-2xl border border-portal bg-portal-surface p-6 shadow-[0_8px_24px_-16px_rgba(13,74,47,0.18)]">
-        <h2 className="text-sm font-bold text-portal-heading">Activity Log</h2>
+        <h2 className="text-sm font-bold text-portal-heading">{t("admin.classDetail.activityLog")}</h2>
         <p className="mt-2 text-sm text-portal-muted">
-          No session logs recorded for this class yet.
+          {t("admin.classDetail.noSessionLogs")}
         </p>
         <Link
           to="/admin/class-logs"
           className="mt-4 inline-flex text-sm font-semibold text-primary hover:underline"
         >
-          View all class logs
+          {t("admin.classDetail.viewAllClassLogs")}
         </Link>
       </Card>
     );
@@ -140,9 +148,9 @@ export function AdminClassDetailActivityTab({ logs }: IAdminClassDetailActivityT
   return (
     <div className="flex flex-col gap-4">
       <div className="flex items-center justify-between gap-2">
-        <h2 className="text-sm font-bold text-portal-heading">Recent Session Logs</h2>
+        <h2 className="text-sm font-bold text-portal-heading">{t("admin.classDetail.recentSessionLogs")}</h2>
         <Link to="/admin/class-logs" className="text-xs font-semibold text-primary hover:underline">
-          View all
+          {t("actions.viewAll")}
         </Link>
       </div>
       <div className="grid grid-cols-1 gap-4">

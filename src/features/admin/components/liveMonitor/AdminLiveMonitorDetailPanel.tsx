@@ -29,12 +29,9 @@ import {
   sessionHasIssue,
   sessionIssueMessage,
 } from "@/features/admin/components/liveMonitor/liveMonitorUtils";
+import { intlLocale } from "@/i18n/format";
+import { usePortalTranslation } from "@/i18n/LocaleProvider";
 import { cn } from "@/lib/utils/cn";
-
-const DETAIL_TABS: { id: LiveMonitorDetailTab; label: string }[] = [
-  { id: "overview", label: "Overview" },
-  { id: "participants", label: "Participants" },
-];
 
 interface IAdminLiveMonitorDetailPanelProps {
   session: LiveMonitorSession;
@@ -45,6 +42,7 @@ export function AdminLiveMonitorDetailPanel({
   session,
   now,
 }: IAdminLiveMonitorDetailPanelProps) {
+  const { t, dynamicLabel, role, locale } = usePortalTranslation();
   const navigate = useNavigate();
   const [tab, setTab] = useState<LiveMonitorDetailTab>("overview");
   const meetingHref = normalizeMeetingLink(session.meetingLink);
@@ -53,8 +51,20 @@ export function AdminLiveMonitorDetailPanel({
   const issueMessage = sessionIssueMessage(session);
   const activity = useMemo(() => buildSessionActivity(session), [session]);
 
+  const detailTabs: { id: LiveMonitorDetailTab; label: string }[] = [
+    { id: "overview", label: t("admin.liveMonitor.detail.overview") },
+    { id: "participants", label: t("admin.liveMonitor.detail.participants") },
+  ];
+
   function handleCopyCode() {
     void navigator.clipboard.writeText(sessionShortCode(session));
+  }
+
+  function formatJoinedTime(iso: string): string {
+    return new Date(iso).toLocaleTimeString(intlLocale(locale), {
+      hour: "2-digit",
+      minute: "2-digit",
+    });
   }
 
   return (
@@ -66,7 +76,7 @@ export function AdminLiveMonitorDetailPanel({
               <LiveMonitorPhaseBadge phase={session.sessionPhase} />
               {session.sessionPhase === "live" ? (
                 <span className="rounded-full bg-red-500/10 px-2.5 py-1 text-xs font-bold text-red-700">
-                  Elapsed {elapsed}
+                  {t("admin.liveMonitor.detail.elapsed", { time: elapsed })}
                 </span>
               ) : null}
               <span className="rounded-full bg-portal-muted/50 px-2.5 py-1 text-xs font-semibold text-portal-muted">
@@ -76,7 +86,9 @@ export function AdminLiveMonitorDetailPanel({
             <h2 className="mt-2 text-xl font-bold capitalize text-portal-heading sm:text-2xl">
               {session.classTitle}
             </h2>
-            <p className="mt-1 text-sm text-portal-muted">{session.courseType}</p>
+            <p className="mt-1 text-sm text-portal-muted">
+              {dynamicLabel(session.courseType) || session.courseType}
+            </p>
             <div className="mt-3 flex flex-wrap gap-3 text-sm text-portal-muted">
               <span className="inline-flex items-center gap-1.5">
                 <GraduationCap className="size-4 text-primary" aria-hidden />
@@ -107,7 +119,7 @@ export function AdminLiveMonitorDetailPanel({
                 onClick={() => navigate(`/admin/classes/${session.classId}`)}
                 className="inline-flex flex-1 items-center justify-center rounded-xl border border-portal px-4 py-2.5 text-sm font-semibold text-portal-heading transition hover:border-primary/30 hover:bg-primary/5 hover:text-primary"
               >
-                Class details
+                {t("admin.liveMonitor.detail.classDetails")}
               </button>
             </div>
           </div>
@@ -123,7 +135,7 @@ export function AdminLiveMonitorDetailPanel({
 
       <div className="border-b border-portal px-5 sm:px-6">
         <div className="flex gap-1 overflow-x-auto">
-          {DETAIL_TABS.map((item) => (
+          {detailTabs.map((item) => (
             <button
               key={item.id}
               type="button"
@@ -146,13 +158,21 @@ export function AdminLiveMonitorDetailPanel({
           <>
             <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
               {[
-                { label: "Course type", value: session.courseType, icon: CalendarDays },
-                { label: "Day", value: session.day, icon: CalendarDays },
-                { label: "Start time", value: session.startTimeLabel, icon: Clock },
-                { label: "Duration", value: session.durationLabel, icon: Timer },
-                { label: "Teacher", value: session.teacher.name, icon: GraduationCap },
                 {
-                  label: "Student",
+                  label: t("admin.liveMonitor.detail.courseType"),
+                  value: dynamicLabel(session.courseType) || session.courseType,
+                  icon: CalendarDays,
+                },
+                {
+                  label: t("admin.liveMonitor.detail.day"),
+                  value: dynamicLabel(session.day.toLowerCase()) || session.day,
+                  icon: CalendarDays,
+                },
+                { label: t("admin.liveMonitor.detail.startTime"), value: session.startTimeLabel, icon: Clock },
+                { label: dynamicLabel("duration"), value: session.durationLabel, icon: Timer },
+                { label: role("teacher"), value: session.teacher.name, icon: GraduationCap },
+                {
+                  label: role("student"),
                   value: session.student.studentId
                     ? `${session.student.name} (${session.student.studentId})`
                     : session.student.name,
@@ -173,7 +193,9 @@ export function AdminLiveMonitorDetailPanel({
             </div>
 
             <div className="rounded-2xl border border-portal bg-portal-muted/15 p-4">
-              <h3 className="text-sm font-bold text-portal-heading">Session activity</h3>
+              <h3 className="text-sm font-bold text-portal-heading">
+                {t("admin.liveMonitor.detail.sessionActivity")}
+              </h3>
               <div className="mt-4 flex flex-col gap-3">
                 {activity.map((item) => (
                   <div key={item.id} className="relative border-l-2 border-primary/25 pl-3">
@@ -194,39 +216,41 @@ export function AdminLiveMonitorDetailPanel({
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
               {[
                 {
-                  role: "Teacher" as const,
+                  roleKey: "teacher" as const,
                   name: session.teacher.name,
                   status: session.joins.teacherStatus,
                   joinedAt: session.joins.teacherJoinedAt,
                 },
                 {
-                  role: "Student" as const,
+                  roleKey: "student" as const,
                   name: session.student.name,
                   status: session.joins.studentStatus,
                   joinedAt: session.joins.studentJoinedAt,
                 },
               ].map((participant) => (
                 <div
-                  key={participant.role}
+                  key={participant.roleKey}
                   className="rounded-2xl border border-portal bg-portal-muted/15 p-4"
                 >
                   <div className="flex items-start gap-3">
                     <UserInitialAvatar name={participant.name} size="md" />
                     <div className="min-w-0 flex-1">
                       <p className="text-xs font-semibold uppercase tracking-wide text-portal-muted">
-                        {participant.role}
+                        {role(participant.roleKey)}
                       </p>
                       <p className="text-sm font-bold text-portal-heading">{participant.name}</p>
                       <div className="mt-2">
                         <LiveMonitorJoinBadge
-                          role={participant.role}
+                          roleKey={participant.roleKey}
                           status={participant.status}
                         />
                       </div>
                       <p className="mt-2 text-xs text-portal-muted">
                         {participant.joinedAt
-                          ? `Joined at ${new Date(participant.joinedAt).toLocaleTimeString()}`
-                          : "Not joined via portal Launch yet"}
+                          ? t("admin.liveMonitor.detail.joinedAt", {
+                              time: formatJoinedTime(participant.joinedAt),
+                            })
+                          : t("admin.liveMonitor.detail.notJoinedYet")}
                       </p>
                     </div>
                   </div>
@@ -238,16 +262,18 @@ export function AdminLiveMonitorDetailPanel({
 
         {tab === "overview" ? (
           <div className="rounded-2xl border border-portal bg-portal-muted/15 p-4">
-            <h3 className="text-sm font-bold text-portal-heading">Join status</h3>
+            <h3 className="text-sm font-bold text-portal-heading">
+              {t("admin.liveMonitor.detail.joinStatus")}
+            </h3>
             <div className="mt-4 flex flex-col gap-2.5">
               <LiveMonitorJoinBadge
-                role="Teacher"
+                roleKey="teacher"
                 status={session.joins.teacherStatus}
                 variant="panel"
                 joinedAt={session.joins.teacherJoinedAt}
               />
               <LiveMonitorJoinBadge
-                role="Student"
+                roleKey="student"
                 status={session.joins.studentStatus}
                 variant="panel"
                 joinedAt={session.joins.studentJoinedAt}
@@ -255,8 +281,7 @@ export function AdminLiveMonitorDetailPanel({
             </div>
             {sessionHasIssue(session) ? (
               <p className="mt-4 text-xs leading-relaxed text-portal-muted">
-                Join is recorded when teacher or student clicks <strong>Launch</strong> on their
-                schedule in the portal.
+                {t("admin.liveMonitor.detail.joinNote")}
               </p>
             ) : null}
           </div>

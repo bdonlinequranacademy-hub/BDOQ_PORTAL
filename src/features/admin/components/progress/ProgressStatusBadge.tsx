@@ -1,9 +1,7 @@
 import type { ProgressStatus } from "@/features/admin/components/progress/adminProgressUtils";
-import {
-  progressStatusLabel,
-  progressStatusStyles,
-} from "@/features/admin/components/progress/adminProgressUtils";
+import { progressStatusStyles } from "@/features/admin/components/progress/adminProgressUtils";
 import { cn } from "@/lib/utils/cn";
+import { usePortalTranslation } from "@/i18n/LocaleProvider";
 
 interface IProgressStatusBadgeProps {
   status: ProgressStatus;
@@ -11,6 +9,8 @@ interface IProgressStatusBadgeProps {
 }
 
 export function ProgressStatusBadge({ status, className }: IProgressStatusBadgeProps) {
+  const { statusLabel } = usePortalTranslation();
+
   return (
     <span
       className={cn(
@@ -19,7 +19,7 @@ export function ProgressStatusBadge({ status, className }: IProgressStatusBadgeP
         className
       )}
     >
-      {progressStatusLabel(status)}
+      {statusLabel(status)}
     </span>
   );
 }

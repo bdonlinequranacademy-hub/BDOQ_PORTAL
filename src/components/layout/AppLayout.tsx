@@ -1,4 +1,5 @@
 import { useNavigate } from "react-router-dom";
+import { useMemo } from "react";
 import {
   BookOpen,
   LayoutDashboard,
@@ -31,6 +32,7 @@ import {
   CircleHelp,
   LayoutTemplate,
 } from "lucide-react";
+import { usePortalTranslation } from "@/i18n/LocaleProvider";
 import { useAuthStore } from "@/stores/authStore";
 import { useUnreadNotificationCount } from "@/hooks/useUnreadNotifications";
 import { useRealtimeNotifications } from "@/hooks/useRealtimeNotifications";
@@ -116,12 +118,22 @@ export function AppLayout() {
   const user = useAuthStore((s) => s.user);
   const logout = useAuthStore((s) => s.logout);
   const navigate = useNavigate();
+  const { nav: navLabel, locale } = usePortalTranslation();
   const { count: unreadCount, hasNotifications } = useUnreadNotificationCount();
   useRealtimeNotifications();
 
-  if (!user) return null;
+  const navItems = useMemo(
+    () =>
+      user
+        ? navItemsForRole(user.role).map((item) => ({
+            ...item,
+            label: navLabel(item.path),
+          }))
+        : [],
+    [user, locale, navLabel]
+  );
 
-  const navItems = navItemsForRole(user.role);
+  if (!user) return null;
   const primaryPaths = mobilePrimaryPaths(user.role);
   const mobileTabs = navItems.filter((item) => primaryPaths.includes(item.path));
 

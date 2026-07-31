@@ -14,9 +14,9 @@ import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { Select } from "@/components/ui/Select";
 import {
-  formatPaymentAmount,
   PAYMENT_CURRENCIES,
 } from "@/features/admin/components/payments/adminPaymentsUtils";
+import { usePortalTranslation } from "@/i18n/LocaleProvider";
 import { cn } from "@/lib/utils/cn";
 
 const CURRENCY_PREFIX: Record<BillingCurrency, string> = {
@@ -83,6 +83,7 @@ export function AdminStudentBillingForm({
   onSave,
   onBack,
 }: IAdminStudentBillingFormProps) {
+  const { t, formatDate, formatMoney } = usePortalTranslation();
   const selectedStudent = useMemo(
     () => students.find((student) => student.id === studentId) ?? null,
     [students, studentId]
@@ -93,26 +94,22 @@ export function AdminStudentBillingForm({
   const canSave = Boolean(studentId) && hasValidFee && !saving;
 
   const totalLabel = hasValidFee
-    ? formatPaymentAmount(feeNumber, currency)
-    : formatPaymentAmount(0, currency);
+    ? formatMoney(feeNumber, currency)
+    : formatMoney(0, currency);
 
   const paidUntilLabel = paidUntil
-    ? new Date(`${paidUntil}T00:00:00`).toLocaleDateString(undefined, {
-        day: "numeric",
-        month: "short",
-        year: "numeric",
-      })
-    : "Not set";
+    ? formatDate(`${paidUntil}T00:00:00`)
+    : t("admin.payments.notSet");
 
   return (
     <div className="flex flex-col gap-5 lg:gap-6">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
         <div className="min-w-0">
           <h1 className="portal-page-title font-display text-2xl font-bold text-primary-dark sm:text-3xl">
-            Payment Management
+            {t("admin.payments.billingTitle")}
           </h1>
           <p className="portal-page-subtitle mt-1 max-w-2xl text-portal-muted">
-            Create or update a student monthly billing plan for automatic tuition tracking.
+            {t("admin.payments.subtitleExtended")}
           </p>
         </div>
         <Button
@@ -122,7 +119,7 @@ export function AdminStudentBillingForm({
           className="inline-flex h-10 shrink-0 items-center gap-2 rounded-[8px] border border-portal bg-portal-surface px-4 text-sm font-semibold text-portal-heading shadow-sm hover:bg-portal-muted/40"
         >
           <ArrowLeft className="size-4" aria-hidden />
-          Back to payments
+          {t("admin.payments.backToPayments")}
         </Button>
       </div>
 
@@ -141,10 +138,10 @@ export function AdminStudentBillingForm({
               </span>
               <div className="min-w-0">
                 <h2 className="text-base font-bold text-portal-heading sm:text-lg">
-                  Create / Edit Student Billing Plan
+                  {t("admin.payments.billingPlanTitle")}
                 </h2>
                 <p className="mt-1 text-sm text-portal-muted">
-                  Set the monthly fee, currency, due day, and prepaid coverage for a student.
+                  {t("admin.payments.billingPlanDesc")}
                 </p>
               </div>
             </div>
@@ -155,9 +152,9 @@ export function AdminStudentBillingForm({
               <Select
                 value={studentId}
                 onChange={(event) => onStudentIdChange(event.target.value)}
-                label="Student"
+                label={t("tables.student")}
               >
-                <option value="">Select student…</option>
+                <option value="">{t("admin.payments.selectStudentPlaceholder")}</option>
                 {students.map((student) => (
                   <option key={student.id} value={student.id}>
                     {student.name} ({student.email})
@@ -167,7 +164,7 @@ export function AdminStudentBillingForm({
             </div>
 
             <label className="flex flex-col gap-1.5">
-              <span className="form-label">Monthly fee</span>
+              <span className="form-label">{t("admin.payments.monthlyFee")}</span>
               <div className="relative">
                 <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-sm font-semibold text-portal-muted">
                   {CURRENCY_PREFIX[currency]}
@@ -189,7 +186,7 @@ export function AdminStudentBillingForm({
               onChange={(event) =>
                 onCurrencyChange(event.target.value as BillingCurrency)
               }
-              label="Currency"
+              label={t("admin.payments.currency")}
             >
               {PAYMENT_CURRENCIES.map((code) => (
                 <option key={code} value={code}>
@@ -202,8 +199,8 @@ export function AdminStudentBillingForm({
               type="number"
               min={1}
               max={28}
-              label="Due day of month"
-              hint="Day 1–28 each billing month"
+              label={t("admin.payments.dueDayOfMonth")}
+              hint={t("admin.payments.dueDayHint")}
               value={dueDay}
               onChange={(event) => onDueDayChange(event.target.value)}
               placeholder="1"
@@ -211,8 +208,8 @@ export function AdminStudentBillingForm({
 
             <Input
               type="date"
-              label="Paid until"
-              hint="Leave empty if not prepaid"
+              label={t("admin.payments.paidUntilLabel")}
+              hint={t("admin.payments.paidUntilHint")}
               value={paidUntil}
               onChange={(event) => onPaidUntilChange(event.target.value)}
             />
@@ -222,7 +219,7 @@ export function AdminStudentBillingForm({
             <div className="flex items-start gap-2.5 rounded-[8px] bg-primary/10 px-3 py-2.5 text-sm text-primary-dark sm:max-w-[65%]">
               <Info className="mt-0.5 size-4 shrink-0 text-primary" aria-hidden />
               <p>
-                Students will be billed automatically based on this monthly plan.
+                {t("admin.payments.autoBillInfo")}
               </p>
             </div>
             <Button
@@ -232,7 +229,7 @@ export function AdminStudentBillingForm({
               className="inline-flex h-11 shrink-0 items-center justify-center gap-2 rounded-[8px] bg-primary px-5 text-sm font-semibold text-white shadow-sm hover:bg-primary-dark"
             >
               <Check className="size-4" aria-hidden />
-              {saving ? "Saving…" : "Save Billing Plan"}
+              {saving ? t("admin.payments.saving") : t("admin.payments.saveBillingPlan")}
             </Button>
           </div>
         </section>
@@ -266,43 +263,47 @@ export function AdminStudentBillingForm({
 
             <div className="relative z-[1]">
               <h3 className="text-sm font-bold uppercase tracking-wide text-portal-heading">
-                Plan Summary
+                {t("admin.payments.planSummary")}
               </h3>
               <div className="mt-4 space-y-3.5">
                 <SummaryRow
                   icon={UserRound}
-                  label="Student"
+                  label={t("tables.student")}
                   value={
                     selectedStudent
                       ? selectedStudent.name
-                      : "Select a student"
+                      : t("admin.payments.selectStudent")
                   }
                 />
                 <SummaryRow
                   icon={CircleDollarSign}
-                  label="Monthly fee"
+                  label={t("admin.payments.monthlyFee")}
                   value={totalLabel}
                 />
                 <SummaryRow
                   icon={Wallet}
-                  label="Currency"
+                  label={t("admin.payments.currency")}
                   value={currency}
                 />
                 <SummaryRow
                   icon={CalendarDays}
-                  label="Due day"
-                  value={dueDay ? `Day ${dueDay} of each month` : "—"}
+                  label={t("admin.payments.dueDay")}
+                  value={
+                    dueDay
+                      ? t("admin.payments.dueDayValue", { day: dueDay })
+                      : "—"
+                  }
                 />
                 <SummaryRow
                   icon={CalendarDays}
-                  label="Paid until"
+                  label={t("admin.payments.paidUntilLabel")}
                   value={paidUntilLabel}
                 />
               </div>
 
               <div className="mt-5 border-t border-portal pt-4">
                 <p className="text-xs font-medium uppercase tracking-wide text-portal-muted">
-                  Total payable / month
+                  {t("admin.payments.totalPayableMonth")}
                 </p>
                 <p className="mt-1 font-display text-3xl font-bold text-primary">
                   {totalLabel}
@@ -315,10 +316,9 @@ export function AdminStudentBillingForm({
             <div className="flex items-start gap-2.5">
               <Info className="mt-0.5 size-4 shrink-0 text-primary" aria-hidden />
               <div>
-                <h4 className="text-sm font-bold text-primary-dark">Note</h4>
+                <h4 className="text-sm font-bold text-primary-dark">{t("admin.payments.noteTitle")}</h4>
                 <p className="mt-1 text-sm leading-relaxed text-portal-muted">
-                  Due day drives overdue status. Use <strong>Paid until</strong> when a
-                  student has prepaid — billing stays current through that date.
+                  {t("admin.payments.noteBody")}
                 </p>
               </div>
             </div>

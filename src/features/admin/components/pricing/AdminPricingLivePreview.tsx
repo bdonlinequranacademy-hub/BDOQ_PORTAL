@@ -1,6 +1,7 @@
 import { BookOpen, Check } from "lucide-react";
 import { Card } from "@/components/ui/Card";
 import { cn } from "@/lib/utils/cn";
+import { usePortalTranslation } from "@/i18n/LocaleProvider";
 
 interface IAdminPricingLivePreviewProps {
   name: string;
@@ -21,14 +22,19 @@ export function AdminPricingLivePreview({
   popular,
   showOnWebsite,
 }: IAdminPricingLivePreviewProps) {
+  const { t, formatBdt, formatUsd, dynamicLabel } = usePortalTranslation();
+
   const bdt = Number(priceBdt);
   const usd = Number(priceUsd);
   const visibleFeatures = features.filter(Boolean).slice(0, 6);
+  const periodLabel = period.trim() || dynamicLabel("monthly");
 
   return (
     <Card className="overflow-hidden rounded-2xl border border-portal bg-portal-surface p-0 shadow-[0_8px_24px_-16px_rgba(13,74,47,0.18)]">
       <div className="flex items-center justify-between border-b border-portal bg-amber-50/80 px-4 py-3">
-        <h2 className="text-sm font-bold text-primary-dark">Live Preview</h2>
+        <h2 className="text-sm font-bold text-primary-dark">
+          {t("admin.cms.shared.livePreview")}
+        </h2>
         <span
           className={cn(
             "rounded-full px-2 py-0.5 text-[10px] font-bold uppercase",
@@ -37,14 +43,16 @@ export function AdminPricingLivePreview({
               : "bg-portal-muted/50 text-portal-muted"
           )}
         >
-          {showOnWebsite ? "Public" : "Private"}
+          {showOnWebsite
+            ? t("admin.cms.shared.visibilityPublic")
+            : t("admin.cms.shared.visibilityPrivate")}
         </span>
       </div>
 
       <div className="relative bg-gradient-to-b from-amber-50/90 to-white px-5 pb-5 pt-6 text-center">
         {popular ? (
           <span className="absolute right-3 top-3 rounded-full bg-primary px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wide text-white">
-            Popular
+            {t("admin.cms.shared.statPopular")}
           </span>
         ) : null}
 
@@ -53,25 +61,21 @@ export function AdminPricingLivePreview({
         </div>
 
         <h3 className="mt-4 font-display text-xl font-bold text-gold-dark">
-          {name.trim() || "Package name"}
+          {name.trim() || t("admin.cms.pricing.packageName")}
         </h3>
         <p className="mt-1 text-xs text-portal-muted">
-          {period.trim() || "Monthly"} learning package
+          {t("admin.cms.pricing.learningPackage", { period: periodLabel })}
         </p>
 
         <p className="mt-4 text-2xl font-bold text-primary">
-          {Number.isFinite(bdt) && priceBdt !== ""
-            ? `৳ ${bdt.toLocaleString("en-BD")}`
-            : "৳ —"}
+          {Number.isFinite(bdt) && priceBdt !== "" ? formatBdt(bdt) : "—"}
           <span className="text-sm font-semibold text-portal-muted">
             {" "}
-            / {(period || "month").toLowerCase().replace(/ly$/, "")}
+            {t("admin.cms.shared.perMonth")}
           </span>
         </p>
         {Number.isFinite(usd) && priceUsd !== "" ? (
-          <p className="mt-0.5 text-xs text-portal-muted">
-            ${usd.toLocaleString("en-US")} USD
-          </p>
+          <p className="mt-0.5 text-xs text-portal-muted">{formatUsd(usd)}</p>
         ) : null}
 
         <ul className="mt-5 space-y-2 text-left">
@@ -90,7 +94,7 @@ export function AdminPricingLivePreview({
             ))
           ) : (
             <li className="text-center text-xs text-portal-muted">
-              Features will appear here…
+              {t("admin.cms.pricing.featuresPlaceholder")}
             </li>
           )}
         </ul>
@@ -100,7 +104,7 @@ export function AdminPricingLivePreview({
           tabIndex={-1}
           className="mt-5 w-full cursor-default rounded-full bg-primary py-2.5 text-sm font-semibold text-white"
         >
-          Enroll Now
+          {t("admin.cms.pricing.enrollNow")}
         </button>
       </div>
     </Card>

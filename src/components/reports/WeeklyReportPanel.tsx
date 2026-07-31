@@ -4,18 +4,20 @@ import type { WeeklyFamilyReport } from "@/types/models";
 import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { toast } from "@/stores/uiStore";
+import { usePortalTranslation } from "@/i18n/LocaleProvider";
 
 export function WeeklyReportPanel({ report }: { report: WeeklyFamilyReport }) {
+  const { t } = usePortalTranslation();
   const [copied, setCopied] = useState(false);
 
   async function handleCopy() {
     try {
       await navigator.clipboard.writeText(report.text);
       setCopied(true);
-      toast.success("Report copied — ready to paste in WhatsApp or email");
+      toast.success(t("student.reportCopied"));
       window.setTimeout(() => setCopied(false), 2000);
     } catch {
-      toast.error("Could not copy report");
+      toast.error(t("student.reportCopyFailed"));
     }
   }
 
@@ -27,16 +29,13 @@ export function WeeklyReportPanel({ report }: { report: WeeklyFamilyReport }) {
             <p className="text-lg font-bold text-portal-heading">{report.studentName}</p>
             <span className="inline-flex items-center gap-1 rounded-full border border-emerald-500/30 bg-emerald-500/10 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-emerald-700 dark:text-emerald-400">
               <ShieldCheck className="size-3" />
-              Verified data
+              {t("student.verifiedData")}
             </span>
           </div>
           <p className="mt-1 text-sm text-portal-muted">
             {report.weekLabel} · {report.teacherName}
           </p>
-          <p className="mt-1 text-xs text-portal-muted">
-            Built from approved class logs, attendance marks, and homework records — not
-            AI-generated.
-          </p>
+          <p className="mt-1 text-xs text-portal-muted">{t("student.reportBuiltFrom")}</p>
         </div>
         <Button
           type="button"
@@ -49,25 +48,25 @@ export function WeeklyReportPanel({ report }: { report: WeeklyFamilyReport }) {
           ) : (
             <Copy className="size-4" />
           )}
-          {copied ? "Copied" : "Copy message"}
+          {copied ? t("student.copied") : t("student.copyMessage")}
         </Button>
       </div>
 
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-        <StatCell label="Verified sessions" value={report.sessionsHeld} tone="navy" />
-        <StatCell label="Present" value={report.attendance.present} tone="green" />
+        <StatCell label={t("student.verifiedSessions")} value={report.sessionsHeld} tone="navy" />
+        <StatCell label={t("student.present")} value={report.attendance.present} tone="green" />
         <StatCell
-          label="Homework submitted"
+          label={t("student.homeworkSubmittedStat")}
           value={`${report.homework.submitted}/${report.homework.assigned}`}
           tone="amber"
         />
-        <StatCell label="Graded" value={report.homework.graded} tone="blue" />
+        <StatCell label={t("student.graded")} value={report.homework.graded} tone="blue" />
       </div>
 
       {report.topicsCovered.length > 0 ? (
         <div>
           <p className="text-xs font-semibold uppercase tracking-wide text-portal-muted">
-            Topics (from approved logs)
+            {t("student.topicsFromLogs")}
           </p>
           <div className="mt-2 flex flex-wrap gap-1.5">
             {report.topicsCovered.map((topic) => (
@@ -85,7 +84,7 @@ export function WeeklyReportPanel({ report }: { report: WeeklyFamilyReport }) {
       {report.sessionHighlights.length > 0 ? (
         <div>
           <p className="text-xs font-semibold uppercase tracking-wide text-portal-muted">
-            Session notes (approved logs)
+            {t("student.sessionNotesFromLogs")}
           </p>
           <ul className="mt-2 space-y-2">
             {report.sessionHighlights.map((note, i) => (
@@ -100,14 +99,13 @@ export function WeeklyReportPanel({ report }: { report: WeeklyFamilyReport }) {
         </div>
       ) : (
         <p className="rounded-xl border border-dashed border-portal px-3 py-2 text-sm text-portal-muted">
-          No approved session logs this week — submit and get class logs approved to include
-          lesson details here.
+          {t("student.noApprovedLogsThisWeek")}
         </p>
       )}
 
       <div>
         <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-portal-muted">
-          Message preview
+          {t("student.messagePreview")}
         </p>
         <pre className="max-h-80 overflow-y-auto whitespace-pre-wrap rounded-xl border border-portal bg-portal-surface-muted/40 p-4 text-sm leading-relaxed text-portal">
           {report.text}
@@ -138,9 +136,7 @@ function StatCell({
   return (
     <div className="rounded-xl border border-portal bg-portal-surface-muted/50 px-3 py-2.5 text-center">
       <p className={`text-lg font-bold tabular-nums ${valueClass}`}>{value}</p>
-      <p className="text-[10px] font-medium uppercase tracking-wide text-portal-muted">
-        {label}
-      </p>
+      <p className="text-[10px] font-medium uppercase tracking-wide text-portal-muted">{label}</p>
     </div>
   );
 }

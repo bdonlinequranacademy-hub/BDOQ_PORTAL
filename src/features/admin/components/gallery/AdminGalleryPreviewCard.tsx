@@ -6,16 +6,23 @@ import {
   extractYoutubeId,
   type IGalleryFormState,
 } from "@/features/admin/components/gallery/adminGalleryUtils";
+import { usePortalTranslation } from "@/i18n/LocaleProvider";
 
 interface IAdminGalleryPreviewCardProps {
   form: IGalleryFormState;
 }
 
-function MediaBadge({ type }: { type: GalleryMediaType }) {
+function MediaBadge({
+  type,
+  label,
+}: {
+  type: GalleryMediaType;
+  label: string;
+}) {
   const meta = {
-    photo: { label: "Photo", className: "bg-primary text-white" },
-    video: { label: "Video", className: "bg-violet-600 text-white" },
-    audio: { label: "Audio", className: "bg-orange-500 text-white" },
+    photo: { className: "bg-primary text-white" },
+    video: { className: "bg-violet-600 text-white" },
+    audio: { className: "bg-orange-500 text-white" },
   }[type];
 
   return (
@@ -25,24 +32,29 @@ function MediaBadge({ type }: { type: GalleryMediaType }) {
         meta.className
       )}
     >
-      {meta.label}
+      {label}
     </span>
   );
 }
 
 export function AdminGalleryPreviewCard({ form }: IAdminGalleryPreviewCardProps) {
+  const { t, dynamicLabel } = usePortalTranslation();
+
   const youtubeId = extractYoutubeId(form.youtubeId);
-  const title = form.title.trim() || "Gallery item title";
+  const title = form.title.trim() || t("admin.cms.gallery.defaultTitle");
+  const mediaLabel = dynamicLabel(form.mediaType);
 
   return (
     <Card className="rounded-2xl border border-portal bg-portal-surface p-5 shadow-sm">
-      <h2 className="text-sm font-bold text-primary-dark">Preview</h2>
+      <h2 className="text-sm font-bold text-primary-dark">
+        {t("admin.cms.shared.previewTitle")}
+      </h2>
       <p className="mt-1 text-xs text-portal-muted">
-        How this item will look in the gallery.
+        {t("admin.cms.gallery.previewDesc")}
       </p>
 
       <div className="relative mt-4 overflow-hidden rounded-xl bg-primary/10">
-        <MediaBadge type={form.mediaType} />
+        <MediaBadge type={form.mediaType} label={mediaLabel} />
 
         {form.mediaType === "photo" && form.mediaUrl ? (
           <img
@@ -66,7 +78,9 @@ export function AdminGalleryPreviewCard({ form }: IAdminGalleryPreviewCardProps)
             )}
           >
             <Mic className="size-10 opacity-90" aria-hidden />
-            <span className="mt-2 text-xs font-medium opacity-90">Audio</span>
+            <span className="mt-2 text-xs font-medium opacity-90">
+              {dynamicLabel("audio")}
+            </span>
           </div>
         ) : form.mediaUrl && form.mediaType === "video" ? (
           <div className="flex aspect-video items-center justify-center bg-zinc-900 text-white">
@@ -81,7 +95,7 @@ export function AdminGalleryPreviewCard({ form }: IAdminGalleryPreviewCardProps)
           >
             <ImageIcon className="size-12 opacity-80" aria-hidden />
             <span className="mt-2 text-xs font-medium capitalize opacity-80">
-              {form.mediaType} placeholder
+              {t("admin.cms.gallery.typePlaceholder", { type: mediaLabel })}
             </span>
           </div>
         )}

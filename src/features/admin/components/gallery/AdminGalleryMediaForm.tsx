@@ -5,16 +5,15 @@ import { cn } from "@/lib/utils/cn";
 import type { GalleryMediaType } from "@/types/models";
 import type { IGalleryFormState } from "@/features/admin/components/gallery/adminGalleryUtils";
 import { GALLERY_ALBUM_OPTIONS } from "@/features/admin/components/gallery/adminGalleryUtils";
+import { usePortalTranslation } from "@/i18n/LocaleProvider";
 
-const MEDIA_OPTIONS: {
-  type: GalleryMediaType;
-  label: string;
-  icon: typeof ImageIcon;
-}[] = [
-  { type: "photo", label: "Photo", icon: ImageIcon },
-  { type: "video", label: "Video", icon: Video },
-  { type: "audio", label: "Audio", icon: Mic },
-];
+const MEDIA_TYPES: GalleryMediaType[] = ["photo", "video", "audio"];
+
+const MEDIA_ICONS: Record<GalleryMediaType, typeof ImageIcon> = {
+  photo: ImageIcon,
+  video: Video,
+  audio: Mic,
+};
 
 interface IAdminGalleryMediaFormProps {
   form: IGalleryFormState;
@@ -31,6 +30,8 @@ export function AdminGalleryMediaForm({
   onChange,
   onUpload,
 }: IAdminGalleryMediaFormProps) {
+  const { t, dynamicLabel } = usePortalTranslation();
+
   const accept =
     form.mediaType === "photo"
       ? "image/*"
@@ -41,20 +42,26 @@ export function AdminGalleryMediaForm({
   const showFileUpload =
     form.mediaType !== "video" || form.videoSource === "upload";
 
+  const formatHint =
+    form.mediaType === "photo"
+      ? t("admin.cms.gallery.photoFormats")
+      : form.mediaType === "audio"
+        ? t("admin.cms.gallery.audioFormats")
+        : t("admin.cms.gallery.videoFormats");
+
   return (
     <Card className="rounded-2xl border border-portal bg-portal-surface p-5 shadow-sm sm:p-6">
       <h2 className="text-base font-bold text-primary-dark">
-        {editing ? "Edit Gallery Item" : "Add New Gallery Item"}
+        {editing ? t("admin.cms.gallery.editTitle") : t("admin.cms.gallery.createTitle")}
       </h2>
-      <p className={cn(formHintClass, "mt-1")}>
-        Choose media type, upload the file, then fill in the details.
-      </p>
+      <p className={cn(formHintClass, "mt-1")}>{t("admin.cms.gallery.formDesc")}</p>
 
       <div className="mt-5">
-        <span className={formLabelClass}>Media Type</span>
+        <span className={formLabelClass}>{t("admin.cms.gallery.mediaType")}</span>
         <div className="mt-2 grid grid-cols-3 gap-2">
-          {MEDIA_OPTIONS.map(({ type, label, icon: Icon }) => {
+          {MEDIA_TYPES.map((type) => {
             const active = form.mediaType === type;
+            const Icon = MEDIA_ICONS[type];
             return (
               <button
                 key={type}
@@ -71,7 +78,7 @@ export function AdminGalleryMediaForm({
                   className={cn("size-6", active ? "text-primary" : "text-portal-muted")}
                   aria-hidden
                 />
-                {label}
+                {dynamicLabel(type)}
               </button>
             );
           })}
@@ -79,7 +86,7 @@ export function AdminGalleryMediaForm({
       </div>
 
       <div className="mt-5">
-        <span className={formLabelClass}>Upload Media</span>
+        <span className={formLabelClass}>{t("admin.cms.gallery.uploadMedia")}</span>
 
         {form.mediaType === "video" ? (
           <div className="mt-2 mb-3 flex flex-wrap gap-2">
@@ -95,7 +102,9 @@ export function AdminGalleryMediaForm({
                     : "bg-portal-muted/40 text-portal-muted hover:bg-portal-muted/60"
                 )}
               >
-                {source === "youtube" ? "YouTube link" : "Upload video"}
+                {source === "youtube"
+                  ? t("admin.cms.gallery.youtubeLink")
+                  : t("admin.cms.gallery.uploadVideo")}
               </button>
             ))}
           </div>
@@ -107,10 +116,10 @@ export function AdminGalleryMediaForm({
               className={formControlClass}
               value={form.youtubeId}
               onChange={(e) => onChange({ youtubeId: e.target.value })}
-              placeholder="YouTube URL or video ID"
+              placeholder={t("admin.cms.shared.youtubePlaceholder")}
             />
             <p className={cn(formHintClass, "mt-1.5")}>
-              Paste a full YouTube URL or the 11-character video ID.
+              {t("admin.cms.gallery.youtubeHint")}
             </p>
           </div>
         ) : null}
@@ -119,14 +128,12 @@ export function AdminGalleryMediaForm({
           <label className="mt-2 flex cursor-pointer flex-col items-center justify-center rounded-xl border-2 border-dashed border-portal bg-portal-muted/15 px-6 py-10 transition hover:border-primary/40 hover:bg-primary/5">
             <Upload className="size-8 text-primary" aria-hidden />
             <span className="mt-3 text-sm font-semibold text-portal-heading">
-              {uploading ? "Uploading…" : "Click to upload or drag and drop"}
+              {uploading
+                ? t("admin.cms.shared.uploading")
+                : t("admin.cms.gallery.clickUpload")}
             </span>
             <span className="mt-1 text-center text-xs text-portal-muted">
-              {form.mediaType === "photo"
-                ? "JPG, PNG, WebP · Max 15 MB"
-                : form.mediaType === "audio"
-                  ? "MP3, WAV · Max 15 MB"
-                  : "MP4, WebM · Max 15 MB"}
+              {formatHint}
             </span>
             <input
               type="file"
@@ -143,38 +150,40 @@ export function AdminGalleryMediaForm({
 
         {form.mediaUrl && showFileUpload ? (
           <p className="mt-2 truncate text-xs font-medium text-primary-dark">
-            Uploaded: {form.mediaUrl}
+            {t("admin.cms.gallery.uploaded", { url: form.mediaUrl })}
           </p>
         ) : null}
       </div>
 
       <div className="mt-6 space-y-4 border-t border-portal pt-5">
-        <h3 className="text-sm font-bold text-primary-dark">Details</h3>
+        <h3 className="text-sm font-bold text-primary-dark">
+          {t("admin.cms.shared.details")}
+        </h3>
 
         <label className="flex flex-col gap-1.5">
-          <span className={formLabelClass}>Title *</span>
+          <span className={formLabelClass}>{t("admin.cms.shared.titleRequired")}</span>
           <input
             className={formControlClass}
             value={form.title}
             onChange={(e) => onChange({ title: e.target.value })}
-            placeholder="e.g. Islamic Online Class Session"
+            placeholder={t("admin.cms.gallery.titlePlaceholder")}
             required
           />
         </label>
 
         <label className="flex flex-col gap-1.5">
-          <span className={formLabelClass}>Description</span>
+          <span className={formLabelClass}>{t("admin.cms.shared.description")}</span>
           <textarea
             className={cn(formControlClass, "min-h-[88px]")}
             value={form.description}
             onChange={(e) => onChange({ description: e.target.value })}
-            placeholder="Short description for the gallery card…"
+            placeholder={t("admin.cms.gallery.descriptionPlaceholder")}
           />
         </label>
 
         <div className="grid gap-4 sm:grid-cols-2">
           <label className="flex flex-col gap-1.5">
-            <span className={formLabelClass}>Category</span>
+            <span className={formLabelClass}>{t("admin.cms.shared.category")}</span>
             <select
               className={formControlClass}
               value={form.album}
@@ -193,7 +202,7 @@ export function AdminGalleryMediaForm({
           </label>
 
           <label className="flex flex-col gap-1.5">
-            <span className={formLabelClass}>Sort Order</span>
+            <span className={formLabelClass}>{t("admin.cms.shared.sortOrder")}</span>
             <input
               type="number"
               className={formControlClass}
@@ -211,7 +220,7 @@ export function AdminGalleryMediaForm({
             onChange={(e) => onChange({ showOnWebsite: e.target.checked })}
           />
           <span className="text-sm font-medium text-portal-heading">
-            Show on public gallery
+            {t("admin.cms.gallery.showPublicGallery")}
           </span>
         </label>
       </div>

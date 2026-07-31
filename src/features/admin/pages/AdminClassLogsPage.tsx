@@ -30,8 +30,10 @@ import {
   filterAdminClassLogs,
   type AdminClassLogsTab,
 } from "@/features/admin/components/class-logs/adminClassLogsUtils";
+import { usePortalTranslation } from "@/i18n/LocaleProvider";
 
 export function AdminClassLogsPage() {
+  const { t } = usePortalTranslation();
   const [tab, setTab] = useState<AdminClassLogsTab>("pending");
   const [programFilter, setProgramFilter] = useState("");
   const [teacherFilter, setTeacherFilter] = useState("");
@@ -90,7 +92,7 @@ export function AdminClassLogsPage() {
   }
 
   function handleReject(log: ClassLogView) {
-    const adminNote = window.prompt("Reason for rejection (optional):") ?? undefined;
+    const adminNote = window.prompt(t("admin.classLogs.rejectPrompt")) ?? undefined;
     reject.mutate(
       { id: log._id, adminNote },
       {
@@ -107,10 +109,10 @@ export function AdminClassLogsPage() {
     <PageContainer>
       <div>
         <h1 className="portal-page-title font-display text-2xl font-bold text-primary-dark sm:text-3xl">
-          Class Log Approval
+          {t("admin.classLogs.title")}
         </h1>
         <p className="portal-page-subtitle mt-1 max-w-3xl text-portal-muted">
-          Review teacher session logs before they count toward verified sessions and earnings.
+          {t("admin.classLogs.subtitle")}
         </p>
       </div>
 
@@ -145,23 +147,19 @@ export function AdminClassLogsPage() {
       {isError ? (
         <EmptyState
           icon={ClipboardCheck}
-          title="Could not load class logs"
-          description="The server failed to return class logs. Try again in a moment."
-          actionLabel="Retry"
+          title={t("admin.classLogs.loadError")}
+          description={t("admin.classLogs.loadErrorDesc")}
+          actionLabel={t("admin.common.retry")}
           onAction={() => refetch()}
         />
       ) : isLoading ? (
-        <PageLoading label="Loading class logs…" />
+        <PageLoading label={t("admin.common.loadingClassLogs")} />
       ) : visibleLogs.length === 0 ? (
         <EmptyState
           icon={ClipboardCheck}
-          title={
-            logs.length === 0 ? "No class logs in this view" : "No logs match your filters"
-          }
+          title={logs.length === 0 ? t("admin.common.noClassLogs") : t("admin.classLogs.noLogs")}
           description={
-            logs.length === 0
-              ? "Logs appear when teachers submit session reports from their schedule."
-              : "Try clearing search, teacher, program, or date filters."
+            logs.length === 0 ? t("admin.common.noClassLogsDesc") : t("admin.classLogs.noLogsDesc")
           }
         />
       ) : (
@@ -174,7 +172,7 @@ export function AdminClassLogsPage() {
               onApprove={handleApprove}
               onReject={handleReject}
             />
-            <Pagination pagination={pagination} itemLabel="logs" />
+            <Pagination pagination={pagination} itemLabel={t("admin.classLogs.logsItemLabel")} />
           </div>
           <AdminClassLogsSidebar
             logs={logs}

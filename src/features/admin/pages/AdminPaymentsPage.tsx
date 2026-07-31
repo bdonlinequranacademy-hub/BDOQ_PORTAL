@@ -30,6 +30,7 @@ import {
 } from "@/features/admin/components/payments/AdminPaymentsInsights";
 import { AdminOverdueBillingsTable } from "@/features/admin/components/payments/AdminOverdueBillingsTable";
 import { AdminStudentBillingForm } from "@/features/admin/components/payments/AdminStudentBillingForm";
+import { usePortalTranslation } from "@/i18n/LocaleProvider";
 import { cn } from "@/lib/utils/cn";
 
 type PaymentTab = "all" | "pending" | "overdue" | "completed" | "rejected";
@@ -106,6 +107,7 @@ function filterPayments(
 }
 
 export function AdminPaymentsPage() {
+  const { t, locale } = usePortalTranslation();
   const [tab, setTab] = useState<PaymentTab>("pending");
   const [showBilling, setShowBilling] = useState(false);
   const [rejectId, setRejectId] = useState<string | null>(null);
@@ -182,21 +184,24 @@ export function AdminPaymentsPage() {
     resetDeps: [search, tab],
   });
 
-  const paymentTabs: { id: PaymentTab; label: string; count?: number }[] = [
-    { id: "all", label: "All Payments", count: allPayments.length },
-    { id: "pending", label: "Pending", count: pending.length },
-    { id: "overdue", label: "Overdue", count: overdue.length },
-    {
-      id: "completed",
-      label: "Completed",
-      count: allPayments.filter((payment) => payment.status === "approved").length,
-    },
-    {
-      id: "rejected",
-      label: "Rejected",
-      count: allPayments.filter((payment) => payment.status === "rejected").length,
-    },
-  ];
+  const paymentTabs: { id: PaymentTab; label: string; count?: number }[] = useMemo(
+    () => [
+      { id: "all", label: t("admin.payments.tabAll"), count: allPayments.length },
+      { id: "pending", label: t("admin.payments.tabPending"), count: pending.length },
+      { id: "overdue", label: t("admin.payments.tabOverdue"), count: overdue.length },
+      {
+        id: "completed",
+        label: t("admin.payments.tabCompleted"),
+        count: allPayments.filter((payment) => payment.status === "approved").length,
+      },
+      {
+        id: "rejected",
+        label: t("admin.payments.tabRejected"),
+        count: allPayments.filter((payment) => payment.status === "rejected").length,
+      },
+    ],
+    [allPayments, pending.length, overdue.length, t, locale]
+  );
 
   const listLoading =
     tab === "overdue"
@@ -248,10 +253,10 @@ export function AdminPaymentsPage() {
           <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
             <div className="min-w-0">
               <h1 className="portal-page-title font-display text-2xl font-bold text-primary-dark sm:text-3xl">
-                Payment Management
+                {t("admin.payments.title")}
               </h1>
               <p className="portal-page-subtitle mt-1 max-w-2xl text-portal-muted">
-                Review manual payment proofs, track collections, and manage student billing plans.
+                {t("admin.payments.subtitle")}
               </p>
             </div>
             <Button
@@ -261,7 +266,7 @@ export function AdminPaymentsPage() {
               className="inline-flex shrink-0 items-center gap-2 rounded-[8px] bg-primary px-5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-primary-dark"
             >
               <Banknote className="size-4" aria-hidden />
-              Set Billing
+              {t("actions.setBilling")}
             </Button>
           </div>
 
@@ -318,12 +323,12 @@ export function AdminPaymentsPage() {
                         value={sortBy}
                         onChange={(event) => setSortBy(event.target.value as SortOption)}
                         className="py-2 text-sm"
-                        aria-label="Sort payments"
+                        aria-label={t("sort.paymentsLabel")}
                       >
-                        <option value="newest">Newest first</option>
-                        <option value="oldest">Oldest first</option>
-                        <option value="amount_high">Amount high to low</option>
-                        <option value="amount_low">Amount low to high</option>
+                        <option value="newest">{t("sort.newest")}</option>
+                        <option value="oldest">{t("sort.oldest")}</option>
+                        <option value="amount_high">{t("sort.amountHigh")}</option>
+                        <option value="amount_low">{t("sort.amountLow")}</option>
                       </Select>
                     </div>
                     <div className="hidden items-center gap-1 rounded-[8px] border border-portal bg-portal-surface p-1 sm:flex">
@@ -340,13 +345,15 @@ export function AdminPaymentsPage() {
 
               {listLoading ? (
                 <PageLoading
-                  label={tab === "overdue" ? "Loading overdue students…" : "Loading payments…"}
+                  label={
+                    tab === "overdue" ? t("loading.overdue") : t("loading.payments")
+                  }
                 />
               ) : tab === "overdue" ? (
                 filteredOverdue.length === 0 ? (
                   <EmptyState
-                    title="No overdue students"
-                    description="All active billings are current."
+                    title={t("empty.noOverdue")}
+                    description={t("empty.noOverdueDesc")}
                   />
                 ) : (
                   <>
@@ -356,11 +363,15 @@ export function AdminPaymentsPage() {
                 )
               ) : filteredPayments.length === 0 ? (
                 <EmptyState
-                  title={tab === "pending" ? "No pending payments" : "No payments found"}
+                  title={
+                    tab === "pending"
+                      ? t("empty.noPendingPayments")
+                      : t("empty.noPayments")
+                  }
                   description={
                     tab === "pending"
-                      ? "New submissions will appear here."
-                      : "Try adjusting your filters."
+                      ? t("empty.noPendingPaymentsDesc")
+                      : t("empty.noPaymentsDesc")
                   }
                 />
               ) : (
@@ -387,12 +398,10 @@ export function AdminPaymentsPage() {
       {rejectId ? (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
           <Card className="flex w-full max-w-md flex-col gap-4 rounded-[8px] border border-portal bg-portal-surface p-6 shadow-xl">
-            <h3 className="text-lg font-bold text-portal-heading">Reject payment</h3>
-            <p className="text-sm text-portal-muted">
-              The student will see this reason in their payment history.
-            </p>
+            <h3 className="text-lg font-bold text-portal-heading">{t("admin.payments.rejectTitle")}</h3>
+            <p className="text-sm text-portal-muted">{t("admin.payments.rejectDesc")}</p>
             <Input
-              placeholder="Reason (optional)"
+              placeholder={t("admin.payments.rejectReasonPlaceholder")}
               value={rejectReason}
               onChange={(event) => setRejectReason(event.target.value)}
             />
@@ -413,7 +422,7 @@ export function AdminPaymentsPage() {
                   );
                 }}
               >
-                Reject payment
+                {t("admin.payments.rejectConfirm")}
               </Button>
               <Button
                 variant="ghost"
@@ -423,7 +432,7 @@ export function AdminPaymentsPage() {
                   setRejectReason("");
                 }}
               >
-                Cancel
+                {t("common.cancel")}
               </Button>
             </div>
           </Card>

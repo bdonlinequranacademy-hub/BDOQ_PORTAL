@@ -6,7 +6,8 @@ import {
   Users,
 } from "lucide-react";
 import { StatCard } from "@/components/ui/shared/StatCard";
-import { displayRole, roleLabel } from "@/lib/assignableRoles";
+import { displayRole } from "@/lib/assignableRoles";
+import { usePortalTranslation } from "@/i18n/LocaleProvider";
 import type { AdminUser, Role } from "@/types/models";
 
 interface IAdminUsersStatsGridProps {
@@ -28,47 +29,50 @@ function joinedThisMonth(users: AdminUser[]): number {
 }
 
 export function AdminUsersStatsGrid({ users, isLoading }: IAdminUsersStatsGridProps) {
+  const { t, role, formatNumber } = usePortalTranslation();
   const monthCount = joinedThisMonth(users);
   const monthHint =
-    monthCount > 0 ? `+${monthCount} this month` : "No change this month";
+    monthCount > 0
+      ? t("admin.users.joinedThisMonth", { count: formatNumber(monthCount) })
+      : t("admin.users.noChangeThisMonth");
 
   return (
     <div className="grid grid-cols-2 items-start gap-2.5 sm:gap-3 xl:grid-cols-5">
       <StatCard
-        label="Total Users"
+        label={t("admin.users.totalUsers")}
         value={isLoading ? "—" : users.length}
         icon={<Users className="size-5 text-primary" />}
         iconBg="bg-primary/10"
         hint={monthHint}
       />
       <StatCard
-        label="Students"
+        label={t("admin.users.students")}
         value={isLoading ? "—" : countByRole(users, "student")}
         icon={<GraduationCap className="size-5 text-teal" />}
         iconBg="bg-teal/10"
-        hint={`${roleLabel("student")} accounts`}
+        hint={t("admin.users.roleAccounts", { role: role("student") })}
       />
       <StatCard
-        label="Teachers"
+        label={t("admin.users.teachers")}
         value={isLoading ? "—" : countByRole(users, "teacher")}
         icon={<UserCog className="size-5 text-blue-600" />}
         iconBg="bg-blue-100"
-        hint={`${roleLabel("teacher")} accounts`}
+        hint={t("admin.users.roleAccounts", { role: role("teacher") })}
       />
       <StatCard
-        label="Admins"
+        label={t("admin.users.admins")}
         value={isLoading ? "—" : countByRole(users, "admin")}
         icon={<Shield className="size-5 text-violet-600" />}
         iconBg="bg-violet-100"
-        hint={`${roleLabel("admin")} accounts`}
+        hint={t("admin.users.roleAccounts", { role: role("admin") })}
       />
       <StatCard
-        label="Super Admins"
+        label={t("admin.users.superAdmins")}
         value={isLoading ? "—" : countByRole(users, "super_admin")}
         icon={<ShieldCheck className="size-5 text-fuchsia-600" />}
         iconBg="bg-fuchsia-100"
         className="col-span-2 xl:col-span-1"
-        hint={`${roleLabel("super_admin")} accounts`}
+        hint={t("admin.users.roleAccounts", { role: role("super_admin") })}
       />
     </div>
   );

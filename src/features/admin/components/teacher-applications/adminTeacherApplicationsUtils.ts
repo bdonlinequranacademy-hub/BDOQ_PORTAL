@@ -1,5 +1,10 @@
 import type { TeacherApplicationStatus, TeacherApplicationView } from "@/types/models";
 import { parseWhatsApp } from "@/lib/whatsapp";
+import type {
+  PortalTranslate,
+} from "@/features/admin/components/trial-leads/adminTrialLeadsUtils";
+
+export type DynamicLabelFn = (key: string) => string;
 
 export type AdminTeacherApplicationsTab = "all" | TeacherApplicationStatus;
 
@@ -553,24 +558,30 @@ export function exportTeacherApplicationsFile(
   downloadBlob(blob, filename);
 }
 
-function pct(part: number, total: number): string {
-  if (total <= 0) return "0% of total";
-  return `${Math.round((part / total) * 100)}% of total`;
-}
-
 export function teacherApplicationsStatHint(
   key: "underReview" | "approved" | "rejected" | "closed",
-  stats: IAdminTeacherApplicationsStats
+  stats: IAdminTeacherApplicationsStats,
+  t: PortalTranslate,
+  formatNumber: (n: number) => string
 ): string {
   switch (key) {
     case "underReview":
-      return stats.new > 0 ? `${stats.new} new` : pct(stats.underReview, stats.total);
+      return stats.new > 0
+        ? `${formatNumber(stats.new)} ${t("admin.admissions.tabNew").toLowerCase()}`
+        : t("stats.ofTotal", {
+            pct: formatNumber(
+              stats.total > 0 ? Math.round((stats.underReview / stats.total) * 100) : 0
+            ),
+          });
     case "approved":
-      return pct(stats.approved, stats.total);
     case "rejected":
-      return pct(stats.rejected, stats.total);
-    case "closed":
-      return pct(stats.closed, stats.total);
+    case "closed": {
+      const part =
+        key === "approved" ? stats.approved : key === "rejected" ? stats.rejected : stats.closed;
+      return t("stats.ofTotal", {
+        pct: formatNumber(stats.total > 0 ? Math.round((part / stats.total) * 100) : 0),
+      });
+    }
     default:
       return "";
   }

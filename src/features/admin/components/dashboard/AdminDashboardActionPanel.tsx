@@ -1,5 +1,6 @@
 import { ChevronRight, CheckCircle2 } from "lucide-react";
 import { Card } from "@/components/ui/Card";
+import { usePortalTranslation } from "@/i18n/LocaleProvider";
 import { cn } from "@/lib/utils/cn";
 
 export interface IAdminDashboardActionItem {
@@ -50,11 +51,17 @@ function ActionRow({ item }: { item: IAdminDashboardActionItem }) {
 }
 
 export function AdminDashboardActionPanel({ items }: IAdminDashboardActionPanelProps) {
+  const { t } = usePortalTranslation();
+
   return (
     <Card className="portal-card--lg flex h-full flex-col gap-4 rounded-2xl border border-portal bg-portal-surface p-4 shadow-[0_8px_24px_-16px_rgba(13,74,47,0.18)] sm:p-5">
       <div>
-        <h2 className="text-base font-bold text-portal-heading">Action required</h2>
-        <p className="mt-0.5 text-sm text-portal-muted">Review these items first</p>
+        <h2 className="text-base font-bold text-portal-heading">
+          {t("admin.dashboard.actionRequired")}
+        </h2>
+        <p className="mt-0.5 text-sm text-portal-muted">
+          {t("admin.dashboard.actionRequiredSubtitle")}
+        </p>
       </div>
 
       {items.length > 0 ? (
@@ -66,8 +73,10 @@ export function AdminDashboardActionPanel({ items }: IAdminDashboardActionPanelP
       ) : (
         <div className="flex flex-1 flex-col items-center justify-center rounded-xl border border-dashed border-portal bg-portal-muted/20 px-4 py-8 text-center">
           <CheckCircle2 className="size-8 text-primary/70" aria-hidden />
-          <p className="mt-3 text-sm font-semibold text-portal-heading">All caught up</p>
-          <p className="mt-1 text-xs text-portal-muted">No pending admin actions right now</p>
+          <p className="mt-3 text-sm font-semibold text-portal-heading">
+            {t("empty.allCaughtUp")}
+          </p>
+          <p className="mt-1 text-xs text-portal-muted">{t("empty.noPendingActions")}</p>
         </div>
       )}
     </Card>

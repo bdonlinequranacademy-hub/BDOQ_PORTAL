@@ -6,8 +6,10 @@ import { PageContainer } from "@/components/layout/PageContainer";
 import { Button } from "@/components/ui/Button";
 import { WeeklyReportPanel } from "@/components/reports/WeeklyReportPanel";
 import type { WeeklyFamilyReport } from "@/types/models";
+import { usePortalTranslation } from "@/i18n/LocaleProvider";
 
 export function StudentWeeklySummaryPage() {
+  const { t } = usePortalTranslation();
   const user = useAuthStore((s) => s.user);
   const buildReport = useStudentWeeklyReport();
   const [report, setReport] = useState<WeeklyFamilyReport | null>(null);
@@ -24,10 +26,8 @@ export function StudentWeeklySummaryPage() {
           <MessageSquare className="size-6 text-emerald-700" />
         </div>
         <div>
-          <h1 className="text-2xl font-bold text-primary-dark">Weekly Summary</h1>
-          <p className="text-sm text-zinc-500">
-            Template progress update for learners and guardians on this account
-          </p>
+          <h1 className="text-2xl font-bold text-primary-dark">{t("student.weeklySummary")}</h1>
+          <p className="text-sm text-zinc-500">{t("student.weeklySummaryPageDesc")}</p>
         </div>
       </div>
 
@@ -37,15 +37,14 @@ export function StudentWeeklySummaryPage() {
         className="flex h-12 items-center justify-center gap-2 rounded-xl bg-primary-dark text-white"
       >
         <FileText className="size-4" />
-        {buildReport.isPending ? "Building report…" : "View this week's report"}
+        {buildReport.isPending ? t("student.buildingReport") : t("student.viewThisWeekReport")}
       </Button>
 
       {report ? (
         <WeeklyReportPanel report={report} />
       ) : user ? (
         <p className="text-sm text-zinc-500">
-          Report for <span className="font-semibold text-primary-dark">{user.name}</span> will include
-          sessions, attendance, and homework from the current week.
+          {t("student.reportWillInclude", { name: user.name })}
         </p>
       ) : null}
     </PageContainer>

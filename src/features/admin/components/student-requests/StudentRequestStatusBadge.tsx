@@ -1,11 +1,17 @@
 import type { StudentRequestStatus } from "@/types/models";
-import {
-  studentRequestStatusLabel,
-  studentRequestStatusStyles,
-} from "@/features/admin/components/student-requests/adminStudentRequestsUtils";
+import { studentRequestStatusStyles } from "@/features/admin/components/student-requests/adminStudentRequestsUtils";
 import { cn } from "@/lib/utils/cn";
+import { usePortalTranslation } from "@/i18n/LocaleProvider";
+
+const statusKeys: Record<StudentRequestStatus, string> = {
+  pending: "pending_review",
+  approved: "approved",
+  rejected: "rejected",
+};
 
 export function StudentRequestStatusBadge({ status }: { status: StudentRequestStatus }) {
+  const { statusLabel } = usePortalTranslation();
+
   return (
     <span
       className={cn(
@@ -13,7 +19,7 @@ export function StudentRequestStatusBadge({ status }: { status: StudentRequestSt
         studentRequestStatusStyles(status)
       )}
     >
-      {studentRequestStatusLabel(status)}
+      {statusLabel(statusKeys[status])}
     </span>
   );
 }

@@ -22,9 +22,11 @@ import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { Select } from "@/components/ui/Select";
 import { Textarea } from "@/components/ui/Textarea";
-
 import { PageLoading } from "@/components/ui/PageLoading";
+import { usePortalTranslation } from "@/i18n/LocaleProvider";
+
 export function TeacherProgressPage() {
+  const { t } = usePortalTranslation();
   const [params] = useSearchParams();
   const { data: students = [] } = useTeacherStudents();
   const updateProgress = useUpdateProgress();
@@ -123,19 +125,17 @@ export function TeacherProgressPage() {
   return (
     <PageContainer className="flex flex-col gap-6" size="narrow">
       <div>
-        <h1 className="text-2xl font-bold text-primary-dark">Progress Management</h1>
-        <p className="text-sm text-zinc-500">
-          Mark surah completion and update Tajweed notes for your students
-        </p>
+        <h1 className="text-2xl font-bold text-primary-dark">{t("teacher.progressManagement")}</h1>
+        <p className="text-sm text-zinc-500">{t("teacher.progressSubtitle")}</p>
       </div>
 
       <Card className="rounded-2xl border-0 shadow-sm p-5 flex flex-col gap-4">
           <Select
-            label="Select Student"
+            label={t("teacher.selectStudent")}
             value={studentId}
             onChange={(e) => setStudentId(e.target.value)}
           >
-            <option value="">Choose student…</option>
+            <option value="">{t("teacher.chooseStudent")}</option>
             {students.map((s) => (
               <option key={s._id} value={s._id}>{s.name}</option>
             ))}
@@ -143,11 +143,11 @@ export function TeacherProgressPage() {
 
           {studentId ? (
             <Select
-              label="Class"
+              label={t("teacher.classLabel")}
               value={classId}
               onChange={(e) => setClassId(e.target.value)}
             >
-              <option value="">Choose class…</option>
+              <option value="">{t("teacher.chooseClassOption")}</option>
               {(selectedStudent?.classes ?? []).map((cls) => (
                 <option key={cls._id} value={cls._id}>{cls.title}</option>
               ))}
@@ -158,41 +158,37 @@ export function TeacherProgressPage() {
         {studentId ? (
           <Card className="rounded-2xl border-0 shadow-sm p-5 flex flex-col gap-3">
             <div>
-              <span className="font-bold text-primary-dark text-sm">Assigned curriculum</span>
-              <p className="text-xs text-zinc-500 mt-0.5">
-                When a surah or topic is finished, mark it complete — the student sees it everywhere.
-              </p>
+              <span className="font-bold text-primary-dark text-sm">{t("teacher.assignedCurriculum")}</span>
+              <p className="text-xs text-zinc-500 mt-0.5">{t("teacher.assignedCurriculumDesc")}</p>
             </div>
             <StudentCurriculumPlan
               assignments={curriculumPlan}
               allowToggle
               togglingKey={togglingKey}
               onToggle={handleToggle}
-              emptyMessage="No curriculum assigned yet. Ask admin to set program → surah on the student profile."
+              emptyMessage={t("teacher.noCurriculumAssigned")}
             />
           </Card>
         ) : null}
 
         {studentId && classId ? (
           progressLoading ? (
-            <PageLoading label="Loading progress…" />
+            <PageLoading label={t("teacher.loadingProgress")} />
           ) : (
             <>
               <Card className="rounded-2xl border-0 shadow-sm p-5 flex flex-col gap-4">
                 {savedProgress?.curriculumLabels?.program ? (
                   <p className="text-xs text-zinc-500">
-                    Last class log program:{" "}
+                    {t("teacher.lastClassLogProgram")}{" "}
                     <span className="font-medium text-gold">
                       {formatCurriculumPath(savedProgress.curriculumLabels)}
                     </span>
                   </p>
                 ) : savedProgress ? (
-                  <p className="text-xs text-amber-700">
-                    No program saved yet — pick one below before saving.
-                  </p>
+                  <p className="text-xs text-amber-700">{t("teacher.noProgramSaved")}</p>
                 ) : null}
                 {treeLoading ? (
-                  <PageLoading label="Loading curriculum…" />
+                  <PageLoading label={t("teacher.loadingCurriculum")} />
                 ) : (
                   <NestedCurriculumSelect
                     tree={curriculumTree}
@@ -205,7 +201,7 @@ export function TeacherProgressPage() {
 
               <Card className="rounded-2xl border-0 shadow-sm p-5 flex flex-col gap-4">
                 <div className="flex justify-between items-center">
-                  <span className="font-bold text-primary-dark text-sm">Tajweed Score</span>
+                  <span className="font-bold text-primary-dark text-sm">{t("teacher.tajweedScore")}</span>
                   <span className="font-bold text-primary text-2xl">{tajweed}%</span>
                 </div>
                 <div className="rounded-full bg-zinc-100 w-full h-3 relative">
@@ -243,8 +239,8 @@ export function TeacherProgressPage() {
 
               <Card className="rounded-2xl border-0 shadow-sm p-5 flex flex-col gap-3">
                 <Textarea
-                  label="Teacher Notes"
-                  placeholder="Add notes about this student's progress…"
+                  label={t("teacher.teacherNotes")}
+                  placeholder={t("teacher.teacherNotesPlaceholder")}
                   value={notes}
                   onChange={(e) => setNotes(e.target.value)}
                   rows={4}
@@ -257,7 +253,7 @@ export function TeacherProgressPage() {
                 disabled={updateProgress.isPending || !curriculum.programId}
                 className="rounded-xl bg-primary-dark text-white font-semibold w-full h-12"
               >
-                {updateProgress.isPending ? "Saving…" : "Save Progress"}
+                {updateProgress.isPending ? t("teacher.saving") : t("teacher.saveProgress")}
               </Button>
             </>
           )

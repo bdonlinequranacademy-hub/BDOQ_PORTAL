@@ -25,10 +25,12 @@ import {
 } from "@/features/admin/components/classes/adminClassesUtils";
 import type { AdminClass } from "@/types/models";
 import { cn } from "@/lib/utils/cn";
+import { usePortalTranslation } from "@/i18n/LocaleProvider";
 
 type ViewMode = "list" | "grid";
 
 export function AdminClassesPage() {
+  const { t } = usePortalTranslation();
   const navigate = useNavigate();
   const [search, setSearch] = useState("");
   const [tab, setTab] = useState<AdminClassesTab>("all");
@@ -58,10 +60,10 @@ export function AdminClassesPage() {
   });
 
   const tabs: { id: AdminClassesTab; label: string; count?: number }[] = [
-    { id: "all", label: "All Classes", count: classes.length },
-    { id: "active", label: "Active", count: stats.active },
-    { id: "inactive", label: "Inactive", count: classes.length - stats.active },
-    { id: "today", label: "Today", count: stats.today },
+    { id: "all", label: t("admin.classes.allClasses"), count: classes.length },
+    { id: "active", label: t("admin.classes.active"), count: stats.active },
+    { id: "inactive", label: t("admin.classes.inactive"), count: classes.length - stats.active },
+    { id: "today", label: t("admin.classes.today"), count: stats.today },
   ];
 
   function handleToggleActive(cls: AdminClass) {
@@ -69,14 +71,14 @@ export function AdminClassesPage() {
     const inactive = cls.isActive === false;
 
     if (inactive) {
-      if (!window.confirm(`Reactivate "${title}"? Students will see this class again.`)) {
+      if (!window.confirm(t("admin.classes.confirmReactivate", { title }))) {
         return;
       }
       setClassActive.mutate({ id: cls._id, isActive: true });
       return;
     }
 
-    if (!window.confirm(`Deactivate "${title}"? Students will no longer see this class.`)) {
+    if (!window.confirm(t("admin.classes.confirmDeactivate", { title }))) {
       return;
     }
     setClassActive.mutate({ id: cls._id, isActive: false });
@@ -98,10 +100,10 @@ export function AdminClassesPage() {
       <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
         <div className="min-w-0">
           <h1 className="portal-page-title font-display text-2xl font-bold text-primary-dark sm:text-3xl">
-            Classes
+            {t("admin.classes.title")}
           </h1>
           <p className="portal-page-subtitle mt-1 max-w-2xl text-portal-muted">
-            Manage your academy classes, schedules and student enrollments.
+            {t("admin.classes.subtitle")}
           </p>
         </div>
         <Button
@@ -109,7 +111,7 @@ export function AdminClassesPage() {
           className="inline-flex shrink-0 items-center gap-2 rounded-xl bg-primary px-5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-primary-dark"
         >
           <Plus className="size-4" aria-hidden />
-          New Class
+          {t("admin.classes.newClass")}
         </Button>
       </div>
 
@@ -151,9 +153,9 @@ export function AdminClassesPage() {
                   className="py-2.5 text-sm"
                   aria-label="Sort classes"
                 >
-                  <option value="newest">Newest first</option>
-                  <option value="oldest">Oldest first</option>
-                  <option value="name">Name A–Z</option>
+                  <option value="newest">{t("sort.newest")}</option>
+                  <option value="oldest">{t("sort.oldest")}</option>
+                  <option value="name">{t("admin.common.sortNameAz")}</option>
                   <option value="students">Most students</option>
                 </Select>
               </div>
@@ -163,7 +165,7 @@ export function AdminClassesPage() {
                 className="inline-flex items-center justify-center gap-2 rounded-xl border border-portal px-3 py-2.5 text-sm font-semibold text-portal-heading transition hover:border-primary/30 hover:bg-primary/5 lg:shrink-0"
               >
                 <Filter className="size-4 text-primary" aria-hidden />
-                Clear
+                {t("filters.clearAll")}
               </button>
             </div>
           </div>
@@ -221,17 +223,23 @@ export function AdminClassesPage() {
           </div>
 
           {isLoading ? (
-            <PageLoading label="Loading classes…" />
+            <PageLoading label={t("admin.common.loadingClasses")} />
           ) : filtered.length === 0 ? (
             <EmptyState
-              title={search || tab !== "all" || teacherFilter !== "all" ? "No classes match" : "No classes yet"}
+              title={
+                search || tab !== "all" || teacherFilter !== "all"
+                  ? t("admin.common.noMatchFilters")
+                  : t("admin.classes.noClasses")
+              }
               description={
                 search || tab !== "all" || teacherFilter !== "all"
-                  ? "Try a different search or filter."
-                  : "Create your first class to assign teachers and enroll students."
+                  ? t("admin.common.clearFiltersHint")
+                  : t("admin.classes.noClassesDesc")
               }
               actionLabel={
-                search || tab !== "all" || teacherFilter !== "all" ? undefined : "Create class"
+                search || tab !== "all" || teacherFilter !== "all"
+                  ? undefined
+                  : t("admin.classForm.createClass")
               }
               onAction={
                 search || tab !== "all" || teacherFilter !== "all"
@@ -260,9 +268,9 @@ export function AdminClassesPage() {
                   onClick={() => exportClassesFile(filtered, "csv")}
                   className="text-sm font-semibold text-primary hover:underline"
                 >
-                  Export filtered list
+                  {t("admin.classes.exportFiltered")}
                 </button>
-                <Pagination pagination={pagination} itemLabel="classes" />
+                <Pagination pagination={pagination} itemLabel={t("admin.classes.classesItemLabel")} />
               </div>
             </>
           )}

@@ -4,6 +4,7 @@ import { SCHEDULE_DAYS } from "@/lib/utils/schedule";
 import { formatCountryWithFlag } from "@/lib/utils/countryDisplay";
 import type { AdminRoutineStatusFilter } from "@/features/admin/components/routine/adminRoutineUtils";
 import type { ITeacherFilterOption } from "@/features/admin/components/classes/adminClassesUtils";
+import { usePortalTranslation } from "@/i18n/LocaleProvider";
 import { cn } from "@/lib/utils/cn";
 
 interface IAdminRoutineFiltersProps {
@@ -39,6 +40,7 @@ export function AdminRoutineFilters({
   onStatusChange,
   onDayChange,
 }: IAdminRoutineFiltersProps) {
+  const { t, statusLabel, dynamicLabel } = usePortalTranslation();
   const hasActiveFilters = Boolean(courseType || teacherId || country || status);
 
   return (
@@ -48,12 +50,12 @@ export function AdminRoutineFilters({
           value={courseType}
           onChange={(event) => onCourseTypeChange(event.target.value)}
           className={formControlClass}
-          aria-label="Filter by course type"
+          aria-label={t("admin.routine.filters.courseType")}
         >
-          <option value="">All course types</option>
+          <option value="">{t("admin.routine.filters.allCourseTypes")}</option>
           {courseTypes.map((type) => (
             <option key={type} value={type}>
-              {type}
+              {dynamicLabel(type) || type}
             </option>
           ))}
         </select>
@@ -62,9 +64,9 @@ export function AdminRoutineFilters({
           value={teacherId}
           onChange={(event) => onTeacherChange(event.target.value)}
           className={formControlClass}
-          aria-label="Filter by teacher"
+          aria-label={t("admin.routine.filters.teacher")}
         >
-          <option value="">All teachers</option>
+          <option value="">{t("admin.routine.filters.allTeachers")}</option>
           {teachers.map((teacher) => (
             <option key={teacher.id} value={teacher.id}>
               {teacher.name}
@@ -76,9 +78,9 @@ export function AdminRoutineFilters({
           value={country}
           onChange={(event) => onCountryChange(event.target.value)}
           className={formControlClass}
-          aria-label="Filter by country"
+          aria-label={t("admin.routine.filters.country")}
         >
-          <option value="">All countries</option>
+          <option value="">{t("admin.routine.filters.allCountries")}</option>
           {countries.map((item) => (
             <option key={item} value={item}>
               {formatCountryWithFlag(item)}
@@ -90,13 +92,13 @@ export function AdminRoutineFilters({
           value={status}
           onChange={(event) => onStatusChange(event.target.value as AdminRoutineStatusFilter)}
           className={formControlClass}
-          aria-label="Filter by status"
+          aria-label={t("admin.routine.filters.status")}
         >
-          <option value="">All status</option>
-          <option value="live">Live now</option>
-          <option value="upcoming">Starting soon</option>
-          <option value="scheduled">Weekly scheduled</option>
-          <option value="completed">Completed today</option>
+          <option value="">{t("filters.allStatus")}</option>
+          <option value="live">{t("admin.routine.filters.liveNow")}</option>
+          <option value="upcoming">{t("admin.routine.filters.startingSoon")}</option>
+          <option value="scheduled">{statusLabel("scheduled")}</option>
+          <option value="completed">{t("admin.routine.filters.completedToday")}</option>
         </select>
       </div>
 
@@ -112,11 +114,12 @@ export function AdminRoutineFilters({
                 : "border border-portal bg-portal-surface text-portal-heading hover:bg-portal-muted/50"
             )}
           >
-            All days ({dayCounts.all ?? 0})
+            {t("admin.routine.filters.allDays")} ({dayCounts.all ?? 0})
           </button>
           {SCHEDULE_DAYS.map((scheduleDay) => {
             const count = dayCounts[scheduleDay] ?? 0;
             if (count === 0 && day !== scheduleDay) return null;
+            const dayLabel = dynamicLabel(scheduleDay.toLowerCase()) || scheduleDay;
             return (
               <button
                 key={scheduleDay}
@@ -129,7 +132,7 @@ export function AdminRoutineFilters({
                     : "border border-portal bg-portal-surface text-portal-heading hover:bg-portal-muted/50"
                 )}
               >
-                {scheduleDay.slice(0, 3)} ({count})
+                {dayLabel.slice(0, 3)} ({count})
               </button>
             );
           })}
@@ -138,7 +141,7 @@ export function AdminRoutineFilters({
         {hasActiveFilters ? (
           <span className="inline-flex shrink-0 items-center gap-1.5 text-xs font-medium text-portal-muted">
             <Filter className="size-3.5" aria-hidden />
-            Filters applied
+            {t("admin.routine.filters.filtersApplied")}
           </span>
         ) : null}
       </div>

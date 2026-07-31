@@ -4,6 +4,7 @@ import {
   blogThumbnailGradient,
   formatBlogDate,
 } from "@/features/admin/components/blog/adminBlogUtils";
+import { usePortalTranslation } from "@/i18n/LocaleProvider";
 
 interface IAdminBlogRecentPostsProps {
   posts: AdminBlogPost[];
@@ -12,17 +13,17 @@ interface IAdminBlogRecentPostsProps {
 }
 
 export function AdminBlogRecentPosts({ posts, onViewAll, onSelect }: IAdminBlogRecentPostsProps) {
+  const { t } = usePortalTranslation();
+
   return (
     <Card className="rounded-2xl border border-portal bg-portal-surface p-5 shadow-[0_8px_24px_-16px_rgba(13,74,47,0.18)]">
       <div className="mb-4 flex items-center justify-between gap-2">
-        <h2 className="text-sm font-bold text-portal-heading">Recent posts</h2>
+        <h2 className="text-sm font-bold text-portal-heading">{t("admin.cms.shared.recentPosts")}</h2>
         <button
           type="button"
           onClick={onViewAll}
           className="text-xs font-semibold text-primary hover:underline"
-        >
-          View all
-        </button>
+        >{t("admin.common.viewAllTeachers")}</button>
       </div>
       <div className="flex flex-col gap-3">
         {posts.length === 0 ? (

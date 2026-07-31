@@ -26,8 +26,10 @@ import {
   filterTrialLeads,
   type AdminTrialLeadsTab,
 } from "@/features/admin/components/trial-leads/adminTrialLeadsUtils";
+import { usePortalTranslation } from "@/i18n/LocaleProvider";
 
 export function AdminTrialBookingsPage() {
+  const { t } = usePortalTranslation();
   const [tab, setTab] = useState<AdminTrialLeadsTab>("all");
   const [search, setSearch] = useState("");
   const [courseFilter, setCourseFilter] = useState("");
@@ -41,7 +43,7 @@ export function AdminTrialBookingsPage() {
 
   const stats = useMemo(() => computeTrialLeadsStats(bookings), [bookings]);
   const courseOptions = useMemo(() => extractCourseOptions(bookings), [bookings]);
-  const sourceOptions = useMemo(() => extractSourceOptions(bookings), [bookings]);
+  const sourceOptions = useMemo(() => extractSourceOptions(bookings, t), [bookings, t]);
 
   const tabCounts = useMemo(
     () => ({
@@ -63,8 +65,9 @@ export function AdminTrialBookingsPage() {
         sourceFilter,
         dateFrom,
         dateTo,
+        t,
       }),
-    [bookings, tab, search, courseFilter, sourceFilter, dateFrom, dateTo]
+    [bookings, tab, search, courseFilter, sourceFilter, dateFrom, dateTo, t]
   );
 
   const pagination = usePaginatedList(visibleLeads, {
@@ -79,7 +82,7 @@ export function AdminTrialBookingsPage() {
   }
 
   function handleExport() {
-    exportTrialLeadsFile(visibleLeads, "trial-leads-filtered");
+    exportTrialLeadsFile(visibleLeads, "trial-leads-filtered", t);
   }
 
   return (
@@ -87,11 +90,10 @@ export function AdminTrialBookingsPage() {
       <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
         <div>
           <h1 className="portal-page-title font-display text-2xl font-bold text-primary-dark sm:text-3xl">
-            Free Class Leads
+            {t("admin.trialLeads.title")}
           </h1>
           <p className="portal-page-subtitle mt-1 max-w-3xl text-portal-muted">
-            Manage trial class requests from the public website and follow up via WhatsApp or
-            phone.
+            {t("admin.trialLeads.subtitle")}
           </p>
         </div>
         <Button
@@ -101,7 +103,7 @@ export function AdminTrialBookingsPage() {
           className="inline-flex shrink-0 items-center gap-2 rounded-xl border border-portal px-4"
         >
           <Download className="size-4" aria-hidden />
-          Export
+          {t("admin.common.export")}
         </Button>
       </div>
 
@@ -131,21 +133,25 @@ export function AdminTrialBookingsPage() {
       {isError ? (
         <EmptyState
           icon={CalendarCheck}
-          title="Could not load trial leads"
-          description="The server failed to return trial bookings. Try again in a moment."
-          actionLabel="Retry"
+          title={t("admin.trialLeads.loadError")}
+          description={t("admin.trialLeads.loadErrorDesc")}
+          actionLabel={t("admin.common.retry")}
           onAction={() => void refetch()}
         />
       ) : isLoading ? (
-        <PageLoading label="Loading trial leads…" />
+        <PageLoading label={t("admin.common.loadingTrialLeads")} />
       ) : visibleLeads.length === 0 ? (
         <EmptyState
           icon={CalendarCheck}
-          title={bookings.length === 0 ? "No trial leads yet" : "No leads match your filters"}
+          title={
+            bookings.length === 0
+              ? t("admin.trialLeads.noLeads")
+              : t("admin.trialLeads.noMatch")
+          }
           description={
             bookings.length === 0
-              ? "Leads appear here when visitors submit the free trial form on your website."
-              : "Try clearing search, course, source, or date filters."
+              ? t("admin.trialLeads.noLeadsDesc")
+              : t("admin.trialLeads.noMatchDesc")
           }
         />
       ) : (
@@ -156,7 +162,7 @@ export function AdminTrialBookingsPage() {
               busy={busy}
               onAdvanceStatus={handleAdvanceStatus}
             />
-            <Pagination pagination={pagination} itemLabel="leads" />
+            <Pagination pagination={pagination} itemLabel={t("admin.common.leadsItemLabel")} />
           </div>
           <AdminTrialLeadsSidebar
             leads={bookings}

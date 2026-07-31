@@ -23,6 +23,7 @@ import {
 import type { AdminTeacherProfile } from "@/types/models";
 import { AdminSectionHeaderPanel } from "@/features/admin/components/sectionHeaders/AdminSectionHeaderPanel";
 import { cn } from "@/lib/utils/cn";
+import { usePortalTranslation } from "@/i18n/LocaleProvider";
 
 function filterTeacherProfiles(
   items: AdminTeacherProfile[],
@@ -44,6 +45,7 @@ function filterTeacherProfiles(
 }
 
 export function AdminTeacherProfilesPage() {
+  const { t } = usePortalTranslation();
   const navigate = useNavigate();
   const [search, setSearch] = useState("");
   const [status, setStatus] = useState<CmsStatusFilter>("all");
@@ -72,7 +74,7 @@ export function AdminTeacherProfilesPage() {
   });
 
   function handleDelete(item: AdminTeacherProfile) {
-    if (!window.confirm(`Delete teacher profile "${item.name}"?`)) return;
+    if (!window.confirm(t("admin.common.confirmDeleteTeacher", { name: item.name }))) return;
     deleteProfile.mutate(item.id);
   }
 
@@ -83,11 +85,10 @@ export function AdminTeacherProfilesPage() {
       <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
         <div>
           <h1 className="font-display text-2xl font-bold text-primary-dark sm:text-3xl">
-            Website Teachers
+            {t("admin.cms.teachers.title")}
           </h1>
           <p className="mt-1.5 max-w-2xl text-sm text-portal-muted">
-            Manage public teacher profiles shown on the /teachers page — separate
-            from portal user accounts.
+            {t("admin.cms.teachers.subtitle")}
           </p>
         </div>
         <Button
@@ -96,16 +97,16 @@ export function AdminTeacherProfilesPage() {
           className="hidden shrink-0 items-center gap-2 rounded-xl bg-primary px-5 py-2.5 text-white hover:bg-primary-dark sm:inline-flex"
         >
           <Plus className="size-4" aria-hidden />
-          New Teacher
+          {t("admin.common.newTeacher")}
         </Button>
       </div>
 
       {!isLoading && profiles.length > 0 ? (
         <div className="mt-6 grid grid-cols-3 gap-3 sm:gap-4">
           {[
-            { label: "Total profiles", value: stats.total },
-            { label: "Published", value: stats.published },
-            { label: "Featured", value: stats.featured },
+            { label: t("admin.common.statTotal"), value: stats.total },
+            { label: t("admin.common.statPublished"), value: stats.published },
+            { label: t("admin.common.featured"), value: stats.featured },
           ].map((stat) => (
             <Card
               key={stat.label}
@@ -121,23 +122,23 @@ export function AdminTeacherProfilesPage() {
       ) : null}
 
       {isLoading ? (
-        <PageLoading label="Loading teacher profiles…" />
+        <PageLoading label={t("admin.common.loadingTeachers")} />
       ) : profiles.length === 0 ? (
         <EmptyState
           icon={Users}
-          title="No teacher profiles yet"
-          description="Add teacher profiles to populate the public /teachers page."
-          actionLabel="New Teacher"
+          title={t("admin.common.noTeachers")}
+          description={t("admin.common.noTeachersDesc")}
+          actionLabel={t("admin.common.newTeacher")}
           onAction={() => navigate("/admin/teacher-profiles/new")}
         />
       ) : (
         <div className="mt-6 flex flex-col gap-5">
           <AdminCmsListToolbar
-            title="Teacher Profiles"
-            subtitle="Public website mentors and teachers"
+            title={t("admin.common.teacherProfiles")}
+            subtitle={t("admin.common.teacherProfilesDesc")}
             search={search}
             status={status}
-            newLabel="New Teacher"
+            newLabel={t("admin.common.newTeacher")}
             searchPlaceholder="Search by name, role, or location…"
             onSearchChange={setSearch}
             onStatusChange={setStatus}
@@ -147,10 +148,10 @@ export function AdminTeacherProfilesPage() {
           {visible.length === 0 ? (
             <Card className="rounded-2xl border border-portal p-8 text-center shadow-sm">
               <p className="font-semibold text-portal-heading">
-                No profiles match filters
+                {t("admin.common.noMatchFilters")}
               </p>
               <p className="mt-1 text-sm text-portal-muted">
-                Try clearing search or status filters.
+                {t("admin.common.clearFiltersHint")}
               </p>
             </Card>
           ) : (
@@ -192,7 +193,7 @@ export function AdminTeacherProfilesPage() {
                                 {item.name}
                                 {item.featured ? (
                                   <span className="ml-2 rounded-full bg-gold/20 px-2 py-0.5 text-[10px] font-bold uppercase text-gold">
-                                    Featured
+                                    {t("admin.common.featured")}
                                   </span>
                                 ) : null}
                               </p>
@@ -239,7 +240,7 @@ export function AdminTeacherProfilesPage() {
                               className="inline-flex items-center gap-1.5 rounded-lg border border-portal px-3 py-1.5 text-xs font-semibold text-primary transition hover:bg-primary/5"
                             >
                               <Pencil className="size-3.5" aria-hidden />
-                              Edit
+                              {t("admin.common.edit")}
                             </button>
                             <button
                               type="button"
@@ -247,7 +248,7 @@ export function AdminTeacherProfilesPage() {
                               className="inline-flex items-center gap-1.5 rounded-lg border border-red-200 px-3 py-1.5 text-xs font-semibold text-red-600 transition hover:bg-red-50"
                             >
                               <Trash2 className="size-3.5" aria-hidden />
-                              Delete
+                              {t("admin.common.delete")}
                             </button>
                           </div>
                         </td>
@@ -271,7 +272,7 @@ export function AdminTeacherProfilesPage() {
               onClick={() => void refetch()}
               className="text-center text-xs font-semibold text-primary hover:underline"
             >
-              Refresh data
+              {t("admin.common.refreshData")}
             </button>
           )}
         </div>

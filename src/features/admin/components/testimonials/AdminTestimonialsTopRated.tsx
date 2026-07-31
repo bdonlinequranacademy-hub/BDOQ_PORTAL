@@ -2,6 +2,7 @@ import { Star } from "lucide-react";
 import { Card } from "@/components/ui/Card";
 import { UserAvatar } from "@/components/ui/UserAvatar";
 import type { AdminTestimonial } from "@/types/models";
+import { usePortalTranslation } from "@/i18n/LocaleProvider";
 
 interface IAdminTestimonialsTopRatedProps {
   items: AdminTestimonial[];
@@ -12,11 +13,17 @@ export function AdminTestimonialsTopRated({
   items,
   onSelect,
 }: IAdminTestimonialsTopRatedProps) {
+  const { t } = usePortalTranslation();
+
   return (
     <Card className="rounded-2xl border border-portal bg-portal-surface p-5 shadow-[0_8px_24px_-16px_rgba(13,74,47,0.18)]">
-      <h2 className="mb-4 text-sm font-bold text-portal-heading">Top rated reviews</h2>
+      <h2 className="mb-4 text-sm font-bold text-portal-heading">
+        {t("admin.cms.shared.topRated")}
+      </h2>
       {items.length === 0 ? (
-        <p className="text-sm text-portal-muted">No published reviews yet.</p>
+        <p className="text-sm text-portal-muted">
+          {t("admin.cms.testimonials.noPublishedReviews")}
+        </p>
       ) : (
         <ul className="space-y-3">
           {items.map((item) => (

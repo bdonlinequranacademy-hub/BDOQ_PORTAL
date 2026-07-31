@@ -1,10 +1,13 @@
 import { cn } from "@/lib/utils/cn";
+import { usePortalTranslation } from "@/i18n/LocaleProvider";
 
 interface IAdminCmsStatusBadgeProps {
   showOnWebsite: boolean;
 }
 
 export function AdminCmsStatusBadge({ showOnWebsite }: IAdminCmsStatusBadgeProps) {
+  const { statusLabel } = usePortalTranslation();
+
   return (
     <span
       className={cn(
@@ -14,7 +17,7 @@ export function AdminCmsStatusBadge({ showOnWebsite }: IAdminCmsStatusBadgeProps
           : "bg-portal-muted/50 text-portal-muted"
       )}
     >
-      {showOnWebsite ? "Published" : "Draft"}
+      {statusLabel(showOnWebsite ? "published" : "draft")}
     </span>
   );
 }

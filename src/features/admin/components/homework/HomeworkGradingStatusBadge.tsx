@@ -1,9 +1,7 @@
 import type { HomeworkGradingStatus } from "@/features/admin/components/homework/adminHomeworkUtils";
-import {
-  homeworkGradingStatusLabel,
-  homeworkGradingStatusStyles,
-} from "@/features/admin/components/homework/adminHomeworkUtils";
+import { homeworkGradingStatusStyles } from "@/features/admin/components/homework/adminHomeworkUtils";
 import { cn } from "@/lib/utils/cn";
+import { usePortalTranslation } from "@/i18n/LocaleProvider";
 
 interface IHomeworkGradingStatusBadgeProps {
   status: HomeworkGradingStatus;
@@ -14,6 +12,8 @@ export function HomeworkGradingStatusBadge({
   status,
   className,
 }: IHomeworkGradingStatusBadgeProps) {
+  const { statusLabel } = usePortalTranslation();
+
   return (
     <span
       className={cn(
@@ -22,7 +22,7 @@ export function HomeworkGradingStatusBadge({
         className
       )}
     >
-      {homeworkGradingStatusLabel(status)}
+      {statusLabel(status)}
     </span>
   );
 }

@@ -12,17 +12,18 @@ import { usePaginatedList } from "@/lib/hooks/usePaginatedList";
 import { WhatsAppLinkButton } from "@/components/whatsapp/WhatsAppLinkButton";
 import type { WhatsAppQueueCategory, WhatsAppQueueItem } from "@/types/models";
 import { cn } from "@/lib/utils/cn";
+import { usePortalTranslation } from "@/i18n/LocaleProvider";
 
 type Filter = "all" | WhatsAppQueueCategory;
 
-const FILTER_LABELS: Record<Filter, string> = {
-  all: "All",
-  class_reminder: "Class (10 min)",
-  payment_overdue: "Overdue",
-  payment_due_soon: "Due soon",
-  new_trial: "Trial leads",
-  new_admission: "Admissions",
-  missing_whatsapp: "Missing number",
+const FILTER_KEYS: Record<Filter, string> = {
+  all: "admin.whatsapp.filterAll",
+  class_reminder: "admin.whatsapp.filterClassReminder",
+  payment_overdue: "admin.whatsapp.filterOverdue",
+  payment_due_soon: "admin.whatsapp.filterDueSoon",
+  new_trial: "admin.whatsapp.filterTrial",
+  new_admission: "admin.whatsapp.filterAdmissions",
+  missing_whatsapp: "admin.whatsapp.filterMissingNumber",
 };
 
 function categoryBadge(category: WhatsAppQueueCategory) {
@@ -43,6 +44,8 @@ function categoryBadge(category: WhatsAppQueueCategory) {
 }
 
 function QueueRow({ item }: { item: WhatsAppQueueItem }) {
+  const { t, role } = usePortalTranslation();
+
   return (
     <Card className="rounded-2xl border border-zinc-100 p-4 shadow-sm">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
@@ -54,15 +57,15 @@ function QueueRow({ item }: { item: WhatsAppQueueItem }) {
                 categoryBadge(item.category)
               )}
             >
-              {FILTER_LABELS[item.category]}
+              {t(FILTER_KEYS[item.category])}
             </span>
-            <span className="text-xs text-zinc-400 capitalize">{item.recipientRole}</span>
+            <span className="text-xs text-zinc-400 capitalize">{role(item.recipientRole)}</span>
           </div>
           <p className="mt-2 font-semibold text-primary-dark">{item.recipientName}</p>
           <p className="text-sm text-zinc-500">{item.title}</p>
           <p className="text-xs text-zinc-400">{item.subtitle}</p>
           <p className="mt-2 text-xs text-zinc-600">
-            WhatsApp:{" "}
+            {t("admin.whatsapp.whatsappLabel")}{" "}
             <span className={item.phoneValid ? "font-medium text-emerald-700" : "text-amber-700"}>
               {item.phoneDisplay}
             </span>
@@ -73,7 +76,7 @@ function QueueRow({ item }: { item: WhatsAppQueueItem }) {
           {item.message ? (
             <details className="mt-3">
               <summary className="cursor-pointer text-xs font-medium text-primary-dark">
-                Preview message
+                {t("admin.whatsapp.previewMessage")}
               </summary>
               <pre className="mt-2 whitespace-pre-wrap rounded-xl bg-zinc-50 p-3 text-xs leading-relaxed text-zinc-600">
                 {item.message}
@@ -84,7 +87,11 @@ function QueueRow({ item }: { item: WhatsAppQueueItem }) {
         <div className="flex shrink-0 flex-col items-stretch gap-2 sm:items-end">
           <WhatsAppLinkButton
             href={item.waUrl}
-            label={item.category === "missing_whatsapp" ? "No number" : "Send WhatsApp"}
+            label={
+              item.category === "missing_whatsapp"
+                ? t("admin.whatsapp.noNumber")
+                : t("admin.whatsapp.sendWhatsapp")
+            }
             disabledReason={item.phoneError}
           />
           {item.userId && item.category === "missing_whatsapp" ? (
@@ -92,7 +99,7 @@ function QueueRow({ item }: { item: WhatsAppQueueItem }) {
               to="/admin/users"
               className="text-center text-xs font-semibold text-gold hover:underline"
             >
-              Fix in Users →
+              {t("admin.whatsapp.fixInUsers")}
             </Link>
           ) : null}
         </div>
@@ -102,6 +109,7 @@ function QueueRow({ item }: { item: WhatsAppQueueItem }) {
 }
 
 export function AdminWhatsAppQueuePage() {
+  const { t } = usePortalTranslation();
   const { data: items = [], isLoading, refetch, isFetching } = useAdminWhatsAppQueue();
   const [filter, setFilter] = useState<Filter>("all");
 
@@ -134,13 +142,15 @@ export function AdminWhatsAppQueuePage() {
         <div>
           <div className="flex items-center gap-2 text-[#128C7E]">
             <MessageCircle className="size-5" aria-hidden />
-            <span className="text-sm font-semibold uppercase tracking-wide">Zero-cost WhatsApp</span>
+            <span className="text-sm font-semibold uppercase tracking-wide">
+              {t("admin.whatsapp.badge")}
+            </span>
           </div>
-          <h1 className="mt-1 text-2xl font-bold text-primary-dark">WhatsApp message queue</h1>
+          <h1 className="mt-1 text-2xl font-bold text-primary-dark">
+            {t("admin.whatsapp.title")}
+          </h1>
           <p className="mt-1 max-w-2xl text-sm text-zinc-500">
-            Payment cron, class reminders (10 min before), and portal alerts build ready-to-send
-            messages here. Click <strong>Send WhatsApp</strong> to open WhatsApp with the correct
-            country code and pre-filled text — no API cost.
+            {t("admin.whatsapp.subtitle")}
           </p>
         </div>
         <Button
@@ -151,12 +161,12 @@ export function AdminWhatsAppQueuePage() {
           disabled={isFetching}
         >
           <RefreshCw className={cn("size-4", isFetching && "animate-spin")} />
-          Refresh
+          {t("admin.whatsapp.refresh")}
         </Button>
       </div>
 
       <div className="flex flex-wrap gap-2">
-        {(Object.keys(FILTER_LABELS) as Filter[]).map((key) => (
+        {(Object.keys(FILTER_KEYS) as Filter[]).map((key) => (
           <button
             key={key}
             type="button"
@@ -168,27 +178,27 @@ export function AdminWhatsAppQueuePage() {
                 : "bg-zinc-100 text-zinc-600 hover:bg-zinc-200"
             )}
           >
-            {FILTER_LABELS[key]} ({counts[key]})
+            {t(FILTER_KEYS[key])} ({counts[key]})
           </button>
         ))}
       </div>
 
       {isLoading ? (
-        <PageLoading label="Loading WhatsApp queue…" />
+        <PageLoading label={t("admin.common.loadingWhatsappQueue")} />
       ) : filtered.length === 0 ? (
         <EmptyState
           icon={MessageCircle}
-          title="Queue is clear"
-          description="No class reminders, payment reminders, new leads, or missing numbers right now."
+          title={t("admin.whatsapp.emptyTitle")}
+          description={t("admin.whatsapp.emptyDesc")}
         />
       ) : (
         <>
-        <div className="flex flex-col gap-3">
-          {pagination.paginatedItems.map((item) => (
-            <QueueRow key={item.id} item={item} />
-          ))}
-        </div>
-        <Pagination pagination={pagination} itemLabel="messages" />
+          <div className="flex flex-col gap-3">
+            {pagination.paginatedItems.map((item) => (
+              <QueueRow key={item.id} item={item} />
+            ))}
+          </div>
+          <Pagination pagination={pagination} itemLabel={t("admin.common.messagesItemLabel")} />
         </>
       )}
     </PageContainer>

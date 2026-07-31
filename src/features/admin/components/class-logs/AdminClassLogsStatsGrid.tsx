@@ -6,6 +6,7 @@ import {
   XCircle,
 } from "lucide-react";
 import { StatCard } from "@/components/ui/shared/StatCard";
+import { usePortalTranslation } from "@/i18n/LocaleProvider";
 import type { IAdminClassLogsStats } from "@/features/admin/components/class-logs/adminClassLogsUtils";
 
 interface IAdminClassLogsStatsGridProps {
@@ -17,49 +18,51 @@ export function AdminClassLogsStatsGrid({
   stats,
   isLoading,
 }: IAdminClassLogsStatsGridProps) {
+  const { t, statusLabel, formatBdt } = usePortalTranslation();
+
   return (
     <div className="grid grid-cols-2 items-start gap-2.5 sm:gap-3 xl:grid-cols-5">
       <StatCard
-        label="Total Logs"
+        label={t("admin.classLogs.totalLogs")}
         value={isLoading ? "—" : stats.total}
         icon={<ClipboardList className="size-5 text-primary" />}
         iconBg="bg-primary/10"
-        hint="All session logs"
+        hint={t("admin.classLogs.allSessionLogs")}
       />
       <StatCard
-        label="Pending Approval"
+        label={t("admin.classLogs.pendingApproval")}
         value={isLoading ? "—" : stats.pending}
         icon={<Clock className="size-5 text-amber-600" />}
         iconBg="bg-amber-100"
-        hint="Awaiting review"
+        hint={t("admin.classLogs.awaitingReview")}
       />
       <StatCard
-        label="Approved"
+        label={statusLabel("approved")}
         value={isLoading ? "—" : stats.approved}
         icon={<CheckCircle2 className="size-5 text-primary" />}
         iconBg="bg-primary/10"
-        hint="Verified sessions"
+        hint={t("admin.classLogs.verifiedSessions")}
       />
       <StatCard
-        label="Rejected"
+        label={statusLabel("rejected")}
         value={isLoading ? "—" : stats.rejected}
         icon={<XCircle className="size-5 text-red-600" />}
         iconBg="bg-red-100"
-        hint="Needs correction"
+        hint={t("admin.classLogs.needsCorrection")}
       />
       <StatCard
-        label="Avg. Session Rate"
+        label={t("admin.classLogs.avgSessionRate")}
         value={
           isLoading
             ? "—"
             : stats.avgSessionRate != null
-              ? `৳${stats.avgSessionRate}`
+              ? formatBdt(stats.avgSessionRate)
               : "—"
         }
         icon={<Banknote className="size-5 text-blue-600" />}
         iconBg="bg-blue-100"
         className="col-span-2 xl:col-span-1"
-        hint="Approved logs average"
+        hint={t("admin.classLogs.approvedLogsAverage")}
       />
     </div>
   );

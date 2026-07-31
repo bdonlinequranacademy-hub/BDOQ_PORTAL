@@ -2,6 +2,16 @@ import type { SessionPhase, SessionSlotView } from "@/types/models";
 
 export const ACADEMY_TIMEZONE = "Asia/Dhaka";
 
+export interface ISessionTimingLabels {
+  inProgress: string;
+  finished: string;
+  scheduled: string;
+  startsIn: (time: string) => string;
+  startingNow: string;
+  weeklyDay: (day: string) => string;
+  timeLeft: (time: string) => string;
+}
+
 export function getAcademyWeekday(now = new Date()): string {
   return new Intl.DateTimeFormat("en-US", {
     weekday: "long",
@@ -16,7 +26,8 @@ export function isSessionToday(
   return session.day === getAcademyWeekday(now);
 }
 
-export function formatCountdown(ms: number): string {  if (ms <= 0) return "00:00:00";
+export function formatCountdown(ms: number): string {
+  if (ms <= 0) return "00:00:00";
   const totalSec = Math.floor(ms / 1000);
   const h = Math.floor(totalSec / 3600);
   const m = Math.floor((totalSec % 3600) / 60);
@@ -41,21 +52,32 @@ export function resolveSessionPhase(
 export function getSessionCountdownLabel(
   session: Pick<SessionSlotView, "sessionPhase" | "startsAt" | "endsAt" | "day">,
   nowMs: number,
-  options?: { routineView?: boolean; compact?: boolean }
+  options?: { routineView?: boolean; compact?: boolean },
+  labels?: ISessionTimingLabels
 ): string {
+  const L = labels ?? {
+    inProgress: "Session in progress",
+    finished: "Session finished",
+    scheduled: "Scheduled",
+    startsIn: (time) => `Starts in ${time}`,
+    startingNow: "Starting now",
+    weeklyDay: (day) => `Weekly · ${day}`,
+    timeLeft: (time) => `${time} left`,
+  };
+
   if (options?.routineView && !isSessionToday(session, new Date(nowMs))) {
     if (options.compact) {
       return session.day.slice(0, 3);
     }
-    return `Weekly · ${session.day}`;
+    return L.weeklyDay(session.day);
   }
 
   const phase = resolveSessionPhase(session, nowMs);
-  if (phase === "live") return "Session in progress";
-  if (phase === "completed") return "Session finished";
-  if (!session.startsAt) return "Scheduled";
+  if (phase === "live") return L.inProgress;
+  if (phase === "completed") return L.finished;
+  if (!session.startsAt) return L.scheduled;
   const ms = new Date(session.startsAt).getTime() - nowMs;
-  return ms > 0 ? `Starts in ${formatCountdown(ms)}` : "Starting now";
+  return ms > 0 ? L.startsIn(formatCountdown(ms)) : L.startingNow;
 }
 
 export function resolveDisplayPhase(

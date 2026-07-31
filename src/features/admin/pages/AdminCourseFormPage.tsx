@@ -24,6 +24,7 @@ import {
 } from "@/lib/formControl";
 import { cn } from "@/lib/utils/cn";
 import { env } from "@/config/env";
+import { usePortalTranslation } from "@/i18n/LocaleProvider";
 import type {
   AdminCourseCategory,
   AdminCourseGender,
@@ -52,6 +53,7 @@ interface IBenefitRow {
 }
 
 export function AdminCourseFormPage() {
+  const { t } = usePortalTranslation();
   const { id } = useParams<{ id: string }>();
   const isEdit = Boolean(id);
   const navigate = useNavigate();
@@ -187,7 +189,7 @@ export function AdminCourseFormPage() {
   if (isEdit && isLoading) {
     return (
       <PageContainer>
-        <PageLoading label="Loading course…" />
+        <PageLoading label={t("admin.common.loadingCourse")} />
       </PageContainer>
     );
   }
@@ -208,7 +210,7 @@ export function AdminCourseFormPage() {
             Back to courses
           </button>
           <h1 className="mt-3 font-display text-2xl font-bold text-primary-dark sm:text-3xl">
-            {isEdit ? "Edit Course" : "Create New Course"}
+            {isEdit ? t("admin.cms.courses.editTitle") : t("admin.cms.courses.createTitle")}
           </h1>
           <p className="mt-1.5 max-w-xl text-sm text-portal-muted">
             {isEdit
@@ -235,7 +237,7 @@ export function AdminCourseFormPage() {
             className="inline-flex items-center gap-2 rounded-xl bg-primary px-4 text-white hover:bg-primary-dark"
           >
             <Save className="size-4" aria-hidden />
-            {isSaving ? "Saving…" : "Save Course"}
+            {isSaving ? t("admin.curriculum.saving") : t("admin.cms.courses.saveCourse")}
           </Button>
         </div>
       </div>

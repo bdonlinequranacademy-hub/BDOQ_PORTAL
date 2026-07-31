@@ -2,10 +2,10 @@ import { Card } from "@/components/ui/Card";
 import { UserInitialAvatar } from "@/components/ui/UserInitialAvatar";
 import type { ClassLogView } from "@/types/models";
 import {
-  formatEarningsAmount,
   getProgramLabel,
 } from "@/features/admin/components/earnings/adminEarningsUtils";
 import { formatLogDateLabel } from "@/features/admin/components/class-logs/adminClassLogsUtils";
+import { usePortalTranslation } from "@/i18n/LocaleProvider";
 
 interface IAdminEarningsSidebarProps {
   upcomingLogs: ClassLogView[];
@@ -13,11 +13,15 @@ interface IAdminEarningsSidebarProps {
 }
 
 function UpcomingPending({ logs }: { logs: ClassLogView[] }) {
+  const { t, statusLabel, formatBdt } = usePortalTranslation();
+
   return (
     <Card className="rounded-2xl border border-portal bg-portal-surface p-5 shadow-[0_8px_24px_-16px_rgba(13,74,47,0.18)]">
-      <h2 className="text-sm font-bold text-portal-heading">Upcoming approvals</h2>
+      <h2 className="text-sm font-bold text-portal-heading">
+        {t("admin.earnings.sidebarUpcomingPending")}
+      </h2>
       {logs.length === 0 ? (
-        <p className="mt-3 text-sm text-portal-muted">No pending session logs.</p>
+        <p className="mt-3 text-sm text-portal-muted">{t("admin.classLogs.noClassLogs")}</p>
       ) : (
         <div className="mt-4 flex flex-col gap-3">
           {logs.map((log) => (
@@ -31,12 +35,12 @@ function UpcomingPending({ logs }: { logs: ClassLogView[] }) {
                   <p className="truncate text-sm font-semibold text-portal-heading">
                     {log.teacher.name}
                   </p>
-                  <p className="text-xs text-amber-700">Pending approval</p>
+                  <p className="text-xs text-amber-700">{statusLabel("pending")}</p>
                 </div>
               </div>
               <div className="shrink-0 text-right">
                 <p className="text-sm font-bold text-portal-heading">
-                  {log.earningsBdt != null ? formatEarningsAmount(log.earningsBdt) : "—"}
+                  {log.earningsBdt != null ? formatBdt(log.earningsBdt) : "—"}
                 </p>
                 <p className="text-[11px] text-portal-muted">
                   {formatLogDateLabel(log.sessionDate)}
@@ -51,11 +55,15 @@ function UpcomingPending({ logs }: { logs: ClassLogView[] }) {
 }
 
 function RecentVerified({ logs }: { logs: ClassLogView[] }) {
+  const { t, statusLabel, formatBdt } = usePortalTranslation();
+
   return (
     <Card className="rounded-2xl border border-portal bg-portal-surface p-5 shadow-[0_8px_24px_-16px_rgba(13,74,47,0.18)]">
-      <h2 className="text-sm font-bold text-portal-heading">Recent verified pay</h2>
+      <h2 className="text-sm font-bold text-portal-heading">
+        {t("admin.earnings.sidebarRecentVerified")}
+      </h2>
       {logs.length === 0 ? (
-        <p className="mt-3 text-sm text-portal-muted">No verified logs yet.</p>
+        <p className="mt-3 text-sm text-portal-muted">{t("admin.classLogs.noClassLogs")}</p>
       ) : (
         <div className="mt-4 flex flex-col gap-3">
           {logs.map((log) => (
@@ -74,10 +82,10 @@ function RecentVerified({ logs }: { logs: ClassLogView[] }) {
               </div>
               <div className="shrink-0 text-right">
                 <p className="text-sm font-bold text-emerald-700">
-                  {log.earningsBdt != null ? formatEarningsAmount(log.earningsBdt) : "—"}
+                  {log.earningsBdt != null ? formatBdt(log.earningsBdt) : "—"}
                 </p>
                 <span className="mt-1 inline-flex rounded-full bg-emerald-100 px-2 py-0.5 text-[10px] font-bold text-emerald-800">
-                  Verified
+                  {statusLabel("approved")}
                 </span>
               </div>
             </div>

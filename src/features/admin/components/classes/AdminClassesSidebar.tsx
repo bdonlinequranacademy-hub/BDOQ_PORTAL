@@ -2,6 +2,7 @@ import { useMemo, useState } from "react";
 import { ChevronLeft, ChevronRight, FileText, Plus } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import { Card } from "@/components/ui/Card";
+import { usePortalTranslation } from "@/i18n/LocaleProvider";
 import type { AdminClass } from "@/types/models";
 import {
   classTitle,
@@ -23,18 +24,22 @@ interface IAdminClassesSidebarProps {
 const WEEKDAY_LABELS = ["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"];
 
 function AdminClassesTodaySchedule({ classes }: { classes: AdminClass[] }) {
+  const { t, dynamicLabel } = usePortalTranslation();
   const todayClasses = classesScheduledToday(classes).filter((cls) => cls.isActive !== false);
+  const todayDayLabel = dynamicLabel(getTodayWeekDay().toLowerCase());
 
   return (
     <Card className="rounded-2xl border border-portal bg-portal-surface p-5 shadow-[0_8px_24px_-16px_rgba(13,74,47,0.18)]">
       <div className="mb-4 flex items-center justify-between gap-2">
-        <h2 className="text-sm font-bold text-portal-heading">Today&apos;s Schedule</h2>
+        <h2 className="text-sm font-bold text-portal-heading">{t("admin.classes.todaySchedule")}</h2>
         <Link to="/admin/live-monitor" className="text-xs font-semibold text-primary hover:underline">
-          View all
+          {t("actions.viewAll")}
         </Link>
       </div>
       {todayClasses.length === 0 ? (
-        <p className="text-sm text-portal-muted">No classes scheduled for {getTodayWeekDay()}.</p>
+        <p className="text-sm text-portal-muted">
+          {t("admin.classes.noClassesScheduled", { day: todayDayLabel })}
+        </p>
       ) : (
         <div className="flex flex-col gap-3">
           {todayClasses.slice(0, 4).map((cls) => {
@@ -59,6 +64,7 @@ function AdminClassesTodaySchedule({ classes }: { classes: AdminClass[] }) {
 }
 
 function AdminClassesCalendar({ classes }: { classes: AdminClass[] }) {
+  const { t, formatDate } = usePortalTranslation();
   const today = new Date();
   const [viewDate, setViewDate] = useState(
     () => new Date(today.getFullYear(), today.getMonth(), 1)
@@ -72,10 +78,7 @@ function AdminClassesCalendar({ classes }: { classes: AdminClass[] }) {
 
   const firstDay = new Date(year, month, 1).getDay();
   const daysInMonth = new Date(year, month + 1, 0).getDate();
-  const monthLabel = viewDate.toLocaleDateString("en-US", {
-    month: "long",
-    year: "numeric",
-  });
+  const monthLabel = formatDate(new Date(year, month, 1).toISOString());
 
   const cells: (number | null)[] = [];
   for (let i = 0; i < firstDay; i += 1) cells.push(null);
@@ -94,7 +97,7 @@ function AdminClassesCalendar({ classes }: { classes: AdminClass[] }) {
             type="button"
             onClick={() => shiftMonth(-1)}
             className="inline-flex size-8 items-center justify-center rounded-lg text-portal-muted transition hover:bg-portal-muted/50 hover:text-primary"
-            aria-label="Previous month"
+            aria-label={t("admin.classes.previousMonth")}
           >
             <ChevronLeft className="size-4" aria-hidden />
           </button>
@@ -102,7 +105,7 @@ function AdminClassesCalendar({ classes }: { classes: AdminClass[] }) {
             type="button"
             onClick={() => shiftMonth(1)}
             className="inline-flex size-8 items-center justify-center rounded-lg text-portal-muted transition hover:bg-portal-muted/50 hover:text-primary"
-            aria-label="Next month"
+            aria-label={t("admin.classes.nextMonth")}
           >
             <ChevronRight className="size-4" aria-hidden />
           </button>
@@ -139,27 +142,30 @@ function AdminClassesCalendar({ classes }: { classes: AdminClass[] }) {
           );
         })}
       </div>
-      <p className="mt-3 text-[11px] text-portal-muted">
-        Highlighted days match weekly class schedules.
-      </p>
+      <p className="mt-3 text-[11px] text-portal-muted">{t("admin.classes.calendarHint")}</p>
     </Card>
   );
 }
 
 function AdminClassesOverview({ classes }: { classes: AdminClass[] }) {
+  const { t, formatNumber } = usePortalTranslation();
   const stats = computeAdminClassesStats(classes);
   const noSchedule = stats.total - stats.scheduled;
 
   const items = [
-    { label: "Active classes", value: stats.active, tone: "bg-emerald-500" },
-    { label: "Inactive classes", value: stats.total - stats.active, tone: "bg-amber-500" },
-    { label: "With schedule", value: stats.scheduled, tone: "bg-primary" },
-    { label: "No schedule", value: noSchedule, tone: "bg-portal-muted" },
+    { label: t("admin.classes.activeClassesOverview"), value: stats.active, tone: "bg-emerald-500" },
+    {
+      label: t("admin.classes.inactiveClassesOverview"),
+      value: stats.total - stats.active,
+      tone: "bg-amber-500",
+    },
+    { label: t("admin.classes.withSchedule"), value: stats.scheduled, tone: "bg-primary" },
+    { label: t("admin.classes.noScheduleOverview"), value: noSchedule, tone: "bg-portal-muted" },
   ];
 
   return (
     <Card className="rounded-2xl border border-portal bg-portal-surface p-5 shadow-[0_8px_24px_-16px_rgba(13,74,47,0.18)]">
-      <h2 className="mb-4 text-sm font-bold text-portal-heading">Class Overview</h2>
+      <h2 className="mb-4 text-sm font-bold text-portal-heading">{t("admin.classes.classOverview")}</h2>
       <div className="flex flex-col gap-2.5">
         {items.map((item) => (
           <div key={item.label} className="flex items-center justify-between gap-2 text-sm">
@@ -167,7 +173,9 @@ function AdminClassesOverview({ classes }: { classes: AdminClass[] }) {
               <span className={cn("size-2.5 rounded-sm", item.tone)} />
               <span className="text-portal-heading">{item.label}</span>
             </div>
-            <span className="font-bold tabular-nums text-portal-heading">{item.value}</span>
+            <span className="font-bold tabular-nums text-portal-heading">
+              {formatNumber(item.value)}
+            </span>
           </div>
         ))}
       </div>
@@ -177,10 +185,11 @@ function AdminClassesOverview({ classes }: { classes: AdminClass[] }) {
 
 function AdminClassesQuickActions() {
   const navigate = useNavigate();
+  const { t } = usePortalTranslation();
 
   return (
     <Card className="rounded-2xl border border-portal bg-portal-surface p-5 shadow-[0_8px_24px_-16px_rgba(13,74,47,0.18)]">
-      <h2 className="mb-4 text-sm font-bold text-portal-heading">Quick Actions</h2>
+      <h2 className="mb-4 text-sm font-bold text-portal-heading">{t("admin.classes.quickActions")}</h2>
       <div className="grid grid-cols-1 gap-3">
         <button
           type="button"
@@ -188,14 +197,14 @@ function AdminClassesQuickActions() {
           className="inline-flex items-center justify-center gap-2 rounded-xl border border-primary/30 bg-primary/5 px-4 py-2.5 text-sm font-semibold text-primary transition hover:bg-primary/10"
         >
           <Plus className="size-4" aria-hidden />
-          Add New Class
+          {t("admin.classes.addNewClass")}
         </button>
         <Link
           to="/admin/class-logs"
           className="inline-flex items-center justify-center gap-2 rounded-xl border border-primary/30 bg-primary/5 px-4 py-2.5 text-sm font-semibold text-primary transition hover:bg-primary/10"
         >
           <FileText className="size-4" aria-hidden />
-          Class Reports
+          {t("admin.classes.classReports")}
         </Link>
       </div>
     </Card>

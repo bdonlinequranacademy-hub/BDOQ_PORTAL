@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Bell, Grid3x3, X } from "lucide-react";
 import { ThemeToggle } from "@/components/theme/ThemeToggle";
+import { usePortalTranslation } from "@/i18n/LocaleProvider";
 import { cn } from "@/lib/utils/cn";
 import type { Role } from "@/types/models";
 
@@ -29,6 +30,7 @@ export function MobileNavMenu({
   onSignOut,
 }: MobileNavMenuProps) {
   const navigate = useNavigate();
+  const { t, role: roleLabelFn } = usePortalTranslation();
   const [open, setOpen] = useState(false);
 
   const primarySet = new Set(primaryPaths);
@@ -49,11 +51,11 @@ export function MobileNavMenu({
           "portal-mobile-tab",
           (hasActiveOverflow || open) && "portal-mobile-tab--active"
         )}
-        aria-label="More navigation"
+        aria-label={t("layout.moreNavigation")}
       >
         <Grid3x3 className="size-[22px]" />
         <span className={cn("text-[10px] leading-tight", hasActiveOverflow ? "font-semibold" : "font-medium")}>
-          More
+          {t("common.more")}
         </span>
       </button>
 
@@ -73,7 +75,7 @@ export function MobileNavMenu({
             <div className="sticky top-0 z-10 flex items-center justify-between border-b border-portal-border bg-portal-surface px-5 py-3">
               <div>
                 <p className="text-[10px] font-semibold uppercase tracking-wider text-gold-dark dark:text-gold">
-                  {role.replace("_", " ")} menu
+                  {t("layout.menuForRole", { role: roleLabelFn(role) })}
                 </p>
                 <p className="font-display text-base font-bold text-portal-heading">{userName}</p>
               </div>
@@ -81,7 +83,7 @@ export function MobileNavMenu({
                 type="button"
                 onClick={() => setOpen(false)}
                 className="flex size-10 items-center justify-center rounded-xl bg-portal-surface-muted/30 text-portal-muted"
-                aria-label="Close menu"
+                aria-label={t("layout.closeMenu")}
               >
                 <X className="size-5" />
               </button>
@@ -115,11 +117,11 @@ export function MobileNavMenu({
                 <span className="flex size-9 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary">
                   <Bell className="size-5" />
                 </span>
-                Notifications
+                {t("layout.notifications")}
               </button>
 
               <div className="my-2 flex items-center justify-between rounded-2xl bg-portal-surface-muted/20 px-4 py-3">
-                <span className="text-sm text-portal-muted">Appearance</span>
+                <span className="text-sm text-portal-muted">{t("layout.appearance")}</span>
                 <ThemeToggle />
               </div>
 
@@ -131,7 +133,7 @@ export function MobileNavMenu({
                 }}
                 className="mt-1 min-h-[52px] rounded-2xl px-4 py-3 text-left text-sm font-medium text-brand-red active:bg-brand-red/10"
               >
-                Sign out
+                {t("layout.signOut")}
               </button>
             </div>
           </div>

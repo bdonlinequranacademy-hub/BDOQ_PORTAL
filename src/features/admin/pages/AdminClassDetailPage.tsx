@@ -26,16 +26,25 @@ import {
 import { AdminClassDetailSidebar } from "@/features/admin/components/class-detail/AdminClassDetailSidebar";
 import type { AdminClassDetailTab } from "@/features/admin/components/class-detail/adminClassDetailUtils";
 import { cn } from "@/lib/utils/cn";
+import { usePortalTranslation } from "@/i18n/LocaleProvider";
 
-const DETAIL_TABS: { id: AdminClassDetailTab; label: string }[] = [
-  { id: "overview", label: "Overview" },
-  { id: "schedule", label: "Schedule" },
-  { id: "students", label: "Students" },
-  { id: "attendance", label: "Attendance" },
-  { id: "activity", label: "Activity Log" },
-];
+function useDetailTabs() {
+  const { t } = usePortalTranslation();
+  return useMemo(
+    (): { id: AdminClassDetailTab; label: string }[] => [
+      { id: "overview", label: t("admin.classDetail.tabOverview") },
+      { id: "schedule", label: t("admin.classDetail.tabSchedule") },
+      { id: "students", label: t("admin.classDetail.tabStudents") },
+      { id: "attendance", label: t("admin.classDetail.tabAttendance") },
+      { id: "activity", label: t("admin.classDetail.tabActivity") },
+    ],
+    [t]
+  );
+}
 
 export function AdminClassDetailPage() {
+  const { t } = usePortalTranslation();
+  const detailTabs = useDetailTabs();
   const { id = "" } = useParams();
   const navigate = useNavigate();
   const [tab, setTab] = useState<AdminClassDetailTab>("overview");
@@ -62,7 +71,7 @@ export function AdminClassDetailPage() {
   }
 
   function handleRemove(studentId: string, name: string) {
-    if (!window.confirm(`Remove ${name} from this class?`)) return;
+    if (!window.confirm(t("admin.classDetail.confirmRemoveStudent", { name }))) return;
     removeStudent.mutate(studentId);
   }
 
@@ -72,12 +81,12 @@ export function AdminClassDetailPage() {
     const inactive = cls.isActive === false;
 
     if (inactive) {
-      if (!window.confirm(`Reactivate "${title}"?`)) return;
+      if (!window.confirm(t("admin.classDetail.confirmReactivate", { title }))) return;
       setClassActive.mutate({ id: cls._id, isActive: true });
       return;
     }
 
-    if (!window.confirm(`Deactivate "${title}"? Students will no longer see this class.`)) {
+    if (!window.confirm(t("admin.classDetail.confirmDeactivate", { title }))) {
       return;
     }
     setClassActive.mutate({ id: cls._id, isActive: false });
@@ -86,9 +95,9 @@ export function AdminClassDetailPage() {
   return (
     <PageContainer>
       {isLoading ? (
-        <PageLoading label="Loading class details…" />
+        <PageLoading label={t("admin.common.loadingClassDetails")} />
       ) : !cls ? (
-        <p className="text-sm text-portal-muted">Class not found.</p>
+        <p className="text-sm text-portal-muted">{t("admin.classDetail.notFound")}</p>
       ) : (
         <>
           <AdminClassDetailHero
@@ -102,7 +111,7 @@ export function AdminClassDetailPage() {
           <div className="grid grid-cols-1 items-start gap-4 xl:gap-5 xl:grid-cols-[minmax(0,1fr)_300px]">
             <div className="flex min-w-0 flex-col gap-4">
               <div className="flex flex-wrap gap-2 border-b border-portal pb-1">
-                {DETAIL_TABS.map((item) => (
+                {detailTabs.map((item) => (
                   <button
                     key={item.id}
                     type="button"

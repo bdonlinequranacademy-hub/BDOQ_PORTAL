@@ -12,13 +12,14 @@ import { PROFILE_TIMEZONES } from "@/lib/profileTimezones";
 import { CountrySelect } from "@/components/ui/CountrySelect";
 import { WhatsAppPhoneField } from "@/components/whatsapp/WhatsAppPhoneField";
 import { toast } from "@/stores/uiStore";
-
 import { PageLoading } from "@/components/ui/PageLoading";
 import { ProfileAvatarUpload } from "@/components/profile/ProfileAvatarUpload";
 import { useUploadProfileAvatar } from "@/hooks/useUploadProfileAvatar";
 import { useAuthStore } from "@/stores/authStore";
+import { usePortalTranslation } from "@/i18n/LocaleProvider";
 
 export function StudentProfilePage() {
+  const { t } = usePortalTranslation();
   const authUser = useAuthStore((s) => s.user);
   const { data: profile, isLoading } = useStudentProfile();
   const updateProfile = useUpdateStudentProfile();
@@ -50,11 +51,11 @@ export function StudentProfilePage() {
   function handlePasswordSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (newPassword !== confirmPassword) {
-      toast.error("Passwords do not match");
+      toast.error(t("student.passwordsDoNotMatch"));
       return;
     }
     if (newPassword.length < 6) {
-      toast.error("Password must be at least 6 characters");
+      toast.error(t("student.passwordMinLength"));
       return;
     }
     changePassword.mutate(
@@ -75,10 +76,8 @@ export function StudentProfilePage() {
   return (
     <PageContainer className="flex flex-col gap-6" size="narrow">
       <div>
-        <h1 className="text-2xl font-bold text-primary-dark">My Profile</h1>
-        <p className="text-sm text-zinc-500">
-          Your timezone, country, and WhatsApp help teachers reach you and schedule classes correctly.
-        </p>
+        <h1 className="text-2xl font-bold text-primary-dark">{t("student.myProfile")}</h1>
+        <p className="text-sm text-zinc-500">{t("student.profileSubtitle")}</p>
       </div>
 
       <Card className="flex flex-col items-center gap-3 rounded-3xl border-0 p-8 shadow-sm">
@@ -97,20 +96,22 @@ export function StudentProfilePage() {
           </p>
           <p className="text-sm text-zinc-500">{profile?.email ?? "—"}</p>
           {profile?.studentId ? (
-            <p className="mt-1 text-xs text-zinc-400">ID: {profile.studentId}</p>
+            <p className="mt-1 text-xs text-zinc-400">
+              {t("student.studentIdLabel", { id: profile.studentId })}
+            </p>
           ) : null}
         </div>
       </Card>
 
       {isLoading ? (
-        <PageLoading label="Loading profile…" />
+        <PageLoading label={t("student.loadingProfile")} />
       ) : (
         <>
           <Card className="rounded-3xl border-0 p-6 shadow-sm">
-            <h2 className="mb-4 font-bold text-primary-dark">Account & location</h2>
+            <h2 className="mb-4 font-bold text-primary-dark">{t("student.accountLocation")}</h2>
             <form onSubmit={handleProfileSubmit} className="flex flex-col gap-4">
               <label className="flex flex-col gap-1.5">
-                <span className="text-xs font-medium text-zinc-500">Display name</span>
+                <span className="text-xs font-medium text-zinc-500">{t("student.displayName")}</span>
                 <input
                   value={name}
                   onChange={(e) => setName(e.target.value)}
@@ -120,7 +121,7 @@ export function StudentProfilePage() {
               </label>
 
               <label className="flex flex-col gap-1.5">
-                <span className="text-xs font-medium text-zinc-500">Timezone</span>
+                <span className="text-xs font-medium text-zinc-500">{t("student.timezone")}</span>
                 <select
                   value={timezone}
                   onChange={(e) => setTimezone(e.target.value)}
@@ -148,16 +149,18 @@ export function StudentProfilePage() {
                 disabled={updateProfile.isPending}
                 className="h-11 rounded-xl bg-primary-dark text-white"
               >
-                {updateProfile.isPending ? "Saving…" : "Save profile"}
+                {updateProfile.isPending ? t("student.saving") : t("student.saveProfile")}
               </Button>
             </form>
           </Card>
 
           <Card className="rounded-3xl border-0 p-6 shadow-sm">
-            <h2 className="mb-4 font-bold text-primary-dark">Change password</h2>
+            <h2 className="mb-4 font-bold text-primary-dark">{t("student.changePassword")}</h2>
             <form onSubmit={handlePasswordSubmit} className="flex flex-col gap-4">
               <label className="flex flex-col gap-1.5">
-                <span className="text-xs font-medium text-zinc-500">Current password</span>
+                <span className="text-xs font-medium text-zinc-500">
+                  {t("student.currentPassword")}
+                </span>
                 <input
                   type="password"
                   value={currentPassword}
@@ -167,7 +170,7 @@ export function StudentProfilePage() {
                 />
               </label>
               <label className="flex flex-col gap-1.5">
-                <span className="text-xs font-medium text-zinc-500">New password</span>
+                <span className="text-xs font-medium text-zinc-500">{t("student.newPassword")}</span>
                 <input
                   type="password"
                   value={newPassword}
@@ -178,7 +181,9 @@ export function StudentProfilePage() {
                 />
               </label>
               <label className="flex flex-col gap-1.5">
-                <span className="text-xs font-medium text-zinc-500">Confirm new password</span>
+                <span className="text-xs font-medium text-zinc-500">
+                  {t("student.confirmNewPassword")}
+                </span>
                 <input
                   type="password"
                   value={confirmPassword}
@@ -189,14 +194,14 @@ export function StudentProfilePage() {
                 />
               </label>
               {passwordMismatch ? (
-                <p className="text-xs text-red-600">Passwords do not match</p>
+                <p className="text-xs text-red-600">{t("student.passwordsDoNotMatch")}</p>
               ) : null}
               <Button
                 type="submit"
                 disabled={changePassword.isPending || passwordMismatch}
                 className="h-11 rounded-xl bg-primary-dark text-white"
               >
-                {changePassword.isPending ? "Updating…" : "Update password"}
+                {changePassword.isPending ? t("student.updating") : t("student.updatePassword")}
               </Button>
             </form>
           </Card>

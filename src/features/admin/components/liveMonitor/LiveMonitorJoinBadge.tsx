@@ -1,9 +1,11 @@
 import { CheckCircle2, Clock, GraduationCap, User, XCircle } from "lucide-react";
 import type { LiveMonitorJoinStatus } from "@/types/models";
+import { intlLocale } from "@/i18n/format";
+import { usePortalTranslation } from "@/i18n/LocaleProvider";
 import { cn } from "@/lib/utils/cn";
 
 interface ILiveMonitorJoinBadgeProps {
-  role: "Teacher" | "Student";
+  roleKey: "teacher" | "student";
   status: LiveMonitorJoinStatus;
   variant?: "inline" | "panel";
   joinedAt?: string;
@@ -12,7 +14,6 @@ interface ILiveMonitorJoinBadgeProps {
 const STATUS_CONFIG: Record<
   LiveMonitorJoinStatus,
   {
-    label: string;
     icon: typeof CheckCircle2;
     pillClass: string;
     panelClass: string;
@@ -21,7 +22,6 @@ const STATUS_CONFIG: Record<
   }
 > = {
   joined: {
-    label: "Joined",
     icon: CheckCircle2,
     pillClass:
       "border-emerald-500/35 bg-emerald-500/12 text-emerald-800 dark:text-emerald-300",
@@ -30,7 +30,6 @@ const STATUS_CONFIG: Record<
     accentClass: "border-l-emerald-500",
   },
   late: {
-    label: "Late",
     icon: Clock,
     pillClass: "border-amber-500/35 bg-amber-500/12 text-amber-900 dark:text-amber-300",
     panelClass: "border-amber-500/25 bg-amber-500/[0.07]",
@@ -38,7 +37,6 @@ const STATUS_CONFIG: Record<
     accentClass: "border-l-amber-500",
   },
   not_joined: {
-    label: "Not joined",
     icon: XCircle,
     pillClass: "border-red-500/35 bg-red-500/12 text-red-800 dark:text-red-300",
     panelClass: "border-red-500/25 bg-red-500/[0.06]",
@@ -47,24 +45,26 @@ const STATUS_CONFIG: Record<
   },
 };
 
-function formatJoinedAt(iso?: string): string | null {
-  if (!iso) return null;
-  return new Date(iso).toLocaleTimeString([], {
+function formatJoinedTime(iso: string, locale: "en" | "bn"): string {
+  return new Date(iso).toLocaleTimeString(intlLocale(locale), {
     hour: "2-digit",
     minute: "2-digit",
   });
 }
 
 export function LiveMonitorJoinBadge({
-  role,
+  roleKey,
   status,
   variant = "inline",
   joinedAt,
 }: ILiveMonitorJoinBadgeProps) {
+  const { t, statusLabel, role, locale } = usePortalTranslation();
   const config = STATUS_CONFIG[status];
   const StatusIcon = config.icon;
-  const RoleIcon = role === "Teacher" ? GraduationCap : User;
-  const joinedLabel = formatJoinedAt(joinedAt);
+  const RoleIcon = roleKey === "teacher" ? GraduationCap : User;
+  const roleLabel = role(roleKey);
+  const statusText = statusLabel(status);
+  const joinedLabel = joinedAt ? formatJoinedTime(joinedAt, locale) : null;
 
   if (variant === "panel") {
     return (
@@ -85,13 +85,13 @@ export function LiveMonitorJoinBadge({
         </div>
 
         <div className="min-w-0 flex-1">
-          <p className="text-sm font-semibold text-portal-heading">{role}</p>
+          <p className="text-sm font-semibold text-portal-heading">{roleLabel}</p>
           <p className="mt-0.5 text-xs text-portal-muted">
             {joinedLabel
-              ? `Joined at ${joinedLabel}`
+              ? t("admin.liveMonitor.detail.joinedAt", { time: joinedLabel })
               : status === "not_joined"
-                ? "Waiting for portal Launch"
-                : "Joined via portal Launch"}
+                ? t("admin.liveMonitor.detail.waitingForLaunch")
+                : t("admin.liveMonitor.detail.joinedViaLaunch")}
           </p>
         </div>
 
@@ -102,7 +102,7 @@ export function LiveMonitorJoinBadge({
           )}
         >
           <StatusIcon className="size-3.5" aria-hidden />
-          {config.label}
+          {statusText}
         </span>
       </div>
     );
@@ -116,12 +116,12 @@ export function LiveMonitorJoinBadge({
       )}
     >
       <RoleIcon className="size-3 shrink-0 opacity-80" aria-hidden />
-      <span className="text-portal-heading/80">{role}</span>
+      <span className="text-portal-heading/80">{roleLabel}</span>
       <span className="opacity-40" aria-hidden>
         ·
       </span>
       <StatusIcon className="size-3 shrink-0" aria-hidden />
-      <span>{config.label}</span>
+      <span>{statusText}</span>
     </span>
   );
 }

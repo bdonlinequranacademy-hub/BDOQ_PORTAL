@@ -13,6 +13,7 @@ import { Button } from "@/components/ui/Button";
 import type { BlogCategory, BlogPostStatus } from "@/types/models";
 
 import { PageLoading } from "@/components/ui/PageLoading";
+import { usePortalTranslation } from "@/i18n/LocaleProvider";
 const CATEGORIES: BlogCategory[] = [
   "Quran & Tajweed",
   "Parent Guides",
@@ -20,6 +21,7 @@ const CATEGORIES: BlogCategory[] = [
 ];
 
 export function AdminBlogFormPage() {
+  const { t } = usePortalTranslation();
   const { id } = useParams<{ id: string }>();
   const isEdit = Boolean(id);
   const navigate = useNavigate();
@@ -92,7 +94,7 @@ export function AdminBlogFormPage() {
   if (isEdit && isLoading) {
     return (
       <PageContainer>
-        <PageLoading label="Loading post…" />
+        <PageLoading label={t("admin.common.loadingPost")} />
       </PageContainer>
     );
   }
@@ -110,7 +112,7 @@ export function AdminBlogFormPage() {
 
       <div>
         <h1 className="text-2xl font-bold text-primary-dark">
-          {isEdit ? "Edit post" : "New blog post"}
+          {isEdit ? t("admin.cms.blog.editTitle") : t("admin.cms.blog.createTitle")}
         </h1>
         <p className="text-sm text-zinc-500">
           Publish educational articles only — Quran, Tajweed, Hifz, parenting, and learning tips.
@@ -261,7 +263,7 @@ export function AdminBlogFormPage() {
             className="rounded-xl bg-primary-dark text-white"
             disabled={createPost.isPending || updatePost.isPending}
           >
-            {status === "published" ? "Save & publish" : "Save draft"}
+            {status === "published" ? t("admin.cms.blog.savePublish") : t("admin.cms.blog.saveDraft")}
           </Button>
           <Button
             type="button"

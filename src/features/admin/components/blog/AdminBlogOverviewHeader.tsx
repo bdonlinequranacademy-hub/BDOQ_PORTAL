@@ -1,12 +1,14 @@
 import { Download, Plus } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/Button";
+import { usePortalTranslation } from "@/i18n/LocaleProvider";
 
 interface IAdminBlogOverviewHeaderProps {
   onExport: () => void;
 }
 
 export function AdminBlogOverviewHeader({ onExport }: IAdminBlogOverviewHeaderProps) {
+  const { t } = usePortalTranslation();
   const navigate = useNavigate();
 
   return (
@@ -28,14 +30,13 @@ export function AdminBlogOverviewHeader({ onExport }: IAdminBlogOverviewHeaderPr
       <div className="relative flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <div>
           <p className="text-xs font-semibold uppercase tracking-[0.18em] text-primary">
-            Content management
+            {t("admin.cms.shared.contentManagement")}
           </p>
           <h1 className="portal-page-title mt-1 font-display text-2xl font-bold text-primary-dark sm:text-3xl">
-            Blog Overview
+            {t("admin.cms.blog.overviewTitle")}
           </h1>
           <p className="portal-page-subtitle mt-2 max-w-2xl text-sm text-portal-muted sm:text-base">
-            Track your blog performance and content status — educational articles for the public
-            website.
+            {t("admin.cms.blog.overviewDesc")}
           </p>
         </div>
         <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
@@ -45,7 +46,7 @@ export function AdminBlogOverviewHeader({ onExport }: IAdminBlogOverviewHeaderPr
             className="inline-flex shrink-0 items-center gap-2 rounded-xl bg-primary-dark px-4 text-white hover:bg-primary-dark/90"
           >
             <Plus className="size-4" aria-hidden />
-            New post
+            {t("admin.common.newPost")}
           </Button>
           <Button
             type="button"
@@ -54,7 +55,7 @@ export function AdminBlogOverviewHeader({ onExport }: IAdminBlogOverviewHeaderPr
             className="inline-flex shrink-0 items-center gap-2 rounded-xl border border-portal bg-portal-surface/80 px-4 backdrop-blur-sm"
           >
             <Download className="size-4" aria-hidden />
-            Export
+            {t("admin.common.export")}
           </Button>
         </div>
       </div>

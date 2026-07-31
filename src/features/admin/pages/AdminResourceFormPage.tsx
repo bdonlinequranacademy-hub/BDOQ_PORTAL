@@ -27,6 +27,7 @@ import {
 } from "@/lib/formControl";
 import { cn } from "@/lib/utils/cn";
 import { env } from "@/config/env";
+import { usePortalTranslation } from "@/i18n/LocaleProvider";
 import type {
   EbookCategory,
   EbookLanguage,
@@ -80,6 +81,7 @@ function slugify(value: string): string {
 }
 
 export function AdminResourceFormPage() {
+  const { t } = usePortalTranslation();
   const { id } = useParams<{ id: string }>();
   const [searchParams] = useSearchParams();
   const isEdit = Boolean(id);
@@ -334,7 +336,7 @@ export function AdminResourceFormPage() {
   if (isEdit && isLoading) {
     return (
       <PageContainer>
-        <PageLoading label="Loading resource…" />
+        <PageLoading label={t("admin.common.loadingResource")} />
       </PageContainer>
     );
   }
@@ -357,7 +359,7 @@ export function AdminResourceFormPage() {
             Back to resources
           </button>
           <h1 className="mt-3 font-display text-2xl font-bold text-primary-dark sm:text-3xl">
-            {isEdit ? "Edit Resource" : "Create New Resource"}
+            {isEdit ? t("admin.cms.resources.editTitle") : t("admin.cms.resources.createTitle")}
           </h1>
           <p className="mt-1.5 max-w-xl text-sm text-portal-muted">
             Add a new educational resource that will be available on the public
@@ -381,7 +383,7 @@ export function AdminResourceFormPage() {
             className="inline-flex items-center gap-2 rounded-xl bg-primary px-4 text-white hover:bg-primary-dark"
           >
             <Save className="size-4" aria-hidden />
-            {isSaving ? "Saving…" : "Save Resource"}
+            {isSaving ? t("admin.curriculum.saving") : t("admin.cms.resources.saveResource")}
           </Button>
         </div>
       </div>
@@ -841,7 +843,7 @@ export function AdminResourceFormPage() {
               disabled={!title.trim() || isSaving}
               className="rounded-xl bg-primary px-6 text-white hover:bg-primary-dark"
             >
-              {isSaving ? "Saving…" : "Save Resource"}
+              {isSaving ? t("admin.curriculum.saving") : t("admin.cms.resources.saveResource")}
             </Button>
           </div>
         </div>

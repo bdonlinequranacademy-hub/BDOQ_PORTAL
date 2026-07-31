@@ -1,8 +1,9 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { PORTAL_BRANDING_QUOTES } from "@/lib/islamicPortal";
+import { portalBrandingQuotes } from "@/lib/islamicPortal";
 import { cn } from "@/lib/utils/cn";
+import { usePortalTranslation } from "@/i18n/LocaleProvider";
 
 function GoldStarDivider() {
   return (
@@ -19,7 +20,8 @@ function GoldStarDivider() {
 const INTERVAL_MS = 5500;
 
 export function PortalBrandingQuoteCarousel() {
-  const quotes = PORTAL_BRANDING_QUOTES;
+  const { locale } = usePortalTranslation();
+  const quotes = portalBrandingQuotes(locale);
   const [index, setIndex] = useState(0);
   const [fadeKey, setFadeKey] = useState(0);
 

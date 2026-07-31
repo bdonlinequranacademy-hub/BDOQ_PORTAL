@@ -1,5 +1,6 @@
 import { ChevronRight, Clock } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
+import { usePortalTranslation } from "@/i18n/LocaleProvider";
 
 interface IAdminStudentRequestsPendingAlertProps {
   pendingCount: number;
@@ -10,6 +11,8 @@ export function AdminStudentRequestsPendingAlert({
   pendingCount,
   onReview,
 }: IAdminStudentRequestsPendingAlertProps) {
+  const { t, formatNumber } = usePortalTranslation();
+
   if (pendingCount <= 0) return null;
 
   return (
@@ -25,12 +28,11 @@ export function AdminStudentRequestsPendingAlert({
           <Clock className="size-5" aria-hidden />
         </div>
         <div className="min-w-0">
-          <p className="text-sm font-bold text-portal-heading">Pending requests need review</p>
+          <p className="text-sm font-bold text-portal-heading">
+            {t("admin.studentRequests.alertTitle")}
+          </p>
           <p className="mt-0.5 text-sm text-portal-muted">
-            <span className="font-semibold text-amber-800">
-              {pendingCount} request{pendingCount === 1 ? "" : "s"}
-            </span>{" "}
-            are waiting for your decision.
+            {t("admin.studentRequests.alertBody", { count: formatNumber(pendingCount) })}
           </p>
         </div>
       </div>
@@ -39,7 +41,7 @@ export function AdminStudentRequestsPendingAlert({
         onClick={onReview}
         className="inline-flex shrink-0 items-center justify-center gap-1 rounded-xl bg-amber-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-amber-700"
       >
-        Review pending
+        {t("admin.studentRequests.alertCta")}
         <ChevronRight className="size-4" aria-hidden />
       </button>
     </div>

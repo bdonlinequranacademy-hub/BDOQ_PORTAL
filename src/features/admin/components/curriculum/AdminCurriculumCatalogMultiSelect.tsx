@@ -1,4 +1,5 @@
 import { formControlClass } from "@/lib/formControl";
+import { usePortalTranslation } from "@/i18n/LocaleProvider";
 
 interface IAdminCurriculumCatalogMultiSelectProps {
   label: string;
@@ -15,6 +16,8 @@ export function AdminCurriculumCatalogMultiSelect({
   selectedIds,
   onChange,
 }: IAdminCurriculumCatalogMultiSelectProps) {
+  const { t } = usePortalTranslation();
+
   return (
     <div className="flex flex-col gap-2">
       <div>
@@ -37,9 +40,7 @@ export function AdminCurriculumCatalogMultiSelect({
           </option>
         ))}
       </select>
-      <p className="text-xs text-portal-muted">
-        Hold Ctrl (Windows) or ⌘ (Mac) to select multiple.
-      </p>
+      <p className="text-xs text-portal-muted">{t("admin.curriculum.multiSelectHint")}</p>
     </div>
   );
 }

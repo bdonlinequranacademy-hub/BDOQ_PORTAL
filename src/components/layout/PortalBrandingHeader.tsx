@@ -1,4 +1,4 @@
-import { BDOQ_BRAND, BDOQ_ROLE_PORTAL_LABEL } from "@/lib/bdoqBrand";
+import { BDOQ_BRAND } from "@/lib/bdoqBrand";
 import {
   getPortalBrandingMeta,
   PORTAL_HEADER_MOSQUE_SRC,
@@ -6,6 +6,7 @@ import {
   PORTAL_HEADER_RIGHT_SCENE_SRC,
 } from "@/lib/portalBranding";
 import { PortalBrandingQuoteCarousel } from "@/components/layout/PortalBrandingQuoteCarousel";
+import { usePortalTranslation } from "@/i18n/LocaleProvider";
 import type { Role } from "@/types/models";
 import { cn } from "@/lib/utils/cn";
 
@@ -15,9 +16,9 @@ interface IPortalBrandingHeaderProps {
   className?: string;
 }
 
-function displayName(name: string): string {
+function displayName(name: string, fallback: string): string {
   const trimmed = name.trim();
-  if (!trimmed) return "User";
+  if (!trimmed) return fallback;
   return trimmed.split(/\s+/)[0] ?? trimmed;
 }
 
@@ -65,10 +66,11 @@ export function PortalBrandingHeader({
   role,
   className,
 }: IPortalBrandingHeaderProps) {
+  const { t, role: roleLabel, portalLabel, brandingSubtitle } = usePortalTranslation();
   const meta = getPortalBrandingMeta(role);
-  const greetingName = displayName(name);
-  const portalLabel =
-    BDOQ_ROLE_PORTAL_LABEL[role] ?? `${role.replace(/_/g, " ")} Portal`;
+  const greetingName = displayName(name, t("branding.userFallback"));
+  const portalLabelText = portalLabel(role);
+  const subtitle = brandingSubtitle(role);
 
   return (
     <section
@@ -78,7 +80,7 @@ export function PortalBrandingHeader({
         "dark:border-[#0A4D3C] dark:bg-[#00382C]",
         className
       )}
-      aria-label="Portal welcome"
+      aria-label={t("layout.portalWelcome")}
     >
       <div
         className="pointer-events-none absolute inset-0 opacity-40"
@@ -110,13 +112,13 @@ export function PortalBrandingHeader({
             <div className="portal-brand-label mt-2.5 flex w-full items-center gap-1.5">
               <span className="portal-brand-label__line h-px flex-1" aria-hidden />
               <p className="portal-brand-gradient-text--gold shrink-0 whitespace-nowrap font-inter text-[10px] font-extrabold uppercase tracking-[0.16em] xl:text-[11px]">
-                {portalLabel}
+                {portalLabelText}
               </p>
               <span className="portal-brand-label__line h-px flex-1 rotate-180" aria-hidden />
             </div>
 
             <p className="portal-brand-tagline mt-3 font-display text-[11px] font-semibold italic leading-snug text-[#CDE8DC]/90 xl:text-xs">
-              Online Quran · Tajweed · Hifz
+              {t("portal.tagline")}
             </p>
             <div className="portal-brand-dots mt-2.5 flex items-center gap-1.5" aria-hidden>
               <span />
@@ -184,7 +186,7 @@ export function PortalBrandingHeader({
             <div className="relative z-[1] grid gap-5 px-5 py-5 sm:px-6 sm:py-6 md:grid-cols-[1.05fr_auto_1fr] md:items-center md:gap-6 lg:px-7 lg:py-6">
               <div className="min-w-0">
                 <p className="font-inter text-[0.9375rem] font-semibold tracking-wide text-[#3F5A4E]">
-                  Welcome back,
+                  {t("branding.welcomeBack")}
                 </p>
                 <div className="mt-1 flex flex-wrap items-center gap-2.5">
                   <h2 className="font-display text-[1.85rem] font-extrabold leading-none tracking-tight text-[#064E3B] sm:text-[2.1rem]">
@@ -196,11 +198,11 @@ export function PortalBrandingHeader({
                       meta.badgeClass
                     )}
                   >
-                    {meta.roleLabel}
+                    {roleLabel(role)}
                   </span>
                 </div>
                 <p className="mt-2.5 max-w-[300px] font-inter text-[0.9375rem] font-medium leading-relaxed text-[#4A6358]">
-                  {meta.subtitle}
+                  {subtitle}
                 </p>
               </div>
 

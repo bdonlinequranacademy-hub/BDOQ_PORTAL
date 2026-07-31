@@ -14,6 +14,7 @@ export function SessionTimeRow({
   country,
   compact = false,
 }: SessionTimeRowProps) {
+  
   return (
     <div className={compact ? "text-right" : "rounded-lg bg-[#F8FAFF] px-2.5 py-2"}>
       <p className="text-[10px] font-semibold uppercase text-zinc-400">{label}</p>

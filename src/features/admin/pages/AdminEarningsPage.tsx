@@ -33,8 +33,10 @@ import {
 } from "@/features/admin/components/earnings/adminEarningsUtils";
 import { currentMonthValue } from "@/lib/utils/month";
 import type { ClassLogView } from "@/types/models";
+import { usePortalTranslation } from "@/i18n/LocaleProvider";
 
 export function AdminEarningsPage() {
+  const { t } = usePortalTranslation();
   const navigate = useNavigate();
   const [month, setMonth] = useState(currentMonthValue());
   const [trendRange, setTrendRange] = useState<EarningsTrendRange>("year");
@@ -92,7 +94,7 @@ export function AdminEarningsPage() {
   }
 
   function handleExport() {
-    exportEarningsTeachersFile(data, month);
+    exportEarningsTeachersFile(data, month, t);
   }
 
   function handleReviewPending() {
@@ -115,12 +117,12 @@ export function AdminEarningsPage() {
       />
 
       {loading ? (
-        <PageLoading label="Loading earnings…" />
+        <PageLoading label={t("admin.common.loadingEarnings")} />
       ) : !data && pendingApprovalLogs.length === 0 ? (
         <EmptyState
           icon={Banknote}
-          title="No earnings data for this month"
-          description="Verified pay appears when class logs are approved for the selected month."
+          title={t("admin.common.noEarnings")}
+          description={t("admin.common.noEarningsDesc")}
         />
       ) : (
         <div className="grid grid-cols-1 items-start gap-4 xl:gap-5 xl:grid-cols-[minmax(0,1fr)_280px]">

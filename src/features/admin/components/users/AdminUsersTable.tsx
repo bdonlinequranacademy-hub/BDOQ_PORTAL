@@ -1,8 +1,9 @@
 import { Eye, Pencil, Trash2 } from "lucide-react";
 import { Card } from "@/components/ui/Card";
 import { UserAvatar } from "@/components/ui/UserAvatar";
-import { displayRole, roleLabel } from "@/lib/assignableRoles";
+import { displayRole } from "@/lib/assignableRoles";
 import { formatCountryWithFlag } from "@/lib/utils/countryDisplay";
+import { usePortalTranslation } from "@/i18n/LocaleProvider";
 import { cn } from "@/lib/utils/cn";
 import type { AdminUser, Role } from "@/types/models";
 
@@ -18,27 +19,19 @@ function userHandle(user: AdminUser): string {
   return `@${local.replace(/\s+/g, "").toLowerCase()}`;
 }
 
-function formatJoinedDate(iso?: string): string {
-  if (!iso) return "—";
-  return new Date(iso).toLocaleDateString("en-GB", {
-    day: "numeric",
-    month: "short",
-    year: "numeric",
-  });
-}
-
-function genderLabel(gender?: "male" | "female") {
-  if (gender === "female") return "Female";
-  if (gender === "male") return "Male";
-  return null;
-}
-
 interface IAdminUsersTableProps {
   users: AdminUser[];
   onView: (user: AdminUser) => void;
   onEdit: (user: AdminUser) => void;
   onDeactivate: (user: AdminUser) => void;
   canManage: (targetRole: Role) => boolean;
+}
+
+export interface IExportUsersHelpers {
+  t: (key: string, params?: Record<string, string>) => string;
+  role: (roleKey: string) => string;
+  formatDate: (iso: string) => string;
+  statusLabel: (status: string) => string;
 }
 
 export function AdminUsersTable({
@@ -48,18 +41,20 @@ export function AdminUsersTable({
   onDeactivate,
   canManage,
 }: IAdminUsersTableProps) {
+  const { t, statusLabel, dynamicLabel, role, formatDate } = usePortalTranslation();
+
   return (
     <Card className="overflow-hidden rounded-2xl border border-portal bg-portal-surface p-0 shadow-[0_8px_24px_-16px_rgba(13,74,47,0.18)]">
       <div className="hidden overflow-x-auto lg:block">
         <table className="w-full min-w-[860px] border-collapse text-left">
           <thead>
             <tr className="border-b border-portal bg-portal-muted/40 text-xs font-semibold uppercase tracking-wide text-portal-muted">
-              <th className="px-5 py-3.5">User</th>
-              <th className="px-5 py-3.5">Email</th>
-              <th className="px-5 py-3.5">Role</th>
-              <th className="px-5 py-3.5">Status</th>
-              <th className="px-5 py-3.5">Joined On</th>
-              <th className="px-5 py-3.5 text-right">Actions</th>
+              <th className="px-5 py-3.5">{t("labels.user")}</th>
+              <th className="px-5 py-3.5">{t("labels.email")}</th>
+              <th className="px-5 py-3.5">{t("labels.role")}</th>
+              <th className="px-5 py-3.5">{t("tables.status")}</th>
+              <th className="px-5 py-3.5">{t("labels.joined_on")}</th>
+              <th className="px-5 py-3.5 text-right">{t("tables.actions")}</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-portal">
@@ -106,7 +101,7 @@ export function AdminUsersTable({
                         ROLE_COLORS[shownRole]
                       )}
                     >
-                      {roleLabel(user.role)}
+                      {role(user.role)}
                     </span>
                   </td>
                   <td className="px-5 py-4">
@@ -118,11 +113,11 @@ export function AdminUsersTable({
                         )}
                         aria-hidden
                       />
-                      {isActive ? "Active" : "Inactive"}
+                      {statusLabel(isActive ? "active" : "inactive")}
                     </span>
                   </td>
                   <td className="px-5 py-4 text-sm text-portal-muted">
-                    {formatJoinedDate(user.createdAt)}
+                    {user.createdAt ? formatDate(user.createdAt) : "—"}
                   </td>
                   <td className="px-5 py-4">
                     <div className="flex justify-end gap-1">
@@ -132,8 +127,8 @@ export function AdminUsersTable({
                             type="button"
                             onClick={() => onView(user)}
                             className="rounded-lg p-2 text-portal-muted transition hover:bg-portal-muted/50 hover:text-primary"
-                            aria-label={`View ${user.name}`}
-                            title="View profile"
+                            aria-label={t("admin.users.viewUser", { name: user.name })}
+                            title={t("admin.common.viewProfile")}
                           >
                             <Eye className="size-4" />
                           </button>
@@ -141,8 +136,8 @@ export function AdminUsersTable({
                             type="button"
                             onClick={() => onEdit(user)}
                             className="rounded-lg p-2 text-portal-muted transition hover:bg-portal-muted/50 hover:text-primary"
-                            aria-label={`Edit ${user.name}`}
-                            title="Edit user"
+                            aria-label={t("admin.users.editUserNamed", { name: user.name })}
+                            title={t("admin.common.editUser")}
                           >
                             <Pencil className="size-4" />
                           </button>
@@ -151,8 +146,8 @@ export function AdminUsersTable({
                               type="button"
                               onClick={() => onDeactivate(user)}
                               className="rounded-lg p-2 text-portal-muted transition hover:bg-red-50 hover:text-red-600"
-                              aria-label={`Deactivate ${user.name}`}
-                              title="Deactivate user"
+                              aria-label={t("admin.users.deactivateUserNamed", { name: user.name })}
+                              title={t("admin.common.deactivateUser")}
                             >
                               <Trash2 className="size-4" />
                             </button>
@@ -160,7 +155,7 @@ export function AdminUsersTable({
                         </>
                       ) : (
                         <span className="px-2 py-2 text-[10px] font-medium uppercase tracking-wide text-portal-muted">
-                          Protected
+                          {t("admin.users.protected")}
                         </span>
                       )}
                     </div>
@@ -194,13 +189,13 @@ export function AdminUsersTable({
                         ROLE_COLORS[shownRole]
                       )}
                     >
-                      {roleLabel(user.role)}
+                      {role(user.role)}
                     </span>
                   </div>
                   <p className="text-xs text-portal-muted">{userHandle(user)}</p>
                   <p className="mt-1 text-sm text-portal-muted">{user.email}</p>
-                  {genderLabel(user.gender) ? (
-                    <p className="text-[10px] text-portal-muted">{genderLabel(user.gender)}</p>
+                  {user.gender ? (
+                    <p className="text-[10px] text-portal-muted">{dynamicLabel(user.gender)}</p>
                   ) : null}
                   {shownRole === "student" && (user.timezone || user.country) ? (
                     <p className="text-[10px] text-portal-muted">
@@ -226,9 +221,11 @@ export function AdminUsersTable({
                     )}
                     aria-hidden
                   />
-                  {isActive ? "Active" : "Inactive"}
+                  {statusLabel(isActive ? "active" : "inactive")}
                 </span>
-                <span className="text-portal-muted">{formatJoinedDate(user.createdAt)}</span>
+                <span className="text-portal-muted">
+                  {user.createdAt ? formatDate(user.createdAt) : "—"}
+                </span>
               </div>
 
               <div className="flex justify-end gap-1">
@@ -238,7 +235,7 @@ export function AdminUsersTable({
                       type="button"
                       onClick={() => onView(user)}
                       className="rounded-lg p-2 text-primary hover:bg-portal-muted/50"
-                      aria-label={`View ${user.name}`}
+                      aria-label={t("admin.users.viewUser", { name: user.name })}
                     >
                       <Eye className="size-4" />
                     </button>
@@ -246,7 +243,7 @@ export function AdminUsersTable({
                       type="button"
                       onClick={() => onEdit(user)}
                       className="rounded-lg p-2 text-primary hover:bg-portal-muted/50"
-                      aria-label={`Edit ${user.name}`}
+                      aria-label={t("admin.users.editUserNamed", { name: user.name })}
                     >
                       <Pencil className="size-4" />
                     </button>
@@ -255,7 +252,7 @@ export function AdminUsersTable({
                         type="button"
                         onClick={() => onDeactivate(user)}
                         className="rounded-lg p-2 text-red-500 hover:bg-red-50"
-                        aria-label={`Deactivate ${user.name}`}
+                        aria-label={t("admin.users.deactivateUserNamed", { name: user.name })}
                       >
                         <Trash2 className="size-4" />
                       </button>
@@ -263,7 +260,7 @@ export function AdminUsersTable({
                   </>
                 ) : (
                   <span className="text-[10px] font-medium uppercase tracking-wide text-portal-muted">
-                    Protected
+                    {t("admin.users.protected")}
                   </span>
                 )}
               </div>
@@ -275,14 +272,25 @@ export function AdminUsersTable({
   );
 }
 
-export function exportUsersFile(users: AdminUser[], format: "csv" | "excel"): void {
-  const headers = ["Name", "Email", "Role", "Status", "Joined On"];
+export function exportUsersFile(
+  users: AdminUser[],
+  format: "csv" | "excel",
+  helpers: IExportUsersHelpers
+): void {
+  const { t, role, formatDate, statusLabel } = helpers;
+  const headers = [
+    t("labels.user"),
+    t("labels.email"),
+    t("labels.role"),
+    t("tables.status"),
+    t("labels.joined_on"),
+  ];
   const rows = users.map((user) => [
     user.name,
     user.email,
-    roleLabel(user.role),
-    user.isActive === false ? "Inactive" : "Active",
-    formatJoinedDate(user.createdAt),
+    role(user.role),
+    statusLabel(user.isActive === false ? "inactive" : "active"),
+    user.createdAt ? formatDate(user.createdAt) : "—",
   ]);
 
   const escape = (value: string) => `"${value.replace(/"/g, '""')}"`;
@@ -301,7 +309,7 @@ export function exportUsersFile(users: AdminUser[], format: "csv" | "excel"): vo
   const url = URL.createObjectURL(blob);
   const link = document.createElement("a");
   link.href = url;
-  link.download = `bdoq-users-${new Date().toISOString().slice(0, 10)}.${extension}`;
+  link.download = `${t("admin.users.exportFileName")}-${new Date().toISOString().slice(0, 10)}.${extension}`;
   link.click();
   URL.revokeObjectURL(url);
 }

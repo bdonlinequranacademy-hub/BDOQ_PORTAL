@@ -1,6 +1,7 @@
 import { Calendar } from "lucide-react";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { classTitle, formatDuration, getTodayWeekDay } from "@/lib/utils/class";
+import { usePortalTranslation } from "@/i18n/LocaleProvider";
 
 const WEEK_DAYS = [
   "Sunday",
@@ -41,14 +42,16 @@ interface WeeklyScheduleProps {
 }
 
 export function WeeklySchedule({ classes, onClassClick }: WeeklyScheduleProps) {
+  const { t, dynamicLabel } = usePortalTranslation();
+
   const scheduled = classes.filter((c) => c.schedule?.day);
 
   if (scheduled.length === 0) {
     return (
       <EmptyState
         icon={Calendar}
-        title="No schedule yet"
-        description="Classes with a day and time will appear in your weekly timetable."
+        title={t("shared.schedule.noSchedule")}
+        description={t("shared.schedule.weeklyTimetableDesc")}
       />
     );
   }
@@ -66,6 +69,7 @@ export function WeeklySchedule({ classes, onClassClick }: WeeklyScheduleProps) {
     <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4 2xl:grid-cols-7">
       {byDay.map(({ day, items }) => {
         const isToday = day === today;
+        const dayLabel = dynamicLabel(day);
         return (
         <div
           key={day}
@@ -83,11 +87,11 @@ export function WeeklySchedule({ classes, onClassClick }: WeeklyScheduleProps) {
                 isToday ? "text-gold-dark" : "text-portal-heading"
               }`}
             >
-              {day.slice(0, 3)}
+              {dayLabel.slice(0, 3)}
             </span>
             {isToday ? (
               <span className="rounded-full bg-gold/20 px-1.5 py-0.5 text-[9px] font-bold uppercase text-gold-dark">
-                Today
+                {t("admin.classes.today")}
               </span>
             ) : null}
           </div>

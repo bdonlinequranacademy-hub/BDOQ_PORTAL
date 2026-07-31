@@ -1,5 +1,6 @@
 import { Search } from "lucide-react";
 import type { ProgressSort } from "@/features/admin/components/progress/adminProgressUtils";
+import { usePortalTranslation } from "@/i18n/LocaleProvider";
 import { formControlClass } from "@/lib/formControl";
 import { cn } from "@/lib/utils/cn";
 
@@ -18,13 +19,13 @@ export function AdminProgressToolbar({
   onSearchChange,
   onSortChange,
 }: IAdminProgressToolbarProps) {
+  const { t } = usePortalTranslation();
+
   return (
     <div className="flex flex-col gap-3 rounded-2xl border border-portal bg-portal-surface p-4 shadow-[0_8px_24px_-16px_rgba(13,74,47,0.18)] sm:flex-row sm:items-center sm:justify-between sm:p-5">
       <div>
-        <h2 className="text-sm font-bold text-portal-heading">Student progress</h2>
-        <p className="mt-0.5 text-xs text-portal-muted">
-          Search by student, class, or program.
-        </p>
+        <h2 className="text-sm font-bold text-portal-heading">{t("admin.progress.studentProgress")}</h2>
+        <p className="mt-0.5 text-xs text-portal-muted">{t("admin.progress.searchHint")}</p>
       </div>
       <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
         <label className="relative block w-full sm:w-64">
@@ -36,7 +37,7 @@ export function AdminProgressToolbar({
             type="search"
             value={search}
             onChange={(event) => onSearchChange(event.target.value)}
-            placeholder="Search students…"
+            placeholder={t("admin.progress.searchPlaceholder")}
             className={cn(fieldClass, "w-full pl-9")}
           />
         </label>
@@ -44,13 +45,13 @@ export function AdminProgressToolbar({
           className={cn(fieldClass, "w-full sm:w-44")}
           value={sortBy}
           onChange={(event) => onSortChange(event.target.value as ProgressSort)}
-          aria-label="Sort progress"
+          aria-label={t("admin.progress.sortLabel")}
         >
-          <option value="highest">Highest progress</option>
-          <option value="lowest">Lowest progress</option>
-          <option value="recent">Recently updated</option>
-          <option value="student_name">Student name</option>
-          <option value="most_surahs">Most surahs</option>
+          <option value="highest">{t("admin.progress.sortHighest")}</option>
+          <option value="lowest">{t("admin.progress.sortLowest")}</option>
+          <option value="recent">{t("admin.progress.sortRecent")}</option>
+          <option value="student_name">{t("admin.progress.sortStudentName")}</option>
+          <option value="most_surahs">{t("admin.progress.sortMostSurahs")}</option>
         </select>
       </div>
     </div>

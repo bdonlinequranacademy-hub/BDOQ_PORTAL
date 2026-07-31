@@ -12,8 +12,9 @@ import { Button } from "@/components/ui/Button";
 import { Textarea } from "@/components/ui/Textarea";
 import { formatCurriculumPath } from "@/lib/api/curriculumApi";
 import type { Grade, HomeworkSubmission, HomeworkSubmissionStatus } from "@/types/models";
-
 import { PageLoading } from "@/components/ui/PageLoading";
+import { usePortalTranslation } from "@/i18n/LocaleProvider";
+
 const GRADES: Grade[] = ["A", "B", "C", "D", "F"];
 
 const GRADE_COLORS: Record<Grade, string> = {
@@ -37,6 +38,7 @@ function effectiveStatus(sub: HomeworkSubmission): HomeworkSubmissionStatus {
 export function TeacherHomeworkGradePage() {
   const { id = "" } = useParams();
   const navigate = useNavigate();
+  const { t, formatDate } = usePortalTranslation();
   const { data: homework, isLoading } = useHomeworkDetail(id);
   const reviewSubmission = useReviewHomeworkSubmission(id);
   const gradeSubmission = useGradeSubmission(id);
@@ -104,7 +106,7 @@ export function TeacherHomeworkGradePage() {
           </button>
           <div className="flex flex-col items-center mx-auto">
             <span className="brand-wordmark text-2xl text-primary-dark">BDOQ Academy</span>
-            <span className="font-bold text-zinc-900 text-xs">Homework Review</span>
+            <span className="font-bold text-zinc-900 text-xs">{t("teacher.homeworkReview")}</span>
           </div>
           <div className="size-9" />
         </div>
@@ -113,7 +115,7 @@ export function TeacherHomeworkGradePage() {
       {isLoading ? (
         <PageLoading compact />
       ) : !homework ? (
-        <p className="p-5 text-sm text-zinc-400">Homework not found.</p>
+        <p className="p-5 text-sm text-zinc-400">{t("teacher.homeworkNotFound")}</p>
       ) : (
         <PageContainer className="flex flex-col gap-6 pb-8">
           <div className="flex flex-col gap-1">
@@ -127,11 +129,17 @@ export function TeacherHomeworkGradePage() {
             <div className="flex items-center gap-3 mt-1">
               <div className="flex items-center gap-1.5 text-zinc-400 text-xs">
                 <Users className="size-3.5" />
-                <span>{pendingReview.length} awaiting review</span>
+                <span>
+                  {t("teacher.awaitingReviewCount", {
+                    count: String(pendingReview.length),
+                  })}
+                </span>
               </div>
               <div className="flex items-center gap-1.5 text-zinc-400 text-xs">
                 <Clock className="size-3.5" />
-                <span>Due {new Date(homework.dueDate).toLocaleDateString()}</span>
+                <span>
+                  {t("teacher.dueLabel")} {formatDate(homework.dueDate)}
+                </span>
               </div>
             </div>
           </div>
@@ -139,14 +147,16 @@ export function TeacherHomeworkGradePage() {
           {pendingReview.length === 0 && readyToGrade.length === 0 ? (
             <Card className="rounded-2xl border-0 shadow-sm p-6 text-center">
               <Check className="size-8 text-emerald-500 mx-auto mb-2" />
-              <p className="font-semibold text-primary-dark text-base">All caught up</p>
-              <p className="text-zinc-400 text-sm mt-1">No submissions waiting for review or grading.</p>
+              <p className="font-semibold text-primary-dark text-base">{t("teacher.allCaughtUp")}</p>
+              <p className="text-zinc-400 text-sm mt-1">{t("teacher.noSubmissionsWaiting")}</p>
             </Card>
           ) : (
             <div className="grid grid-cols-1 gap-6 lg:grid-cols-2 lg:items-start">
               <Card className="flex flex-col gap-3 rounded-3xl border-0 p-5 shadow-sm">
                 <span className="font-bold text-primary-dark text-base">
-                  {pendingReview.length > 0 ? "Awaiting your review" : "Ready to grade"}
+                  {pendingReview.length > 0
+                    ? t("teacher.awaitingYourReview")
+                    : t("teacher.readyToGrade")}
                 </span>
                 {activeList.map((sub) => (
                   <button
@@ -163,12 +173,12 @@ export function TeacherHomeworkGradePage() {
                     </div>
                     <div className="flex flex-col flex-1 gap-0.5">
                       <span className="font-bold text-zinc-900 text-sm">
-                        {sub.studentName ?? "Student"}
+                        {sub.studentName ?? t("teacher.studentFallback")}
                       </span>
                       <span className="text-zinc-400 text-xs">
                         {effectiveStatus(sub) === "pending_review"
-                          ? "Needs approval"
-                          : "Approved — grade now"}
+                          ? t("teacher.needsApproval")
+                          : t("teacher.approvedGradeNow")}
                       </span>
                     </div>
                   </button>
@@ -180,7 +190,9 @@ export function TeacherHomeworkGradePage() {
                   <div className="rounded-2xl bg-[#EEF2F8] p-4">
                     {activeSub.curriculumLabels?.program ? (
                       <p className="mb-2 text-xs font-medium text-gold">
-                        Student topic: {formatCurriculumPath(activeSub.curriculumLabels)}
+                        {t("teacher.studentTopic", {
+                          path: formatCurriculumPath(activeSub.curriculumLabels),
+                        })}
                       </p>
                     ) : null}
                     <p className="text-sm leading-relaxed text-zinc-800">{activeSub.content}</p>
@@ -189,7 +201,7 @@ export function TeacherHomeworkGradePage() {
                   {activeStatus === "pending_review" ? (
                     <>
                       <Textarea
-                        placeholder="Return note (if sending back for revision)…"
+                        placeholder={t("teacher.returnNotePlaceholder")}
                         value={returnNotes[activeSub._id] ?? ""}
                         onChange={(e) =>
                           setReturnNotes((prev) => ({
@@ -205,7 +217,7 @@ export function TeacherHomeworkGradePage() {
                           disabled={reviewSubmission.isPending}
                           className="flex-1 rounded-xl bg-primary-dark text-white"
                         >
-                          Approve submission
+                          {t("teacher.approveSubmission")}
                         </Button>
                         <Button
                           onClick={handleReturn}
@@ -214,11 +226,11 @@ export function TeacherHomeworkGradePage() {
                           className="flex-1 rounded-xl"
                         >
                           <RotateCcw className="mr-2 size-4" />
-                          Return for revision
+                          {t("teacher.returnForRevision")}
                         </Button>
                       </div>
                       <p className="text-xs text-zinc-500">
-                        Homework counts as submitted only after you approve it.
+                        {t("teacher.homeworkCountsAfterApprove")}
                       </p>
                     </>
                   ) : (
@@ -242,7 +254,7 @@ export function TeacherHomeworkGradePage() {
                         ))}
                       </div>
                       <Textarea
-                        placeholder="Feedback (optional)…"
+                        placeholder={t("teacher.feedbackPlaceholder")}
                         value={feedbacks[activeSub._id] ?? ""}
                         onChange={(e) =>
                           setFeedbacks((prev) => ({
@@ -257,7 +269,7 @@ export function TeacherHomeworkGradePage() {
                         disabled={gradeSubmission.isPending}
                         className="rounded-xl bg-primary-dark text-white"
                       >
-                        Submit grade
+                        {t("teacher.submitGrade")}
                       </Button>
                     </>
                   )}

@@ -3,11 +3,9 @@ import { Card } from "@/components/ui/Card";
 import { UserInitialAvatar } from "@/components/ui/UserInitialAvatar";
 import { ClassLogStatusBadge } from "@/components/schedule/ClassLogStatusBadge";
 import type { ClassLogView } from "@/types/models";
-import {
-  formatEarningsAmount,
-  getProgramLabel,
-} from "@/features/admin/components/earnings/adminEarningsUtils";
+import { getProgramLabel } from "@/features/admin/components/earnings/adminEarningsUtils";
 import { formatLogDateLabel } from "@/features/admin/components/class-logs/adminClassLogsUtils";
+import { usePortalTranslation } from "@/i18n/LocaleProvider";
 
 interface IAdminEarningsPendingTableProps {
   logs: ClassLogView[];
@@ -27,6 +25,7 @@ export function AdminEarningsPendingTable({
   onApprove,
   onViewAll,
 }: IAdminEarningsPendingTableProps) {
+  const { t, formatBdt, formatNumber } = usePortalTranslation();
   const visible = logs.slice(0, 5);
   if (visible.length === 0) return null;
 
@@ -34,26 +33,26 @@ export function AdminEarningsPendingTable({
     <Card className="overflow-hidden rounded-2xl border border-portal bg-portal-surface p-0 shadow-[0_8px_24px_-16px_rgba(13,74,47,0.18)]">
       <div className="flex items-center justify-between border-b border-portal px-5 py-4">
         <div>
-          <h2 className="text-sm font-bold text-portal-heading">Pending approvals</h2>
-          <p className="mt-0.5 text-xs text-portal-muted">
-            Approve session logs to count toward teacher earnings
-          </p>
+          <h2 className="text-sm font-bold text-portal-heading">
+            {t("admin.earnings.pendingTableTitle")}
+          </h2>
+          <p className="mt-0.5 text-xs text-portal-muted">{t("admin.earnings.pendingAlertBody", { count: formatNumber(logs.length) })}</p>
         </div>
         <span className="rounded-full bg-amber-100 px-2.5 py-1 text-xs font-bold text-amber-800">
-          {logs.length}
+          {formatNumber(logs.length)}
         </span>
       </div>
       <div className="overflow-x-auto">
         <table className="w-full min-w-[920px] border-collapse text-left text-sm">
           <thead>
             <tr className="border-b border-portal bg-portal-muted/30 text-xs font-semibold uppercase tracking-wide text-portal-muted">
-              <th className="px-5 py-3">Date</th>
-              <th className="px-5 py-3">Teacher</th>
-              <th className="px-5 py-3">Class log</th>
-              <th className="px-5 py-3">Duration</th>
-              <th className="px-5 py-3">Amount</th>
-              <th className="px-5 py-3">Status</th>
-              <th className="px-5 py-3 text-right">Actions</th>
+              <th className="px-5 py-3">{t("shared.schedule.sessionDate")}</th>
+              <th className="px-5 py-3">{t("admin.earnings.pendingTableTeacher")}</th>
+              <th className="px-5 py-3">{t("admin.earnings.pendingTableSession")}</th>
+              <th className="px-5 py-3">{t("labels.duration")}</th>
+              <th className="px-5 py-3">{t("admin.earnings.pendingTableAmount")}</th>
+              <th className="px-5 py-3">{t("admin.trialLeads.tableStatus")}</th>
+              <th className="px-5 py-3 text-right">{t("admin.earnings.pendingTableActions")}</th>
             </tr>
           </thead>
           <tbody>
@@ -76,7 +75,7 @@ export function AdminEarningsPendingTable({
                 </td>
                 <td className="px-5 py-3.5 text-portal-heading">{log.durationLabel}</td>
                 <td className="px-5 py-3.5 font-semibold text-portal-heading">
-                  {log.earningsBdt != null ? formatEarningsAmount(log.earningsBdt) : "—"}
+                  {log.earningsBdt != null ? formatBdt(log.earningsBdt) : "—"}
                 </td>
                 <td className="px-5 py-3.5">
                   <ClassLogStatusBadge status={log.status} />
@@ -87,7 +86,7 @@ export function AdminEarningsPendingTable({
                       type="button"
                       onClick={() => onView(log)}
                       className={actionClass}
-                      aria-label={`View log for ${log.teacher.name}`}
+                      aria-label={t("admin.admissions.viewApplication")}
                     >
                       <Eye className="size-4" aria-hidden />
                     </button>
@@ -96,7 +95,7 @@ export function AdminEarningsPendingTable({
                       onClick={() => onApprove(log)}
                       disabled={busy}
                       className={actionClass}
-                      aria-label={`Approve log for ${log.teacher.name}`}
+                      aria-label={t("admin.admissions.actionApprove")}
                     >
                       <Check className="size-4" aria-hidden />
                     </button>
@@ -104,7 +103,7 @@ export function AdminEarningsPendingTable({
                       type="button"
                       onClick={() => onView(log)}
                       className={actionClass}
-                      aria-label={`More actions for ${log.teacher.name}`}
+                      aria-label={t("admin.classDetail.moreActionsFor", { title: log.teacher.name })}
                     >
                       <MoreHorizontal className="size-4" aria-hidden />
                     </button>
@@ -122,7 +121,7 @@ export function AdminEarningsPendingTable({
             onClick={onViewAll}
             className="inline-flex items-center gap-1 text-xs font-semibold text-primary"
           >
-            View all pending approvals
+            {t("admin.earnings.pendingAlertCta")}
             <ArrowRight className="size-3.5" aria-hidden />
           </button>
         </div>

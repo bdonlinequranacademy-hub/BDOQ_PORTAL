@@ -35,8 +35,10 @@ import {
   type ProgressSort,
   type ProgressTrendRange,
 } from "@/features/admin/components/progress/adminProgressUtils";
+import { usePortalTranslation } from "@/i18n/LocaleProvider";
 
 export function AdminProgressPage() {
+  const { t } = usePortalTranslation();
   const [params, setParams] = useSearchParams();
   const defaultRange = getDefaultMonthRange();
 
@@ -153,23 +155,18 @@ export function AdminProgressPage() {
       {missingProgramCount > 0 ? (
         <Card className="rounded-2xl border border-amber-200 bg-amber-50 p-4 shadow-sm">
           <p className="text-sm text-amber-800">
-            {missingProgramCount} progress record{missingProgramCount === 1 ? "" : "s"} without a
-            study program — teachers should re-save progress with a program selected.
+            {t("admin.progress.missingProgramWarning")}
           </p>
         </Card>
       ) : null}
 
       {isLoading ? (
-        <PageLoading label="Loading progress…" />
+        <PageLoading label={t("admin.common.loadingProgress")} />
       ) : records.length === 0 ? (
         <EmptyState
           icon={TrendingUp}
-          title="No progress data yet"
-          description={
-            classFilter
-              ? "No progress records for this class yet."
-              : "Progress appears once teachers update student Quran progress in classes."
-          }
+          title={t("admin.common.noProgress")}
+          description={t("admin.common.noProgressDesc")}
         />
       ) : (
         <>

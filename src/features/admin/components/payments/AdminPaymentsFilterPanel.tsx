@@ -1,8 +1,8 @@
 import { FileSpreadsheet, FileText, Search } from "lucide-react";
 import { Card } from "@/components/ui/Card";
 import { Select } from "@/components/ui/Select";
+import { usePortalTranslation } from "@/i18n/LocaleProvider";
 import { formControlClass } from "@/lib/formControl";
-import { PAYMENT_METHOD_LABELS } from "@/features/admin/components/payments/adminPaymentsUtils";
 
 interface IAdminPaymentsFilterPanelProps {
   search: string;
@@ -22,6 +22,17 @@ interface IAdminPaymentsFilterPanelProps {
   onExportExcel: () => void;
 }
 
+const PAYMENT_METHOD_KEYS = [
+  "zelle",
+  "wise",
+  "bank_transfer",
+  "paypal",
+  "cash_app",
+  "bkash",
+  "nagad",
+  "other",
+] as const;
+
 export function AdminPaymentsFilterPanel({
   search,
   onSearchChange,
@@ -39,23 +50,25 @@ export function AdminPaymentsFilterPanel({
   onExportCsv,
   onExportExcel,
 }: IAdminPaymentsFilterPanelProps) {
+  const { t, paymentMethod } = usePortalTranslation();
+
   return (
     <div className="flex flex-col gap-4">
       <Card className="rounded-2xl border border-portal bg-portal-surface p-4 shadow-[0_8px_24px_-16px_rgba(13,74,47,0.18)] sm:p-5">
         <div className="mb-4 flex items-center justify-between gap-2">
-          <h2 className="text-sm font-bold text-portal-heading">Filter Payments</h2>
+          <h2 className="text-sm font-bold text-portal-heading">{t("filters.filterPayments")}</h2>
           <button
             type="button"
             onClick={onClearFilters}
             className="text-xs font-semibold text-primary hover:underline"
           >
-            Clear All
+            {t("filters.clearAll")}
           </button>
         </div>
 
         <div className="flex flex-col gap-3.5">
           <label className="flex flex-col gap-1.5">
-            <span className="text-xs font-medium text-portal-muted">Search</span>
+            <span className="text-xs font-medium text-portal-muted">{t("filters.search")}</span>
             <div className="relative">
               <Search
                 className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-portal-muted"
@@ -63,7 +76,7 @@ export function AdminPaymentsFilterPanel({
               />
               <input
                 className={`${formControlClass} py-2.5 pl-9 text-sm`}
-                placeholder="Student, email, reference…"
+                placeholder={t("admin.payments.searchPlaceholder")}
                 value={search}
                 onChange={(event) => onSearchChange(event.target.value)}
               />
@@ -71,22 +84,22 @@ export function AdminPaymentsFilterPanel({
           </label>
 
           <Select
-            label="Payment method"
+            label={t("filters.paymentMethod")}
             value={methodFilter}
             onChange={(event) => onMethodFilterChange(event.target.value)}
             className="py-2.5 text-sm"
           >
-            <option value="all">All methods</option>
-            {Object.entries(PAYMENT_METHOD_LABELS).map(([value, label]) => (
+            <option value="all">{t("filters.allMethods")}</option>
+            {PAYMENT_METHOD_KEYS.map((value) => (
               <option key={value} value={value}>
-                {label}
+                {paymentMethod(value)}
               </option>
             ))}
           </Select>
 
           <div className="grid grid-cols-1 gap-3">
             <label className="flex flex-col gap-1.5">
-              <span className="text-xs font-medium text-portal-muted">Date from</span>
+              <span className="text-xs font-medium text-portal-muted">{t("filters.dateFrom")}</span>
               <input
                 type="date"
                 className={`${formControlClass} py-2.5 text-sm`}
@@ -95,7 +108,7 @@ export function AdminPaymentsFilterPanel({
               />
             </label>
             <label className="flex flex-col gap-1.5">
-              <span className="text-xs font-medium text-portal-muted">Date to</span>
+              <span className="text-xs font-medium text-portal-muted">{t("filters.dateTo")}</span>
               <input
                 type="date"
                 className={`${formControlClass} py-2.5 text-sm`}
@@ -107,25 +120,25 @@ export function AdminPaymentsFilterPanel({
 
           <div className="grid grid-cols-2 gap-3">
             <label className="flex flex-col gap-1.5">
-              <span className="text-xs font-medium text-portal-muted">Min amount</span>
+              <span className="text-xs font-medium text-portal-muted">{t("filters.minAmount")}</span>
               <input
                 type="number"
                 min="0"
                 step="0.01"
                 className={`${formControlClass} py-2.5 text-sm`}
-                placeholder="0"
+                placeholder={t("admin.payments.amountPlaceholderMin")}
                 value={amountMin}
                 onChange={(event) => onAmountMinChange(event.target.value)}
               />
             </label>
             <label className="flex flex-col gap-1.5">
-              <span className="text-xs font-medium text-portal-muted">Max amount</span>
+              <span className="text-xs font-medium text-portal-muted">{t("filters.maxAmount")}</span>
               <input
                 type="number"
                 min="0"
                 step="0.01"
                 className={`${formControlClass} py-2.5 text-sm`}
-                placeholder="Any"
+                placeholder={t("admin.payments.amountPlaceholderMax")}
                 value={amountMax}
                 onChange={(event) => onAmountMaxChange(event.target.value)}
               />
@@ -135,7 +148,7 @@ export function AdminPaymentsFilterPanel({
       </Card>
 
       <Card className="rounded-2xl border border-portal bg-portal-surface p-4 shadow-[0_8px_24px_-16px_rgba(13,74,47,0.18)] sm:p-5">
-        <h2 className="mb-3 text-sm font-bold text-portal-heading">Export Payments</h2>
+        <h2 className="mb-3 text-sm font-bold text-portal-heading">{t("filters.exportPayments")}</h2>
         <div className="flex flex-col gap-2">
           <button
             type="button"
@@ -143,7 +156,7 @@ export function AdminPaymentsFilterPanel({
             className="inline-flex items-center justify-center gap-2 rounded-xl border border-portal bg-portal-surface px-4 py-2.5 text-sm font-semibold text-portal-heading transition hover:border-primary/30 hover:bg-primary/5"
           >
             <FileText className="size-4 text-primary" aria-hidden />
-            Export CSV
+            {t("filters.exportCsv")}
           </button>
           <button
             type="button"
@@ -151,7 +164,7 @@ export function AdminPaymentsFilterPanel({
             className="inline-flex items-center justify-center gap-2 rounded-xl border border-portal bg-portal-surface px-4 py-2.5 text-sm font-semibold text-portal-heading transition hover:border-primary/30 hover:bg-primary/5"
           >
             <FileSpreadsheet className="size-4 text-primary" aria-hidden />
-            Export Excel
+            {t("filters.exportExcel")}
           </button>
         </div>
       </Card>

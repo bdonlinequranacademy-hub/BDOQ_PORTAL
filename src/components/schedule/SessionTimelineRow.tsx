@@ -7,6 +7,7 @@ import { SessionStatusBadge } from "@/components/schedule/SessionStatusBadge";
 import { resolveDisplayPhase } from "@/lib/utils/sessionTiming";
 import { useSessionClock } from "@/hooks/useSessionClock";
 import { cn } from "@/lib/utils/cn";
+import { usePortalTranslation } from "@/i18n/LocaleProvider";
 
 interface SessionTimelineRowProps {
   session: SessionSlotView;
@@ -63,6 +64,8 @@ function AdminRoutineRow({
   isLive: boolean;
   onViewClass?: (session: SessionSlotView) => void;
 }) {
+  const { t } = usePortalTranslation();
+
   return (
     <Card
       className={cn(
@@ -72,9 +75,9 @@ function AdminRoutineRow({
     >
       <div className="flex flex-col gap-3 p-3 sm:flex-row sm:items-center sm:gap-4 sm:p-4">
         <div className="flex shrink-0 flex-wrap gap-2">
-          <TimeChip label="BD" time={session.times.academy.time} accent={isLive} />
-          <TimeChip label="Student" time={session.times.student.time} />
-          <TimeChip label="Teacher" time={session.times.teacher.time} />
+          <TimeChip label={t("shared.schedule.bd")} time={session.times.academy.time} accent={isLive} />
+          <TimeChip label={t("shared.schedule.student")} time={session.times.student.time} />
+          <TimeChip label={t("shared.schedule.teacher")} time={session.times.teacher.time} />
         </div>
 
         <div className="min-w-0 flex-1">
@@ -114,7 +117,7 @@ function AdminRoutineRow({
               onClick={() => onViewClass(session)}
               className="inline-flex items-center gap-1 rounded-lg border border-primary/20 bg-primary/5 px-3 py-1.5 text-xs font-semibold text-primary transition hover:bg-primary/10"
             >
-              View class
+              {t("shared.actions.viewClass")}
               <ExternalLink className="size-3" aria-hidden />
             </button>
           ) : null}
@@ -134,6 +137,7 @@ export function SessionTimelineRow({
   onLogSession,
   onMarkAttendance,
 }: SessionTimelineRowProps) {
+  const { t } = usePortalTranslation();
   const now = useSessionClock();
   const phase = resolveDisplayPhase(session, now, { routineView });
   const isLive = phase === "live";
@@ -165,7 +169,7 @@ export function SessionTimelineRow({
         >
           <div className="flex flex-1 flex-col items-center justify-center px-3 py-3">
             <span className="text-[10px] font-semibold uppercase tracking-wider text-portal-muted">
-              BD
+              {t("shared.schedule.bd")}
             </span>
             <p
               className={cn(
@@ -181,7 +185,7 @@ export function SessionTimelineRow({
 
           <div className="flex flex-1 flex-col items-center justify-center border-l border-portal px-3 py-3 lg:border-l-0 lg:border-t lg:border-portal">
             <span className="text-[10px] font-semibold uppercase tracking-wider text-portal-muted">
-              You
+              {t("shared.schedule.you")}
             </span>
             <p className="mt-1 text-sm font-semibold tabular-nums text-portal-heading">
               {session.times.teacher.time}
@@ -237,7 +241,7 @@ export function SessionTimelineRow({
               onClick={() => onViewClass(session)}
               className="inline-flex w-full items-center justify-center gap-1 rounded-lg border border-primary/20 bg-primary/5 px-3 py-2 text-xs font-semibold text-primary transition hover:bg-primary/10 sm:w-auto"
             >
-              View class
+              {t("shared.actions.viewClass")}
               <ExternalLink className="size-3" aria-hidden />
             </button>
           ) : null}

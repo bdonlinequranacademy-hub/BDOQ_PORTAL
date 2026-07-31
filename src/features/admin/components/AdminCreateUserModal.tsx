@@ -8,7 +8,6 @@ import { CountrySelect } from "@/components/ui/CountrySelect";
 import { WhatsAppPhoneField } from "@/components/whatsapp/WhatsAppPhoneField";
 import { CurriculumAssignmentEditor } from "@/components/curriculum/NestedCurriculumSelect";
 import { PROFILE_TIMEZONES } from "@/lib/profileTimezones";
-import { roleLabel } from "@/lib/assignableRoles";
 import {
   AdminUserFormFullWidth,
   AdminUserFormSection,
@@ -17,6 +16,7 @@ import { cn } from "@/lib/utils/cn";
 import { formControlClass, formHintClass, formLabelClass } from "@/lib/formControl";
 import type { CurriculumAssignment, Role } from "@/types/models";
 import type { CurriculumNode } from "@/lib/api/curriculumApi";
+import { usePortalTranslation } from "@/i18n/LocaleProvider";
 
 export interface ICreateUserPayload {
   name: string;
@@ -39,10 +39,10 @@ interface IAdminCreateUserModalProps {
   onSubmit: (payload: ICreateUserPayload) => Promise<void>;
 }
 
-const ROLE_HINTS: Partial<Record<Role, string>> = {
-  student: "Learners use the student portal for classes, homework, and payments.",
-  teacher: "Teachers manage classes, attendance, homework, and earnings.",
-  admin: "Admins manage users, curriculum, classes, and academy operations.",
+const ROLE_HINT_KEYS: Partial<Record<Role, string>> = {
+  student: "admin.users.roleHintStudent",
+  teacher: "admin.users.roleHintTeacher",
+  admin: "admin.users.roleHintAdmin",
 };
 
 const EMPTY_FORM = {
@@ -74,6 +74,8 @@ export function AdminCreateUserModal({
   isPending,
   onSubmit,
 }: IAdminCreateUserModalProps) {
+  const { t, role, dynamicLabel } = usePortalTranslation();
+
   const [form, setForm] = useState(EMPTY_FORM);
   const [showPassword, setShowPassword] = useState(false);
   const [showCurriculum, setShowCurriculum] = useState(false);
@@ -137,13 +139,15 @@ export function AdminCreateUserModal({
     setShowCurriculum(false);
   }
 
+  const roleHintKey = ROLE_HINT_KEYS[form.role];
+
   return (
     <Modal
       open={open}
       onClose={resetAndClose}
       size="xl"
-      title="Create new user"
-      description="Choose a role, fill account details, then create the portal login."
+      title={t("admin.users.createTitle")}
+      description={t("admin.users.createDesc")}
       footer={
         <div className="flex items-center justify-end gap-2">
           <Button
@@ -152,7 +156,7 @@ export function AdminCreateUserModal({
             onClick={resetAndClose}
             className="rounded-xl border border-portal"
           >
-            Cancel
+            {t("admin.common.cancel")}
           </Button>
           <Button
             type="button"
@@ -160,7 +164,7 @@ export function AdminCreateUserModal({
             disabled={!canSubmit || isPending}
             className="rounded-xl bg-primary-dark text-white"
           >
-            {isPending ? "Creating…" : "Create user"}
+            {isPending ? t("admin.users.creating") : t("admin.users.createUser")}
           </Button>
         </div>
       }
@@ -168,16 +172,16 @@ export function AdminCreateUserModal({
       <div className="flex flex-col gap-4">
         <div className="rounded-xl border border-portal bg-portal-surface p-1">
           <p className="px-3 pt-2 text-xs font-medium uppercase tracking-wide text-portal-muted">
-            Account role
+            {t("admin.users.accountRole")}
           </p>
           <div className="flex flex-wrap gap-1 p-1">
-            {creatableRoles.map((role) => {
-              const active = form.role === role;
+            {creatableRoles.map((roleKey) => {
+              const active = form.role === roleKey;
               return (
                 <button
-                  key={role}
+                  key={roleKey}
                   type="button"
-                  onClick={() => update("role", role)}
+                  onClick={() => update("role", roleKey)}
                   className={cn(
                     "rounded-lg px-4 py-2 text-sm font-semibold transition",
                     active
@@ -185,33 +189,33 @@ export function AdminCreateUserModal({
                       : "text-portal-muted hover:bg-portal-surface-muted/60 hover:text-portal-heading"
                   )}
                 >
-                  {roleLabel(role)}
+                  {role(roleKey)}
                 </button>
               );
             })}
           </div>
           <p className="border-t border-portal px-3 py-2 text-xs text-portal-muted">
-            {ROLE_HINTS[form.role] ?? "Choose the account type for this user."}
+            {roleHintKey ? t(roleHintKey) : t("admin.users.roleHintDefault")}
           </p>
         </div>
 
         <AdminUserFormSection
-          title="Account details"
-          description="Sign-in credentials for the academy portal."
+          title={t("admin.users.sectionAccount")}
+          description={t("admin.users.sectionAccountDesc")}
           columns={2}
         >
           <Input
-            label="Full name *"
-            placeholder="e.g. Fatima Rahman"
+            label={t("admin.users.fullName")}
+            placeholder={t("admin.users.fullNamePlaceholder")}
             value={form.name}
             onChange={(event) => update("name", event.target.value)}
             autoComplete="name"
             required
           />
           <Input
-            label="Email address *"
+            label={t("admin.users.email")}
             type="email"
-            placeholder="name@example.com"
+            placeholder={t("admin.users.emailPlaceholder")}
             value={form.email}
             onChange={(event) => update("email", event.target.value)}
             autoComplete="email"
@@ -220,12 +224,12 @@ export function AdminCreateUserModal({
 
           <AdminUserFormFullWidth>
             <div className="flex flex-col gap-1.5">
-              <span className={formLabelClass}>Password *</span>
+              <span className={formLabelClass}>{t("admin.users.password")}</span>
               <div className="flex gap-2">
                 <div className="relative min-w-0 flex-1">
                   <input
                     type={showPassword ? "text" : "password"}
-                    placeholder="Minimum 6 characters"
+                    placeholder={t("admin.users.passwordPlaceholder")}
                     value={form.password}
                     onChange={(event) => update("password", event.target.value)}
                     autoComplete="new-password"
@@ -236,7 +240,9 @@ export function AdminCreateUserModal({
                     type="button"
                     onClick={() => setShowPassword((current) => !current)}
                     className="absolute right-2 top-1/2 -translate-y-1/2 rounded-md p-1.5 text-portal-muted hover:text-portal-heading"
-                    aria-label={showPassword ? "Hide password" : "Show password"}
+                    aria-label={
+                      showPassword ? t("admin.users.hidePassword") : t("admin.users.showPassword")
+                    }
                   >
                     {showPassword ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
                   </button>
@@ -249,39 +255,37 @@ export function AdminCreateUserModal({
                     setShowPassword(true);
                   }}
                   className="shrink-0 rounded-xl border border-portal px-3"
-                  title="Generate secure password"
+                  title={t("admin.users.generatePassword")}
                 >
                   <RefreshCw className="size-4" />
-                  <span className="hidden sm:inline">Generate</span>
+                  <span className="hidden sm:inline">{t("admin.users.generate")}</span>
                 </Button>
               </div>
-              <span className={formHintClass}>
-                Min. 6 characters — share securely with the user after creation.
-              </span>
+              <span className={formHintClass}>{t("admin.users.passwordHint")}</span>
             </div>
           </AdminUserFormFullWidth>
 
           {isTeacher ? (
             <Select
-              label="Teacher gender *"
+              label={t("admin.users.teacherGender")}
               value={form.gender}
               onChange={(event) =>
                 update("gender", event.target.value as "" | "male" | "female")
               }
-              hint="Required for student–teacher matching."
+              hint={t("admin.users.teacherGenderHint")}
               required
             >
-              <option value="">Select gender…</option>
-              <option value="female">Female</option>
-              <option value="male">Male</option>
+              <option value="">{t("admin.users.selectGender")}</option>
+              <option value="female">{dynamicLabel("female")}</option>
+              <option value="male">{dynamicLabel("male")}</option>
             </Select>
           ) : null}
         </AdminUserFormSection>
 
         {needsContact ? (
           <AdminUserFormSection
-            title="Contact & location"
-            description="For WhatsApp updates, scheduling, and teacher–student matching."
+            title={t("admin.users.sectionContact")}
+            description={t("admin.users.sectionContactDesc")}
             columns={2}
           >
             <CountrySelect
@@ -293,19 +297,19 @@ export function AdminCreateUserModal({
               value={form.whatsapp}
               onChange={(value) => update("whatsapp", value)}
               onError={setWhatsappError}
-              hint="Optional now — add for WhatsApp reminders."
+              hint={t("admin.users.whatsappHint")}
             />
           </AdminUserFormSection>
         ) : null}
 
         {isStudent ? (
           <AdminUserFormSection
-            title="Student setup"
-            description="Timezone affects class scheduling. Study programs can be added later."
+            title={t("admin.users.sectionStudent")}
+            description={t("admin.users.sectionStudentDesc")}
             columns={2}
           >
             <Select
-              label="Timezone"
+              label={t("admin.users.timezone")}
               value={form.timezone}
               onChange={(event) => update("timezone", event.target.value)}
             >
@@ -323,12 +327,15 @@ export function AdminCreateUserModal({
                   onClick={() => setShowCurriculum(true)}
                   className="w-full rounded-xl border border-dashed border-portal px-4 py-3 text-left text-sm text-portal-muted transition hover:border-primary/40 hover:bg-primary/5 hover:text-portal-heading"
                 >
-                  + Add study programs <span className="text-xs">(optional)</span>
+                  {t("admin.users.addPrograms")}
+                  <span className="text-xs">{t("admin.users.optional")}</span>
                 </button>
               ) : (
                 <div className="flex flex-col gap-2">
                   <div className="flex items-center justify-between gap-2">
-                    <p className="text-sm font-medium text-portal-heading">Study programs</p>
+                    <p className="text-sm font-medium text-portal-heading">
+                      {t("admin.users.studyPrograms")}
+                    </p>
                     <button
                       type="button"
                       onClick={() => {
@@ -337,7 +344,7 @@ export function AdminCreateUserModal({
                       }}
                       className="text-xs font-medium text-portal-muted hover:text-portal-heading"
                     >
-                      Remove
+                      {t("admin.users.remove")}
                     </button>
                   </div>
                   <CurriculumAssignmentEditor

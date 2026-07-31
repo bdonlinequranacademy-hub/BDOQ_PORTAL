@@ -1,10 +1,12 @@
 import { BookOpen } from "lucide-react";
 import { UserAvatar } from "@/components/ui/UserAvatar";
 import { useAuthStore } from "@/stores/authStore";
+import { usePortalTranslation } from "@/i18n/LocaleProvider";
 
 export function AdminPricingOverviewHeader() {
+  const { t, role } = usePortalTranslation();
   const user = useAuthStore((s) => s.user);
-  const name = user?.name?.split(" ")[0] || "Admin";
+  const name = user?.name?.split(" ")[0] || t("branding.userFallback");
 
   return (
     <div className="portal-card-islamic portal-card--lg relative overflow-hidden rounded-2xl border border-portal bg-portal-surface px-5 py-6 shadow-[0_8px_24px_-16px_rgba(13,74,47,0.18)] sm:px-8 sm:py-7">
@@ -26,20 +28,20 @@ export function AdminPricingOverviewHeader() {
       <div className="relative grid gap-5 lg:grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] lg:items-center">
         <div className="flex items-center gap-3">
           <UserAvatar
-            name={user?.name || "Admin"}
+            name={user?.name || t("branding.userFallback")}
             avatarUrl={user?.avatarUrl}
             size="lg"
             shape="circle"
           />
           <div className="min-w-0">
             <p className="text-lg font-bold text-portal-heading sm:text-xl">
-              Welcome back, {name}
+              {t("branding.welcomeBack")} {name}
             </p>
             <span className="mt-1 inline-flex rounded-full bg-primary/15 px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wide text-primary-dark">
-              Super Admin
+              {role("super_admin")}
             </span>
             <p className="mt-2 text-sm text-portal-muted">
-              Manage learning packages for the public pricing page.
+              {t("admin.cms.pricing.overviewSubtitle")}
             </p>
           </div>
         </div>
@@ -49,7 +51,7 @@ export function AdminPricingOverviewHeader() {
             رَبِّ زِدْنِي عِلْمًا
           </p>
           <p className="mt-1 text-xs text-portal-muted sm:text-sm">
-            &ldquo;My Lord, increase me in knowledge.&rdquo; — Surah Taha 20:114
+            &ldquo;{t("islamic.quote20114")}&rdquo; — {t("islamic.quote20114Source")}
           </p>
         </div>
 

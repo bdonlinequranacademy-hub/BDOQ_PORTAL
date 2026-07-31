@@ -7,10 +7,12 @@ import { Button } from "@/components/ui/Button";
 import { formControlClass } from "@/lib/formControl";
 import { SCHEDULE_DAYS } from "@/lib/utils/schedule";
 import type { AvailabilityCheckResult } from "@/types/models";
+import { usePortalTranslation } from "@/i18n/LocaleProvider";
 
 const DURATION_OPTIONS = [30, 45, 60, 90, 120];
 
 export function TeacherAvailabilityPage() {
+  const { t } = usePortalTranslation();
   const [day, setDay] = useState<string>("Monday");
   const [startTime, setStartTime] = useState("10:00");
   const [durationMinutes, setDurationMinutes] = useState(60);
@@ -31,16 +33,14 @@ export function TeacherAvailabilityPage() {
   return (
     <PageContainer className="flex flex-col gap-6" size="narrow">
       <div>
-        <h1 className="text-2xl font-bold text-primary-dark">Check Availability</h1>
-        <p className="mt-1 text-sm text-zinc-500">
-          See if a proposed slot conflicts with your current routine (academy time, Asia/Dhaka)
-        </p>
+        <h1 className="text-2xl font-bold text-primary-dark">{t("teacher.checkAvailability")}</h1>
+        <p className="mt-1 text-sm text-zinc-500">{t("teacher.availabilitySubtitle")}</p>
       </div>
 
       <Card className="rounded-3xl border-0 p-6 shadow-sm">
         <form onSubmit={handleSubmit} className="flex flex-col gap-4">
           <label className="flex flex-col gap-1.5">
-            <span className="text-xs font-medium text-zinc-500">Day</span>
+            <span className="text-xs font-medium text-zinc-500">{t("teacher.day")}</span>
             <select
               value={day}
               onChange={(e) => setDay(e.target.value)}
@@ -55,7 +55,7 @@ export function TeacherAvailabilityPage() {
           </label>
 
           <label className="flex flex-col gap-1.5">
-            <span className="text-xs font-medium text-zinc-500">Start time (24h)</span>
+            <span className="text-xs font-medium text-zinc-500">{t("teacher.startTime24h")}</span>
             <input
               type="time"
               value={startTime}
@@ -66,7 +66,7 @@ export function TeacherAvailabilityPage() {
           </label>
 
           <label className="flex flex-col gap-1.5">
-            <span className="text-xs font-medium text-zinc-500">Duration</span>
+            <span className="text-xs font-medium text-zinc-500">{t("teacher.duration")}</span>
             <select
               value={durationMinutes}
               onChange={(e) => setDurationMinutes(Number(e.target.value))}
@@ -74,14 +74,14 @@ export function TeacherAvailabilityPage() {
             >
               {DURATION_OPTIONS.map((m) => (
                 <option key={m} value={m}>
-                  {m} minutes
+                  {t("teacher.minutes", { count: String(m) })}
                 </option>
               ))}
             </select>
           </label>
 
           <Button type="submit" disabled={check.isPending} className="mt-2 w-full rounded-xl">
-            {check.isPending ? "Checking…" : "Am I free?"}
+            {check.isPending ? t("teacher.checking") : t("teacher.amIFree")}
           </Button>
         </form>
       </Card>
@@ -104,11 +104,14 @@ export function TeacherAvailabilityPage() {
                   result.available ? "text-emerald-800" : "text-red-800"
                 }`}
               >
-                {result.available ? "You are free at this time" : "This slot conflicts"}
+                {result.available ? t("teacher.youAreFree") : t("teacher.slotConflicts")}
               </p>
               <p className="mt-1 text-sm text-zinc-600">
-                {result.day} · Academy: {result.displayTime.academy} · Your time:{" "}
-                {result.displayTime.teacher}
+                {t("teacher.academyYourTime", {
+                  day: result.day,
+                  academy: result.displayTime.academy,
+                  teacher: result.displayTime.teacher,
+                })}
               </p>
 
               {result.conflicts.length > 0 ? (
@@ -121,7 +124,7 @@ export function TeacherAvailabilityPage() {
                       <span className="font-semibold">{c.studentName}</span>
                       <span className="text-zinc-500">
                         {" "}
-                        · {c.startTime}–{c.endTime} ({c.durationMinutes} min)
+                        · {c.startTime}–{c.endTime} ({t("teacher.minutes", { count: String(c.durationMinutes) })})
                       </span>
                     </li>
                   ))}
@@ -134,10 +137,7 @@ export function TeacherAvailabilityPage() {
 
       <Card className="flex items-start gap-3 rounded-2xl border border-dashed border-zinc-200 bg-white/80 p-4">
         <CalendarClock className="size-5 shrink-0 text-gold" />
-        <p className="text-sm text-zinc-500">
-          Times are checked against your synced weekly routine. Update class schedules in admin if
-          something looks wrong.
-        </p>
+        <p className="text-sm text-zinc-500">{t("teacher.availabilityNote")}</p>
       </Card>
     </PageContainer>
   );

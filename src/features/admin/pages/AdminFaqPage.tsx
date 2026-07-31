@@ -21,6 +21,7 @@ import {
 } from "@/features/admin/lib/adminCmsUtils";
 import type { AdminFaqItem } from "@/types/models";
 import { AdminSectionHeaderPanel } from "@/features/admin/components/sectionHeaders/AdminSectionHeaderPanel";
+import { usePortalTranslation } from "@/i18n/LocaleProvider";
 
 function filterFaqItems(
   items: AdminFaqItem[],
@@ -40,6 +41,7 @@ function filterFaqItems(
 }
 
 export function AdminFaqPage() {
+  const { t } = usePortalTranslation();
   const navigate = useNavigate();
   const [search, setSearch] = useState("");
   const [status, setStatus] = useState<CmsStatusFilter>("all");
@@ -68,7 +70,7 @@ export function AdminFaqPage() {
   });
 
   function handleDelete(item: AdminFaqItem) {
-    if (!window.confirm(`Delete FAQ "${item.question.slice(0, 60)}…"?`)) return;
+    if (!window.confirm(t("admin.common.confirmDeleteFaq", { question: `${item.question.slice(0, 60)}…` }))) return;
     deleteItem.mutate(item.id);
   }
 
@@ -78,10 +80,10 @@ export function AdminFaqPage() {
       <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
         <div>
           <h1 className="font-display text-2xl font-bold text-primary-dark sm:text-3xl">
-            FAQ CMS
+            {t("admin.cms.faq.title")}
           </h1>
           <p className="mt-1.5 max-w-2xl text-sm text-portal-muted">
-            Manage homepage and sitewide FAQ accordion items on the public website.
+            {t("admin.cms.faq.subtitle")}
           </p>
         </div>
         <Button
@@ -90,16 +92,16 @@ export function AdminFaqPage() {
           className="hidden shrink-0 items-center gap-2 rounded-xl bg-primary px-5 py-2.5 text-white hover:bg-primary-dark sm:inline-flex"
         >
           <Plus className="size-4" aria-hidden />
-          New FAQ
+          {t("admin.common.newFaq")}
         </Button>
       </div>
 
       {!isLoading && items.length > 0 ? (
         <div className="mt-6 grid grid-cols-3 gap-3 sm:gap-4">
           {[
-            { label: "Total items", value: stats.total },
-            { label: "Published", value: stats.published },
-            { label: "Draft", value: stats.draft },
+            { label: t("admin.common.statTotal"), value: stats.total },
+            { label: t("admin.common.statPublished"), value: stats.published },
+            { label: t("admin.common.statDraft"), value: stats.draft },
           ].map((stat) => (
             <Card
               key={stat.label}
@@ -115,23 +117,23 @@ export function AdminFaqPage() {
       ) : null}
 
       {isLoading ? (
-        <PageLoading label="Loading FAQ items…" />
+        <PageLoading label={t("admin.common.loadingFaq")} />
       ) : items.length === 0 ? (
         <EmptyState
           icon={CircleHelp}
-          title="No FAQ items yet"
-          description="Add questions and answers for the public website FAQ section."
-          actionLabel="New FAQ"
+          title={t("admin.common.noFaq")}
+          description={t("admin.common.noFaqDesc")}
+          actionLabel={t("admin.common.newFaq")}
           onAction={() => navigate("/admin/faq/new")}
         />
       ) : (
         <div className="mt-6 flex flex-col gap-5">
           <AdminCmsListToolbar
-            title="FAQ Items"
-            subtitle="Questions shown in the public FAQ accordion"
+            title={t("admin.common.faqItems")}
+            subtitle={t("admin.common.noFaqDesc")}
             search={search}
             status={status}
-            newLabel="New FAQ"
+            newLabel={t("admin.common.newFaq")}
             searchPlaceholder="Search question or answer…"
             onSearchChange={setSearch}
             onStatusChange={setStatus}
@@ -141,10 +143,10 @@ export function AdminFaqPage() {
           {visible.length === 0 ? (
             <Card className="rounded-2xl border border-portal p-8 text-center shadow-sm">
               <p className="font-semibold text-portal-heading">
-                No FAQ items match filters
+                {t("admin.common.noMatchFilters")}
               </p>
               <p className="mt-1 text-sm text-portal-muted">
-                Try clearing search or status filters.
+                {t("admin.common.clearFiltersHint")}
               </p>
             </Card>
           ) : (
@@ -199,7 +201,7 @@ export function AdminFaqPage() {
                               className="inline-flex items-center gap-1.5 rounded-lg border border-portal px-3 py-1.5 text-xs font-semibold text-primary transition hover:bg-primary/5"
                             >
                               <Pencil className="size-3.5" aria-hidden />
-                              Edit
+                              {t("admin.common.edit")}
                             </button>
                             <button
                               type="button"
@@ -207,7 +209,7 @@ export function AdminFaqPage() {
                               className="inline-flex items-center gap-1.5 rounded-lg border border-red-200 px-3 py-1.5 text-xs font-semibold text-red-600 transition hover:bg-red-50"
                             >
                               <Trash2 className="size-3.5" aria-hidden />
-                              Delete
+                              {t("admin.common.delete")}
                             </button>
                           </div>
                         </td>
@@ -231,7 +233,7 @@ export function AdminFaqPage() {
               onClick={() => void refetch()}
               className="text-center text-xs font-semibold text-primary hover:underline"
             >
-              Refresh data
+              {t("admin.common.refreshData")}
             </button>
           )}
         </div>

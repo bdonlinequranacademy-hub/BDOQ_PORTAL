@@ -13,8 +13,10 @@ import { BrandLogo } from "@/components/brand/BrandLogo";
 import { PortalBrandingHeader } from "@/components/layout/PortalBrandingHeader";
 import { GlobalSearch } from "@/components/search/GlobalSearch";
 import { ThemeToggle } from "@/components/theme/ThemeToggle";
+import { LanguageToggle } from "@/components/shared/LanguageToggle";
 import { MobileNavMenu } from "@/components/layout/MobileNavMenu";
-import { BDOQ_BRAND, BDOQ_ROLE_PORTAL_LABEL } from "@/lib/bdoqBrand";
+import { BDOQ_BRAND } from "@/lib/bdoqBrand";
+import { usePortalTranslation } from "@/i18n/LocaleProvider";
 import { isStaffAdmin } from "@/lib/assignableRoles";
 import { profilePathForRole } from "@/lib/portalNav";
 import {
@@ -51,14 +53,6 @@ const SIDEBAR_COLLAPSED_CLASS = "lg:pl-[4.5rem]";
 function readSidebarOpenPreference(): boolean {
   if (typeof window === "undefined") return true;
   return localStorage.getItem(SIDEBAR_OPEN_KEY) !== "false";
-}
-
-function roleDisplayLabel(role: Role): string {
-  if (role === "super_admin") return "Super Admin";
-  if (role === "admin") return "Admin";
-  if (role === "teacher") return "Teacher";
-  if (role === "student") return "Student";
-  return role;
 }
 
 function NavButton({
@@ -157,6 +151,7 @@ export function PortalLayout({
 }: IPortalLayoutProps) {
   const navigate = useNavigate();
   const location = useLocation();
+  const { t, role: roleLabel, portalLabel, section, locale } = usePortalTranslation();
   const [sidebarOpen, setSidebarOpen] = useState(readSidebarOpenPreference);
 
   useEffect(() => {
@@ -170,13 +165,13 @@ export function PortalLayout({
     return location.pathname.startsWith(path);
   }
 
-  const portalLabel =
-    BDOQ_ROLE_PORTAL_LABEL[user.role] ?? `${user.role} portal`;
-  const activePage = navItems.find((n) => isActive(n.path))?.label ?? "Dashboard";
+  const portalLabelText = portalLabel(user.role);
+  const activePage =
+    navItems.find((n) => isActive(n.path))?.label ?? t("layout.dashboard");
   const profilePath = profilePathForRole(user.role);
   const navSections = useMemo(
-    () => groupPortalNavItems(navItems, user.role),
-    [navItems, user.role]
+    () => groupPortalNavItems(navItems, user.role, section),
+    [navItems, user.role, locale, section]
   );
   const profileActive = Boolean(profilePath && isActive(profilePath));
   const hijriLabel = useMemo(() => hijriDateLabel(), []);
@@ -201,12 +196,12 @@ export function PortalLayout({
                 type="button"
                 onClick={() => setSidebarOpen(false)}
                 className="absolute right-3 top-3 flex size-8 items-center justify-center rounded border border-white/15 text-white/70 transition hover:border-gold/40 hover:bg-white/10 hover:text-white"
-                aria-label="Collapse sidebar"
-                title="Collapse sidebar"
+                aria-label={t("layout.collapseSidebar")}
+                title={t("layout.collapseSidebar")}
               >
                 <ChevronLeft className="size-4" aria-hidden />
               </button>
-              <BrandLogo subtitle={portalLabel} />
+              <BrandLogo subtitle={portalLabelText} />
             </div>
           ) : (
             <div className="flex flex-col items-center gap-2 px-2 py-4">
@@ -215,8 +210,8 @@ export function PortalLayout({
                 type="button"
                 onClick={() => setSidebarOpen(true)}
                 className="flex size-8 items-center justify-center rounded border border-white/15 text-white/70 transition hover:border-gold/40 hover:bg-white/10 hover:text-white"
-                aria-label="Expand sidebar"
-                title="Expand sidebar"
+                aria-label={t("layout.expandSidebar")}
+                title={t("layout.expandSidebar")}
               >
                 <ChevronRight className="size-4" aria-hidden />
               </button>
@@ -287,7 +282,7 @@ export function PortalLayout({
                     {user.name}
                   </p>
                   <p className="mt-0.5 flex items-center gap-1 truncate text-[11px] font-medium text-gold">
-                    {roleDisplayLabel(user.role)}
+                    {roleLabel(user.role)}
                     <BadgeCheck className="size-3.5 shrink-0 text-gold" aria-hidden />
                   </p>
                 </div>
@@ -295,11 +290,11 @@ export function PortalLayout({
               <button
                 type="button"
                 onClick={onSignOut}
-                aria-label="Sign out"
+                aria-label={t("layout.signOut")}
                 className="mt-3 flex w-full min-h-[40px] items-center gap-2 rounded-xl px-1 text-sm text-white/70 transition hover:bg-white/10 hover:text-white"
               >
                 <LogOut className="size-4 shrink-0" aria-hidden />
-                Sign out
+                {t("layout.signOut")}
               </button>
             </div>
           ) : (
@@ -326,8 +321,8 @@ export function PortalLayout({
               <button
                 type="button"
                 onClick={onSignOut}
-                title="Sign out"
-                aria-label="Sign out"
+                title={t("layout.signOut")}
+                aria-label={t("layout.signOut")}
                 className="flex size-9 items-center justify-center rounded-full text-white/70 transition hover:bg-white/10 hover:text-white"
               >
                 <LogOut className="size-4" aria-hidden />
@@ -364,16 +359,17 @@ export function PortalLayout({
                 {activePage}
               </p>
               <p className="truncate text-[11px] font-medium uppercase tracking-wider text-gold-dark dark:text-gold">
-                {portalLabel}
+                {portalLabelText}
               </p>
             </div>
             <div className="flex shrink-0 items-center gap-0.5">
+              <LanguageToggle variant="light" />
               <GlobalSearch role={user.role} variant="host" />
               <button
                 type="button"
                 onClick={() => window.dispatchEvent(new Event("portal:open-search"))}
                 className="flex size-10 items-center justify-center rounded-xl text-portal-heading active:bg-primary/10"
-                aria-label="Search"
+                aria-label={t("layout.search")}
               >
                 <Search className="size-5" />
               </button>
@@ -381,7 +377,7 @@ export function PortalLayout({
                 <button
                   type="button"
                   className="relative flex size-10 items-center justify-center rounded-xl active:bg-primary/10"
-                  aria-label="Notifications"
+                  aria-label={t("layout.notifications")}
                   onClick={() =>
                     navigate(
                       isStaffAdmin(user.role)
@@ -403,7 +399,7 @@ export function PortalLayout({
                   type="button"
                   onClick={goToProfile}
                   className="flex size-10 items-center justify-center rounded-xl active:bg-primary/10"
-                  aria-label="Open profile"
+                  aria-label={t("layout.openProfile")}
                 >
                   <UserAvatar
                     name={user.name}
@@ -437,7 +433,7 @@ export function PortalLayout({
               {hijriLabel ? (
                 <span
                   className="hidden shrink-0 items-center rounded-xl border border-gold/35 bg-[linear-gradient(135deg,#fff8e7_0%,#f0fbf6_100%)] px-3 py-2 text-[11px] font-semibold text-[#0A4D3C] shadow-sm xl:inline-flex dark:border-gold/30 dark:bg-[linear-gradient(135deg,rgb(212_168_83/0.15)_0%,rgb(13_74_47/0.35)_100%)] dark:text-[#F5E6C8]"
-                  title="Hijri date"
+                  title={t("layout.hijriDate")}
                 >
                   <Sparkles className="mr-1.5 size-3.5 text-gold" aria-hidden />
                   {hijriLabel}
@@ -446,8 +442,9 @@ export function PortalLayout({
             </div>
 
             <div className="flex shrink-0 items-center gap-2 sm:gap-3">
+              <LanguageToggle variant="light" />
               <span className="hidden rounded-full border border-primary/20 bg-primary/10 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wide text-primary-dark xl:inline-flex dark:bg-primary/20 dark:text-[#A7F3D0]">
-                {roleDisplayLabel(user.role)}
+                {roleLabel(user.role)}
               </span>
               <div className="hidden sm:block">
                 <ThemeToggle compact />
@@ -456,7 +453,7 @@ export function PortalLayout({
                 <button
                   type="button"
                   className="relative min-h-[44px] min-w-[44px] rounded-lg p-1 hover:bg-portal-surface-muted/30"
-                  aria-label="Notifications"
+                  aria-label={t("layout.notifications")}
                   onClick={() =>
                     navigate(
                       isStaffAdmin(user.role)
@@ -479,8 +476,8 @@ export function PortalLayout({
                   type="button"
                   onClick={goToProfile}
                   className="hidden cursor-pointer sm:flex"
-                  aria-label="Open profile"
-                  title="My profile"
+                  aria-label={t("layout.openProfile")}
+                  title={t("layout.myProfile")}
                 >
                   <UserAvatar
                     name={user.name}

@@ -1,11 +1,11 @@
 import type { TrialBookingStatus } from "@/types/models";
-import {
-  trialLeadStatusLabel,
-  trialLeadStatusStyles,
-} from "@/features/admin/components/trial-leads/adminTrialLeadsUtils";
+import { trialLeadStatusStyles } from "@/features/admin/components/trial-leads/adminTrialLeadsUtils";
 import { cn } from "@/lib/utils/cn";
+import { usePortalTranslation } from "@/i18n/LocaleProvider";
 
 export function TrialLeadStatusBadge({ status }: { status: TrialBookingStatus }) {
+  const { statusLabel } = usePortalTranslation();
+
   return (
     <span
       className={cn(
@@ -13,7 +13,7 @@ export function TrialLeadStatusBadge({ status }: { status: TrialBookingStatus })
         trialLeadStatusStyles(status)
       )}
     >
-      {trialLeadStatusLabel(status)}
+      {statusLabel(status)}
     </span>
   );
 }

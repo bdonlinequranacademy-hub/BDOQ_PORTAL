@@ -14,24 +14,12 @@ import { EmptyState } from "@/components/ui/EmptyState";
 import { PageLoading } from "@/components/ui/PageLoading";
 import { Card } from "@/components/ui/Card";
 import { cn } from "@/lib/utils/cn";
+import { usePortalTranslation } from "@/i18n/LocaleProvider";
 
 type TabFilter = "all" | NewsletterSubscriberStatus;
 
-function formatDate(value: string): string {
-  try {
-    return new Intl.DateTimeFormat("en-GB", {
-      day: "2-digit",
-      month: "short",
-      year: "numeric",
-      hour: "2-digit",
-      minute: "2-digit",
-    }).format(new Date(value));
-  } catch {
-    return value;
-  }
-}
-
 function StatusBadge({ status }: { status: NewsletterSubscriberStatus }) {
+  const { statusLabel } = usePortalTranslation();
   const active = status === "active";
   return (
     <span
@@ -42,12 +30,13 @@ function StatusBadge({ status }: { status: NewsletterSubscriberStatus }) {
           : "bg-slate-100 text-slate-600 ring-1 ring-slate-200"
       )}
     >
-      {active ? "Active" : "Unsubscribed"}
+      {statusLabel(status)}
     </span>
   );
 }
 
 export function AdminNewsletterSubscribersPage() {
+  const { t, formatDate } = usePortalTranslation();
   const [tab, setTab] = useState<TabFilter>("all");
   const [search, setSearch] = useState("");
 
@@ -62,6 +51,16 @@ export function AdminNewsletterSubscribersPage() {
       unsubscribed: rows.filter((row) => row.status === "unsubscribed").length,
     }),
     [rows]
+  );
+
+  const tabLabels = useMemo(
+    () =>
+      ({
+        all: t("admin.newsletter.tabAll"),
+        active: t("admin.newsletter.tabActive"),
+        unsubscribed: t("admin.newsletter.tabUnsubscribed"),
+      }) as const,
+    [t]
   );
 
   const visible = useMemo(() => {
@@ -82,27 +81,21 @@ export function AdminNewsletterSubscribersPage() {
     updateStatus.mutate({ id: row._id, status: next });
   }
 
-  if (isLoading) return <PageLoading />;
+  if (isLoading) return <PageLoading label={t("admin.common.loadingNewsletter")} />;
 
   return (
     <PageContainer>
       <div>
         <h1 className="portal-page-title font-display text-2xl font-bold text-primary-dark sm:text-3xl">
-          Newsletter
+          {t("admin.newsletter.title")}
         </h1>
         <p className="portal-page-subtitle mt-1 max-w-3xl text-portal-muted">
-          Emails collected from the website footer newsletter form.
+          {t("admin.newsletter.subtitle")}
         </p>
       </div>
 
       <div className="flex flex-wrap gap-2">
-        {(
-          [
-            ["all", `All (${counts.all})`],
-            ["active", `Active (${counts.active})`],
-            ["unsubscribed", `Unsubscribed (${counts.unsubscribed})`],
-          ] as const
-        ).map(([key, label]) => (
+        {(["all", "active", "unsubscribed"] as const).map((key) => (
           <button
             key={key}
             type="button"
@@ -114,7 +107,7 @@ export function AdminNewsletterSubscribersPage() {
                 : "bg-white text-portal-muted ring-1 ring-portal hover:text-primary-dark"
             )}
           >
-            {label}
+            {tabLabels[key]} ({counts[key]})
           </button>
         ))}
       </div>
@@ -128,23 +121,29 @@ export function AdminNewsletterSubscribersPage() {
           type="search"
           value={search}
           onChange={(event) => setSearch(event.target.value)}
-          placeholder="Search email or source…"
+          placeholder={t("admin.newsletter.searchPlaceholder")}
           className="w-full rounded-[8px] border border-portal bg-white py-2.5 pl-10 pr-3 text-sm outline-none focus:border-primary"
         />
       </label>
 
       {isError ? (
         <EmptyState
-          title="Could not load subscribers"
-          description="Check your connection and try again."
-          actionLabel="Retry"
+          title={t("admin.newsletter.loadError")}
+          description={t("admin.newsletter.loadErrorDesc")}
+          actionLabel={t("admin.common.retry")}
           onAction={() => void refetch()}
         />
       ) : visible.length === 0 ? (
         <EmptyState
           icon={Mail}
-          title="No subscribers yet"
-          description="When someone submits the footer newsletter form, they will appear here."
+          title={
+            rows.length === 0
+              ? t("admin.newsletter.noSubscribers")
+              : t("admin.newsletter.noMatch")
+          }
+          description={
+            rows.length === 0 ? t("admin.newsletter.noSubscribersDesc") : undefined
+          }
         />
       ) : (
         <Card className="overflow-hidden p-0">
@@ -152,12 +151,12 @@ export function AdminNewsletterSubscribersPage() {
             <table className="min-w-full text-left text-sm">
               <thead className="bg-slate-50 text-xs uppercase tracking-wide text-portal-muted">
                 <tr>
-                  <th className="px-4 py-3 font-semibold">Email</th>
-                  <th className="px-4 py-3 font-semibold">Source</th>
-                  <th className="px-4 py-3 font-semibold">Locale</th>
-                  <th className="px-4 py-3 font-semibold">Status</th>
-                  <th className="px-4 py-3 font-semibold">Joined</th>
-                  <th className="px-4 py-3 font-semibold">Action</th>
+                  <th className="px-4 py-3 font-semibold">{t("admin.newsletter.colEmail")}</th>
+                  <th className="px-4 py-3 font-semibold">{t("admin.newsletter.colSource")}</th>
+                  <th className="px-4 py-3 font-semibold">{t("admin.newsletter.colLocale")}</th>
+                  <th className="px-4 py-3 font-semibold">{t("admin.newsletter.colStatus")}</th>
+                  <th className="px-4 py-3 font-semibold">{t("admin.newsletter.colJoined")}</th>
+                  <th className="px-4 py-3 font-semibold">{t("admin.newsletter.colAction")}</th>
                 </tr>
               </thead>
               <tbody>
@@ -194,7 +193,9 @@ export function AdminNewsletterSubscribersPage() {
                         onClick={() => handleToggle(row)}
                         className="min-h-0 rounded-[8px] px-3 py-1.5 text-xs"
                       >
-                        {row.status === "active" ? "Unsubscribe" : "Reactivate"}
+                        {row.status === "active"
+                          ? t("admin.newsletter.unsubscribe")
+                          : t("admin.newsletter.reactivate")}
                       </Button>
                     </td>
                   </tr>

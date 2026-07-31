@@ -2,6 +2,7 @@ import { useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { PageContainer } from "@/components/layout/PageContainer";
 import { PageLoading } from "@/components/ui/PageLoading";
+import { usePortalTranslation } from "@/i18n/LocaleProvider";
 
 /**
  * Legacy routes `/admin/gallery/new` and `/admin/gallery/:id/edit`
@@ -10,6 +11,7 @@ import { PageLoading } from "@/components/ui/PageLoading";
 export function AdminGalleryFormPage() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
+  const { t } = usePortalTranslation();
 
   useEffect(() => {
     if (id) {
@@ -21,7 +23,7 @@ export function AdminGalleryFormPage() {
 
   return (
     <PageContainer>
-      <PageLoading label="Opening gallery CMS…" />
+      <PageLoading label={t("admin.common.openingGalleryCms")} />
     </PageContainer>
   );
 }

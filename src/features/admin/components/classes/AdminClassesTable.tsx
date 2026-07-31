@@ -2,11 +2,11 @@ import { CalendarDays, Eye, MoreVertical, Pencil, RotateCcw, Trash2 } from "luci
 import { Link } from "react-router-dom";
 import { Card } from "@/components/ui/Card";
 import { UserInitialAvatar } from "@/components/ui/UserInitialAvatar";
+import { usePortalTranslation } from "@/i18n/LocaleProvider";
 import { cn } from "@/lib/utils/cn";
 import type { AdminClass } from "@/types/models";
 import { classTitle, formatScheduleLine, studentCount, teacherName } from "@/lib/utils/class";
 import {
-  classStatusLabel,
   classStatusStyles,
   studentCapacityPercent,
   teacherHandle,
@@ -27,6 +27,7 @@ function ClassRowActions({
   toggling: boolean;
   onToggleActive: (cls: AdminClass) => void;
 }) {
+  const { t } = usePortalTranslation();
   const inactive = cls.isActive === false;
 
   return (
@@ -34,16 +35,16 @@ function ClassRowActions({
       <Link
         to={`/admin/classes/${cls._id}`}
         className="rounded-lg p-2 text-portal-muted transition hover:bg-portal-muted/50 hover:text-primary"
-        aria-label="View class"
-        title="View"
+        aria-label={t("actions.viewClass")}
+        title={t("actions.view")}
       >
         <Eye className="size-4" />
       </Link>
       <Link
         to={`/admin/classes/${cls._id}/edit`}
         className="rounded-lg p-2 text-portal-muted transition hover:bg-portal-muted/50 hover:text-primary"
-        aria-label="Edit class"
-        title="Edit"
+        aria-label={t("actions.editClass")}
+        title={t("actions.edit")}
       >
         <Pencil className="size-4" />
       </Link>
@@ -57,8 +58,8 @@ function ClassRowActions({
             ? "text-emerald-600 hover:bg-emerald-50"
             : "text-red-600 hover:bg-red-50"
         )}
-        aria-label={inactive ? "Reactivate class" : "Deactivate class"}
-        title={inactive ? "Reactivate" : "Deactivate"}
+        aria-label={inactive ? t("actions.reactivateClass") : t("actions.deactivateClass")}
+        title={inactive ? t("admin.classes.reactivate") : t("admin.classes.deactivate")}
       >
         {inactive ? (
           <RotateCcw className={cn("size-4", toggling && "animate-spin")} />
@@ -69,8 +70,8 @@ function ClassRowActions({
       <button
         type="button"
         className="rounded-lg p-2 text-portal-muted transition hover:bg-portal-muted/50"
-        aria-label="More actions"
-        title="More"
+        aria-label={t("actions.moreActions")}
+        title={t("actions.more")}
       >
         <MoreVertical className="size-4" />
       </button>
@@ -83,18 +84,24 @@ export function AdminClassesTable({
   togglingId,
   onToggleActive,
 }: IAdminClassesTableProps) {
+  const { t, statusLabel, formatNumber } = usePortalTranslation();
+
+  function classActiveStatus(cls: AdminClass): string {
+    return statusLabel(cls.isActive === false ? "inactive" : "active");
+  }
+
   return (
     <Card className="overflow-hidden rounded-2xl border border-portal bg-portal-surface p-0 shadow-[0_8px_24px_-16px_rgba(13,74,47,0.18)]">
       <div className="hidden overflow-x-auto lg:block">
         <table className="w-full min-w-[960px] border-collapse text-left">
           <thead>
             <tr className="border-b border-portal bg-portal-muted/40 text-xs font-semibold uppercase tracking-wide text-portal-muted">
-              <th className="px-5 py-3.5">Class</th>
-              <th className="px-5 py-3.5">Teacher</th>
-              <th className="px-5 py-3.5">Schedule</th>
-              <th className="px-5 py-3.5">Students</th>
-              <th className="px-5 py-3.5">Status</th>
-              <th className="px-5 py-3.5 text-right">Actions</th>
+              <th className="px-5 py-3.5">{t("tables.class")}</th>
+              <th className="px-5 py-3.5">{t("tables.teacher")}</th>
+              <th className="px-5 py-3.5">{t("tables.schedule")}</th>
+              <th className="px-5 py-3.5">{t("tables.students")}</th>
+              <th className="px-5 py-3.5">{t("tables.status")}</th>
+              <th className="px-5 py-3.5 text-right">{t("tables.actions")}</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-portal/80">
@@ -123,7 +130,7 @@ export function AdminClassesTable({
                               classStatusStyles(cls)
                             )}
                           >
-                            {classStatusLabel(cls)}
+                            {classActiveStatus(cls)}
                           </span>
                         </div>
                         {cls.description ? (
@@ -151,13 +158,13 @@ export function AdminClassesTable({
                     {scheduleLine ? (
                       <p className="text-sm text-portal-heading">{scheduleLine}</p>
                     ) : (
-                      <p className="text-sm text-portal-muted">No schedule</p>
+                      <p className="text-sm text-portal-muted">{t("admin.classes.noSchedule")}</p>
                     )}
                   </td>
                   <td className="px-5 py-4">
                     <div className="min-w-[120px]">
                       <p className="mb-1 text-sm font-semibold tabular-nums text-portal-heading">
-                        {count} student{count === 1 ? "" : "s"}
+                        {t("admin.classes.studentCount", { count: formatNumber(count) })}
                       </p>
                       <div className="h-1.5 overflow-hidden rounded-full bg-portal-muted/60">
                         <div
@@ -175,7 +182,7 @@ export function AdminClassesTable({
                           cls.isActive === false ? "bg-amber-500" : "bg-emerald-500"
                         )}
                       />
-                      {classStatusLabel(cls)}
+                      {classActiveStatus(cls)}
                     </span>
                   </td>
                   <td className="px-5 py-4">
@@ -207,7 +214,7 @@ export function AdminClassesTable({
                 <div className="min-w-0">
                   <p className="font-semibold text-portal-heading">{title}</p>
                   <p className="text-xs text-portal-muted">
-                    {teacherName(teacher)} · {count} students
+                    {teacherName(teacher)} · {t("admin.classes.studentCount", { count: formatNumber(count) })}
                   </p>
                 </div>
                 <span
@@ -216,7 +223,7 @@ export function AdminClassesTable({
                     classStatusStyles(cls)
                   )}
                 >
-                  {classStatusLabel(cls)}
+                  {classActiveStatus(cls)}
                 </span>
               </div>
               <div className="mt-3 flex justify-end">

@@ -34,8 +34,10 @@ import type {
   ResourceStatus,
   ResourceType,
 } from "@/types/models";
+import { usePortalTranslation } from "@/i18n/LocaleProvider";
 
 export function AdminResourcesPage() {
+  const { t } = usePortalTranslation();
   const navigate = useNavigate();
   const [tab, setTab] = useState<ResourcesTab>("all");
   const [search, setSearch] = useState("");
@@ -80,7 +82,7 @@ export function AdminResourcesPage() {
   }
 
   function handleDelete(item: AdminResource) {
-    if (!window.confirm(`Delete "${item.title}"?`)) return;
+    if (!window.confirm(t("admin.common.confirmDeleteResource", { name: item.title }))) return;
     deleteResource.mutate(item.id);
   }
 
@@ -125,13 +127,13 @@ export function AdminResourcesPage() {
       />
 
       {isLoading ? (
-        <PageLoading label="Loading resources…" />
+        <PageLoading label={t("admin.common.loadingResources")} />
       ) : items.length === 0 ? (
         <EmptyState
           icon={Library}
-          title="No resources yet"
-          description="Add e-books, audio, or videos for the public resources pages."
-          actionLabel="Add Resource"
+          title={t("admin.common.noResources")}
+          description={t("admin.common.noResourcesDesc")}
+          actionLabel={t("admin.common.addResource")}
           onAction={handleAdd}
         />
       ) : (
@@ -183,7 +185,7 @@ export function AdminResourcesPage() {
                 onClick={() => void refetch()}
                 className="text-center text-xs font-semibold text-primary hover:underline"
               >
-                Refresh data
+                {t("admin.common.refreshData")}
               </button>
             )}
           </aside>

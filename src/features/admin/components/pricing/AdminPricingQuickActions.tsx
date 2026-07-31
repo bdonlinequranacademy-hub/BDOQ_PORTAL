@@ -9,6 +9,7 @@ import {
 } from "lucide-react";
 import { Card } from "@/components/ui/Card";
 import { env } from "@/config/env";
+import { usePortalTranslation } from "@/i18n/LocaleProvider";
 
 interface IAdminPricingQuickActionsProps {
   onExport: () => void;
@@ -20,11 +21,14 @@ const rowClass =
 export function AdminPricingQuickActions({
   onExport,
 }: IAdminPricingQuickActionsProps) {
+  const { t } = usePortalTranslation();
   const navigate = useNavigate();
 
   return (
     <Card className="rounded-2xl border border-portal bg-portal-surface p-5 shadow-[0_8px_24px_-16px_rgba(13,74,47,0.18)]">
-      <h2 className="mb-3 text-sm font-bold text-portal-heading">Quick Actions</h2>
+      <h2 className="mb-3 text-sm font-bold text-portal-heading">
+        {t("admin.cms.shared.quickActions")}
+      </h2>
       <div className="flex flex-col">
         <button
           type="button"
@@ -35,7 +39,7 @@ export function AdminPricingQuickActions({
             <Plus className="size-4 text-primary" aria-hidden />
           </span>
           <span className="flex-1 text-sm font-semibold text-portal-heading">
-            New Package
+            {t("admin.common.newPackage")}
           </span>
           <ChevronRight className="size-4 text-portal-muted" aria-hidden />
         </button>
@@ -45,7 +49,7 @@ export function AdminPricingQuickActions({
             <Download className="size-4 text-violet-600" aria-hidden />
           </span>
           <span className="flex-1 text-sm font-semibold text-portal-heading">
-            Export packages
+            {t("admin.cms.pricing.exportPackages")}
           </span>
           <ChevronRight className="size-4 text-portal-muted" aria-hidden />
         </button>
@@ -59,7 +63,7 @@ export function AdminPricingQuickActions({
             <Tags className="size-4 text-amber-600" aria-hidden />
           </span>
           <span className="flex-1 text-sm font-semibold text-portal-heading">
-            Package periods
+            {t("admin.cms.pricing.packagePeriods")}
           </span>
           <ChevronRight className="size-4 text-portal-muted" aria-hidden />
         </button>
@@ -73,7 +77,7 @@ export function AdminPricingQuickActions({
             <Settings className="size-4 text-sky-600" aria-hidden />
           </span>
           <span className="flex-1 text-sm font-semibold text-portal-heading">
-            Pricing settings
+            {t("admin.cms.pricing.pricingSettings")}
           </span>
           <ChevronRight className="size-4 text-portal-muted" aria-hidden />
         </button>
@@ -88,7 +92,7 @@ export function AdminPricingQuickActions({
             <ExternalLink className="size-4 text-emerald-700" aria-hidden />
           </span>
           <span className="flex-1 text-sm font-semibold text-portal-heading">
-            View Public Page
+            {t("admin.cms.shared.viewPublicPage")}
           </span>
           <ChevronRight className="size-4 text-portal-muted" aria-hidden />
         </a>

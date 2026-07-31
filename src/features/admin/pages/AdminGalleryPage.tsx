@@ -28,8 +28,10 @@ import {
   type IGalleryFormState,
 } from "@/features/admin/components/gallery/adminGalleryUtils";
 import type { AdminGalleryItem } from "@/types/models";
+import { usePortalTranslation } from "@/i18n/LocaleProvider";
 
 export function AdminGalleryPage() {
+  const { t } = usePortalTranslation();
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   const editId = searchParams.get("edit");
@@ -110,10 +112,10 @@ export function AdminGalleryPage() {
           videoSource: nextType === "video" ? "upload" : form.videoSource,
         });
       } else {
-        setError("Upload failed. Please try again.");
+        setError(t("admin.cms.gallery.uploadFailed"));
       }
     } catch {
-      setError("Upload failed. Please try again.");
+      setError(t("admin.cms.gallery.uploadFailed"));
     } finally {
       setUploading(false);
     }
@@ -122,7 +124,7 @@ export function AdminGalleryPage() {
   async function handleSave(): Promise<void> {
     setError(null);
     if (!canSubmitGalleryForm(form)) {
-      setError("Please complete the required fields and media before saving.");
+      setError(t("admin.cms.gallery.requiredFields"));
       return;
     }
 
@@ -152,7 +154,7 @@ export function AdminGalleryPage() {
   }
 
   function handleDelete(item: AdminGalleryItem): void {
-    if (!window.confirm(`Delete "${item.title}" from the gallery?`)) return;
+    if (!window.confirm(t("admin.common.confirmDeleteGallery", { name: item.title }))) return;
     deleteItem.mutate(item.id, {
       onSuccess: () => {
         if (editId === item.id) clearEdit();
@@ -163,7 +165,7 @@ export function AdminGalleryPage() {
   if (isLoading) {
     return (
       <PageContainer>
-        <PageLoading label="Loading gallery…" />
+        <PageLoading label={t("admin.common.loadingGallery")} />
       </PageContainer>
     );
   }
@@ -187,13 +189,13 @@ export function AdminGalleryPage() {
 
       {editId && !editingItem ? (
         <p className="rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800">
-          Gallery item not found.{" "}
+          {t("admin.cms.gallery.notFound")}{" "}
           <button
             type="button"
             className="font-semibold underline"
             onClick={clearEdit}
           >
-            Start a new item
+            {t("admin.cms.gallery.startNew")}
           </button>
         </p>
       ) : null}

@@ -2,6 +2,7 @@ import { Link } from "react-router-dom";
 import { Download, FileText, RefreshCw } from "lucide-react";
 import { Card } from "@/components/ui/Card";
 import type { ClassLogView } from "@/types/models";
+import { usePortalTranslation } from "@/i18n/LocaleProvider";
 import {
   buildClassLogActivity,
   computeClassLogsStats,
@@ -17,11 +18,12 @@ interface IAdminClassLogsSidebarProps {
 }
 
 function LogSummaryChart({ logs }: { logs: ClassLogView[] }) {
+  const { t, statusLabel, formatNumber } = usePortalTranslation();
   const stats = computeClassLogsStats(logs);
   const segments = [
-    { label: "Pending", value: stats.pending, color: "#F59E0B" },
-    { label: "Approved", value: stats.approved, color: "#32C991" },
-    { label: "Rejected", value: stats.rejected, color: "#EF4444" },
+    { label: statusLabel("pending"), value: stats.pending, color: "#F59E0B" },
+    { label: statusLabel("approved"), value: stats.approved, color: "#32C991" },
+    { label: statusLabel("rejected"), value: stats.rejected, color: "#EF4444" },
   ].filter((segment) => segment.value > 0);
 
   const total = Math.max(stats.total, 1);
@@ -37,7 +39,7 @@ function LogSummaryChart({ logs }: { logs: ClassLogView[] }) {
 
   return (
     <Card className="rounded-2xl border border-portal bg-portal-surface p-5 shadow-[0_8px_24px_-16px_rgba(13,74,47,0.18)]">
-      <h2 className="text-sm font-bold text-portal-heading">Log Summary</h2>
+      <h2 className="text-sm font-bold text-portal-heading">{t("admin.classLogs.logSummary")}</h2>
       <div className="mt-4 flex items-center gap-4">
         <div
           className="relative size-28 shrink-0 rounded-full"
@@ -45,9 +47,9 @@ function LogSummaryChart({ logs }: { logs: ClassLogView[] }) {
           aria-hidden
         >
           <div className="absolute inset-4 flex flex-col items-center justify-center rounded-full bg-portal-surface text-center">
-            <p className="text-xl font-bold text-portal-heading">{stats.total}</p>
+            <p className="text-xl font-bold text-portal-heading">{formatNumber(stats.total)}</p>
             <p className="text-[10px] font-semibold uppercase tracking-wide text-portal-muted">
-              Total
+              {t("labels.total")}
             </p>
           </div>
         </div>
@@ -62,7 +64,7 @@ function LogSummaryChart({ logs }: { logs: ClassLogView[] }) {
                 {segment.label}
               </span>
               <span className="font-semibold tabular-nums">
-                {Math.round((segment.value / total) * 100)}%
+                {formatNumber(Math.round((segment.value / total) * 100))}%
               </span>
             </div>
           ))}
@@ -73,20 +75,21 @@ function LogSummaryChart({ logs }: { logs: ClassLogView[] }) {
 }
 
 function PendingByTeacher({ logs }: { logs: ClassLogView[] }) {
+  const { t, formatNumber } = usePortalTranslation();
   const rows = pendingLogsByTeacher(logs).slice(0, 6);
 
   return (
     <Card className="rounded-2xl border border-portal bg-portal-surface p-5 shadow-[0_8px_24px_-16px_rgba(13,74,47,0.18)]">
-      <h2 className="text-sm font-bold text-portal-heading">Pending by teacher</h2>
+      <h2 className="text-sm font-bold text-portal-heading">{t("admin.classLogs.pendingByTeacher")}</h2>
       {rows.length === 0 ? (
-        <p className="mt-3 text-sm text-portal-muted">No pending logs right now.</p>
+        <p className="mt-3 text-sm text-portal-muted">{t("admin.classLogs.noPendingLogs")}</p>
       ) : (
         <div className="mt-4 flex flex-col gap-2.5">
           {rows.map((row) => (
             <div key={row.teacherId} className="flex items-center justify-between gap-3 text-sm">
               <span className="truncate font-medium text-portal-heading">{row.teacherName}</span>
               <span className="rounded-full bg-amber-100 px-2.5 py-0.5 text-xs font-bold text-amber-800">
-                {row.pendingCount}
+                {formatNumber(row.pendingCount)}
               </span>
             </div>
           ))}
@@ -97,13 +100,14 @@ function PendingByTeacher({ logs }: { logs: ClassLogView[] }) {
 }
 
 function RecentActivity({ logs }: { logs: ClassLogView[] }) {
+  const { t } = usePortalTranslation();
   const activity = buildClassLogActivity(logs);
 
   return (
     <Card className="rounded-2xl border border-portal bg-portal-surface p-5 shadow-[0_8px_24px_-16px_rgba(13,74,47,0.18)]">
-      <h2 className="text-sm font-bold text-portal-heading">Recent activity</h2>
+      <h2 className="text-sm font-bold text-portal-heading">{t("admin.classLogs.recentActivity")}</h2>
       {activity.length === 0 ? (
-        <p className="mt-3 text-sm text-portal-muted">No recent submissions.</p>
+        <p className="mt-3 text-sm text-portal-muted">{t("admin.classLogs.noRecentSubmissions")}</p>
       ) : (
         <div className="mt-4 flex max-h-[240px] flex-col gap-3 overflow-y-auto pr-1">
           {activity.map((item) => (
@@ -124,27 +128,32 @@ export function AdminClassLogsSidebar({
   isFetching,
   onRefresh,
 }: IAdminClassLogsSidebarProps) {
+  const { t } = usePortalTranslation();
   const pendingLogs = logs.filter((log) => log.status === "pending");
 
   const actions = [
     {
-      label: "Refresh",
+      id: "refresh",
+      label: t("actions.refresh"),
       icon: RefreshCw,
       onClick: onRefresh,
       pending: isFetching,
     },
     {
-      label: "Export pending",
+      id: "export-pending",
+      label: t("admin.classLogs.exportPending"),
       icon: Download,
       onClick: () => exportClassLogsFile(pendingLogs, "pending-class-logs"),
     },
     {
-      label: "Export all",
+      id: "export-all",
+      label: t("admin.classLogs.exportAll"),
       icon: Download,
       onClick: () => exportClassLogsFile(logs, "class-logs"),
     },
     {
-      label: "Earnings",
+      id: "earnings",
+      label: t("admin.classLogs.earnings"),
       icon: FileText,
       to: "/admin/earnings",
     },
@@ -156,15 +165,15 @@ export function AdminClassLogsSidebar({
       <PendingByTeacher logs={logs} />
       <RecentActivity logs={logs} />
       <Card className="rounded-2xl border border-portal bg-portal-surface p-5 shadow-[0_8px_24px_-16px_rgba(13,74,47,0.18)]">
-        <h2 className="mb-4 text-sm font-bold text-portal-heading">Quick actions</h2>
+        <h2 className="mb-4 text-sm font-bold text-portal-heading">{t("admin.classLogs.quickActions")}</h2>
         <div className="grid grid-cols-2 gap-2.5">
-          {actions.map(({ label, icon: Icon, to, onClick, pending }) => {
+          {actions.map(({ id, label, icon: Icon, to, onClick, pending }) => {
             const className =
               "inline-flex flex-col items-start gap-2 rounded-xl border border-portal bg-portal-muted/20 px-3 py-3 text-left text-xs font-semibold text-portal-heading transition hover:border-primary/25 hover:bg-primary/5 hover:text-primary";
 
             if (to) {
               return (
-                <Link key={label} to={to} className={className}>
+                <Link key={id} to={to} className={className}>
                   <Icon className="size-4 text-primary" aria-hidden />
                   {label}
                 </Link>
@@ -173,14 +182,14 @@ export function AdminClassLogsSidebar({
 
             return (
               <button
-                key={label}
+                key={id}
                 type="button"
                 onClick={onClick}
                 disabled={pending}
                 className={className}
               >
                 <Icon className={cn("size-4 text-primary", pending && "animate-spin")} aria-hidden />
-                {pending ? "Refreshing…" : label}
+                {pending ? t("actions.refreshing") : label}
               </button>
             );
           })}

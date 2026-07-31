@@ -2,6 +2,7 @@ import { Mic, Star, Video } from "lucide-react";
 import { Card } from "@/components/ui/Card";
 import type { TestimonialMediaType } from "@/types/models";
 import type { IMediaTypeRow } from "@/features/admin/components/testimonials/adminTestimonialsUtils";
+import { usePortalTranslation } from "@/i18n/LocaleProvider";
 
 interface IAdminTestimonialsMediaTypesCardProps {
   rows: IMediaTypeRow[];
@@ -20,17 +21,17 @@ export function AdminTestimonialsMediaTypesCard({
   activeType,
   onTypeSelect,
 }: IAdminTestimonialsMediaTypesCardProps) {
+  const { t } = usePortalTranslation();
+
   return (
     <Card className="rounded-2xl border border-portal bg-portal-surface p-5 shadow-[0_8px_24px_-16px_rgba(13,74,47,0.18)]">
       <div className="mb-4 flex items-center justify-between gap-2">
-        <h2 className="text-sm font-bold text-portal-heading">Review types</h2>
+        <h2 className="text-sm font-bold text-portal-heading">{t("admin.cms.shared.mediaTypes")}</h2>
         <button
           type="button"
           onClick={() => onTypeSelect("")}
           className="text-xs font-semibold text-primary hover:underline"
-        >
-          View all
-        </button>
+        >{t("admin.common.viewAllTeachers")}</button>
       </div>
       <div className="flex flex-col gap-2">
         {rows.map((row) => (

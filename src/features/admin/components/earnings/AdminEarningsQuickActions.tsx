@@ -7,6 +7,7 @@ import {
   RefreshCw,
 } from "lucide-react";
 import { Card } from "@/components/ui/Card";
+import { usePortalTranslation } from "@/i18n/LocaleProvider";
 import { cn } from "@/lib/utils/cn";
 
 interface IAdminEarningsQuickActionsProps {
@@ -27,35 +28,46 @@ export function AdminEarningsQuickActions({
   onRefresh,
   onReviewPending,
 }: IAdminEarningsQuickActionsProps) {
+  const { t, formatNumber } = usePortalTranslation();
+
   return (
     <Card className="rounded-2xl border border-portal bg-portal-surface p-5 shadow-[0_8px_24px_-16px_rgba(13,74,47,0.18)]">
-      <h2 className="mb-4 text-sm font-bold text-portal-heading">Quick actions</h2>
+      <h2 className="mb-4 text-sm font-bold text-portal-heading">
+        {t("admin.cms.shared.quickActions")}
+      </h2>
       <div className="grid grid-cols-2 gap-2.5">
         <button type="button" onClick={onReviewPending} className={actionTileClass}>
           <span className="flex size-9 items-center justify-center rounded-lg bg-amber-100">
             <CheckCircle2 className="size-4 text-amber-700" aria-hidden />
           </span>
           <span className="text-xs font-semibold text-portal-heading">
-            Approve logs{pendingCount > 0 ? ` (${pendingCount})` : ""}
+            {t("admin.earnings.quickClassLogs")}
+            {pendingCount > 0 ? ` (${formatNumber(pendingCount)})` : ""}
           </span>
         </button>
         <button type="button" onClick={onExport} className={actionTileClass}>
           <span className="flex size-9 items-center justify-center rounded-lg bg-primary/10">
             <Download className="size-4 text-primary" aria-hidden />
           </span>
-          <span className="text-xs font-semibold text-portal-heading">Export payroll</span>
+          <span className="text-xs font-semibold text-portal-heading">
+            {t("admin.earnings.quickExport")}
+          </span>
         </button>
         <Link to="/admin/class-logs" className={actionTileClass}>
           <span className="flex size-9 items-center justify-center rounded-lg bg-blue-100">
             <ClipboardCheck className="size-4 text-blue-600" aria-hidden />
           </span>
-          <span className="text-xs font-semibold text-portal-heading">Class logs</span>
+          <span className="text-xs font-semibold text-portal-heading">
+            {t("admin.classLogs.title")}
+          </span>
         </Link>
         <Link to="/admin/class-logs" className={actionTileClass}>
           <span className="flex size-9 items-center justify-center rounded-lg bg-violet-100">
             <FileText className="size-4 text-violet-600" aria-hidden />
           </span>
-          <span className="text-xs font-semibold text-portal-heading">Verified history</span>
+          <span className="text-xs font-semibold text-portal-heading">
+            {t("admin.earnings.sidebarRecentVerified")}
+          </span>
         </Link>
       </div>
       <button
@@ -68,7 +80,7 @@ export function AdminEarningsQuickActions({
           className={cn("size-4 text-primary", isFetching && "animate-spin")}
           aria-hidden
         />
-        {isFetching ? "Refreshing…" : "Refresh data"}
+        {isFetching ? t("admin.trialLeads.refreshing") : t("admin.earnings.quickRefresh")}
       </button>
     </Card>
   );

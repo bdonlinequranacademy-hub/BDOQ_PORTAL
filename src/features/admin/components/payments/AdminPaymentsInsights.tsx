@@ -1,9 +1,7 @@
 import { Card } from "@/components/ui/Card";
+import { usePortalTranslation } from "@/i18n/LocaleProvider";
 import type { PaymentRecordView } from "@/types/models";
 import {
-  formatPaymentAmount,
-  formatPaymentDate,
-  PAYMENT_METHOD_LABELS,
   paymentStatusStyles,
 } from "@/features/admin/components/payments/adminPaymentsUtils";
 import { cn } from "@/lib/utils/cn";
@@ -26,6 +24,7 @@ const METHOD_ACCENTS: Record<string, string> = {
 export function AdminPaymentMethodsOverview({
   payments,
 }: IAdminPaymentMethodsOverviewProps) {
+  const { t, formatMoney, paymentMethod } = usePortalTranslation();
   const approved = payments.filter((payment) => payment.status === "approved");
   const totals = new Map<string, Map<string, number>>();
 
@@ -45,8 +44,8 @@ export function AdminPaymentMethodsOverview({
       const primary = [...currencyMap.entries()][0];
       return {
         method,
-        label: PAYMENT_METHOD_LABELS[method] ?? method.replace(/_/g, " "),
-        amount: primary ? formatPaymentAmount(primary[1], primary[0]) : "—",
+        label: paymentMethod(method),
+        amount: primary ? formatMoney(primary[1], primary[0]) : "—",
         count: approved.filter((payment) => payment.method === method).length,
       };
     })
@@ -56,15 +55,19 @@ export function AdminPaymentMethodsOverview({
   if (methods.length === 0) {
     return (
       <Card className="rounded-2xl border border-portal bg-portal-surface p-5 shadow-[0_8px_24px_-16px_rgba(13,74,47,0.18)]">
-        <h2 className="text-sm font-bold text-portal-heading">Payment Methods Overview</h2>
-        <p className="mt-2 text-sm text-portal-muted">No approved payments yet.</p>
+        <h2 className="text-sm font-bold text-portal-heading">
+          {t("admin.payments.methodsOverview")}
+        </h2>
+        <p className="mt-2 text-sm text-portal-muted">{t("admin.payments.noApprovedYet")}</p>
       </Card>
     );
   }
 
   return (
     <Card className="rounded-2xl border border-portal bg-portal-surface p-5 shadow-[0_8px_24px_-16px_rgba(13,74,47,0.18)]">
-      <h2 className="mb-4 text-sm font-bold text-portal-heading">Payment Methods Overview</h2>
+      <h2 className="mb-4 text-sm font-bold text-portal-heading">
+        {t("admin.payments.methodsOverview")}
+      </h2>
       <div className="grid grid-cols-2 gap-3">
         {methods.map((item) => (
           <div
@@ -78,7 +81,9 @@ export function AdminPaymentMethodsOverview({
               {item.label}
             </p>
             <p className="mt-1 text-lg font-bold tabular-nums">{item.amount}</p>
-            <p className="mt-1 text-[11px] opacity-80">{item.count} payments</p>
+            <p className="mt-1 text-[11px] opacity-80">
+              {t("admin.payments.paymentsCount", { count: String(item.count) })}
+            </p>
           </div>
         ))}
       </div>
@@ -91,6 +96,7 @@ interface IAdminRecentTransactionsProps {
 }
 
 export function AdminRecentTransactions({ payments }: IAdminRecentTransactionsProps) {
+  const { t, statusLabel, formatDate, formatMoney, paymentMethod } = usePortalTranslation();
   const recent = [...payments]
     .sort(
       (a, b) =>
@@ -101,9 +107,11 @@ export function AdminRecentTransactions({ payments }: IAdminRecentTransactionsPr
 
   return (
     <Card className="rounded-2xl border border-portal bg-portal-surface p-5 shadow-[0_8px_24px_-16px_rgba(13,74,47,0.18)]">
-      <h2 className="mb-4 text-sm font-bold text-portal-heading">Recent Transactions</h2>
+      <h2 className="mb-4 text-sm font-bold text-portal-heading">
+        {t("admin.payments.recentTransactions")}
+      </h2>
       {recent.length === 0 ? (
-        <p className="text-sm text-portal-muted">No transactions yet.</p>
+        <p className="text-sm text-portal-muted">{t("admin.payments.noTransactions")}</p>
       ) : (
         <div className="flex flex-col gap-3">
           {recent.map((payment) => (
@@ -113,16 +121,15 @@ export function AdminRecentTransactions({ payments }: IAdminRecentTransactionsPr
             >
               <div className="min-w-0">
                 <p className="truncate text-sm font-semibold text-portal-heading">
-                  {payment.student?.name ?? "Student"}
+                  {payment.student?.name ?? t("tables.student")}
                 </p>
                 <p className="text-xs text-portal-muted">
-                  {formatPaymentDate(payment.paymentDate)} ·{" "}
-                  {PAYMENT_METHOD_LABELS[payment.method] ?? payment.method}
+                  {formatDate(payment.paymentDate)} · {paymentMethod(payment.method)}
                 </p>
               </div>
               <div className="text-right">
                 <p className="text-sm font-bold tabular-nums text-portal-heading">
-                  {formatPaymentAmount(payment.amount, payment.currency)}
+                  {formatMoney(payment.amount, payment.currency)}
                 </p>
                 <span
                   className={cn(
@@ -130,7 +137,7 @@ export function AdminRecentTransactions({ payments }: IAdminRecentTransactionsPr
                     paymentStatusStyles(payment.status)
                   )}
                 >
-                  {payment.status}
+                  {statusLabel(payment.status)}
                 </span>
               </div>
             </div>

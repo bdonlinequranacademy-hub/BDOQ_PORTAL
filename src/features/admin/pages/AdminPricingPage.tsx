@@ -19,6 +19,7 @@ import { AdminPricingStatusOverview } from "@/features/admin/components/pricing/
 import { AdminPricingQuickActions } from "@/features/admin/components/pricing/AdminPricingQuickActions";
 import { AdminPricingTipBanner } from "@/features/admin/components/pricing/AdminPricingTipBanner";
 import { AdminSectionHeaderPanel } from "@/features/admin/components/sectionHeaders/AdminSectionHeaderPanel";
+import { usePortalTranslation } from "@/i18n/LocaleProvider";
 import {
   buildStatusOverview,
   computePricingStats,
@@ -31,6 +32,7 @@ import {
 import type { AdminPricingPackage } from "@/types/models";
 
 export function AdminPricingPage() {
+  const { t } = usePortalTranslation();
   const navigate = useNavigate();
   const [search, setSearch] = useState("");
   const [status, setStatus] = useState<PricingStatusFilter>("all");
@@ -67,7 +69,7 @@ export function AdminPricingPage() {
   }
 
   function handleDelete(item: AdminPricingPackage) {
-    if (!window.confirm(`Delete package "${item.name}"?`)) return;
+    if (!window.confirm(t("admin.common.confirmDeletePackage", { name: item.name }))) return;
     deletePackage.mutate(item.id);
   }
 
@@ -92,18 +94,18 @@ export function AdminPricingPage() {
           className="hidden shrink-0 items-center justify-center gap-2 self-center rounded-xl bg-primary px-6 py-3 text-white hover:bg-primary-dark lg:inline-flex lg:min-h-[88px] lg:min-w-[160px]"
         >
           <Plus className="size-5" aria-hidden />
-          New Package
+          {t("admin.common.newPackage")}
         </Button>
       </div>
 
       {isLoading ? (
-        <PageLoading label="Loading pricing packages…" />
+        <PageLoading label={t("admin.common.loadingPricing")} />
       ) : packages.length === 0 ? (
         <EmptyState
           icon={CreditCard}
-          title="No pricing packages yet"
-          description="Add packages here to replace the default hardcoded pricing on the public website."
-          actionLabel="New Package"
+          title={t("admin.common.noPricing")}
+          description={t("admin.common.noPricingDesc")}
+          actionLabel={t("admin.common.newPackage")}
           onAction={() => navigate("/admin/pricing/new")}
         />
       ) : (
@@ -158,7 +160,7 @@ export function AdminPricingPage() {
                 onClick={() => void refetch()}
                 className="text-center text-xs font-semibold text-primary hover:underline"
               >
-                Refresh data
+                {t("admin.common.refreshData")}
               </button>
             )}
           </aside>

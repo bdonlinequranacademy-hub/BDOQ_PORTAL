@@ -15,10 +15,12 @@ import { formControlClass } from "@/lib/formControl";
 import { CLASS_WEEK_DAYS, toTimeInputValue } from "@/lib/utils/schedule";
 import { toast } from "@/stores/uiStore";
 import type { ClassSchedule } from "@/types/models";
+import { usePortalTranslation } from "@/i18n/LocaleProvider";
 
 const DURATION_OPTIONS = [30, 45, 60, 90] as const;
 
 export function AdminClassFormPage() {
+  const { t } = usePortalTranslation();
   const { id } = useParams();
   const isEdit = Boolean(id);
   const navigate = useNavigate();
@@ -137,7 +139,7 @@ export function AdminClassFormPage() {
           <ArrowLeft className="size-5 text-primary-dark" />
         </button>
         <h1 className="text-xl font-bold text-primary-dark">
-          {isEdit ? "Edit Class" : "Create Class"}
+          {isEdit ? t("admin.classForm.editTitle") : t("admin.classForm.createTitle")}
         </h1>
       </div>
 
@@ -257,7 +259,7 @@ export function AdminClassFormPage() {
         </Card>
 
         <Card className="flex flex-col gap-3 rounded-2xl border-0 p-5 shadow-sm">
-          <span className="font-bold text-primary-dark text-sm">Enroll Students</span>
+          <span className="font-bold text-primary-dark text-sm">{t("admin.classForm.enrollStudents")}</span>
           <p className="-mt-1 text-xs text-zinc-500">
             {scheduleRepeatWeekly
               ? `Each student gets a routine slot every ${scheduleDay} at ${scheduleTime}.`
@@ -295,7 +297,7 @@ export function AdminClassFormPage() {
           }
           className="h-12 rounded-xl bg-primary-dark text-white"
         >
-          {isEdit ? "Save Changes" : "Create Class"}
+          {isEdit ? t("admin.classForm.saveChanges") : t("admin.classForm.createClass")}
         </Button>
     </PageContainer>
   );

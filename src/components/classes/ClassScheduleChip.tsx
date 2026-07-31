@@ -5,6 +5,7 @@ import {
   primaryScheduleEntry,
   type ScheduleLike,
 } from "@/lib/utils/class";
+import { usePortalTranslation } from "@/i18n/LocaleProvider";
 
 interface ClassScheduleChipProps {
   schedule?: ScheduleLike;
@@ -17,6 +18,7 @@ export function ClassScheduleChip({
   className = "",
   variant = "default",
 }: ClassScheduleChipProps) {
+  const { t } = usePortalTranslation();
   const line = formatScheduleLine(schedule);
   if (!line) return null;
 
@@ -36,7 +38,7 @@ export function ClassScheduleChip({
       {isToday ? <Sparkles className="size-3 shrink-0" /> : <Calendar className="size-3 shrink-0" />}
       {line}
       {isToday && variant === "default" ? (
-        <span className="font-semibold">· Today</span>
+        <span className="font-semibold">· {t("admin.classes.today")}</span>
       ) : null}
     </span>
   );

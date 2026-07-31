@@ -34,12 +34,14 @@ import { AdminCertFormSection } from "@/features/admin/components/certificates/A
 import { AdminCertificateTemplatePanel } from "@/features/admin/components/certificates/AdminCertificateTemplatePanel";
 import { AdminCertificatesHistory } from "@/features/admin/components/certificates/AdminCertificatesHistory";
 import { computeCertificateStats } from "@/features/admin/components/certificates/adminCertificatesUtils";
+import { usePortalTranslation } from "@/i18n/LocaleProvider";
 
 const DURATION_PRESETS = ["1 Month", "3 Months", "6 Months", "12 Months"] as const;
 const GRADE_PRESETS = ["Excellent (A+)", "Very Good (A)", "Good (B+)", "Pass"] as const;
 
 export function AdminCertificatesPage() {
   const navigate = useNavigate();
+  const { t } = usePortalTranslation();
   const addToast = useUiStore((s) => s.addToast);
   const [form, setForm] = useState<CertificateFormPayload>(emptyCertificateForm);
   const [preview, setPreview] = useState<CertificateView | null>(null);
@@ -116,7 +118,7 @@ export function AdminCertificatesPage() {
     });
   }
 
-  if (isLoading) return <PageLoading label="Loading certificates…" />;
+  if (isLoading) return <PageLoading label={t("admin.common.loadingCertificates")} />;
 
   const canSubmit = Boolean(form.studentName.trim() && form.courseName.trim());
 
@@ -125,11 +127,10 @@ export function AdminCertificatesPage() {
       <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <div>
           <h1 className="font-display text-2xl font-bold text-primary-dark sm:text-3xl">
-            Certificate Generator
+            {t("admin.certificates.title")}
           </h1>
           <p className="mt-1.5 max-w-2xl text-sm text-portal-muted">
-            Create, preview, and download official BDOQ Academy certificates —
-            template design is fixed and branded.
+            {t("admin.certificates.subtitle")}
           </p>
         </div>
         <Button
@@ -138,7 +139,7 @@ export function AdminCertificatesPage() {
           className="inline-flex shrink-0 items-center gap-2 rounded-xl bg-primary px-4 text-white hover:bg-primary-dark"
         >
           <Plus className="size-4" aria-hidden />
-          Generate Certificate
+          {t("admin.certificates.generate")}
         </Button>
       </div>
 
@@ -152,13 +153,13 @@ export function AdminCertificatesPage() {
         id="certificate-generator"
         className="grid grid-cols-1 items-start gap-4 xl:gap-5 xl:grid-cols-[minmax(280px,0.95fr)_minmax(260px,0.85fr)_minmax(300px,1.1fr)]"
       >
-        <AdminCertFormSection number={1} title="Certificate Details">
+        <AdminCertFormSection number={1} title={t("admin.certificates.certDetails")}>
           <form
             onSubmit={handleSubmit}
             className="flex flex-col gap-3"
           >
             <Input
-              label="Student name (English) *"
+              label={t("admin.certificates.studentNameEn")}
               placeholder="e.g. Md. Abdullah Hasan"
               value={form.studentName}
               onChange={(e) => setForm({ ...form, studentName: e.target.value })}
@@ -166,7 +167,7 @@ export function AdminCertificatesPage() {
               fieldSize="lg"
             />
             <Input
-              label="Student name (Bengali)"
+              label={t("admin.certificates.studentNameBn")}
               placeholder="যেমন: মো. আব্দুল্লাহ হাসান"
               value={form.studentNameBn ?? ""}
               onChange={(e) =>
@@ -175,7 +176,7 @@ export function AdminCertificatesPage() {
               fieldSize="lg"
             />
             <Input
-              label="Student ID"
+              label={t("admin.certificates.studentId")}
               placeholder="e.g. STU-2024-0567"
               value={form.studentPortalId ?? ""}
               onChange={(e) =>
@@ -184,7 +185,7 @@ export function AdminCertificatesPage() {
             />
 
             <Input
-              label="Course / Achievement (English) *"
+              label={t("admin.certificates.courseNameEn")}
               placeholder="e.g. Nazra Quran with Tajweed"
               value={form.courseName}
               onChange={(e) => setForm({ ...form, courseName: e.target.value })}
@@ -192,7 +193,7 @@ export function AdminCertificatesPage() {
               fieldSize="lg"
             />
             <Input
-              label="Course name (Bengali)"
+              label={t("admin.certificates.courseNameBn")}
               placeholder="যেমন: নজরা কুরআন (তাজবিদের সহিত)"
               value={form.courseNameBn ?? ""}
               onChange={(e) =>
@@ -202,7 +203,7 @@ export function AdminCertificatesPage() {
             />
 
             <div>
-              <span className="form-label">Course duration</span>
+              <span className="form-label">{t("admin.certificates.courseDuration")}</span>
               <div className="mt-1.5 flex flex-wrap gap-1.5">
                 {DURATION_PRESETS.map((option) => {
                   const active =
@@ -239,24 +240,24 @@ export function AdminCertificatesPage() {
 
             <div className="grid gap-3 sm:grid-cols-2">
               <Input
-                label="Date of completion"
+                label={t("admin.certificates.dateOfCompletion")}
                 type="date"
                 value={form.issueDate ?? ""}
                 onChange={(e) => setForm({ ...form, issueDate: e.target.value })}
                 required
               />
               <div>
-                <span className="form-label">Certificate ID</span>
+                <span className="form-label">{t("admin.certificates.certId")}</span>
                 <input
                   className={cn(formControlClass, "mt-1.5 bg-portal-muted/20")}
-                  value={preview?.certificateId ?? "Auto-generated on issue"}
+                  value={preview?.certificateId ?? t("admin.certificates.autoGenerated")}
                   readOnly
                 />
               </div>
             </div>
 
             <div>
-              <span className="form-label">Result / grade</span>
+              <span className="form-label">{t("admin.certificates.resultGrade")}</span>
               <div className="mt-1.5 flex flex-wrap gap-1.5">
                 {GRADE_PRESETS.map((option) => {
                   const active =
@@ -301,23 +302,29 @@ export function AdminCertificatesPage() {
 
             <div className="rounded-xl border border-portal bg-portal-muted/15 p-3">
               <p className="mb-2 text-xs font-bold uppercase tracking-wide text-portal-muted">
-                Additional Options
+                {t("admin.certificates.additionalOptions")}
               </p>
               <ul className="space-y-2">
                 <li className="flex items-center gap-2 text-sm text-portal-heading">
                   <input type="checkbox" checked disabled className="size-4 accent-primary" />
-                  Add signature
-                  <span className="text-[10px] text-portal-muted">(always on template)</span>
+                  {t("admin.certificates.addSignature")}
+                  <span className="text-[10px] text-portal-muted">
+                    {t("admin.certificates.alwaysOnTemplate")}
+                  </span>
                 </li>
                 <li className="flex items-center gap-2 text-sm text-portal-heading">
                   <input type="checkbox" checked disabled className="size-4 accent-primary" />
-                  Add QR code
-                  <span className="text-[10px] text-portal-muted">(always on template)</span>
+                  {t("admin.certificates.addQrCode")}
+                  <span className="text-[10px] text-portal-muted">
+                    {t("admin.certificates.alwaysOnTemplate")}
+                  </span>
                 </li>
                 <li className="flex items-center gap-2 text-sm text-portal-heading">
                   <input type="checkbox" checked disabled className="size-4 accent-primary" />
-                  Add verification link
-                  <span className="text-[10px] text-portal-muted">(always on)</span>
+                  {t("admin.certificates.addVerificationLink")}
+                  <span className="text-[10px] text-portal-muted">
+                    {t("admin.certificates.alwaysOnTemplate")}
+                  </span>
                 </li>
                 <li>
                   <label className="flex cursor-pointer items-start gap-2 text-sm text-portal-heading">
@@ -335,13 +342,13 @@ export function AdminCertificatesPage() {
                     <span>
                       <span className="inline-flex items-center gap-1.5 font-medium">
                         <Medal className="size-3.5 text-gold-dark" aria-hidden />
-                        Add Excellent Performance badge
+                        {t("admin.certificates.addExcellentBadge")}
                         <span className="rounded-full bg-violet-100 px-1.5 py-0.5 text-[9px] font-bold uppercase text-violet-700">
-                          Popular
+                          {t("admin.certificates.popular")}
                         </span>
                       </span>
                       <span className="mt-0.5 block text-xs text-portal-muted">
-                        Gold medal on the left side of the certificate
+                        {t("admin.certificates.excellentBadgeHint")}
                       </span>
                     </span>
                   </label>
@@ -361,8 +368,8 @@ export function AdminCertificatesPage() {
                   <Sparkles className="size-4" />
                 )}
                 {createCert.isPending
-                  ? "Generating…"
-                  : "Generate Certificate"}
+                  ? t("admin.certificates.generating")
+                  : t("admin.certificates.generate")}
               </Button>
               <Button
                 type="button"
@@ -372,7 +379,7 @@ export function AdminCertificatesPage() {
                 className="h-10 w-full gap-2 rounded-xl"
               >
                 <RotateCcw className="size-4" />
-                Reset
+                {t("admin.certificates.reset")}
               </Button>
             </div>
           </form>
@@ -383,20 +390,20 @@ export function AdminCertificatesPage() {
         <Card className="flex flex-col overflow-hidden rounded-2xl border border-portal p-0 shadow-sm xl:sticky xl:top-24 xl:self-start">
           <div className="flex shrink-0 items-center justify-between border-b border-portal bg-portal-muted/20 px-4 py-3">
             <div>
-              <h2 className="text-sm font-bold text-primary-dark">Live Preview</h2>
+              <h2 className="text-sm font-bold text-primary-dark">{t("admin.certificates.livePreview")}</h2>
               <p className="text-[11px] text-portal-muted">
-                Official template — design locked
+                {t("admin.certificates.templateLocked")}
               </p>
             </div>
             <div className="flex items-center gap-2">
               {previewMutation.isPending ? (
                 <span className="inline-flex items-center gap-1 rounded-full bg-primary/10 px-2 py-0.5 text-[10px] font-medium text-primary">
                   <Loader2 className="size-3 animate-spin" />
-                  Updating
+                  {t("admin.certificates.updating")}
                 </span>
               ) : preview ? (
                 <span className="rounded-full bg-emerald-50 px-2 py-0.5 text-[10px] font-medium text-emerald-700">
-                  Ready
+                  {t("admin.certificates.ready")}
                 </span>
               ) : null}
               <button
@@ -406,7 +413,7 @@ export function AdminCertificatesPage() {
                 className="inline-flex items-center gap-1 rounded-lg border border-portal px-2.5 py-1.5 text-[11px] font-semibold text-portal-heading transition hover:border-primary/30 disabled:opacity-40"
               >
                 <Maximize2 className="size-3.5" aria-hidden />
-                Full Screen
+                {t("admin.certificates.fullScreen")}
               </button>
             </div>
           </div>
@@ -418,11 +425,10 @@ export function AdminCertificatesPage() {
               <div className="flex h-full min-h-[280px] flex-col items-center justify-center rounded-xl border border-dashed border-portal bg-portal-muted/20 px-6 text-center">
                 <Award className="mb-3 size-10 text-portal-muted/40" aria-hidden />
                 <p className="text-sm font-medium text-portal-heading">
-                  Preview will appear here
+                  {t("admin.certificates.previewPlaceholder")}
                 </p>
                 <p className="mt-1 max-w-xs text-xs text-portal-muted">
-                  Enter student name and course name to see the official
-                  certificate layout.
+                  {t("admin.certificates.previewHint")}
                 </p>
               </div>
             )}
@@ -450,12 +456,12 @@ export function AdminCertificatesPage() {
           className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4"
           role="dialog"
           aria-modal="true"
-          aria-label="Certificate full screen preview"
+          aria-label={t("admin.certificates.fullscreenAria")}
         >
           <div className="flex max-h-full w-full max-w-6xl flex-col overflow-hidden rounded-2xl bg-portal-surface shadow-2xl">
             <div className="flex items-center justify-between border-b border-portal px-4 py-3">
               <p className="text-sm font-bold text-primary-dark">
-                Full Screen Preview
+                {t("admin.certificates.fullScreenPreview")}
               </p>
               <div className="flex gap-2">
                 <Button
@@ -463,7 +469,7 @@ export function AdminCertificatesPage() {
                   className="rounded-xl bg-primary text-white"
                   onClick={() => setFullscreen(false)}
                 >
-                  Close
+                  {t("admin.certificates.close")}
                 </Button>
               </div>
             </div>

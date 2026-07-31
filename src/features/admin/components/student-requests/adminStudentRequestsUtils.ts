@@ -1,4 +1,5 @@
 import type { StudentRequestStatus, StudentRequestView } from "@/types/models";
+import type { PortalTranslate } from "@/features/admin/components/trial-leads/adminTrialLeadsUtils";
 
 export type AdminStudentRequestsTab = "all" | StudentRequestStatus;
 
@@ -279,26 +280,31 @@ export function exportStudentRequestsFile(
   downloadBlob(blob, filename);
 }
 
-function pct(part: number, total: number): string {
-  if (total <= 0) return "0% of total";
-  return `${Math.round((part / total) * 100)}% of total`;
-}
-
 export function studentRequestsStatHint(
   key: "pending" | "approved" | "rejected",
-  stats: IAdminStudentRequestsStats
+  stats: IAdminStudentRequestsStats,
+  t: PortalTranslate,
+  formatNumber: (n: number) => string
 ): string {
   switch (key) {
     case "pending":
-      return "Needs your action";
+      return t("admin.studentRequests.alertTitle");
     case "approved":
       return stats.approvedThisMonth > 0
-        ? `${stats.approvedThisMonth} this month`
-        : pct(stats.approved, stats.total);
+        ? t("stats.thisMonth", { count: formatNumber(stats.approvedThisMonth) })
+        : t("stats.ofTotal", {
+            pct: formatNumber(
+              stats.total > 0 ? Math.round((stats.approved / stats.total) * 100) : 0
+            ),
+          });
     case "rejected":
       return stats.rejectedThisMonth > 0
-        ? `${stats.rejectedThisMonth} this month`
-        : pct(stats.rejected, stats.total);
+        ? t("stats.thisMonth", { count: formatNumber(stats.rejectedThisMonth) })
+        : t("stats.ofTotal", {
+            pct: formatNumber(
+              stats.total > 0 ? Math.round((stats.rejected / stats.total) * 100) : 0
+            ),
+          });
     default:
       return "";
   }

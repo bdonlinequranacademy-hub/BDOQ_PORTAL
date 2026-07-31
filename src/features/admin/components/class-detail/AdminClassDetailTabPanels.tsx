@@ -7,11 +7,11 @@ import {
   Video,
 } from "lucide-react";
 import { Card } from "@/components/ui/Card";
-import type { AdminClass } from "@/types/models";
+import { usePortalTranslation } from "@/i18n/LocaleProvider";
+import type { AdminClass, ClassSchedule } from "@/types/models";
 import { formatScheduleLine } from "@/lib/utils/class";
 import { normalizeMeetingLink } from "@/lib/utils/meetingLink";
 import {
-  formatClassCreatedAt,
   getUpcomingScheduleSessions,
   scheduleRepeatLabel,
 } from "@/features/admin/components/class-detail/adminClassDetailUtils";
@@ -22,35 +22,59 @@ interface IAdminClassDetailOverviewTabProps {
   onOpenSchedule: () => void;
 }
 
+function translateScheduleRepeat(
+  schedule: ClassSchedule | null | undefined,
+  t: (key: string) => string
+): string {
+  const raw = scheduleRepeatLabel(schedule);
+  if (raw === "Not scheduled") return t("admin.classDetail.notScheduled");
+  if (raw === "One-time session") return t("admin.classDetail.oneTimeSession");
+  if (raw === "Weekly recurring") return t("admin.classDetail.weeklyRecurring");
+  return raw;
+}
+
 export function AdminClassDetailOverviewTab({
   cls,
   onOpenSchedule,
 }: IAdminClassDetailOverviewTabProps) {
+  const { t, statusLabel, formatDate, formatBdt } = usePortalTranslation();
   const upcoming = getUpcomingScheduleSessions(cls.schedule, 3);
   const meetingLink = normalizeMeetingLink(cls.meetingLink);
+  const isActive = cls.isActive !== false;
 
   const meta = [
-    { label: "Class status", value: cls.isActive === false ? "Inactive" : "Active" },
-    { label: "Schedule type", value: scheduleRepeatLabel(cls.schedule) },
-    { label: "Weekly slot", value: formatScheduleLine(cls.schedule) ?? "Not set" },
-    { label: "Created", value: formatClassCreatedAt(cls.createdAt) },
     {
-      label: "Session rate",
-      value: cls.sessionRateBdt != null ? `BDT ${cls.sessionRateBdt}` : "Not set",
+      label: t("admin.classDetail.classStatus"),
+      value: statusLabel(isActive ? "active" : "inactive"),
     },
     {
-      label: "Meeting link",
-      value: meetingLink ? "Configured" : "Not set",
+      label: t("admin.classDetail.scheduleType"),
+      value: translateScheduleRepeat(cls.schedule, t),
+    },
+    {
+      label: t("admin.classDetail.weeklySlot"),
+      value: formatScheduleLine(cls.schedule) ?? t("admin.classDetail.notSet"),
+    },
+    {
+      label: t("admin.classDetail.created"),
+      value: cls.createdAt ? formatDate(cls.createdAt) : "—",
+    },
+    {
+      label: t("admin.classDetail.sessionRateLabel"),
+      value: cls.sessionRateBdt != null ? formatBdt(cls.sessionRateBdt) : t("admin.classDetail.notSet"),
+    },
+    {
+      label: t("admin.classDetail.meetingLink"),
+      value: meetingLink ? t("admin.classDetail.configured") : t("admin.classDetail.notSet"),
     },
   ];
 
   return (
     <div className="flex flex-col gap-5">
       <Card className="rounded-2xl border border-portal bg-portal-surface p-5 shadow-[0_8px_24px_-16px_rgba(13,74,47,0.18)]">
-        <h2 className="text-sm font-bold text-portal-heading">About This Class</h2>
+        <h2 className="text-sm font-bold text-portal-heading">{t("admin.classDetail.aboutClass")}</h2>
         <p className="mt-3 text-sm leading-relaxed text-portal-muted">
-          {cls.description ??
-            "No description added yet. Edit the class to add learning goals and notes for admins."}
+          {cls.description ?? t("admin.classDetail.noDescription")}
         </p>
         <div className="mt-5 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
           {meta.map((item) => (
@@ -67,17 +91,17 @@ export function AdminClassDetailOverviewTab({
 
       <Card className="rounded-2xl border border-portal bg-portal-surface p-5 shadow-[0_8px_24px_-16px_rgba(13,74,47,0.18)]">
         <div className="mb-4 flex items-center justify-between gap-2">
-          <h2 className="text-sm font-bold text-portal-heading">Upcoming Sessions</h2>
+          <h2 className="text-sm font-bold text-portal-heading">{t("admin.classDetail.upcomingSessions")}</h2>
           <button
             type="button"
             onClick={onOpenSchedule}
             className="text-xs font-semibold text-primary hover:underline"
           >
-            View schedule
+            {t("admin.classDetail.viewSchedule")}
           </button>
         </div>
         {upcoming.length === 0 ? (
-          <p className="text-sm text-portal-muted">No recurring schedule configured for this class.</p>
+          <p className="text-sm text-portal-muted">{t("admin.classDetail.noRecurringSchedule")}</p>
         ) : (
           <div className="flex flex-col gap-3">
             {upcoming.map((session) => (
@@ -88,13 +112,13 @@ export function AdminClassDetailOverviewTab({
                 <div className="flex items-center gap-3">
                   <div className="rounded-lg bg-primary/10 px-3 py-2 text-center">
                     <p className="text-[10px] font-bold uppercase tracking-wide text-primary">
-                      {session.dayLabel}
+                      {formatDate(session.date.toISOString())}
                     </p>
                   </div>
                   <div>
                     <p className="text-sm font-semibold text-portal-heading">{cls.title}</p>
                     <p className="text-xs text-portal-muted">
-                      {session.time ?? "Time not set"} · Weekly session
+                      {session.time ?? t("admin.classDetail.timeNotSet")} · {t("admin.classDetail.weeklySession")}
                     </p>
                   </div>
                 </div>
@@ -106,11 +130,11 @@ export function AdminClassDetailOverviewTab({
                     className="inline-flex items-center justify-center gap-2 rounded-xl bg-primary px-4 py-2 text-xs font-semibold text-white transition hover:bg-primary-dark"
                   >
                     <Video className="size-3.5" aria-hidden />
-                    Join Class
+                    {t("admin.classDetail.joinClass")}
                   </a>
                 ) : (
                   <span className="inline-flex rounded-xl border border-portal px-4 py-2 text-xs font-semibold text-portal-muted">
-                    Upcoming
+                    {t("admin.classDetail.upcoming")}
                   </span>
                 )}
               </div>
@@ -127,37 +151,41 @@ interface IAdminClassDetailScheduleTabProps {
 }
 
 export function AdminClassDetailScheduleTab({ cls }: IAdminClassDetailScheduleTabProps) {
+  const { t } = usePortalTranslation();
   const schedule = cls.schedule;
   const meetingLink = normalizeMeetingLink(cls.meetingLink);
+  const notSet = t("admin.classDetail.notSet");
 
   const items = [
     {
       icon: CalendarDays,
-      label: "Weekly day",
-      value: schedule?.day ?? "Not set",
+      label: t("admin.classDetail.weeklyDay"),
+      value: schedule?.day ?? notSet,
     },
     {
       icon: Clock3,
-      label: "Start time",
-      value: schedule?.time ?? "Not set",
+      label: t("admin.classDetail.startTime"),
+      value: schedule?.time ?? notSet,
     },
     {
       icon: Repeat,
-      label: "Repeat",
-      value: scheduleRepeatLabel(schedule),
+      label: t("admin.classDetail.repeat"),
+      value: translateScheduleRepeat(schedule, t),
     },
     {
       icon: Globe,
-      label: "Duration",
-      value: schedule?.duration ? `${schedule.duration} minutes` : "Not set",
+      label: t("admin.classDetail.duration"),
+      value: schedule?.duration
+        ? t("admin.classDetail.minutesDuration", { count: String(schedule.duration) })
+        : notSet,
     },
   ];
 
   return (
     <Card className="rounded-2xl border border-portal bg-portal-surface p-5 shadow-[0_8px_24px_-16px_rgba(13,74,47,0.18)]">
-      <h2 className="text-sm font-bold text-portal-heading">Class Schedule</h2>
+      <h2 className="text-sm font-bold text-portal-heading">{t("admin.classDetail.classSchedule")}</h2>
       <p className="mt-1 text-sm text-portal-muted">
-        {formatScheduleLine(schedule) ?? "Add a weekly schedule from edit class settings."}
+        {formatScheduleLine(schedule) ?? t("admin.classDetail.addScheduleHint")}
       </p>
 
       <div className="mt-5 grid grid-cols-1 gap-3 sm:grid-cols-2">

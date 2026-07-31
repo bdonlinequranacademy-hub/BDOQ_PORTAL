@@ -17,6 +17,7 @@ import {
   groupTeacherSubjects,
 } from "@/features/admin/components/teacher-applications/adminTeacherApplicationsUtils";
 import { cn } from "@/lib/utils/cn";
+import { usePortalTranslation } from "@/i18n/LocaleProvider";
 
 interface IAdminTeacherApplicationsSidebarProps {
   applications: TeacherApplicationView[];
@@ -28,6 +29,8 @@ interface IAdminTeacherApplicationsSidebarProps {
 }
 
 function ApplicationOverview({ applications }: { applications: TeacherApplicationView[] }) {
+  const { t } = usePortalTranslation();
+
   const segments = groupTeacherApplicationsByStatus(applications);
   const total = Math.max(applications.length, 1);
 
@@ -43,7 +46,7 @@ function ApplicationOverview({ applications }: { applications: TeacherApplicatio
 
   return (
     <Card className="rounded-2xl border border-portal bg-portal-surface p-5 shadow-[0_8px_24px_-16px_rgba(13,74,47,0.18)]">
-      <h2 className="text-sm font-bold text-portal-heading">Application overview</h2>
+      <h2 className="text-sm font-bold text-portal-heading">{t("admin.teacherApplications.sidebarConversion")}</h2>
       <div className="mt-4 flex items-center gap-4">
         <div
           className="relative size-28 shrink-0 rounded-full"
@@ -52,14 +55,12 @@ function ApplicationOverview({ applications }: { applications: TeacherApplicatio
         >
           <div className="absolute inset-4 flex flex-col items-center justify-center rounded-full bg-portal-surface text-center">
             <p className="text-xl font-bold text-portal-heading">{applications.length}</p>
-            <p className="text-[10px] font-semibold uppercase tracking-wide text-portal-muted">
-              Total
-            </p>
+            <p className="text-[10px] font-semibold uppercase tracking-wide text-portal-muted">{t("stats.total")}</p>
           </div>
         </div>
         <div className="flex min-w-0 flex-1 flex-col gap-2 text-xs">
           {segments.length === 0 ? (
-            <p className="text-portal-muted">No applications yet.</p>
+            <p className="text-portal-muted">{t("admin.teacherApplications.noApplications")}</p>
           ) : (
             segments.map((segment) => (
               <div key={segment.label} className="flex items-center justify-between gap-2">
@@ -83,13 +84,15 @@ function ApplicationOverview({ applications }: { applications: TeacherApplicatio
 }
 
 function RecentApplications({ applications }: { applications: TeacherApplicationView[] }) {
+  const { t } = usePortalTranslation();
+
   const recent = getRecentTeacherApplications(applications);
 
   return (
     <Card className="rounded-2xl border border-portal bg-portal-surface p-5 shadow-[0_8px_24px_-16px_rgba(13,74,47,0.18)]">
-      <h2 className="text-sm font-bold text-portal-heading">Recent applications</h2>
+      <h2 className="text-sm font-bold text-portal-heading">{t("admin.cms.shared.recentItems")}</h2>
       {recent.length === 0 ? (
-        <p className="mt-3 text-sm text-portal-muted">No recent submissions.</p>
+        <p className="mt-3 text-sm text-portal-muted">{t("admin.cms.shared.noRecent")}</p>
       ) : (
         <div className="mt-4 flex max-h-[260px] flex-col gap-3 overflow-y-auto pr-1">
           {recent.map((app) => {
@@ -114,14 +117,16 @@ function RecentApplications({ applications }: { applications: TeacherApplication
 }
 
 function TopSubjects({ applications }: { applications: TeacherApplicationView[] }) {
+  const { t } = usePortalTranslation();
+
   const subjects = groupTeacherSubjects(applications).slice(0, 6);
   const max = Math.max(...subjects.map((item) => item.count), 1);
 
   return (
     <Card className="rounded-2xl border border-portal bg-portal-surface p-5 shadow-[0_8px_24px_-16px_rgba(13,74,47,0.18)]">
-      <h2 className="text-sm font-bold text-portal-heading">Top subjects applied</h2>
+      <h2 className="text-sm font-bold text-portal-heading">{t("admin.teacherApplications.sidebarSubjects")}</h2>
       {subjects.length === 0 ? (
-        <p className="mt-3 text-sm text-portal-muted">No subject data yet.</p>
+        <p className="mt-3 text-sm text-portal-muted">{t("admin.cms.shared.noRecent")}</p>
       ) : (
         <div className="mt-4 flex flex-col gap-3">
           {subjects.map((subject) => (
@@ -152,25 +157,27 @@ export function AdminTeacherApplicationsSidebar({
   onReviewNew,
   newCount,
 }: IAdminTeacherApplicationsSidebarProps) {
+  const { t } = usePortalTranslation();
+
   const actions = [
     {
-      label: "Review new",
+      label: t("admin.admissions.actionReviewNew"),
       icon: Inbox,
       onClick: onReviewNew,
       show: newCount > 0,
     },
     {
-      label: "Export",
+      label: t("admin.common.export"),
       icon: Download,
       onClick: () => exportTeacherApplicationsFile(filteredApplications, "teacher-apps-filtered"),
     },
     {
-      label: "Admissions",
+      label: t("admin.admissions.title"),
       icon: GraduationCap,
       to: "/admin/student-admissions",
     },
     {
-      label: "Contact inbox",
+      label: t("admin.contact.title"),
       icon: Inbox,
       to: "/admin/contact-messages",
     },
@@ -182,7 +189,7 @@ export function AdminTeacherApplicationsSidebar({
       <RecentApplications applications={applications} />
       <TopSubjects applications={applications} />
       <Card className="rounded-2xl border border-portal bg-portal-surface p-5 shadow-[0_8px_24px_-16px_rgba(13,74,47,0.18)]">
-        <h2 className="mb-4 text-sm font-bold text-portal-heading">Quick actions</h2>
+        <h2 className="mb-4 text-sm font-bold text-portal-heading">{t("admin.cms.shared.quickActions")}</h2>
         <div className="grid grid-cols-2 gap-2.5">
           {actions.map(({ label, icon: Icon, to, onClick }) => {
             const className =
@@ -215,7 +222,7 @@ export function AdminTeacherApplicationsSidebar({
             className={cn("size-4 text-primary", isFetching && "animate-spin")}
             aria-hidden
           />
-          {isFetching ? "Refreshing…" : "Refresh"}
+          {isFetching ? t("admin.trialLeads.refreshing") : t("admin.trialLeads.actionRefresh")}
         </button>
       </Card>
     </aside>

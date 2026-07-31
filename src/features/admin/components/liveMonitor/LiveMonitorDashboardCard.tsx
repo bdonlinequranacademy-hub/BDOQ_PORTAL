@@ -51,11 +51,11 @@ export function LiveMonitorDashboardCard({ session }: ILiveMonitorDashboardCardP
         </p>
         <div className="flex flex-wrap gap-1.5">
           <LiveMonitorJoinBadge
-            role="Teacher"
+            roleKey="teacher"
             status={session.teacherJoined ? "joined" : "not_joined"}
           />
           <LiveMonitorJoinBadge
-            role="Student"
+            roleKey="student"
             status={session.studentJoined ? "joined" : "not_joined"}
           />
         </div>

@@ -7,8 +7,8 @@ import { ClassLogStatusBadge } from "@/components/schedule/ClassLogStatusBadge";
 import { CurriculumProgramFilter } from "@/components/curriculum/CurriculumProgramFilter";
 import type { CurriculumNode } from "@/lib/api/curriculumApi";
 import type { ClassLogView } from "@/types/models";
+import { usePortalTranslation } from "@/i18n/LocaleProvider";
 import {
-  formatLogDateLabel,
   formatLogTopic,
   type AdminClassLogsTab,
 } from "@/features/admin/components/class-logs/adminClassLogsUtils";
@@ -30,20 +30,22 @@ export function AdminClassLogsTable({
   onApprove,
   onReject,
 }: IAdminClassLogsTableProps) {
+  const { t, formatDate, formatBdt } = usePortalTranslation();
+
   return (
     <Card className="overflow-hidden rounded-2xl border border-portal bg-portal-surface p-0 shadow-[0_8px_24px_-16px_rgba(13,74,47,0.18)]">
       <div className="overflow-x-auto">
         <table className="w-full min-w-[1040px] border-collapse text-left">
           <thead>
             <tr className="border-b border-portal bg-portal-muted/40 text-xs font-semibold uppercase tracking-wide text-portal-muted">
-              <th className="px-5 py-3.5">Date &amp; time</th>
-              <th className="px-5 py-3.5">Teacher</th>
-              <th className="px-5 py-3.5">Class &amp; topic</th>
-              <th className="px-5 py-3.5">Student</th>
-              <th className="px-5 py-3.5">Duration</th>
-              <th className="px-5 py-3.5">Rate</th>
-              <th className="px-5 py-3.5">Status</th>
-              <th className="px-5 py-3.5 text-right">Actions</th>
+              <th className="px-5 py-3.5">{t("tables.dateTime")}</th>
+              <th className="px-5 py-3.5">{t("tables.teacher")}</th>
+              <th className="px-5 py-3.5">{t("tables.classTopic")}</th>
+              <th className="px-5 py-3.5">{t("tables.student")}</th>
+              <th className="px-5 py-3.5">{t("tables.duration")}</th>
+              <th className="px-5 py-3.5">{t("tables.rate")}</th>
+              <th className="px-5 py-3.5">{t("tables.status")}</th>
+              <th className="px-5 py-3.5 text-right">{t("tables.actions")}</th>
             </tr>
           </thead>
           <tbody>
@@ -54,12 +56,14 @@ export function AdminClassLogsTable({
               >
                 <td className="px-5 py-4">
                   <p className="text-xs font-bold tracking-wide text-portal-muted">
-                    {formatLogDateLabel(log.sessionDate)}
+                    {formatDate(log.sessionDate)}
                   </p>
                   <p className="mt-1 text-sm font-semibold tabular-nums text-portal-heading">
                     {log.times.academy.time}
                   </p>
-                  <p className="text-[11px] text-portal-muted">BD · {log.times.student.time} stu</p>
+                  <p className="text-[11px] text-portal-muted">
+                    {t("admin.classLogs.studentTimezone", { time: log.times.student.time })}
+                  </p>
                 </td>
                 <td className="px-5 py-4">
                   <div className="flex items-center gap-2.5">
@@ -87,7 +91,7 @@ export function AdminClassLogsTable({
                 </td>
                 <td className="px-5 py-4 text-sm text-portal-heading">{log.durationLabel}</td>
                 <td className="px-5 py-4 text-sm font-semibold text-portal-heading">
-                  {log.earningsBdt != null ? `৳${log.earningsBdt}` : "—"}
+                  {log.earningsBdt != null ? formatBdt(log.earningsBdt) : "—"}
                 </td>
                 <td className="px-5 py-4">
                   <ClassLogStatusBadge status={log.status} />
@@ -98,7 +102,7 @@ export function AdminClassLogsTable({
                       type="button"
                       onClick={() => onView(log)}
                       className="inline-flex size-8 items-center justify-center rounded-lg border border-portal text-portal-muted transition hover:border-primary/30 hover:text-primary"
-                      aria-label={`View log for ${log.classTitle}`}
+                      aria-label={t("admin.classLogs.viewLogFor", { title: log.classTitle })}
                     >
                       <Eye className="size-4" aria-hidden />
                     </button>
@@ -108,7 +112,7 @@ export function AdminClassLogsTable({
                         disabled={busy}
                         onClick={() => onApprove(log)}
                         className="inline-flex size-8 items-center justify-center rounded-lg border border-emerald-500/30 bg-emerald-500/10 text-emerald-700 transition hover:bg-emerald-500/20 disabled:opacity-50"
-                        aria-label="Approve log"
+                        aria-label={t("admin.classLogs.approveLog")}
                       >
                         <Check className="size-4" aria-hidden />
                       </button>
@@ -119,7 +123,7 @@ export function AdminClassLogsTable({
                         disabled={busy}
                         onClick={() => onReject(log)}
                         className="inline-flex size-8 items-center justify-center rounded-lg border border-red-500/30 bg-red-500/10 text-red-700 transition hover:bg-red-500/20 disabled:opacity-50"
-                        aria-label="Reject log"
+                        aria-label={t("admin.classLogs.rejectLog")}
                       >
                         <X className="size-4" aria-hidden />
                       </button>
@@ -154,12 +158,7 @@ interface IAdminClassLogsToolbarProps {
   onExport: () => void;
 }
 
-const TABS: { id: AdminClassLogsTab; label: string }[] = [
-  { id: "all", label: "All" },
-  { id: "pending", label: "Pending" },
-  { id: "approved", label: "Approved" },
-  { id: "rejected", label: "Rejected" },
-];
+const TABS: AdminClassLogsTab[] = ["all", "pending", "approved", "rejected"];
 
 const toolbarFieldClass = cn(
   formControlClass,
@@ -184,13 +183,18 @@ export function AdminClassLogsToolbar({
   onTabChange,
   onExport,
 }: IAdminClassLogsToolbarProps) {
+  const { t, statusLabel, formatNumber } = usePortalTranslation();
+
+  const tabLabel = (tabId: AdminClassLogsTab) => {
+    if (tabId === "all") return t("labels.all");
+    return statusLabel(tabId);
+  };
+
   return (
     <div className="flex flex-col gap-4 rounded-2xl border border-portal bg-portal-surface p-4 shadow-[0_8px_24px_-16px_rgba(13,74,47,0.18)] sm:p-5">
       <div>
-        <h2 className="text-sm font-bold text-portal-heading">Search &amp; filters</h2>
-        <p className="mt-0.5 text-xs text-portal-muted">
-          Narrow logs by teacher, program, or session date.
-        </p>
+        <h2 className="text-sm font-bold text-portal-heading">{t("admin.classLogs.searchFilters")}</h2>
+        <p className="mt-0.5 text-xs text-portal-muted">{t("admin.classLogs.searchFiltersHint")}</p>
       </div>
 
       <div className="flex flex-col gap-3 xl:flex-row xl:items-center">
@@ -201,10 +205,10 @@ export function AdminClassLogsToolbar({
           />
           <input
             className={cn(toolbarFieldClass, "pl-9")}
-            placeholder="Search teacher, student, class…"
+            placeholder={t("admin.classLogs.searchPlaceholder")}
             value={search}
             onChange={(event) => onSearchChange(event.target.value)}
-            aria-label="Search class logs"
+            aria-label={t("admin.classLogs.searchLabel")}
           />
         </div>
 
@@ -219,9 +223,9 @@ export function AdminClassLogsToolbar({
             value={teacherFilter}
             onChange={(event) => onTeacherChange(event.target.value)}
             className={cn(toolbarFieldClass, "w-full sm:min-w-[152px] xl:w-auto")}
-            aria-label="Filter by teacher"
+            aria-label={t("filters.filterByTeacher")}
           >
-            <option value="">All teachers</option>
+            <option value="">{t("filters.allTeachers")}</option>
             {teachers.map((teacher) => (
               <option key={teacher.teacherId} value={teacher.teacherId}>
                 {teacher.teacherName}
@@ -233,14 +237,14 @@ export function AdminClassLogsToolbar({
             value={dateFrom}
             onChange={(event) => onDateFromChange(event.target.value)}
             className={cn(toolbarFieldClass, "w-full sm:min-w-[140px] xl:w-auto")}
-            aria-label="Date from"
+            aria-label={t("filters.dateFrom")}
           />
           <input
             type="date"
             value={dateTo}
             onChange={(event) => onDateToChange(event.target.value)}
             className={cn(toolbarFieldClass, "w-full sm:min-w-[140px] xl:w-auto")}
-            aria-label="Date to"
+            aria-label={t("filters.dateTo")}
           />
         </div>
       </div>
@@ -249,23 +253,23 @@ export function AdminClassLogsToolbar({
         <div
           className="portal-tabs flex gap-1 overflow-x-auto"
           role="tablist"
-          aria-label="Class log status"
+          aria-label={t("admin.classLogs.statusTabLabel")}
         >
           {TABS.map((item) => (
             <button
-              key={item.id}
+              key={item}
               type="button"
               role="tab"
-              aria-selected={tab === item.id}
-              onClick={() => onTabChange(item.id)}
+              aria-selected={tab === item}
+              onClick={() => onTabChange(item)}
               className={cn(
                 "shrink-0 rounded-[8px] px-3.5 py-1.5 text-xs font-semibold transition",
-                tab === item.id
+                tab === item
                   ? "bg-primary-dark text-white shadow-sm"
                   : "border border-portal bg-portal-muted/20 text-portal-heading hover:bg-portal-muted/40"
               )}
             >
-              {item.label} ({tabCounts[item.id]})
+              {tabLabel(item)} ({formatNumber(tabCounts[item])})
             </button>
           ))}
         </div>
@@ -277,13 +281,13 @@ export function AdminClassLogsToolbar({
             className="inline-flex items-center gap-2 rounded-xl border border-portal px-4"
           >
             <Download className="size-4" aria-hidden />
-            Export
+            {t("filters.export")}
           </Button>
           <Link
             to="/admin/earnings"
             className="inline-flex items-center rounded-xl border border-portal bg-portal-muted/20 px-4 py-2 text-sm font-semibold text-portal-heading transition hover:border-primary/25 hover:text-primary"
           >
-            Earnings report
+            {t("admin.classLogs.earningsReport")}
           </Link>
         </div>
       </div>

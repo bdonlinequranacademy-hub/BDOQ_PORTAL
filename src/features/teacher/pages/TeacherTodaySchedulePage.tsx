@@ -13,14 +13,16 @@ import { countSessionsByPhase } from "@/lib/utils/sessionTiming";
 import { useSessionClock } from "@/hooks/useSessionClock";
 import { Button } from "@/components/ui/Button";
 import type { SessionSlotView } from "@/types/models";
-
 import { PageLoading } from "@/components/ui/PageLoading";
+import { usePortalTranslation } from "@/i18n/LocaleProvider";
+
 function todayIsoDate() {
   return new Date().toISOString().split("T")[0];
 }
 
 export function TeacherTodaySchedulePage() {
   const navigate = useNavigate();
+  const { t } = usePortalTranslation();
   const [view, setView] = useState<ScheduleViewMode>("timeline");
   const now = useSessionClock();
   const { data, isLoading, isFetching, refetch } = useTeacherTodaySchedule();
@@ -34,7 +36,7 @@ export function TeacherTodaySchedulePage() {
   } = useLogSessionFlow();
 
   const sessions = sortSessionsByAcademyTime(data?.sessions ?? []);
-  const day = data?.day ?? "Today";
+  const day = data?.day ?? t("teacher.todaysSchedule");
   const stats = useMemo(
     () => countSessionsByPhase(sessions, now),
     [sessions, now]
@@ -51,16 +53,22 @@ export function TeacherTodaySchedulePage() {
     navigate(`/teacher/classes/${session.classId}`);
   }
 
+  const statItems = [
+    { label: t("teacher.totalSessions"), value: stats.total, tone: "text-primary-dark" },
+    { label: t("teacher.remaining"), value: stats.upcoming, tone: "text-primary" },
+    { label: t("teacher.completed"), value: stats.completed, tone: "text-zinc-500" },
+  ];
+
   return (
     <>
       <PageContainer className="flex flex-col gap-6">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
           <div>
             <h1 className="text-2xl font-bold text-primary-dark">
-              Today&apos;s Schedule
+              {t("teacher.todayScheduleTitle")}
             </h1>
             <p className="mt-1 text-sm text-zinc-500">
-              {day} — live countdown · session status syncs every minute
+              {t("teacher.todayScheduleSubtitle", { day })}
             </p>
           </div>
           <div className="flex flex-wrap items-center gap-2">
@@ -75,17 +83,13 @@ export function TeacherTodaySchedulePage() {
               className="inline-flex items-center gap-2 rounded-xl"
             >
               <RefreshCw className={`size-4 ${isFetching ? "animate-spin" : ""}`} />
-              Refresh
+              {t("teacher.refresh")}
             </Button>
           </div>
         </div>
 
         <div className="grid grid-cols-3 gap-3">
-          {[
-            { label: "Total sessions", value: stats.total, tone: "text-primary-dark" },
-            { label: "Remaining", value: stats.upcoming, tone: "text-primary" },
-            { label: "Completed", value: stats.completed, tone: "text-zinc-500" },
-          ].map((item) => (
+          {statItems.map((item) => (
             <div
               key={item.label}
               className="rounded-2xl border border-zinc-100 bg-white px-4 py-3 shadow-sm"
@@ -101,34 +105,42 @@ export function TeacherTodaySchedulePage() {
         {stats.live > 0 ? (
           <div className="flex items-center gap-2 rounded-2xl bg-red-50 px-4 py-3 text-sm font-semibold text-red-700">
             <span className="size-2 animate-pulse rounded-full bg-red-500" />
-            {stats.live} session{stats.live === 1 ? "" : "s"} live right now
+            {stats.live === 1
+              ? t("teacher.sessionsLiveNow", { count: String(stats.live) })
+              : t("teacher.sessionsLiveNowPlural", { count: String(stats.live) })}
           </div>
         ) : (
           <div className="flex items-center gap-2 rounded-2xl bg-primary/10 px-4 py-3">
             <Calendar className="size-5 text-primary" />
             <span className="text-sm font-semibold text-primary">
               {isLoading
-                ? "Loading…"
-                : `${sessions.length} session${sessions.length === 1 ? "" : "s"} on ${day}`}
+                ? t("common.loading")
+                : sessions.length === 1
+                  ? t("teacher.sessionsOnDay", {
+                      count: String(sessions.length),
+                      day,
+                    })
+                  : t("teacher.sessionsOnDayPlural", {
+                      count: String(sessions.length),
+                      day,
+                    })}
             </span>
           </div>
         )}
 
         {isLoading ? (
-          <PageLoading label="Loading schedule…" />
+          <PageLoading label={t("teacher.loadingSchedule")} />
         ) : sessions.length === 0 ? (
           <div className="rounded-2xl border border-dashed border-zinc-200 bg-white p-10 text-center">
-            <p className="font-semibold text-primary-dark">No classes scheduled today</p>
-            <p className="mt-1 text-sm text-zinc-400">
-              Check your weekly routine or ask admin to update class schedules.
-            </p>
+            <p className="font-semibold text-primary-dark">{t("teacher.noClassesScheduledToday")}</p>
+            <p className="mt-1 text-sm text-zinc-400">{t("teacher.noClassesScheduledTodayDesc")}</p>
             <Button
               type="button"
               variant="secondary"
               className="mt-4 rounded-xl"
               onClick={() => navigate("/teacher/schedule/routine")}
             >
-              View My Routine
+              {t("teacher.viewMyRoutine")}
             </Button>
           </div>
         ) : view === "table" ? (

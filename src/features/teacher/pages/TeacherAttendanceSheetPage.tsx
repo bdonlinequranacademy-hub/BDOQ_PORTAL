@@ -11,6 +11,7 @@ import { PageContainer } from "@/components/layout/PageContainer";
 import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import type { AttendanceStatus } from "@/types/models";
+import { usePortalTranslation } from "@/i18n/LocaleProvider";
 
 const AVATAR_COLORS = [
   "bg-primary-dark",
@@ -27,6 +28,7 @@ function initials(name: string) {
 
 export function TeacherAttendanceSheetPage() {
   const navigate = useNavigate();
+  const { t, statusLabel } = usePortalTranslation();
   const [params] = useSearchParams();
   const classId = params.get("classId") ?? "";
   const date = params.get("date") ?? new Date().toISOString().split("T")[0];
@@ -93,31 +95,30 @@ export function TeacherAttendanceSheetPage() {
         >
           <ArrowLeft className="size-5" />
         </button>
-        <h1 className="font-bold text-primary-dark text-lg">Mark Attendance</h1>
+        <h1 className="font-bold text-primary-dark text-lg">{t("teacher.markAttendanceTitle")}</h1>
         <button
           onClick={handleSubmit}
           className="font-semibold text-gold text-sm px-2"
         >
-          Save
+          {t("teacher.save")}
         </button>
         </div>
       </div>
 
       <PageContainer className="flex flex-col gap-6 pb-16">
-        {/* Class banner */}
         <div className="relative rounded-3xl bg-gradient-to-br from-[#03214F] to-[#0a3a7a] text-white p-6 overflow-hidden">
           <div className="size-28 rounded-full bg-white/10 absolute -right-8 -top-8" />
           <div className="relative flex flex-col gap-3">
             <span className="font-semibold rounded-full bg-emerald-500/20 text-emerald-300 text-xs flex items-center gap-1.5 self-start px-2.5 py-1">
               <span className="size-1.5 animate-pulse rounded-full bg-emerald-400" />
-              Live Now
+              {t("teacher.liveNow")}
             </span>
             <h2 className="font-bold text-xl leading-7">
-              {cls?.name ?? "Loading…"}
+              {cls?.name ?? t("common.loading")}
             </h2>
             <div className="text-white/80 text-sm flex items-center gap-2">
               <GraduationCap className="size-4" />
-              <span>{cls?.teacherName ?? "Teacher"}</span>
+              <span>{cls?.teacherName ?? t("teacher.teacherFallback")}</span>
             </div>
             <div className="flex justify-between items-center pt-1">
               <div className="text-white/80 text-sm flex items-center gap-2">
@@ -126,23 +127,25 @@ export function TeacherAttendanceSheetPage() {
               </div>
               <span className="font-semibold rounded-full bg-white/10 text-white text-xs flex items-center gap-1.5 px-3 py-1">
                 <Users className="size-3.5" />
-                {total} Students
+                {t("teacher.studentsCount", { count: String(total) })}
               </span>
             </div>
           </div>
         </div>
 
-        {/* Progress */}
         <Card className="rounded-3xl border-0 shadow-sm p-5 flex flex-col gap-3">
           <div className="flex justify-between items-center">
             <span className="font-semibold text-primary-dark text-sm">
-              Marked: {markedCount} of {total}
+              {t("teacher.markedOfTotal", {
+                marked: String(markedCount),
+                total: String(total),
+              })}
             </span>
             <span className="font-bold text-teal-600 text-sm">{pct}%</span>
           </div>
           {existingAttendance.length > 0 ? (
             <p className="text-xs font-medium text-emerald-700">
-              Saved attendance loaded for {date}
+              {t("teacher.savedAttendanceLoaded", { date })}
             </p>
           ) : null}
           <div className="rounded-full bg-zinc-100 w-full h-2.5 overflow-hidden">
@@ -154,25 +157,24 @@ export function TeacherAttendanceSheetPage() {
           <div className="grid grid-cols-3 gap-2 pt-1">
             <div className="rounded-xl bg-emerald-50 flex flex-col items-center py-2 gap-1">
               <span className="font-bold text-emerald-600 text-lg">{presentCount}</span>
-              <span className="text-zinc-400 text-xs">Present</span>
+              <span className="text-zinc-400 text-xs">{statusLabel("present")}</span>
             </div>
             <div className="rounded-xl bg-red-50 flex flex-col items-center py-2 gap-1">
               <span className="font-bold text-red-600 text-lg">{absentCount}</span>
-              <span className="text-zinc-400 text-xs">Absent</span>
+              <span className="text-zinc-400 text-xs">{statusLabel("absent")}</span>
             </div>
             <div className="rounded-xl bg-amber-50 flex flex-col items-center py-2 gap-1">
               <span className="font-bold text-amber-600 text-lg">{lateCount}</span>
-              <span className="text-zinc-400 text-xs">Late</span>
+              <span className="text-zinc-400 text-xs">{statusLabel("late")}</span>
             </div>
           </div>
         </Card>
 
-        {/* Student list */}
         <Card className="rounded-3xl border-0 shadow-sm p-5 flex flex-col gap-4">
           <div className="flex items-center gap-2 rounded-xl bg-zinc-100 px-3 py-2.5">
             <Search className="size-4 text-zinc-400" />
             <input
-              placeholder="Search students…"
+              placeholder={t("teacher.searchStudents")}
               className="bg-transparent outline-none text-sm flex-1"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
@@ -215,6 +217,7 @@ export function TeacherAttendanceSheetPage() {
                           key={s}
                           onClick={() => toggle(student._id, s)}
                           className={`min-h-11 font-bold rounded-lg text-sm flex items-center justify-center w-9 transition ${colors[s]}`}
+                          aria-label={statusLabel(s)}
                         >
                           {s === "present" ? "P" : s === "late" ? "L" : "A"}
                         </button>
@@ -232,7 +235,7 @@ export function TeacherAttendanceSheetPage() {
             className="rounded-xl bg-primary-dark text-white font-semibold gap-2 w-full h-12 mt-2"
           >
             <CheckCircle className="size-5" />
-            {markAttendance.isPending ? "Saving…" : "Submit Attendance"}
+            {markAttendance.isPending ? t("teacher.saving") : t("teacher.submitAttendance")}
           </Button>
         </Card>
       </PageContainer>

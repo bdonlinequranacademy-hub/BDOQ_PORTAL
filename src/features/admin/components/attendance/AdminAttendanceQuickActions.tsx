@@ -7,6 +7,7 @@ import {
 } from "lucide-react";
 import { Card } from "@/components/ui/Card";
 import { cn } from "@/lib/utils/cn";
+import { usePortalTranslation } from "@/i18n/LocaleProvider";
 
 interface IAdminAttendanceQuickActionsProps {
   isFetching: boolean;
@@ -22,33 +23,45 @@ export function AdminAttendanceQuickActions({
   onExport,
   onRefresh,
 }: IAdminAttendanceQuickActionsProps) {
+  const { t } = usePortalTranslation();
+
   return (
     <Card className="rounded-2xl border border-portal bg-portal-surface p-5 shadow-[0_8px_24px_-16px_rgba(13,74,47,0.18)]">
-      <h2 className="mb-4 text-sm font-bold text-portal-heading">Quick actions</h2>
+      <h2 className="mb-4 text-sm font-bold text-portal-heading">
+        {t("admin.homework.quickActionsTitle")}
+      </h2>
       <div className="grid grid-cols-2 gap-2.5">
         <Link to="/admin/classes" className={actionTileClass}>
           <span className="flex size-9 items-center justify-center rounded-lg bg-primary/10">
             <GraduationCap className="size-4 text-primary" aria-hidden />
           </span>
-          <span className="text-xs font-semibold text-portal-heading">View classes</span>
+          <span className="text-xs font-semibold text-portal-heading">
+            {t("actions.viewClasses")}
+          </span>
         </Link>
         <button type="button" onClick={onExport} className={actionTileClass}>
           <span className="flex size-9 items-center justify-center rounded-lg bg-blue-100">
             <Download className="size-4 text-blue-600" aria-hidden />
           </span>
-          <span className="text-xs font-semibold text-portal-heading">Attendance report</span>
+          <span className="text-xs font-semibold text-portal-heading">
+            {t("actions.attendanceReport")}
+          </span>
         </button>
         <Link to="/admin/class-logs" className={actionTileClass}>
           <span className="flex size-9 items-center justify-center rounded-lg bg-violet-100">
             <ClipboardList className="size-4 text-violet-600" aria-hidden />
           </span>
-          <span className="text-xs font-semibold text-portal-heading">Class logs</span>
+          <span className="text-xs font-semibold text-portal-heading">
+            {t("actions.classLogs")}
+          </span>
         </Link>
         <Link to="/admin/users" className={actionTileClass}>
           <span className="flex size-9 items-center justify-center rounded-lg bg-emerald-100">
             <GraduationCap className="size-4 text-emerald-600" aria-hidden />
           </span>
-          <span className="text-xs font-semibold text-portal-heading">Student list</span>
+          <span className="text-xs font-semibold text-portal-heading">
+            {t("actions.studentList")}
+          </span>
         </Link>
       </div>
       <button
@@ -61,7 +74,7 @@ export function AdminAttendanceQuickActions({
           className={cn("size-4 text-primary", isFetching && "animate-spin")}
           aria-hidden
         />
-        {isFetching ? "Refreshing…" : "Refresh data"}
+        {isFetching ? t("admin.homework.refreshing") : t("actions.refreshData")}
       </button>
     </Card>
   );

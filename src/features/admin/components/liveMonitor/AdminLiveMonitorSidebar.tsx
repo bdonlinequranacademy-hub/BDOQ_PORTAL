@@ -13,6 +13,7 @@ import {
   computeJoinOverview,
   type ILiveMonitorJoinOverview,
 } from "@/features/admin/components/liveMonitor/adminLiveMonitorUtils";
+import { usePortalTranslation } from "@/i18n/LocaleProvider";
 import { cn } from "@/lib/utils/cn";
 
 interface IAdminLiveMonitorSidebarProps {
@@ -22,15 +23,28 @@ interface IAdminLiveMonitorSidebarProps {
 }
 
 function JoinOverviewChart({ overview }: { overview: ILiveMonitorJoinOverview }) {
+  const { t, statusLabel } = usePortalTranslation();
   const joined = overview.teacherJoined + overview.studentJoined;
   const late = overview.teacherLate + overview.studentLate;
   const missing = overview.teacherNotJoined + overview.studentNotJoined;
   const total = Math.max(joined + late + missing, 1);
 
   const segments = [
-    { label: "Joined", value: joined, color: "#32C991" },
-    { label: "Late", value: late, color: "#F59E0B" },
-    { label: "Not joined", value: missing, color: "#EF4444" },
+    {
+      label: statusLabel("joined"),
+      value: joined,
+      color: "#32C991",
+    },
+    {
+      label: statusLabel("late"),
+      value: late,
+      color: "#F59E0B",
+    },
+    {
+      label: statusLabel("not_joined"),
+      value: missing,
+      color: "#EF4444",
+    },
   ].filter((segment) => segment.value > 0);
 
   let cursor = 0;
@@ -48,8 +62,12 @@ function JoinOverviewChart({ overview }: { overview: ILiveMonitorJoinOverview })
   return (
     <Card className="rounded-2xl border border-portal bg-portal-surface p-5 shadow-[0_8px_24px_-16px_rgba(13,74,47,0.18)]">
       <div className="mb-4 flex items-center justify-between gap-2">
-        <h2 className="text-sm font-bold text-portal-heading">Join Overview</h2>
-        <span className="text-[10px] font-semibold text-portal-muted">Today</span>
+        <h2 className="text-sm font-bold text-portal-heading">
+          {t("admin.liveMonitor.sidebar.joinOverview")}
+        </h2>
+        <span className="text-[10px] font-semibold text-portal-muted">
+          {t("admin.liveMonitor.sidebar.today")}
+        </span>
       </div>
       <div className="flex items-center gap-4">
         <div
@@ -60,7 +78,7 @@ function JoinOverviewChart({ overview }: { overview: ILiveMonitorJoinOverview })
           <div className="absolute inset-4 flex flex-col items-center justify-center rounded-full bg-portal-surface text-center">
             <p className="text-xl font-bold text-portal-heading">{joinRate}%</p>
             <p className="text-[10px] font-semibold uppercase tracking-wide text-portal-muted">
-              Joined
+              {statusLabel("joined")}
             </p>
           </div>
         </div>
@@ -84,18 +102,21 @@ function JoinOverviewChart({ overview }: { overview: ILiveMonitorJoinOverview })
 }
 
 function TodayActivityFeed({ sessions }: { sessions: LiveMonitorSession[] }) {
+  const { t } = usePortalTranslation();
   const activity = buildTodayActivity(sessions);
 
   return (
     <Card className="rounded-2xl border border-portal bg-portal-surface p-5 shadow-[0_8px_24px_-16px_rgba(13,74,47,0.18)]">
       <div className="mb-4 flex items-center justify-between gap-2">
-        <h2 className="text-sm font-bold text-portal-heading">Class Activity</h2>
+        <h2 className="text-sm font-bold text-portal-heading">
+          {t("admin.liveMonitor.sidebar.classActivity")}
+        </h2>
         <Link to="/admin/class-logs" className="text-xs font-semibold text-primary hover:underline">
-          View logs
+          {t("admin.liveMonitor.sidebar.viewLogs")}
         </Link>
       </div>
       {activity.length === 0 ? (
-        <p className="text-sm text-portal-muted">No activity recorded yet today.</p>
+        <p className="text-sm text-portal-muted">{t("admin.liveMonitor.sidebar.noActivityToday")}</p>
       ) : (
         <div className="flex max-h-[280px] flex-col gap-3 overflow-y-auto pr-1">
           {activity.map((item) => (
@@ -118,16 +139,37 @@ function QuickActions({
   onRefresh: () => void;
   isFetching: boolean;
 }) {
+  const { t } = usePortalTranslation();
+
   const actions = [
-    { label: "Refresh monitor", icon: RefreshCw, onClick: onRefresh, pending: isFetching },
-    { label: "Academy routine", icon: CalendarDays, to: "/admin/schedule/routine" },
-    { label: "Class logs", icon: FileText, to: "/admin/class-logs" },
-    { label: "Attendance", icon: ClipboardList, to: "/admin/attendance" },
+    {
+      label: t("admin.liveMonitor.sidebar.refreshMonitor"),
+      icon: RefreshCw,
+      onClick: onRefresh,
+      pending: isFetching,
+    },
+    {
+      label: t("admin.liveMonitor.sidebar.academyRoutine"),
+      icon: CalendarDays,
+      to: "/admin/schedule/routine",
+    },
+    {
+      label: t("admin.liveMonitor.sidebar.classLogs"),
+      icon: FileText,
+      to: "/admin/class-logs",
+    },
+    {
+      label: t("admin.liveMonitor.sidebar.attendance"),
+      icon: ClipboardList,
+      to: "/admin/attendance",
+    },
   ];
 
   return (
     <Card className="rounded-2xl border border-portal bg-portal-surface p-5 shadow-[0_8px_24px_-16px_rgba(13,74,47,0.18)]">
-      <h2 className="mb-4 text-sm font-bold text-portal-heading">Quick Actions</h2>
+      <h2 className="mb-4 text-sm font-bold text-portal-heading">
+        {t("admin.liveMonitor.sidebar.quickActions")}
+      </h2>
       <div className="grid grid-cols-2 gap-2.5">
         {actions.map(({ label, icon: Icon, to, onClick, pending }) => {
           const className =
@@ -151,7 +193,7 @@ function QuickActions({
               className={className}
             >
               <Icon className={cn("size-4 text-primary", pending && "animate-spin")} aria-hidden />
-              {pending ? "Refreshing…" : label}
+              {pending ? t("admin.liveMonitor.sidebar.refreshing") : label}
             </button>
           );
         })}
@@ -165,6 +207,7 @@ export function AdminLiveMonitorSidebar({
   isFetching,
   onRefresh,
 }: IAdminLiveMonitorSidebarProps) {
+  const { t } = usePortalTranslation();
   const overview = computeJoinOverview(sessions);
 
   return (
@@ -172,11 +215,16 @@ export function AdminLiveMonitorSidebar({
       <Card className="rounded-2xl border border-portal bg-portal-surface p-5 shadow-[0_8px_24px_-16px_rgba(13,74,47,0.18)]">
         <div className="flex items-center gap-2">
           <Radio className="size-4 text-red-600" aria-hidden />
-          <p className="text-sm font-bold text-portal-heading">Monitor status</p>
+          <p className="text-sm font-bold text-portal-heading">
+            {t("admin.liveMonitor.sidebar.monitorStatus")}
+          </p>
         </div>
         <p className="mt-2 text-sm text-portal-muted">
-          {overview.total} session{overview.total === 1 ? "" : "s"} tracked today. Join status
-          updates when users launch from their portal schedule.
+          {overview.total === 1
+            ? t("admin.liveMonitor.sidebar.sessionsTracked", { count: String(overview.total) })
+            : t("admin.liveMonitor.sidebar.sessionsTrackedPlural", {
+                count: String(overview.total),
+              })}
         </p>
       </Card>
       <JoinOverviewChart overview={overview} />

@@ -27,8 +27,10 @@ import {
   filterTeacherApplications,
   type AdminTeacherApplicationsTab,
 } from "@/features/admin/components/teacher-applications/adminTeacherApplicationsUtils";
+import { usePortalTranslation } from "@/i18n/LocaleProvider";
 
 export function AdminTeacherApplicationsPage() {
+  const { t } = usePortalTranslation();
   const [tab, setTab] = useState<AdminTeacherApplicationsTab>("all");
   const [search, setSearch] = useState("");
   const [subjectFilter, setSubjectFilter] = useState("");
@@ -102,10 +104,10 @@ export function AdminTeacherApplicationsPage() {
       <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
         <div>
           <h1 className="portal-page-title font-display text-2xl font-bold text-primary-dark sm:text-3xl">
-            Teacher Applications
+            {t("admin.teacherApplications.title")}
           </h1>
           <p className="portal-page-subtitle mt-1 max-w-3xl text-portal-muted">
-            Teacher registration submissions from the public website with uploaded documents.
+            {t("admin.teacherApplications.subtitle")}
           </p>
         </div>
         <Button
@@ -115,7 +117,7 @@ export function AdminTeacherApplicationsPage() {
           className="inline-flex shrink-0 items-center gap-2 rounded-xl border border-portal px-4"
         >
           <Download className="size-4" aria-hidden />
-          Export
+          {t("admin.common.export")}
         </Button>
       </div>
 
@@ -145,24 +147,24 @@ export function AdminTeacherApplicationsPage() {
       {isError ? (
         <EmptyState
           icon={Briefcase}
-          title="Could not load teacher applications"
-          description="The server failed to return teacher applications. Try again in a moment."
-          actionLabel="Retry"
+          title={t("admin.teacherApplications.loadError")}
+          description={t("admin.teacherApplications.loadErrorDesc")}
+          actionLabel={t("admin.common.retry")}
           onAction={() => void refetch()}
         />
       ) : isLoading ? (
-        <PageLoading label="Loading teacher applications…" />
+        <PageLoading label={t("admin.common.loadingTeacherApps")} />
       ) : applications.length === 0 ? (
         <EmptyState
           icon={Briefcase}
-          title="No teacher applications yet"
-          description="Applications appear here when candidates submit the teacher registration form."
+          title={t("admin.teacherApplications.noApplications")}
+          description={t("admin.teacherApplications.noApplicationsDesc")}
         />
       ) : visibleApplications.length === 0 ? (
         <EmptyState
           icon={Briefcase}
-          title="No applications match your filters"
-          description="Try clearing search, subject, country, or date filters."
+          title={t("admin.teacherApplications.noMatch")}
+          description={t("admin.teacherApplications.noMatchDesc")}
         />
       ) : (
         <div className="grid grid-cols-1 items-start gap-4 xl:gap-5 xl:grid-cols-[minmax(0,1fr)_300px]">
@@ -173,7 +175,7 @@ export function AdminTeacherApplicationsPage() {
               onView={setSelectedApp}
               onAdvanceStatus={handleUpdateStatus}
             />
-            <Pagination pagination={pagination} itemLabel="applications" />
+            <Pagination pagination={pagination} itemLabel={t("admin.common.applicationsItemLabel")} />
           </div>
           <AdminTeacherApplicationsSidebar
             applications={applications}

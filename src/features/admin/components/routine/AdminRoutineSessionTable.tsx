@@ -6,6 +6,7 @@ import { CountryLabel } from "@/components/ui/CountryLabel";
 import { UserInitialAvatar } from "@/components/ui/UserInitialAvatar";
 import { SessionStatusBadge } from "@/components/schedule/SessionStatusBadge";
 import { groupSessionsByDay } from "@/lib/utils/schedule";
+import { usePortalTranslation } from "@/i18n/LocaleProvider";
 import { cn } from "@/lib/utils/cn";
 
 interface IAdminRoutineSessionTableProps {
@@ -14,29 +15,33 @@ interface IAdminRoutineSessionTableProps {
   initialVisiblePerDay?: number;
 }
 
-function formatTimeSlot(session: SessionSlotView): string {
-  return `${session.times.academy.time} · ${session.day.slice(0, 3)}`;
+function formatTimeSlot(session: SessionSlotView, dayAbbrev: string): string {
+  return `${session.times.academy.time} · ${dayAbbrev}`;
 }
 
 function AdminRoutineTableRow({
   session,
+  dayAbbrev,
   onViewClass,
 }: {
   session: SessionSlotView;
+  dayAbbrev: string;
   onViewClass: (session: SessionSlotView) => void;
 }) {
+  const { t, dynamicLabel } = usePortalTranslation();
+
   return (
     <tr className="border-b border-portal/80 bg-portal-surface transition-colors last:border-b-0 hover:bg-portal-muted/30">
       <td className="whitespace-nowrap px-4 py-3.5">
         <p className="text-sm font-semibold tabular-nums text-portal-heading">
           {session.times.academy.time}
         </p>
-        <p className="mt-0.5 text-xs text-portal-muted">{session.day.slice(0, 3)}</p>
+        <p className="mt-0.5 text-xs text-portal-muted">{dayAbbrev}</p>
       </td>
       <td className="px-4 py-3.5">
         <p className="text-sm font-semibold capitalize text-portal-heading">{session.classTitle}</p>
         <p className="mt-0.5 text-xs text-portal-muted">
-          {session.courseType}
+          {dynamicLabel(session.courseType) || session.courseType}
           {session.student.studentId ? ` · ${session.student.studentId}` : ""}
         </p>
       </td>
@@ -67,7 +72,7 @@ function AdminRoutineTableRow({
             type="button"
             onClick={() => onViewClass(session)}
             className="inline-flex size-8 items-center justify-center rounded-lg border border-portal text-portal-muted transition hover:border-primary/30 hover:bg-primary/5 hover:text-primary"
-            aria-label={`View ${session.classTitle}`}
+            aria-label={t("admin.routine.table.viewClass", { title: session.classTitle })}
           >
             <Eye className="size-4" aria-hidden />
           </button>
@@ -75,7 +80,7 @@ function AdminRoutineTableRow({
             type="button"
             onClick={() => onViewClass(session)}
             className="inline-flex size-8 items-center justify-center rounded-lg border border-portal text-portal-muted transition hover:bg-portal-muted/50 hover:text-portal-heading"
-            aria-label="More actions"
+            aria-label={t("admin.routine.table.moreActions")}
           >
             <MoreHorizontal className="size-4" aria-hidden />
           </button>
@@ -96,17 +101,23 @@ function AdminRoutineDaySection({
   onViewClass: (session: SessionSlotView) => void;
   initialVisible: number;
 }) {
+  const { t, dynamicLabel, role } = usePortalTranslation();
   const [expanded, setExpanded] = useState(false);
   const visibleSessions = expanded ? sessions : sessions.slice(0, initialVisible);
   const hasMore = sessions.length > initialVisible;
+  const dayLabel = dynamicLabel(day.toLowerCase()) || day;
+  const dayAbbrev = dayLabel.slice(0, 3);
 
   return (
     <Card className="overflow-hidden rounded-2xl border border-portal bg-portal-surface p-0 shadow-[0_8px_24px_-16px_rgba(13,74,47,0.18)]">
       <div className="flex items-center justify-between gap-3 border-b border-portal px-4 py-3.5 sm:px-5">
         <div className="flex items-center gap-2.5">
-          <h2 className="text-base font-bold text-portal-heading">{day}</h2>
+          <h2 className="text-base font-bold text-portal-heading">{dayLabel}</h2>
           <span className="rounded-full bg-primary/10 px-2.5 py-0.5 text-xs font-bold text-primary">
-            {sessions.length} {sessions.length === 1 ? "session" : "sessions"}
+            {sessions.length}{" "}
+            {sessions.length === 1
+              ? t("admin.routine.table.session")
+              : t("admin.routine.table.sessions")}
           </span>
         </div>
       </div>
@@ -115,13 +126,13 @@ function AdminRoutineDaySection({
         <table className="w-full min-w-[920px] text-left text-sm">
           <thead>
             <tr className="border-b border-portal bg-portal-muted/40 text-[11px] font-semibold uppercase tracking-wide text-portal-muted">
-              <th className="px-4 py-3">Time slot (BD)</th>
-              <th className="px-4 py-3">Class</th>
-              <th className="px-4 py-3">Teacher</th>
-              <th className="px-4 py-3">Student</th>
-              <th className="px-4 py-3">Duration</th>
-              <th className="px-4 py-3">Status</th>
-              <th className="px-4 py-3 text-right">Actions</th>
+              <th className="px-4 py-3">{t("admin.routine.table.timeSlot")}</th>
+              <th className="px-4 py-3">{t("admin.routine.table.class")}</th>
+              <th className="px-4 py-3">{role("teacher")}</th>
+              <th className="px-4 py-3">{role("student")}</th>
+              <th className="px-4 py-3">{dynamicLabel("duration")}</th>
+              <th className="px-4 py-3">{t("tables.status")}</th>
+              <th className="px-4 py-3 text-right">{t("tables.actions")}</th>
             </tr>
           </thead>
           <tbody>
@@ -129,6 +140,7 @@ function AdminRoutineDaySection({
               <AdminRoutineTableRow
                 key={session._id}
                 session={session}
+                dayAbbrev={dayAbbrev}
                 onViewClass={onViewClass}
               />
             ))}
@@ -143,7 +155,7 @@ function AdminRoutineDaySection({
             onClick={() => setExpanded((current) => !current)}
             className="inline-flex items-center gap-1.5 text-sm font-semibold text-primary hover:underline"
           >
-            {expanded ? "Show fewer sessions" : "Show more sessions"}
+            {expanded ? t("admin.routine.table.showFewer") : t("admin.routine.table.showMore")}
             <ChevronDown
               className={cn("size-4 transition-transform", expanded && "rotate-180")}
               aria-hidden

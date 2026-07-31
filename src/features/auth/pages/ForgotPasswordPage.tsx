@@ -5,8 +5,10 @@ import { AuthLayout } from "@/components/layout/AuthLayout";
 import { forgotPasswordRequest } from "@/features/auth/api/authApi";
 import { toast } from "@/stores/uiStore";
 import { formControlLgClass } from "@/lib/formControl";
+import { usePortalTranslation } from "@/i18n/LocaleProvider";
 
 export function ForgotPasswordPage() {
+  const { t } = usePortalTranslation();
   const [email, setEmail] = useState("");
   const [sent, setSent] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -17,9 +19,9 @@ export function ForgotPasswordPage() {
     try {
       await forgotPasswordRequest(email);
       setSent(true);
-      toast.success("If an account exists, reset instructions were sent.");
+      toast.success(t("auth.resetSent"));
     } catch (err: unknown) {
-      toast.error(err instanceof Error ? err.message : "Request failed");
+      toast.error(err instanceof Error ? err.message : t("auth.requestFailed"));
     } finally {
       setLoading(false);
     }
@@ -28,11 +30,10 @@ export function ForgotPasswordPage() {
   return (
     <AuthLayout>
       <div className="flex w-full max-w-md flex-col gap-6 py-4">
-        <h1 className="text-2xl font-bold text-navy">Forgot password?</h1>
+        <h1 className="text-2xl font-bold text-navy">{t("auth.forgotPasswordTitle")}</h1>
         {sent ? (
           <p className="text-sm text-zinc-500">
-            If an account exists for <strong>{email}</strong>, you will receive reset
-            instructions. Check your inbox (and the backend console in dev without SMTP).
+            {t("auth.resetSentDetail", { email })}
           </p>
         ) : (
           <form onSubmit={handleSubmit} className="flex flex-col gap-4">
@@ -43,7 +44,7 @@ export function ForgotPasswordPage() {
                 required
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                placeholder="you@example.com"
+                placeholder={t("auth.emailPlaceholder")}
                 className={`h-11 ${formControlLgClass} pl-9 pr-4 bg-white`}
               />
             </div>
@@ -52,12 +53,12 @@ export function ForgotPasswordPage() {
               disabled={loading}
               className="h-12 rounded-xl bg-brand-red text-sm font-semibold text-white transition hover:bg-brand-red-dark disabled:opacity-60"
             >
-              {loading ? "Sending…" : "Send reset link"}
+              {loading ? t("auth.sending") : t("auth.sendResetLink")}
             </button>
           </form>
         )}
         <Link to="/login" className="text-sm font-semibold text-gold hover:underline">
-          Back to sign in
+          {t("auth.backToSignIn")}
         </Link>
       </div>
     </AuthLayout>

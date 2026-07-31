@@ -12,9 +12,11 @@ import {
   exportCertificatePng,
   printCertificate,
 } from "@/lib/certificateExport";
+import { usePortalTranslation } from "@/i18n/LocaleProvider";
 
 export function AdminCertificateViewPage() {
   const { id } = useParams<{ id: string }>();
+  const { t } = usePortalTranslation();
   const { data: certificate, isLoading, error } = useAdminCertificate(id ?? "");
   const addToast = useUiStore((s) => s.addToast);
   const [exporting, setExporting] = useState<"png" | "pdf" | null>(null);
@@ -57,14 +59,14 @@ export function AdminCertificateViewPage() {
     }
   }, [addToast]);
 
-  if (isLoading) return <PageLoading label="Loading certificate…" />;
+  if (isLoading) return <PageLoading label={t("admin.common.loadingCertificate")} />;
 
   if (error || !certificate) {
     return (
       <div className="px-4 py-16 text-center">
-        <p className="text-sm text-red-600">Certificate not found</p>
+        <p className="text-sm text-red-600">{t("admin.certificateView.notFound")}</p>
         <Link to="/admin/certificates" className="mt-3 inline-block text-sm font-semibold text-gold">
-          Back
+          {t("admin.certificateView.back")}
         </Link>
       </div>
     );
@@ -78,7 +80,7 @@ export function AdminCertificateViewPage() {
           className="inline-flex items-center gap-1.5 text-sm font-semibold text-navy hover:text-primary"
         >
           <ArrowLeft className="size-4" />
-          Back to generator
+          {t("admin.certificateView.backToGenerator")}
         </Link>
         <div className="flex flex-wrap gap-2">
           <Button
@@ -88,7 +90,7 @@ export function AdminCertificateViewPage() {
             className="h-9 gap-1.5 rounded-lg"
           >
             <Printer className="size-4" />
-            Print / PDF
+            {t("admin.certificateView.printPdf")}
           </Button>
           <Button
             type="button"
@@ -102,7 +104,7 @@ export function AdminCertificateViewPage() {
             ) : (
               <Download className="size-4" />
             )}
-            Download PDF
+            {t("admin.certificateView.downloadPdf")}
           </Button>
           <Button
             type="button"
@@ -115,7 +117,7 @@ export function AdminCertificateViewPage() {
             ) : (
               <Download className="size-4" />
             )}
-            Download PNG
+            {t("admin.certificateView.downloadPng")}
           </Button>
         </div>
       </div>

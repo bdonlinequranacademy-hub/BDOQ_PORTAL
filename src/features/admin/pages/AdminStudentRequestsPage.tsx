@@ -27,8 +27,10 @@ import {
   type AdminStudentRequestsTab,
   type StudentRequestSort,
 } from "@/features/admin/components/student-requests/adminStudentRequestsUtils";
+import { usePortalTranslation } from "@/i18n/LocaleProvider";
 
 export function AdminStudentRequestsPage() {
+  const { t } = usePortalTranslation();
   const [tab, setTab] = useState<AdminStudentRequestsTab>("all");
   const [search, setSearch] = useState("");
   const [teacherFilter, setTeacherFilter] = useState("");
@@ -94,10 +96,10 @@ export function AdminStudentRequestsPage() {
       <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
         <div>
           <h1 className="portal-page-title font-display text-2xl font-bold text-primary-dark sm:text-3xl">
-            Student Requests
+            {t("admin.studentRequests.title")}
           </h1>
           <p className="portal-page-subtitle mt-1 max-w-3xl text-portal-muted">
-            Teachers asking for new student assignments.
+            {t("admin.studentRequests.subtitle")}
           </p>
         </div>
         <Button
@@ -107,7 +109,7 @@ export function AdminStudentRequestsPage() {
           className="inline-flex shrink-0 items-center gap-2 rounded-xl border border-portal px-4"
         >
           <Download className="size-4" aria-hidden />
-          Export
+          {t("admin.common.export")}
         </Button>
       </div>
 
@@ -144,24 +146,24 @@ export function AdminStudentRequestsPage() {
       {isError ? (
         <EmptyState
           icon={UserPlus}
-          title="Could not load student requests"
-          description="The server failed to return teacher requests. Try again in a moment."
-          actionLabel="Retry"
+          title={t("admin.studentRequests.loadError")}
+          description={t("admin.studentRequests.loadErrorDesc")}
+          actionLabel={t("admin.common.retry")}
           onAction={() => void refetch()}
         />
       ) : isLoading ? (
-        <PageLoading label="Loading student requests…" />
+        <PageLoading label={t("admin.common.loadingStudentRequests")} />
       ) : requests.length === 0 ? (
         <EmptyState
           icon={UserPlus}
-          title="No student requests yet"
-          description="Requests appear when teachers ask for new student assignments from their portal."
+          title={t("admin.studentRequests.noRequests")}
+          description={t("admin.studentRequests.noRequestsDesc")}
         />
       ) : visibleRequests.length === 0 ? (
         <EmptyState
           icon={UserPlus}
-          title="No requests match your filters"
-          description="Try clearing search, teacher, course, or date filters."
+          title={t("admin.studentRequests.noMatch")}
+          description={t("admin.studentRequests.noMatchDesc")}
         />
       ) : (
         <div className="grid grid-cols-1 items-start gap-4 xl:gap-5 xl:grid-cols-[minmax(0,1fr)_300px]">
@@ -173,7 +175,7 @@ export function AdminStudentRequestsPage() {
               onApprove={handleApprove}
               onReject={handleReject}
             />
-            <Pagination pagination={pagination} itemLabel="requests" />
+            <Pagination pagination={pagination} itemLabel={t("admin.common.requestsItemLabel")} />
           </div>
           <AdminStudentRequestsSidebar
             requests={requests}

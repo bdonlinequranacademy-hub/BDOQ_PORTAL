@@ -16,9 +16,11 @@ import { GoogleAuthButton } from "@/components/auth/GoogleAuthButton";
 import { toast } from "@/stores/uiStore";
 import { formControlLgClass } from "@/lib/formControl";
 import { BDOQ_BRAND } from "@/lib/bdoqBrand";
-import { LOGIN_PATH, STAFF_ACCOUNT_NOTICE } from "@/lib/authMessages";
+import { LOGIN_PATH } from "@/lib/authMessages";
+import { usePortalTranslation } from "@/i18n/LocaleProvider";
 
 export function RegisterPage() {
+  const { t } = usePortalTranslation();
   const { mutate: register, isPending } = useRegister();
 
   const [name, setName] = useState("");
@@ -32,11 +34,11 @@ export function RegisterPage() {
   function handleSubmit(e: FormEvent) {
     e.preventDefault();
     if (password !== confirmPassword) {
-      toast.error("Passwords do not match. Please type the same password in both fields.");
+      toast.error(t("auth.passwordMismatch"));
       return;
     }
     if (!agreed) {
-      toast.error("Please agree to the Terms of Service and Privacy Policy to continue.");
+      toast.error(t("auth.agreeTermsRequired"));
       return;
     }
     register({ name, email, password });
@@ -55,34 +57,32 @@ export function RegisterPage() {
             className="h-20 w-auto max-w-[240px] object-contain lg:hidden"
           />
           <h2 className="font-display text-xl font-bold text-primary-dark">{BDOQ_BRAND.shortName}</h2>
-          <p className="text-xs text-portal-muted">Begin your Quran learning journey</p>
+          <p className="text-xs text-portal-muted">{t("auth.registerTagline")}</p>
         </div>
 
         <div className="portal-auth-card w-full px-6 py-6 flex flex-col gap-6">
           <div className="flex flex-col gap-2">
-            <h1 className="font-display text-2xl font-bold text-primary-dark">Create Student Account</h1>
+            <h1 className="font-display text-2xl font-bold text-primary-dark">{t("auth.registerTitle")}</h1>
             <p className="text-sm leading-relaxed text-portal-muted">
-              Public registration is for{" "}
-              <strong className="font-semibold text-primary-dark">students only</strong>.
-              After you sign up, you can join classes, view homework, and track Quran progress.
+              {t("auth.registerSubtitle")}
             </p>
           </div>
 
           <p className="rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-xs leading-relaxed text-amber-900">
-            {STAFF_ACCOUNT_NOTICE}
+            {t("auth.staffNotice")}
           </p>
 
           <form onSubmit={handleSubmit} className="flex flex-col gap-4" noValidate>
             <div className="flex flex-col gap-2">
               <label htmlFor="name" className="text-xs font-medium text-primary-dark">
-                Full name
+                {t("auth.fullName")}
               </label>
               <div className="relative">
                 <User className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-zinc-400" aria-hidden="true" />
                 <input
                   id="name"
                   type="text"
-                  placeholder="Enter your full name"
+                  placeholder={t("auth.fullNamePlaceholder")}
                   autoComplete="name"
                   required
                   value={name}
@@ -94,14 +94,14 @@ export function RegisterPage() {
 
             <div className="flex flex-col gap-2">
               <label htmlFor="reg-email" className="text-xs font-medium text-primary-dark">
-                Email Address
+                {t("auth.emailLabel")}
               </label>
               <div className="relative">
                 <Mail className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-zinc-400" aria-hidden="true" />
                 <input
                   id="reg-email"
                   type="email"
-                  placeholder="you@example.com"
+                  placeholder={t("auth.emailPlaceholder")}
                   autoComplete="email"
                   required
                   value={email}
@@ -113,7 +113,7 @@ export function RegisterPage() {
 
             <div className="flex flex-col gap-2">
               <label htmlFor="phone" className="text-xs font-medium text-primary-dark">
-                Phone / WhatsApp Number
+                {t("auth.phoneWhatsapp")}
               </label>
               <div className="flex items-center gap-2">
                 <div className="flex h-11 shrink-0 items-center gap-1 rounded-xl border border-zinc-200 bg-zinc-100 px-3">
@@ -126,7 +126,7 @@ export function RegisterPage() {
                   <input
                     id="phone"
                     type="tel"
-                    placeholder="7123 456789"
+                    placeholder={t("auth.phonePlaceholder")}
                     autoComplete="tel"
                     className={inputClass}
                   />
@@ -136,14 +136,14 @@ export function RegisterPage() {
 
             <div className="flex flex-col gap-2">
               <label htmlFor="reg-password" className="text-xs font-medium text-primary-dark">
-                Password
+                {t("auth.passwordLabel")}
               </label>
               <div className="relative">
                 <Lock className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-zinc-400" aria-hidden="true" />
                 <input
                   id="reg-password"
                   type={showPassword ? "text" : "password"}
-                  placeholder="Create a password"
+                  placeholder={t("auth.createPasswordPlaceholder")}
                   autoComplete="new-password"
                   required
                   minLength={6}
@@ -155,7 +155,7 @@ export function RegisterPage() {
                   type="button"
                   onClick={() => setShowPassword((v) => !v)}
                   className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-400 hover:text-primary-dark"
-                  aria-label={showPassword ? "Hide password" : "Show password"}
+                  aria-label={showPassword ? t("auth.hidePassword") : t("auth.showPassword")}
                 >
                   {showPassword ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
                 </button>
@@ -164,14 +164,14 @@ export function RegisterPage() {
 
             <div className="flex flex-col gap-2">
               <label htmlFor="confirm-password" className="text-xs font-medium text-primary-dark">
-                Confirm Password
+                {t("auth.confirmPassword")}
               </label>
               <div className="relative">
                 <Lock className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-zinc-400" aria-hidden="true" />
                 <input
                   id="confirm-password"
                   type={showConfirm ? "text" : "password"}
-                  placeholder="Re-enter your password"
+                  placeholder={t("auth.confirmPasswordPlaceholder")}
                   autoComplete="new-password"
                   required
                   value={confirmPassword}
@@ -182,7 +182,7 @@ export function RegisterPage() {
                   type="button"
                   onClick={() => setShowConfirm((v) => !v)}
                   className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-400 hover:text-primary-dark"
-                  aria-label={showConfirm ? "Hide password" : "Show password"}
+                  aria-label={showConfirm ? t("auth.hidePassword") : t("auth.showPassword")}
                 >
                   {showConfirm ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
                 </button>
@@ -198,14 +198,7 @@ export function RegisterPage() {
                 className="mt-0.5 size-4 rounded border-zinc-200 accent-navy"
               />
               <label htmlFor="terms" className="text-xs leading-relaxed text-zinc-500">
-                I agree to the{" "}
-                <a href="#" className="font-semibold text-gold hover:underline">
-                  Terms of Service
-                </a>{" "}
-                and{" "}
-                <a href="#" className="font-semibold text-gold hover:underline">
-                  Privacy Policy
-                </a>
+                {t("auth.agreeTerms")}
               </label>
             </div>
 
@@ -214,37 +207,36 @@ export function RegisterPage() {
               disabled={isPending}
               className="h-12 w-full rounded-2xl bg-primary text-sm font-semibold text-white transition hover:bg-primary-dark disabled:cursor-not-allowed disabled:opacity-60"
             >
-              {isPending ? "Creating your account…" : "Create My Student Account"}
+              {isPending ? t("auth.creatingAccount") : t("auth.createMyStudentAccount")}
             </button>
           </form>
 
           <div className="flex items-center gap-3">
             <div className="h-px flex-1 bg-zinc-200" />
-            <span className="text-xs text-zinc-500">or sign up with</span>
+            <span className="text-xs text-zinc-500">{t("auth.orSignUpWith")}</span>
             <div className="h-px flex-1 bg-zinc-200" />
           </div>
 
           <GoogleAuthButton
-            label="Sign up with Google"
+            label={t("auth.signUpWithGoogle")}
             className="flex h-12 w-full items-center justify-center gap-2 rounded-2xl border border-zinc-200 bg-white text-sm font-medium text-primary-dark shadow-sm transition hover:bg-cream"
           />
 
           <p className="text-center text-xs text-zinc-400">
-            Google sign-up also creates a student account. Existing teacher or admin accounts
-            should use Sign In instead.
+            {t("auth.googleSignUpNote")}
           </p>
 
           <p className="pt-1 text-center text-sm text-zinc-500">
-            Already have an account?{" "}
+            {t("auth.alreadyHaveAccount")}{" "}
             <Link to={LOGIN_PATH} className="font-bold text-primary hover:underline">
-              Sign In
+              {t("auth.signIn")}
             </Link>
           </p>
         </div>
 
         <div className="flex items-center gap-2 text-xs text-zinc-400">
           <ShieldCheck className="size-3.5 text-gold" aria-hidden="true" />
-          <span>No credit card required · Free trial included.</span>
+          <span>{t("auth.noCreditCard")}</span>
         </div>
       </div>
     </AuthLayout>

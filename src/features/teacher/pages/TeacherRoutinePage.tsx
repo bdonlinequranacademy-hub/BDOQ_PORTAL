@@ -10,14 +10,16 @@ import { SessionTimelineRow } from "@/components/schedule/SessionTimelineRow";
 import { SessionScheduleTable } from "@/components/schedule/SessionScheduleTable";
 import { groupSessionsByDay, sortSessionsForTable } from "@/lib/utils/schedule";
 import type { SessionSlotView } from "@/types/models";
-
 import { PageLoading } from "@/components/ui/PageLoading";
+import { usePortalTranslation } from "@/i18n/LocaleProvider";
+
 function todayIsoDate() {
   return new Date().toISOString().split("T")[0];
 }
 
 export function TeacherRoutinePage() {
   const navigate = useNavigate();
+  const { t } = usePortalTranslation();
   const [view, setView] = useState<ScheduleViewMode>("table");
   const { data: sessions = [], isLoading } = useTeacherWeeklyRoutine();
   const {
@@ -49,10 +51,11 @@ export function TeacherRoutinePage() {
       <PageContainer className="flex flex-col gap-6">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
           <div>
-            <h1 className="text-2xl font-bold text-primary-dark">My Routine</h1>
+            <h1 className="text-2xl font-bold text-primary-dark">{t("teacher.myRoutine")}</h1>
             <p className="mt-1 text-sm text-zinc-500">
-              Weekly teaching schedule — {totalSessions} session
-              {totalSessions === 1 ? "" : "s"} per week
+              {totalSessions === 1
+                ? t("teacher.routineSubtitle", { count: String(totalSessions) })
+                : t("teacher.routineSubtitlePlural", { count: String(totalSessions) })}
             </p>
           </div>
           {totalSessions > 0 ? (
@@ -62,19 +65,15 @@ export function TeacherRoutinePage() {
 
         <div className="flex items-center gap-2 rounded-2xl border border-primary/15 bg-primary/5 px-4 py-3">
           <CalendarDays className="size-5 shrink-0 text-primary" />
-          <span className="text-sm text-portal-heading">
-            Academy week: Saturday → Friday · live timer only on today&apos;s sessions
-          </span>
+          <span className="text-sm text-portal-heading">{t("teacher.academyWeekNote")}</span>
         </div>
 
         {isLoading ? (
-          <PageLoading label="Loading routine…" />
+          <PageLoading label={t("teacher.loadingRoutine")} />
         ) : totalSessions === 0 ? (
           <div className="rounded-2xl border border-dashed border-zinc-200 bg-white p-10 text-center">
-            <p className="font-semibold text-primary-dark">No routine yet</p>
-            <p className="mt-1 text-sm text-zinc-400">
-              Sessions appear when admin assigns students to your classes with a schedule.
-            </p>
+            <p className="font-semibold text-primary-dark">{t("teacher.noRoutineYet")}</p>
+            <p className="mt-1 text-sm text-zinc-400">{t("teacher.noRoutineYetDesc")}</p>
           </div>
         ) : view === "table" ? (
           <SessionScheduleTable

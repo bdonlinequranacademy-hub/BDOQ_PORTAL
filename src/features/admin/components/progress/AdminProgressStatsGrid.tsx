@@ -1,77 +1,91 @@
 import { Award, BarChart3, BookOpen, Target, UserCheck } from "lucide-react";
 import { StatCard } from "@/components/ui/shared/StatCard";
-import {
-  pctOfTotal,
-  type IAdminProgressStats,
-} from "@/features/admin/components/progress/adminProgressUtils";
+import { usePortalTranslation } from "@/i18n/LocaleProvider";
+import type { IAdminProgressStats } from "@/features/admin/components/progress/adminProgressUtils";
 
 interface IAdminProgressStatsGridProps {
   stats: IAdminProgressStats;
   isLoading?: boolean;
 }
 
-function formatDelta(delta: number | null, suffix: string): string | undefined {
-  if (delta === null) return undefined;
-  const sign = delta >= 0 ? "+" : "";
-  return `${sign}${delta}% ${suffix}`;
-}
-
-function previousMonthLabel(): string {
-  const date = new Date();
-  date.setMonth(date.getMonth() - 1);
-  return date.toLocaleDateString("en-US", { month: "long", year: "numeric" });
+function formatPctOfTotal(
+  part: number,
+  total: number,
+  formatNumber: (value: number) => string,
+  t: (key: string, params?: Record<string, string>) => string
+): string {
+  if (total <= 0) {
+    return t("labels.of_total", { pct: `${formatNumber(0)}%` });
+  }
+  const pct = Math.round((part / total) * 1000) / 10;
+  return t("labels.of_total", { pct: `${formatNumber(pct)}%` });
 }
 
 export function AdminProgressStatsGrid({ stats, isLoading }: IAdminProgressStatsGridProps) {
-  const prevMonth = previousMonthLabel();
+  const { t, formatDate, formatNumber } = usePortalTranslation();
+
+  const prevMonthDate = new Date();
+  prevMonthDate.setMonth(prevMonthDate.getMonth() - 1);
+  prevMonthDate.setDate(1);
+  const prevMonth = formatDate(prevMonthDate.toISOString());
+
+  const formatDelta = (delta: number | null): string | undefined => {
+    if (delta === null) return undefined;
+    const sign = delta >= 0 ? "+" : "";
+    return t("admin.progress.vsPreviousMonth", {
+      delta: `${sign}${formatNumber(delta)}%`,
+      month: prevMonth,
+    });
+  };
 
   return (
     <div className="grid grid-cols-2 items-start gap-2.5 sm:gap-3 xl:grid-cols-5">
       <StatCard
-        label="Total Students"
+        label={t("admin.progress.totalStudents")}
         value={isLoading ? "—" : stats.totalStudents}
         icon={<BarChart3 className="size-5 text-primary" />}
         iconBg="bg-primary/10"
         hint={
           stats.newThisMonth > 0
-            ? `+${stats.newThisMonth} updated this month`
-            : `${stats.totalRecords} progress records`
+            ? t("admin.progress.updatedThisMonth", { count: String(stats.newThisMonth) })
+            : t("admin.progress.progressRecords", { count: String(stats.totalRecords) })
         }
       />
       <StatCard
-        label="Avg. Tajweed Progress"
-        value={isLoading ? "—" : `${stats.avgTajweed}%`}
+        label={t("admin.progress.avgTajweed")}
+        value={isLoading ? "—" : `${formatNumber(stats.avgTajweed)}%`}
         icon={<Target className="size-5 text-emerald-600" />}
         iconBg="bg-emerald-100"
-        hint={formatDelta(stats.tajweedDelta, `vs ${prevMonth}`) ?? "Academy-wide average"}
+        hint={formatDelta(stats.tajweedDelta) ?? t("admin.progress.academyWideAverage")}
       />
       <StatCard
-        label="Avg. Memorization Progress"
-        value={isLoading ? "—" : `${stats.avgMemorization}%`}
+        label={t("admin.progress.avgMemorization")}
+        value={isLoading ? "—" : `${formatNumber(stats.avgMemorization)}%`}
         icon={<BookOpen className="size-5 text-amber-600" />}
         iconBg="bg-amber-100"
         hint={
-          formatDelta(stats.memorizationDelta, `vs ${prevMonth}`) ??
-          "Based on surahs & ayahs memorized"
+          formatDelta(stats.memorizationDelta) ?? t("admin.progress.basedOnSurahs")
         }
       />
       <StatCard
-        label="Completed Surahs"
+        label={t("admin.progress.completedSurahs")}
         value={isLoading ? "—" : stats.completedSurahs}
         icon={<Award className="size-5 text-violet-600" />}
         iconBg="bg-violet-100"
         hint={
           stats.totalRecords > 0
-            ? `${Math.round(stats.completedSurahs / stats.totalRecords)} avg per record`
-            : "Across all records"
+            ? t("admin.progress.avgPerRecord", {
+                count: String(Math.round(stats.completedSurahs / stats.totalRecords)),
+              })
+            : t("admin.progress.acrossAllRecords")
         }
       />
       <StatCard
-        label="Students On Track"
+        label={t("admin.progress.studentsOnTrack")}
         value={isLoading ? "—" : stats.studentsOnTrack}
         icon={<UserCheck className="size-5 text-teal-600" />}
         iconBg="bg-teal-100"
-        hint={pctOfTotal(stats.studentsOnTrack, stats.totalStudents)}
+        hint={formatPctOfTotal(stats.studentsOnTrack, stats.totalStudents, formatNumber, t)}
       />
     </div>
   );

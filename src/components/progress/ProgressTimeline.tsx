@@ -5,6 +5,7 @@ import { CardSkeleton } from "@/components/ui/CardSkeleton";
 import type { StudentProgressRecord } from "@/types/models";
 import { classTitle } from "@/lib/utils/class";
 import { formatCurriculumPath } from "@/lib/api/curriculumApi";
+import { usePortalTranslation } from "@/i18n/LocaleProvider";
 
 type TimelineKind = "progress" | "milestone";
 
@@ -17,7 +18,10 @@ interface TimelineEvent {
   badge?: string;
 }
 
-function buildTimelineEvents(records: StudentProgressRecord[]): TimelineEvent[] {
+function buildTimelineEvents(
+  records: StudentProgressRecord[],
+  t: (key: string, params?: Record<string, string>) => string
+): TimelineEvent[] {
   const events: TimelineEvent[] = [];
 
   for (const record of records) {
@@ -28,13 +32,16 @@ function buildTimelineEvents(records: StudentProgressRecord[]): TimelineEvent[] 
       : "";
     const baseDetail =
       surahCount > 0
-        ? `Tajweed ${record.tajweedScore}% · ${surahCount} surah${surahCount !== 1 ? "s" : ""} memorized`
-        : `Tajweed score updated to ${record.tajweedScore}%`;
+        ? t(
+            surahCount === 1 ? "student.timelineTajweedDetailSingle" : "student.timelineTajweedDetail",
+            { score: String(record.tajweedScore), count: String(surahCount) }
+          )
+        : t("student.timelineTajweedUpdated", { score: String(record.tajweedScore) });
     events.push({
       id: `progress-${record._id}`,
       date: new Date(record.updatedAt),
       kind: "progress",
-      title: record.class ? classTitle(record.class) : "Progress update",
+      title: record.class ? classTitle(record.class) : t("student.progressUpdate"),
       detail: curriculumText ? `${curriculumText} · ${baseDetail}` : baseDetail,
       badge: `${record.tajweedScore}%`,
     });
@@ -44,8 +51,11 @@ function buildTimelineEvents(records: StudentProgressRecord[]): TimelineEvent[] 
         id: `milestone-surahs-${record._id}`,
         date: new Date(record.updatedAt),
         kind: "milestone",
-        title: "Memorization milestone",
-        detail: `${surahCount} surahs completed in ${record.class ? classTitle(record.class) : "your class"}`,
+        title: t("student.memorizationMilestone"),
+        detail: t("student.timelineSurahsInClass", {
+          count: String(surahCount),
+          className: record.class ? classTitle(record.class) : t("student.timelineYourClass"),
+        }),
         badge: `${surahCount}`,
       });
     }
@@ -55,16 +65,14 @@ function buildTimelineEvents(records: StudentProgressRecord[]): TimelineEvent[] 
         id: `milestone-tajweed-${record._id}`,
         date: new Date(record.updatedAt),
         kind: "milestone",
-        title: "Strong tajweed",
-        detail: `Reached ${record.tajweedScore}% tajweed proficiency`,
+        title: t("student.strongTajweed"),
+        detail: t("student.timelineTajweedUpdated", { score: String(record.tajweedScore) }),
         badge: `${record.tajweedScore}%`,
       });
     }
   }
 
-  return events
-    .sort((a, b) => b.date.getTime() - a.date.getTime())
-    .slice(0, 10);
+  return events.sort((a, b) => b.date.getTime() - a.date.getTime()).slice(0, 10);
 }
 
 const kindMeta: Record<TimelineKind, { icon: LucideIcon; accent: string }> = {
@@ -78,19 +86,22 @@ interface ProgressTimelineProps {
 }
 
 export function ProgressTimeline({ records, isLoading }: ProgressTimelineProps) {
+  const { t, locale } = usePortalTranslation();
+  const dateLocale = locale === "bn" ? "bn-BD" : undefined;
+
   if (isLoading) {
     return <CardSkeleton lines={4} />;
   }
 
-  const events = buildTimelineEvents(records);
+  const events = buildTimelineEvents(records, t);
 
   if (events.length === 0) {
     return (
       <Card className="flex flex-col gap-2 rounded-2xl border border-dashed border-portal p-5">
-        <p className="text-sm font-semibold text-portal-heading">Progress history & milestones</p>
-        <p className="text-sm text-portal-muted">
-          Timeline entries appear when your teacher updates progress.
+        <p className="text-sm font-semibold text-portal-heading">
+          {t("student.progressHistoryMilestones")}
         </p>
+        <p className="text-sm text-portal-muted">{t("student.timelineEmptyDesc")}</p>
       </Card>
     );
   }
@@ -98,8 +109,8 @@ export function ProgressTimeline({ records, isLoading }: ProgressTimelineProps) 
   return (
     <Card className="flex flex-col gap-4 rounded-2xl border-0 p-5 shadow-sm">
       <div>
-        <p className="font-bold text-portal-heading">Progress history & milestones</p>
-        <p className="text-xs text-portal-muted">Recent updates from your classes</p>
+        <p className="font-bold text-portal-heading">{t("student.progressHistoryMilestones")}</p>
+        <p className="text-xs text-portal-muted">{t("student.recentUpdatesFromClasses")}</p>
       </div>
 
       <ol className="relative flex flex-col gap-0">
@@ -127,7 +138,7 @@ export function ProgressTimeline({ records, isLoading }: ProgressTimelineProps) 
                     className="shrink-0 text-xs text-portal-muted"
                     dateTime={event.date.toISOString()}
                   >
-                    {event.date.toLocaleDateString(undefined, {
+                    {event.date.toLocaleDateString(dateLocale, {
                       month: "short",
                       day: "numeric",
                       year: "numeric",

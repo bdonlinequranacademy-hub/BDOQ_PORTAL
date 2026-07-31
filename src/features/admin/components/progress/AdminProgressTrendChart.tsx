@@ -1,5 +1,6 @@
 import { useMemo } from "react";
 import { Card } from "@/components/ui/Card";
+import { usePortalTranslation } from "@/i18n/LocaleProvider";
 import { formControlClass } from "@/lib/formControl";
 import type {
   IProgressTrendPoint,
@@ -39,6 +40,7 @@ export function AdminProgressTrendChart({
   range,
   onRangeChange,
 }: IAdminProgressTrendChartProps) {
+  const { t, formatNumber } = usePortalTranslation();
   const innerWidth = CHART_WIDTH - PADDING.left - PADDING.right;
   const innerHeight = CHART_HEIGHT - PADDING.top - PADDING.bottom;
 
@@ -51,55 +53,58 @@ export function AdminProgressTrendChart({
     () =>
       [0, 25, 50, 75, 100].map((value) => ({
         y: PADDING.top + innerHeight - (value / 100) * innerHeight,
-        label: `${value}%`,
+        label: `${formatNumber(value)}%`,
       })),
-    [innerHeight]
+    [innerHeight, formatNumber]
   );
 
   const hasData = data.some((point) => point.tajweed > 0 || point.memorization > 0);
+
+  const monthLabel = (label: string) => {
+    const translated = t(`months.${label}`);
+    return translated === `months.${label}` ? label : translated;
+  };
 
   return (
     <Card className="flex h-full flex-col rounded-2xl border border-portal bg-portal-surface p-5 shadow-[0_8px_24px_-16px_rgba(13,74,47,0.18)]">
       <div className="flex items-start justify-between gap-3">
         <div>
-          <h2 className="text-sm font-bold text-portal-heading">Progress overview</h2>
-          <p className="mt-0.5 text-xs text-portal-muted">
-            Monthly average tajweed & memorization
-          </p>
+          <h2 className="text-sm font-bold text-portal-heading">{t("admin.progress.progressOverview")}</h2>
+          <p className="mt-0.5 text-xs text-portal-muted">{t("admin.progress.monthlyAverage")}</p>
         </div>
         <select
           className={cn(formControlClass, "h-9 min-h-9 py-1.5 text-xs shadow-none")}
           value={range}
           onChange={(event) => onRangeChange(event.target.value as ProgressTrendRange)}
-          aria-label="Trend range"
+          aria-label={t("admin.progress.trendRangeLabel")}
         >
-          <option value="year">This year</option>
-          <option value="six_months">Last 6 months</option>
+          <option value="year">{t("admin.progress.trendThisYear")}</option>
+          <option value="six_months">{t("admin.progress.trendSixMonths")}</option>
         </select>
       </div>
 
       <div className="mt-2 flex flex-wrap gap-3 text-[10px] font-semibold">
         <span className="inline-flex items-center gap-1.5 text-portal-heading">
           <span className="size-2 rounded-full bg-primary" />
-          Tajweed
+          {t("tables.tajweed")}
         </span>
         <span className="inline-flex items-center gap-1.5 text-portal-heading">
           <span className="size-2 rounded-full bg-amber-500" />
-          Memorization
+          {t("tables.memorization")}
         </span>
       </div>
 
       <div className="mt-2 w-full overflow-x-auto">
         {!hasData ? (
           <p className="py-10 text-center text-sm text-portal-muted">
-            No progress updates in this period yet.
+            {t("admin.progress.noUpdatesInPeriod")}
           </p>
         ) : (
           <svg
             viewBox={`0 0 ${CHART_WIDTH} ${CHART_HEIGHT}`}
             className="h-auto w-full min-w-[300px]"
             role="img"
-            aria-label="Progress trend chart"
+            aria-label={t("admin.progress.chartAriaLabel")}
           >
             {gridLines.map((line) => (
               <g key={line.label}>
@@ -156,7 +161,7 @@ export function AdminProgressTrendChart({
                   textAnchor="middle"
                   className="fill-portal-muted text-[8px] font-medium"
                 >
-                  {point.label}
+                  {monthLabel(point.label)}
                 </text>
               );
             })}

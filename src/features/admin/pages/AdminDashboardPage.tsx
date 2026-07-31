@@ -38,9 +38,28 @@ import {
   AdminDashboardActionPanel,
   type IAdminDashboardActionItem,
 } from "@/features/admin/components/dashboard/AdminDashboardActionPanel";
+import { usePortalTranslation } from "@/i18n/LocaleProvider";
+
+const QUICK_LINK_PATHS = [
+  { to: "/admin/users", icon: <Users className="size-5 text-primary" /> },
+  { to: "/admin/payments", icon: <CreditCard className="size-5 text-primary" /> },
+  { to: "/admin/resources", icon: <Library className="size-5 text-primary" /> },
+  { to: "/admin/classes", icon: <BookOpen className="size-5 text-primary" /> },
+  { to: "/admin/schedule/routine", icon: <CalendarDays className="size-5 text-primary" /> },
+  { to: "/admin/live-monitor", icon: <Radio className="size-5 text-red-500" /> },
+  { to: "/admin/class-logs", icon: <ClipboardCheck className="size-5 text-primary" /> },
+  { to: "/admin/trial-bookings", icon: <CalendarCheck className="size-5 text-primary" /> },
+  { to: "/admin/contact-messages", icon: <Inbox className="size-5 text-primary" /> },
+  { to: "/admin/student-admissions", icon: <GraduationCap className="size-5 text-primary" /> },
+  { to: "/admin/teacher-applications", icon: <Briefcase className="size-5 text-primary" /> },
+  { to: "/admin/curriculum", icon: <Library className="size-5 text-teal" /> },
+  { to: "/admin/blog", icon: <Newspaper className="size-5 text-primary" /> },
+  { to: "/admin/testimonials", icon: <MessageSquareQuote className="size-5 text-primary" /> },
+] as const;
 
 export function AdminDashboardPage() {
   const navigate = useNavigate();
+  const { t, nav, locale } = usePortalTranslation();
   const { data: stats, isLoading } = useAdminStats();
   const { data: waQueue = [] } = useAdminWhatsAppQueue();
   const waActionable = waQueue.filter((i) => i.category !== "missing_whatsapp").length;
@@ -56,31 +75,27 @@ export function AdminDashboardPage() {
   const newAdmissions = pending?.newStudentAdmissions ?? 0;
   const newTeacherApps = pending?.newTeacherApplications ?? 0;
 
-  const enrollmentBars = [
-    { month: "Jan", count: Math.max(1, Math.floor((stats?.totalStudents ?? 0) * 0.12)) },
-    { month: "Feb", count: Math.max(1, Math.floor((stats?.totalStudents ?? 0) * 0.14)) },
-    { month: "Mar", count: Math.max(1, Math.floor((stats?.totalStudents ?? 0) * 0.16)) },
-    { month: "Apr", count: Math.max(1, Math.floor((stats?.totalStudents ?? 0) * 0.18)) },
-    { month: "May", count: Math.max(1, Math.floor((stats?.totalStudents ?? 0) * 0.2)) },
-    { month: "Jun", count: Math.max(1, Math.floor((stats?.totalStudents ?? 0) * 0.2)) },
-  ];
+  const enrollmentBars = useMemo(
+    () =>
+      (["Jan", "Feb", "Mar", "Apr", "May", "Jun"] as const).map((month, index) => ({
+        month: t(`months.${month}`),
+        count: Math.max(
+          1,
+          Math.floor((stats?.totalStudents ?? 0) * (0.12 + index * 0.016))
+        ),
+      })),
+    [stats?.totalStudents, t, locale]
+  );
 
-  const adminQuickLinks = [
-    { label: "Users", to: "/admin/users", icon: <Users className="size-5 text-primary" /> },
-    { label: "Payments", to: "/admin/payments", icon: <CreditCard className="size-5 text-primary" /> },
-    { label: "Resources", to: "/admin/resources", icon: <Library className="size-5 text-primary" /> },
-    { label: "Classes", to: "/admin/classes", icon: <BookOpen className="size-5 text-primary" /> },
-    { label: "Routine", to: "/admin/schedule/routine", icon: <CalendarDays className="size-5 text-primary" /> },
-    { label: "Live monitor", to: "/admin/live-monitor", icon: <Radio className="size-5 text-red-500" /> },
-    { label: "Class logs", to: "/admin/class-logs", icon: <ClipboardCheck className="size-5 text-primary" /> },
-    { label: "Trial leads", to: "/admin/trial-bookings", icon: <CalendarCheck className="size-5 text-primary" /> },
-    { label: "Contact inbox", to: "/admin/contact-messages", icon: <Inbox className="size-5 text-primary" /> },
-    { label: "Admissions", to: "/admin/student-admissions", icon: <GraduationCap className="size-5 text-primary" /> },
-    { label: "Teacher apps", to: "/admin/teacher-applications", icon: <Briefcase className="size-5 text-primary" /> },
-    { label: "Curriculum", to: "/admin/curriculum", icon: <Library className="size-5 text-teal" /> },
-    { label: "Blog CMS", to: "/admin/blog", icon: <Newspaper className="size-5 text-primary" /> },
-    { label: "Reviews", to: "/admin/testimonials", icon: <MessageSquareQuote className="size-5 text-primary" /> },
-  ];
+  const adminQuickLinks = useMemo(
+    () =>
+      QUICK_LINK_PATHS.map((link) => ({
+        label: nav(link.to),
+        to: link.to,
+        icon: link.icon,
+      })),
+    [nav, locale]
+  );
 
   const actionItems = useMemo(() => {
     const items: IAdminDashboardActionItem[] = [];
@@ -88,8 +103,8 @@ export function AdminDashboardPage() {
     if (newContacts > 0) {
       items.push({
         id: "contacts",
-        title: `${newContacts} new contact message${newContacts === 1 ? "" : "s"}`,
-        actionLabel: "Open inbox",
+        title: t("admin.dashboard.newContacts", { count: String(newContacts) }),
+        actionLabel: t("actions.openInbox"),
         onAction: () => navigate("/admin/contact-messages"),
         accent: "sky",
       });
@@ -97,8 +112,8 @@ export function AdminDashboardPage() {
     if (newTrials > 0) {
       items.push({
         id: "trials",
-        title: `${newTrials} new trial lead${newTrials === 1 ? "" : "s"}`,
-        actionLabel: "Review trial bookings",
+        title: t("admin.dashboard.newTrials", { count: String(newTrials) }),
+        actionLabel: t("actions.reviewTrials"),
         onAction: () => navigate("/admin/trial-bookings"),
         accent: "amber",
       });
@@ -106,8 +121,8 @@ export function AdminDashboardPage() {
     if (newAdmissions > 0) {
       items.push({
         id: "admissions",
-        title: `${newAdmissions} new admission${newAdmissions === 1 ? "" : "s"}`,
-        actionLabel: "Review admissions",
+        title: t("admin.dashboard.newAdmissions", { count: String(newAdmissions) }),
+        actionLabel: t("actions.reviewAdmissions"),
         onAction: () => navigate("/admin/student-admissions"),
         accent: "violet",
       });
@@ -115,8 +130,8 @@ export function AdminDashboardPage() {
     if (newTeacherApps > 0) {
       items.push({
         id: "teacher-apps",
-        title: `${newTeacherApps} teacher application${newTeacherApps === 1 ? "" : "s"}`,
-        actionLabel: "Review applications",
+        title: t("admin.dashboard.newTeacherApps", { count: String(newTeacherApps) }),
+        actionLabel: t("actions.reviewApplications"),
         onAction: () => navigate("/admin/teacher-applications"),
         accent: "violet",
       });
@@ -124,8 +139,8 @@ export function AdminDashboardPage() {
     if (pendingPayments > 0) {
       items.push({
         id: "payments",
-        title: `${pendingPayments} payment proof${pendingPayments === 1 ? "" : "s"} to review`,
-        actionLabel: "Review payments",
+        title: t("admin.dashboard.pendingPayments", { count: String(pendingPayments) }),
+        actionLabel: t("actions.reviewPayments"),
         onAction: () => navigate("/admin/payments"),
         accent: "primary",
       });
@@ -133,8 +148,8 @@ export function AdminDashboardPage() {
     if (pendingLogs > 0) {
       items.push({
         id: "class-logs",
-        title: `${pendingLogs} class log${pendingLogs === 1 ? "" : "s"} pending`,
-        actionLabel: "Review class logs",
+        title: t("admin.dashboard.pendingClassLogs", { count: String(pendingLogs) }),
+        actionLabel: t("actions.reviewClassLogs"),
         onAction: () => navigate("/admin/class-logs"),
         accent: "amber",
       });
@@ -142,8 +157,8 @@ export function AdminDashboardPage() {
     if (pendingRequests > 0) {
       items.push({
         id: "student-requests",
-        title: `${pendingRequests} student request${pendingRequests === 1 ? "" : "s"}`,
-        actionLabel: "View requests",
+        title: t("admin.dashboard.pendingRequests", { count: String(pendingRequests) }),
+        actionLabel: t("actions.viewRequests"),
         onAction: () => navigate("/admin/student-requests"),
         accent: "rose",
       });
@@ -159,41 +174,49 @@ export function AdminDashboardPage() {
     pendingLogs,
     pendingPayments,
     pendingRequests,
+    t,
+    locale,
   ]);
 
   const liveBadge = liveSummary
     ? liveSummary.liveCount > 0
-      ? `${liveSummary.liveCount} live`
-      : `${liveSummary.totalToday} today`
+      ? t("admin.dashboard.liveBadge", { count: String(liveSummary.liveCount) })
+      : t("admin.dashboard.todayBadge", { count: String(liveSummary.totalToday) })
     : undefined;
 
   return (
     <PageContainer>
       <div className="grid grid-cols-2 items-start gap-2.5 sm:gap-3 lg:grid-cols-4">
         <StatCard
-          label="Students"
+          label={t("admin.dashboard.statsStudents")}
           value={isLoading ? "—" : (stats?.totalStudents ?? 0)}
           icon={<Users className="size-5 text-primary" />}
           iconBg="bg-primary/10"
-          hint={stats?.activeClasses ? `${stats.activeClasses} active classes` : undefined}
+          hint={
+            stats?.activeClasses
+              ? t("admin.dashboard.activeClassesHint", {
+                  count: String(stats.activeClasses),
+                })
+              : undefined
+          }
           onClick={() => navigate("/admin/users")}
         />
         <StatCard
-          label="Teachers"
+          label={t("admin.dashboard.statsTeachers")}
           value={isLoading ? "—" : (stats?.totalTeachers ?? 0)}
           icon={<GraduationCap className="size-5 text-gold" />}
           iconBg="bg-gold/15"
           onClick={() => navigate("/admin/users")}
         />
         <StatCard
-          label="Classes"
+          label={t("admin.dashboard.statsClasses")}
           value={isLoading ? "—" : (stats?.totalClasses ?? 0)}
           icon={<BookOpen className="size-5 text-teal" />}
           iconBg="bg-teal/10"
           onClick={() => navigate("/admin/classes")}
         />
         <StatCard
-          label="Active classes"
+          label={t("admin.dashboard.statsActiveClasses")}
           value={isLoading ? "—" : (stats?.activeClasses ?? 0)}
           icon={<Activity className="size-5 text-primary-dark" />}
           iconBg="bg-bg-light"
@@ -204,14 +227,17 @@ export function AdminDashboardPage() {
       <div className="grid grid-cols-1 gap-5 lg:grid-cols-3 lg:gap-6">
         <div className="lg:col-span-2">
           <DashboardSection
-            title="Live monitor"
+            title={t("admin.dashboard.liveMonitor")}
             subtitle={
               liveSummary
-                ? `${liveSummary.upcomingCount} upcoming · ${liveSummary.totalToday} total today`
-                : "Today's scheduled sessions"
+                ? t("admin.dashboard.liveSubtitle", {
+                    upcoming: String(liveSummary.upcomingCount),
+                    total: String(liveSummary.totalToday),
+                  })
+                : t("admin.dashboard.liveSubtitleFallback")
             }
             badge={liveBadge}
-            actionLabel="View all"
+            actionLabel={t("actions.viewAll")}
             onAction={() => navigate("/admin/live-monitor")}
             elevated
             className="h-full rounded-2xl border border-portal shadow-[0_8px_24px_-16px_rgba(13,74,47,0.18)]"
@@ -221,9 +247,9 @@ export function AdminDashboardPage() {
             ) : !stats?.todaysClasses?.length ? (
               <EmptyState
                 icon={CalendarDays}
-                title="No classes today"
-                description="Check academy routine or assign students to classes."
-                actionLabel="Academy routine"
+                title={t("empty.noClassesToday")}
+                description={t("empty.noClassesTodayDesc")}
+                actionLabel={t("actions.academyRoutine")}
                 onAction={() => navigate("/admin/schedule/routine")}
               />
             ) : (
@@ -249,20 +275,20 @@ export function AdminDashboardPage() {
         <HealthMetricRow
           metrics={[
             {
-              label: "Attendance rate",
+              label: t("admin.dashboard.attendanceRate"),
               value: stats.attendanceRate != null ? `${stats.attendanceRate}%` : "—",
               icon: <Percent className="size-5" />,
               tone: "teal",
             },
             {
-              label: "Homework completion",
+              label: t("admin.dashboard.homeworkCompletion"),
               value:
                 stats.homeworkCompletion != null ? `${stats.homeworkCompletion}%` : "—",
               icon: <CheckCircle2 className="size-5" />,
               tone: "gold",
             },
             {
-              label: "Curriculum assigned",
+              label: t("admin.dashboard.curriculumAssigned"),
               value: coverage
                 ? `${coverage.studentsWithPrograms}/${coverage.totalStudents}`
                 : "—",
@@ -276,8 +302,8 @@ export function AdminDashboardPage() {
       <DashboardTwoColumn
         main={
           <DashboardSection
-            title="Quick access"
-            subtitle="Jump to admin tools"
+            title={t("admin.dashboard.quickAccess")}
+            subtitle={t("admin.dashboard.quickAccessSubtitle")}
             className="rounded-2xl border border-portal shadow-[0_8px_24px_-16px_rgba(13,74,47,0.18)]"
           >
             <QuickActionGrid
@@ -294,8 +320,8 @@ export function AdminDashboardPage() {
         aside={
           <>
             <DashboardSection
-              title="Enrollment overview"
-              subtitle="Estimated from active roster"
+              title={t("admin.dashboard.enrollmentOverview")}
+              subtitle={t("admin.dashboard.enrollmentSubtitle")}
               className="rounded-2xl border border-portal shadow-[0_8px_24px_-16px_rgba(13,74,47,0.18)]"
             >
               <EnrollmentChart data={enrollmentBars} />
@@ -303,26 +329,30 @@ export function AdminDashboardPage() {
 
             {coverage ? (
               <DashboardSection
-                title="Curriculum coverage"
-                actionLabel="Manage"
+                title={t("admin.dashboard.curriculumCoverage")}
+                actionLabel={t("actions.manage")}
                 onAction={() => navigate("/admin/curriculum")}
                 className="rounded-2xl border border-portal shadow-[0_8px_24px_-16px_rgba(13,74,47,0.18)]"
               >
                 <ul className="space-y-2 text-sm text-portal-muted">
                   <li>
-                    {coverage.studentsWithPrograms}/{coverage.totalStudents} students with
-                    programs
+                    {t("admin.dashboard.studentsWithPrograms", {
+                      withPrograms: String(coverage.studentsWithPrograms),
+                      total: String(coverage.totalStudents),
+                    })}
                   </li>
                   {coverage.progressMissingProgram > 0 ? (
                     <li className="text-amber-700">
-                      {coverage.progressMissingProgram} progress record
-                      {coverage.progressMissingProgram === 1 ? "" : "s"} missing program
+                      {t("admin.dashboard.progressMissingProgram", {
+                        count: String(coverage.progressMissingProgram),
+                      })}
                     </li>
                   ) : null}
                   {coverage.logsMissingProgram > 0 ? (
                     <li className="text-amber-700">
-                      {coverage.logsMissingProgram} class log
-                      {coverage.logsMissingProgram === 1 ? "" : "s"} missing program
+                      {t("admin.dashboard.logsMissingProgram", {
+                        count: String(coverage.logsMissingProgram),
+                      })}
                     </li>
                   ) : null}
                 </ul>
@@ -333,25 +363,25 @@ export function AdminDashboardPage() {
               columns={2}
               actions={[
                 {
-                  label: "Attendance",
+                  label: nav("/admin/attendance"),
                   icon: <ClipboardList className="size-5 text-teal-600" />,
                   iconBg: "bg-teal/10",
                   onClick: () => navigate("/admin/attendance"),
                 },
                 {
-                  label: "Progress",
+                  label: nav("/admin/progress"),
                   icon: <BarChart3 className="size-5 text-primary" />,
                   iconBg: "bg-primary/10",
                   onClick: () => navigate("/admin/progress"),
                 },
                 {
-                  label: "Earnings",
+                  label: nav("/admin/earnings"),
                   icon: <Banknote className="size-5 text-gold" />,
                   iconBg: "bg-gold/15",
                   onClick: () => navigate("/admin/earnings"),
                 },
                 {
-                  label: "Homework",
+                  label: nav("/admin/homework"),
                   icon: <BookOpenCheck className="size-5 text-primary-dark" />,
                   iconBg: "bg-bg-light",
                   onClick: () => navigate("/admin/homework"),

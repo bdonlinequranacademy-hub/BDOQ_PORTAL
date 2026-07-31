@@ -14,9 +14,9 @@ import {
   admissionMailtoHref,
   admissionStatusActions,
   admissionTelHref,
-  formatAppliedAt,
   getAdmissionCountry,
 } from "@/features/admin/components/student-admissions/adminStudentAdmissionsUtils";
+import { usePortalTranslation } from "@/i18n/LocaleProvider";
 import { cn } from "@/lib/utils/cn";
 
 interface IAdminStudentAdmissionDetailModalProps {
@@ -52,28 +52,33 @@ export function AdminStudentAdmissionDetailModal({
   onClose,
   onUpdateStatus,
 }: IAdminStudentAdmissionDetailModalProps) {
+  const { t, formatDateTime, pickField } = usePortalTranslation();
+
   if (!application) return null;
 
   const country = getAdmissionCountry(application) ?? undefined;
-  const applied = formatAppliedAt(application.createdAt);
   const sections = buildAdmissionDisplaySections(application.formData);
-  const actions = admissionStatusActions(application.status);
+  const actions = admissionStatusActions(application.status, t);
   const wa = waMeUrlFromRaw(
     application.whatsapp,
     country,
     admissionFollowUpMessage(application.fullName)
   );
   const telHref = admissionTelHref(application.whatsapp, country);
-  const mailHref = admissionMailtoHref(application);
+  const mailHref = admissionMailtoHref(application, t);
   const lang =
-    application.locale === "bn" ? "Bengali" : application.locale === "en" ? "English" : null;
+    application.locale === "bn"
+      ? pickField("English", "Bengali", "English")
+      : application.locale === "en"
+        ? pickField("English", "Bengali", "English")
+        : null;
 
   return (
     <div className="fixed inset-0 z-[100] flex items-end justify-center p-0 sm:items-center sm:p-4">
       <button
         type="button"
         className="absolute inset-0 bg-[#0A1628]/55 backdrop-blur-[2px]"
-        aria-label="Close application details"
+        aria-label={t("admin.admissions.modalClose")}
         onClick={onClose}
       />
       <div
@@ -109,7 +114,7 @@ export function AdminStudentAdmissionDetailModal({
             type="button"
             onClick={onClose}
             className="inline-flex size-9 items-center justify-center rounded-full border border-portal text-portal-muted transition hover:text-primary"
-            aria-label="Close"
+            aria-label={t("admin.admissions.modalClose")}
           >
             <X className="size-5" aria-hidden />
           </button>
@@ -138,16 +143,16 @@ export function AdminStudentAdmissionDetailModal({
                 {application.whatsapp}
               </span>
             )}
-            <WhatsAppLinkButton href={wa} label="WhatsApp" size="sm" />
+            <WhatsAppLinkButton href={wa} label={t("admin.admissions.modalWhatsApp")} size="sm" />
             <p className="text-xs text-portal-muted sm:ml-auto">
-              Applied {applied.date} · {applied.time}
+              {t("admin.admissions.tableSubmitted")} {formatDateTime(application.createdAt)}
             </p>
           </div>
 
           {application.adminNote ? (
             <div className="mt-4 rounded-xl border border-amber-500/25 bg-amber-500/10 p-4">
               <p className="text-xs font-semibold uppercase tracking-wide text-amber-800">
-                Admin note
+                {t("admin.admissions.modalAdminNote")}
               </p>
               <p className="mt-1 text-sm text-portal-heading">{application.adminNote}</p>
             </div>
@@ -166,7 +171,7 @@ export function AdminStudentAdmissionDetailModal({
               href={mailHref}
               className="inline-flex h-10 items-center justify-center rounded-xl border border-portal px-4 text-sm font-semibold text-portal-heading transition hover:border-primary/30 hover:text-primary"
             >
-              Reply via email
+              {t("admin.admissions.modalReplyEmail")}
             </a>
             {actions.map((action) => (
               <Button

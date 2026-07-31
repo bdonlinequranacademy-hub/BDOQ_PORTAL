@@ -2,7 +2,7 @@ import { FileSpreadsheet, FileText, Search } from "lucide-react";
 import { Card } from "@/components/ui/Card";
 import { Select } from "@/components/ui/Select";
 import { formControlClass } from "@/lib/formControl";
-import { roleLabel } from "@/lib/assignableRoles";
+import { usePortalTranslation } from "@/i18n/LocaleProvider";
 import type { Role } from "@/types/models";
 
 export type AdminUsersStatusFilter = "all" | "active" | "inactive";
@@ -46,23 +46,25 @@ export function AdminUsersFilterPanel({
   roleFilter,
   onRoleFilterChange,
 }: IAdminUsersFilterPanelProps) {
+  const { t, statusLabel, dynamicLabel, role } = usePortalTranslation();
+
   return (
     <div className="flex flex-col gap-4">
       <Card className="rounded-2xl border border-portal bg-portal-surface p-4 shadow-[0_8px_24px_-16px_rgba(13,74,47,0.18)] sm:p-5">
         <div className="mb-4 flex items-center justify-between gap-2">
-          <h2 className="text-sm font-bold text-portal-heading">Filter Users</h2>
+          <h2 className="text-sm font-bold text-portal-heading">{t("filters.filterUsers")}</h2>
           <button
             type="button"
             onClick={onClearFilters}
             className="text-xs font-semibold text-primary hover:underline"
           >
-            Clear All
+            {t("filters.clearAll")}
           </button>
         </div>
 
         <div className="flex flex-col gap-3.5">
           <label className="flex flex-col gap-1.5">
-            <span className="text-xs font-medium text-portal-muted">Search</span>
+            <span className="text-xs font-medium text-portal-muted">{t("filters.search")}</span>
             <div className="relative">
               <Search
                 className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-portal-muted"
@@ -70,7 +72,7 @@ export function AdminUsersFilterPanel({
               />
               <input
                 className={`${formControlClass} py-2.5 pl-9 text-sm`}
-                placeholder="Name or email…"
+                placeholder={t("filters.nameOrEmail")}
                 value={search}
                 onChange={(event) => onSearchChange(event.target.value)}
               />
@@ -78,49 +80,49 @@ export function AdminUsersFilterPanel({
           </label>
 
           <Select
-            label="Role"
+            label={t("labels.role")}
             value={roleFilter}
             onChange={(event) => onRoleFilterChange(event.target.value as Role | "all")}
             className="py-2.5 text-sm"
           >
-            {roleFilterOptions.map((role) => (
-              <option key={role} value={role}>
-                {role === "all" ? "All roles" : roleLabel(role)}
+            {roleFilterOptions.map((roleOption) => (
+              <option key={roleOption} value={roleOption}>
+                {roleOption === "all" ? t("filters.allRoles") : role(roleOption)}
               </option>
             ))}
           </Select>
 
           <Select
-            label="Status"
+            label={t("tables.status")}
             value={statusFilter}
             onChange={(event) =>
               onStatusFilterChange(event.target.value as AdminUsersStatusFilter)
             }
             className="py-2.5 text-sm"
           >
-            <option value="all">All statuses</option>
-            <option value="active">Active</option>
-            <option value="inactive">Inactive</option>
+            <option value="all">{t("filters.allStatuses")}</option>
+            <option value="active">{statusLabel("active")}</option>
+            <option value="inactive">{statusLabel("inactive")}</option>
           </Select>
 
           {showGenderFilter ? (
             <Select
-              label="Teacher gender"
+              label={t("filters.teacherGender")}
               value={genderFilter}
               onChange={(event) =>
                 onGenderFilterChange(event.target.value as "all" | "male" | "female")
               }
               className="py-2.5 text-sm"
             >
-              <option value="all">All teachers</option>
-              <option value="female">Female</option>
-              <option value="male">Male</option>
+              <option value="all">{t("filters.allTeachers")}</option>
+              <option value="female">{dynamicLabel("female")}</option>
+              <option value="male">{dynamicLabel("male")}</option>
             </Select>
           ) : null}
 
           <div className="grid grid-cols-1 gap-3">
             <label className="flex flex-col gap-1.5">
-              <span className="text-xs font-medium text-portal-muted">Joined from</span>
+              <span className="text-xs font-medium text-portal-muted">{t("filters.joinedFrom")}</span>
               <input
                 type="date"
                 className={`${formControlClass} py-2.5 text-sm`}
@@ -129,7 +131,7 @@ export function AdminUsersFilterPanel({
               />
             </label>
             <label className="flex flex-col gap-1.5">
-              <span className="text-xs font-medium text-portal-muted">Joined to</span>
+              <span className="text-xs font-medium text-portal-muted">{t("filters.joinedTo")}</span>
               <input
                 type="date"
                 className={`${formControlClass} py-2.5 text-sm`}
@@ -142,7 +144,7 @@ export function AdminUsersFilterPanel({
       </Card>
 
       <Card className="rounded-2xl border border-portal bg-portal-surface p-4 shadow-[0_8px_24px_-16px_rgba(13,74,47,0.18)] sm:p-5">
-        <h2 className="mb-3 text-sm font-bold text-portal-heading">Export Users</h2>
+        <h2 className="mb-3 text-sm font-bold text-portal-heading">{t("filters.exportUsers")}</h2>
         <div className="flex flex-col gap-2">
           <button
             type="button"
@@ -150,7 +152,7 @@ export function AdminUsersFilterPanel({
             className="inline-flex items-center justify-center gap-2 rounded-xl border border-portal bg-portal-surface px-4 py-2.5 text-sm font-semibold text-portal-heading transition hover:border-primary/30 hover:bg-primary/5"
           >
             <FileText className="size-4 text-primary" aria-hidden />
-            Export CSV
+            {t("filters.exportCsv")}
           </button>
           <button
             type="button"
@@ -158,7 +160,7 @@ export function AdminUsersFilterPanel({
             className="inline-flex items-center justify-center gap-2 rounded-xl border border-portal bg-portal-surface px-4 py-2.5 text-sm font-semibold text-portal-heading transition hover:border-primary/30 hover:bg-primary/5"
           >
             <FileSpreadsheet className="size-4 text-primary" aria-hidden />
-            Export Excel
+            {t("filters.exportExcel")}
           </button>
         </div>
       </Card>

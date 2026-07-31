@@ -1,4 +1,5 @@
 import type { SessionPhase } from "@/types/models";
+import { usePortalTranslation } from "@/i18n/LocaleProvider";
 import { cn } from "@/lib/utils/cn";
 
 export type LiveMonitorFilter = "all" | SessionPhase | "issues";
@@ -20,11 +21,13 @@ export function LiveMonitorFilterTabs({
   active,
   onChange,
 }: ILiveMonitorFilterTabsProps) {
+  const { t } = usePortalTranslation();
+
   return (
     <div
       className="flex gap-1 overflow-x-auto border-b border-portal"
       role="tablist"
-      aria-label="Filter sessions"
+      aria-label={t("admin.liveMonitor.filters.filterSessions")}
     >
       {filters.map((filter) => {
         const isActive = active === filter.id;

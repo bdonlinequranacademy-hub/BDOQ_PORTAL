@@ -1,5 +1,6 @@
 import { Card } from "@/components/ui/Card";
 import type { IRatingDistributionRow } from "@/features/admin/components/testimonials/adminTestimonialsUtils";
+import { usePortalTranslation } from "@/i18n/LocaleProvider";
 
 interface IAdminTestimonialsRatingDistributionProps {
   rows: IRatingDistributionRow[];
@@ -10,9 +11,11 @@ export function AdminTestimonialsRatingDistribution({
   rows,
   total,
 }: IAdminTestimonialsRatingDistributionProps) {
+  const { t } = usePortalTranslation();
+
   return (
     <Card className="flex flex-col rounded-[8px] border border-portal bg-portal-surface p-3.5 shadow-[0_8px_24px_-16px_rgba(13,74,47,0.18)] sm:p-4">
-      <h2 className="text-sm font-bold text-portal-heading">Rating distribution</h2>
+      <h2 className="text-sm font-bold text-portal-heading">{t("admin.cms.shared.ratingDistribution")}</h2>
       <p className="mt-0.5 text-xs text-portal-muted">{total} reviews tracked</p>
       <div className="mt-3 flex flex-col gap-2">
         {rows.map((row) => (

@@ -1,6 +1,7 @@
 import type { AdminEarningsOverview, ClassLogView } from "@/types/models";
 import { formatCurriculumPath } from "@/lib/api/curriculumApi";
-import { formatBdt } from "@/lib/utils/month";
+import { formatBdt as formatBdtLegacy } from "@/lib/utils/month";
+import type { PortalTranslate } from "@/features/admin/components/trial-leads/adminTrialLeadsUtils";
 
 export type EarningsTrendRange = "year" | "six_months";
 
@@ -84,9 +85,10 @@ export function computeEarningsStats(
   };
 }
 
-export function pctOfTotal(part: number, total: number): string {
-  if (total <= 0) return "0% of total";
-  return `${Math.round((part / total) * 1000) / 10}% of total`;
+export function pctOfTotal(part: number, total: number, t: PortalTranslate): string {
+  if (total <= 0) return t("stats.zeroOfTotal");
+  const pctValue = Math.round((part / total) * 1000) / 10;
+  return t("stats.ofTotal", { pct: String(pctValue) });
 }
 
 export function logMatchesMonth(log: ClassLogView, month: string): boolean {
@@ -189,14 +191,15 @@ function escapeCsv(value: string): string {
 
 export function exportEarningsTeachersFile(
   data: AdminEarningsOverview | null | undefined,
-  month: string
+  month: string,
+  t: PortalTranslate
 ): void {
   const headers = [
-    "Teacher",
-    "Verified Sessions",
-    "Verified Pay (BDT)",
-    "Pending Sessions",
-    "Pending Est. (BDT)",
+    t("admin.earnings.csvTeacher"),
+    t("admin.earnings.csvVerifiedSessions"),
+    t("admin.earnings.csvVerifiedPay"),
+    t("admin.earnings.csvPendingSessions"),
+    t("admin.earnings.csvPendingEst"),
   ];
 
   const rows = (data?.teachers ?? []).map((teacher) => [
@@ -217,13 +220,22 @@ export function exportEarningsTeachersFile(
   URL.revokeObjectURL(url);
 }
 
-export function formatEarningsAmount(amount: number): string {
-  return formatBdt(amount);
+export function formatEarningsAmount(
+  amount: number,
+  formatBdtFn: (n: number) => string = formatBdtLegacy
+): string {
+  return formatBdtFn(amount);
 }
 
-export function formatShortBdt(amount: number): string {
+export function formatShortBdt(
+  amount: number,
+  formatBdtFn: (n: number) => string = formatBdtLegacy
+): string {
   if (amount >= 1000) {
-    return `৳${Math.round(amount / 100) / 10}k`;
+    const k = Math.round(amount / 100) / 10;
+    const sample = formatBdtFn(0);
+    const symbol = sample.replace(/[\d.,\u09E6-\u09EF\s]/g, "") || "৳";
+    return `${symbol}${k}k`;
   }
-  return formatBdt(amount);
+  return formatBdtFn(amount);
 }

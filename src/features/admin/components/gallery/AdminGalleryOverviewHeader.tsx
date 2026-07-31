@@ -1,5 +1,6 @@
 import { ExternalLink, Images } from "lucide-react";
 import { env } from "@/config/env";
+import { usePortalTranslation } from "@/i18n/LocaleProvider";
 
 interface IAdminGalleryOverviewHeaderProps {
   editing: boolean;
@@ -8,6 +9,8 @@ interface IAdminGalleryOverviewHeaderProps {
 export function AdminGalleryOverviewHeader({
   editing,
 }: IAdminGalleryOverviewHeaderProps) {
+  const { t, nav } = usePortalTranslation();
+
   return (
     <div className="portal-card-islamic portal-card--lg relative overflow-hidden rounded-2xl border border-portal bg-portal-surface px-5 py-6 shadow-[0_8px_24px_-16px_rgba(13,74,47,0.18)] sm:px-8">
       <div
@@ -17,16 +20,16 @@ export function AdminGalleryOverviewHeader({
       <div className="relative flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
         <div>
           <p className="text-xs font-semibold uppercase tracking-[0.18em] text-primary">
-            Content Management
+            {t("admin.cms.shared.contentManagement")}
           </p>
           <h1 className="mt-1 flex items-center gap-2 font-display text-2xl font-bold text-primary-dark sm:text-3xl">
             <Images className="size-7 text-primary" aria-hidden />
-            Gallery CMS
+            {nav("/admin/gallery")}
           </h1>
           <p className="mt-2 max-w-2xl text-sm text-portal-muted">
             {editing
-              ? "Update this gallery item, then save to refresh the public gallery."
-              : "Upload photos, videos, and audio for the public gallery page."}{" "}
+              ? t("admin.cms.gallery.subtitleEdit")
+              : t("admin.cms.gallery.subtitleCreate")}{" "}
             <a
               href={`${env.publicSiteUrl}/gallery`}
               target="_blank"

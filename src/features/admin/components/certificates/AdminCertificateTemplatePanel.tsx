@@ -5,6 +5,7 @@ import { Textarea } from "@/components/ui/Textarea";
 import { cn } from "@/lib/utils/cn";
 import type { CertificateFormPayload } from "@/lib/api/adminApi";
 import { AdminCertFormSection } from "@/features/admin/components/certificates/AdminCertFormSection";
+import { usePortalTranslation } from "@/i18n/LocaleProvider";
 
 interface IAdminCertificateTemplatePanelProps {
   form: CertificateFormPayload;
@@ -19,15 +20,15 @@ export function AdminCertificateTemplatePanel({
   form,
   onChange,
 }: IAdminCertificateTemplatePanelProps) {
+  const { t } = usePortalTranslation();
   const [openSeal, setOpenSeal] = useState(false);
   const [openFooter, setOpenFooter] = useState(true);
 
   return (
     <div className="flex flex-col gap-4">
-      <AdminCertFormSection number={2} title="Design & Template">
+      <AdminCertFormSection number={2} title={t("admin.certificates.templateTitle")}>
         <p className="mb-3 text-xs text-portal-muted">
-          Official BDOQ certificate template is locked. Colors, fonts, seal, and
-          layout cannot be changed here.
+          {t("admin.certificates.templateLockedInfo")}
         </p>
 
         <div className="rounded-xl border-2 border-primary bg-primary/5 p-3">
@@ -40,24 +41,24 @@ export function AdminCertificateTemplatePanel({
                 Academy
               </p>
               <p className="mt-2 text-[10px] font-semibold uppercase tracking-wide text-portal-muted">
-                Official Certificate
+                {t("admin.certificates.officialCertificate")}
               </p>
             </div>
           </div>
           <div className="mt-2 flex items-center justify-between gap-2">
             <span className="text-xs font-bold text-primary-dark">
-              Official BDOQ Template
+              {t("admin.certificates.officialTemplate")}
             </span>
             <span className="inline-flex items-center gap-1 rounded-full bg-primary/15 px-2 py-0.5 text-[10px] font-bold text-primary-dark">
               <Lock className="size-3" aria-hidden />
-              Active
+              {t("shared.status.active")}
             </span>
           </div>
         </div>
 
         <div className="mt-4">
           <p className={cn("mb-2 text-xs font-semibold text-portal-heading")}>
-            Brand colors (fixed)
+            {t("admin.certificates.brandColorsFixed")}
           </p>
           <div className="flex flex-wrap gap-2">
             {["#3C835D", "#A74B47", "#EBC071", "#269B6F", "#1A1A2E"].map(
@@ -72,7 +73,7 @@ export function AdminCertificateTemplatePanel({
             )}
           </div>
           <p className="mt-2 text-[11px] text-portal-muted">
-            These colors match the locked certificate artwork — display only.
+            {t("admin.certificates.brandColorsHint")}
           </p>
         </div>
       </AdminCertFormSection>
@@ -88,7 +89,7 @@ export function AdminCertificateTemplatePanel({
               3
             </span>
             <span className="text-sm font-bold text-primary-dark">
-              Signature & Seal
+              {t("admin.certificates.signatureSeal")}
             </span>
           </span>
           <ChevronDown
@@ -101,13 +102,9 @@ export function AdminCertificateTemplatePanel({
         </button>
         {openSeal ? (
           <div className="space-y-2 border-t border-portal bg-portal-muted/15 px-5 py-4 text-xs text-portal-muted">
-            <p>
-              Founder signature, admin signature, and academy seal are part of
-              the official template artwork and always appear on generated
-              certificates.
-            </p>
+            <p>{t("admin.certificates.signatureSealInfo1")}</p>
             <p className="font-medium text-portal-heading">
-              No edits required — design is fixed.
+              {t("admin.certificates.signatureSealInfo2")}
             </p>
           </div>
         ) : null}
@@ -124,7 +121,7 @@ export function AdminCertificateTemplatePanel({
               4
             </span>
             <span className="text-sm font-bold text-primary-dark">
-              Footer & Notes
+              {t("admin.certificates.footerNotes")}
             </span>
           </span>
           <ChevronDown
@@ -138,10 +135,10 @@ export function AdminCertificateTemplatePanel({
         {openFooter ? (
           <div className="space-y-3 border-t border-portal px-5 py-4">
             <p className="text-xs text-portal-muted">
-              Performance notes print below the course banner on the certificate.
+              {t("admin.certificates.footerNotesHint")}
             </p>
             <Textarea
-              label="Performance note (English)"
+              label={t("admin.certificates.performanceNoteEn")}
               value={form.performanceTextEn ?? ""}
               onChange={(e) =>
                 onChange({ ...form, performanceTextEn: e.target.value })
@@ -150,7 +147,7 @@ export function AdminCertificateTemplatePanel({
               className="min-h-[4rem] text-sm"
             />
             <Textarea
-              label="Performance note (Bengali)"
+              label={t("admin.certificates.performanceNoteBn")}
               value={form.performanceTextBn ?? ""}
               onChange={(e) =>
                 onChange({ ...form, performanceTextBn: e.target.value })

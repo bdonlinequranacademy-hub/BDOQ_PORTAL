@@ -28,30 +28,15 @@ import { ProfileAvatarUpload } from "@/components/profile/ProfileAvatarUpload";
 import { useUploadProfileAvatar } from "@/hooks/useUploadProfileAvatar";
 import { useAuthStore } from "@/stores/authStore";
 import { toast, useUiStore } from "@/stores/uiStore";
-import { BDOQ_ROLE_PORTAL_LABEL } from "@/lib/bdoqBrand";
+import { usePortalTranslation } from "@/i18n/LocaleProvider";
 import { cn } from "@/lib/utils/cn";
-import type { Role } from "@/types/models";
-
-function roleBadgeLabel(role: string): string {
-  if (role === "super_admin") return "Super Admin";
-  if (role === "admin") return "Admin";
-  return BDOQ_ROLE_PORTAL_LABEL[role as Role] ?? role.replace(/_/g, " ");
-}
-
-function formatJoined(iso?: string): string {
-  if (!iso) return "—";
-  return new Date(iso).toLocaleDateString("en-US", {
-    month: "short",
-    day: "numeric",
-    year: "numeric",
-  });
-}
 
 function usernameFromEmail(email: string): string {
   return email.split("@")[0] || "—";
 }
 
 export function AdminProfilePage() {
+  const { t, nav, role: translateRole, statusLabel, formatDate } = usePortalTranslation();
   const authUser = useAuthStore((s) => s.user);
   const logout = useAuthStore((s) => s.logout);
   const addToast = useUiStore((s) => s.addToast);
@@ -84,7 +69,7 @@ export function AdminProfilePage() {
   function handlePasswordSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (newPassword !== confirmPassword) {
-      toast.error("Passwords do not match");
+      toast.error(t("auth.passwordMismatch"));
       return;
     }
     if (newPassword.length < 6) {
@@ -110,19 +95,19 @@ export function AdminProfilePage() {
   if (isLoading) {
     return (
       <PageContainer>
-        <PageLoading label="Loading profile…" />
+        <PageLoading label={t("admin.common.loadingProfile")} />
       </PageContainer>
     );
   }
 
   const displayName = (profile?.name ?? name) || "—";
   const email = profile?.email ?? "—";
-  const role = profile?.role ?? authUser?.role ?? "admin";
+  const userRole = profile?.role ?? authUser?.role ?? "admin";
   const authProvider = (profile?.authProvider ?? "local").toLowerCase();
   const shortId = profile?._id ? profile._id.slice(-8).toUpperCase() : "—";
 
   const permissions =
-    role === "super_admin"
+    userRole === "super_admin"
       ? ["All Access", "System Control", "User Management", "CMS"]
       : ["Users", "Classes", "CMS", "Billing"];
 
@@ -130,7 +115,7 @@ export function AdminProfilePage() {
     <PageContainer>
       <div>
         <h1 className="font-display text-2xl font-bold text-primary-dark sm:text-3xl">
-          My Profile
+          {t("admin.profile.title")}
         </h1>
         <p className="mt-1.5 text-sm text-portal-muted">
           Manage your account information and security settings.
@@ -154,12 +139,12 @@ export function AdminProfilePage() {
               <div className="mt-3 flex flex-wrap items-center justify-center gap-2">
                 <h2 className="text-xl font-bold text-primary-dark">{displayName}</h2>
                 <span className="rounded-full bg-violet-100 px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wide text-violet-700">
-                  {roleBadgeLabel(role)}
+                  {translateRole(userRole)}
                 </span>
               </div>
               <p className="mt-1 text-sm text-portal-muted">{email}</p>
               <p className="mt-1 text-xs text-portal-muted">
-                Joined on {formatJoined(profile?.createdAt)}
+                {profile?.createdAt ? formatDate(profile.createdAt) : "—"}
               </p>
             </div>
 
@@ -170,7 +155,9 @@ export function AdminProfilePage() {
                   Status
                 </p>
                 <p className="mt-0.5 text-xs font-bold text-portal-heading">
-                  {profile?.isActive === false ? "Inactive" : "Active"}
+                  {profile?.isActive === false
+                    ? statusLabel("inactive")
+                    : statusLabel("active")}
                 </p>
               </div>
               <div className="rounded-xl bg-primary/10 px-2 py-3 text-center">
@@ -195,7 +182,7 @@ export function AdminProfilePage() {
           </Card>
 
           <Card className="rounded-2xl border border-portal bg-portal-surface p-5 shadow-sm">
-            <h3 className="text-sm font-bold text-primary-dark">Account Security</h3>
+            <h3 className="text-sm font-bold text-primary-dark">{t("admin.profile.security")}</h3>
             <ul className="mt-4 divide-y divide-portal">
               <li className="flex items-center justify-between gap-3 py-3">
                 <div className="flex items-start gap-3">
@@ -215,7 +202,7 @@ export function AdminProfilePage() {
                   className="rounded-lg border border-primary/30 px-3 text-xs font-semibold text-primary"
                   onClick={() => setShowPasswordForm((v) => !v)}
                 >
-                  Change
+                  {t("admin.profile.changePassword")}
                 </Button>
               </li>
               <li className="flex items-center justify-between gap-3 py-3">
@@ -259,7 +246,7 @@ export function AdminProfilePage() {
                   className="rounded-lg border border-primary/30 px-3 text-xs font-semibold text-primary"
                   onClick={() => {
                     logout();
-                    addToast("success", "Signed out");
+                    addToast("success", t("layout.signOut"));
                   }}
                 >
                   Manage
@@ -308,7 +295,7 @@ export function AdminProfilePage() {
                   />
                 </label>
                 {passwordMismatch ? (
-                  <p className="text-xs text-red-600">Passwords do not match</p>
+                  <p className="text-xs text-red-600">{t("auth.passwordMismatch")}</p>
                 ) : null}
                 <div className="flex gap-2">
                   <Button
@@ -317,14 +304,14 @@ export function AdminProfilePage() {
                     className="rounded-xl border border-portal"
                     onClick={() => setShowPasswordForm(false)}
                   >
-                    Cancel
+                    {t("common.cancel")}
                   </Button>
                   <Button
                     type="submit"
                     disabled={changePassword.isPending || passwordMismatch}
                     className="rounded-xl bg-primary text-white hover:bg-primary-dark"
                   >
-                    {changePassword.isPending ? "Updating…" : "Update password"}
+                    {changePassword.isPending ? t("admin.curriculum.saving") : t("auth.updatePassword")}
                   </Button>
                 </div>
               </form>
@@ -332,26 +319,26 @@ export function AdminProfilePage() {
           </Card>
 
           <Card className="rounded-2xl border border-portal bg-portal-surface p-5 shadow-sm">
-            <h3 className="text-sm font-bold text-primary-dark">Quick Actions</h3>
+            <h3 className="text-sm font-bold text-primary-dark">{t("admin.profile.quickActions")}</h3>
             <ul className="mt-3 divide-y divide-portal">
               {(
                 [
                   {
                     to: "/admin",
-                    label: "Admin Dashboard",
-                    hint: "Overview & shortcuts",
+                    label: nav("/admin"),
+                    hint: t("layout.dashboard"),
                     icon: LayoutDashboard,
                   },
                   {
                     to: "/admin/users",
-                    label: "Manage Users",
-                    hint: "Students & teachers",
+                    label: nav("/admin/users"),
+                    hint: t("admin.dashboard.statsStudents"),
                     icon: Users,
                   },
                   {
                     to: "/admin/certificates",
-                    label: "Certificates",
-                    hint: "Generate & history",
+                    label: nav("/admin/certificates"),
+                    hint: t("admin.certificates.generate"),
                     icon: Award,
                   },
                 ] as const
@@ -381,7 +368,7 @@ export function AdminProfilePage() {
         {/* Right column */}
         <div className="flex flex-col gap-5">
           <Card className="rounded-2xl border border-portal bg-portal-surface p-5 shadow-sm sm:p-6">
-            <h3 className="text-sm font-bold text-primary-dark">Personal Information</h3>
+            <h3 className="text-sm font-bold text-primary-dark">{t("admin.profile.personalInfo")}</h3>
             <p className="mt-0.5 text-xs text-portal-muted">
               Update your display name and gender. Email cannot be changed here.
             </p>
@@ -389,7 +376,7 @@ export function AdminProfilePage() {
             <form onSubmit={handleProfileSubmit} className="mt-5 space-y-4">
               <div className="grid gap-4 sm:grid-cols-2">
                 <label className="block">
-                  <span className={formLabelClass}>Full Name</span>
+                  <span className={formLabelClass}>{t("auth.fullName")}</span>
                   <input
                     className={cn(formControlClass, "mt-1.5")}
                     value={name}
@@ -440,7 +427,7 @@ export function AdminProfilePage() {
                   disabled={updateProfile.isPending || !name.trim()}
                   className="rounded-xl bg-primary px-5 text-white hover:bg-primary-dark"
                 >
-                  {updateProfile.isPending ? "Saving…" : "Save Changes"}
+                  {updateProfile.isPending ? t("admin.curriculum.saving") : t("admin.curriculum.saveChanges")}
                 </Button>
               </div>
             </form>
@@ -449,7 +436,7 @@ export function AdminProfilePage() {
           <Card className="rounded-2xl border border-portal bg-portal-surface p-5 shadow-sm sm:p-6">
             <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
               <div className="min-w-0 flex-1">
-                <h3 className="text-sm font-bold text-primary-dark">Admin Information</h3>
+                <h3 className="text-sm font-bold text-primary-dark">{t("admin.profile.adminInfo")}</h3>
                 <p className="mt-0.5 text-xs text-portal-muted">
                   Role and access summary for this portal account.
                 </p>
@@ -458,7 +445,7 @@ export function AdminProfilePage() {
                   <div>
                     <p className="text-xs font-medium text-portal-muted">Role</p>
                     <p className="mt-1 text-sm font-semibold text-portal-heading">
-                      {roleBadgeLabel(role)}
+                      {translateRole(userRole)}
                     </p>
                   </div>
                   <div>
@@ -476,7 +463,7 @@ export function AdminProfilePage() {
                 </div>
 
                 <div className="mt-4">
-                  <p className="text-xs font-medium text-portal-muted">Permissions</p>
+                  <p className="text-xs font-medium text-portal-muted">{t("admin.profile.permissions")}</p>
                   <div className="mt-2 flex flex-wrap gap-2">
                     {permissions.map((perm, i) => (
                       <span
@@ -500,10 +487,10 @@ export function AdminProfilePage() {
               <div className="flex shrink-0 flex-col items-center rounded-2xl bg-gold/15 px-5 py-4 text-center">
                 <Award className="size-10 text-gold-dark" aria-hidden />
                 <p className="mt-2 text-xs font-bold text-gold-dark">
-                  {roleBadgeLabel(role)}
+                  {translateRole(userRole)}
                 </p>
                 <p className="mt-0.5 text-[10px] text-portal-muted">
-                  {role === "super_admin"
+                  {userRole === "super_admin"
                     ? "Full system access"
                     : "Admin portal access"}
                 </p>
@@ -512,7 +499,7 @@ export function AdminProfilePage() {
           </Card>
 
           <Card className="rounded-2xl border border-portal bg-portal-surface p-5 shadow-sm sm:p-6">
-            <h3 className="text-sm font-bold text-primary-dark">Connected Accounts</h3>
+            <h3 className="text-sm font-bold text-primary-dark">{t("admin.profile.connectedAccounts")}</h3>
             <p className="mt-0.5 text-xs text-portal-muted">
               Sign-in methods linked to this admin account.
             </p>

@@ -8,12 +8,14 @@ import {
   Sparkles,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
+import { useMemo } from "react";
 import { useAuthStore } from "@/stores/authStore";
 import { Button } from "@/components/ui/Button";
 import { homePathForRole } from "@/lib/utils/roles";
 import { LOGIN_PATH, REGISTER_PATH } from "@/lib/authMessages";
 import { BDOQ_BRAND } from "@/lib/bdoqBrand";
 import { cn } from "@/lib/utils/cn";
+import { usePortalTranslation } from "@/i18n/LocaleProvider";
 
 type PortalCardConfig = {
   label: string;
@@ -26,40 +28,8 @@ type PortalCardConfig = {
   ringHover: string;
 };
 
-const PORTALS: PortalCardConfig[] = [
-  {
-    label: "Student",
-    tagline: "Learners & guardians",
-    desc: "One account for classes, homework, Quran progress, and weekly family reports.",
-    icon: GraduationCap,
-    features: ["Live classes", "Homework & curriculum", "Progress tracking"],
-    accentBar: "from-primary to-teal",
-    iconWrap: "bg-bg-light text-primary ring-primary/20",
-    ringHover: "group-hover:ring-primary/30",
-  },
-  {
-    label: "Teacher",
-    tagline: "Academy staff",
-    desc: "Manage classes, attendance, grading, and verified weekly reports.",
-    icon: BookOpen,
-    features: ["Class management", "Attendance & logs", "Weekly family reports"],
-    accentBar: "from-teal to-teal-accent",
-    iconWrap: "bg-teal/10 text-teal ring-teal/20",
-    ringHover: "group-hover:ring-teal/30",
-  },
-  {
-    label: "Admin",
-    tagline: "Academy operations",
-    desc: "Users, curriculum, classes, trial leads, and academy-wide analytics.",
-    icon: Shield,
-    features: ["User management", "Curriculum & classes", "Analytics & reports"],
-    accentBar: "from-primary-dark to-primary",
-    iconWrap: "bg-primary/10 text-primary ring-primary/20",
-    ringHover: "group-hover:ring-primary/30",
-  },
-];
-
 function PortalCard({ config }: { config: PortalCardConfig }) {
+  const { t } = usePortalTranslation();
   const Icon = config.icon;
 
   return (
@@ -116,7 +86,7 @@ function PortalCard({ config }: { config: PortalCardConfig }) {
           "dark:bg-gold dark:text-primary-dark dark:group-hover:bg-gold-light"
         )}
       >
-        Sign in
+        {t("pages.signIn")}
         <ArrowRight className="size-4 transition-transform group-hover:translate-x-0.5" aria-hidden />
       </span>
     </Link>
@@ -126,6 +96,55 @@ function PortalCard({ config }: { config: PortalCardConfig }) {
 export function PortalHomePage() {
   const user = useAuthStore((s) => s.user);
   const token = useAuthStore((s) => s.token);
+  const { t } = usePortalTranslation();
+
+  const portals = useMemo<PortalCardConfig[]>(
+    () => [
+      {
+        label: t("pages.studentPortal"),
+        tagline: t("pages.studentTagline"),
+        desc: t("pages.studentDesc"),
+        icon: GraduationCap,
+        features: [
+          t("pages.studentFeature1"),
+          t("pages.studentFeature2"),
+          t("pages.studentFeature3"),
+        ],
+        accentBar: "from-primary to-teal",
+        iconWrap: "bg-bg-light text-primary ring-primary/20",
+        ringHover: "group-hover:ring-primary/30",
+      },
+      {
+        label: t("pages.teacherPortal"),
+        tagline: t("pages.teacherTagline"),
+        desc: t("pages.teacherDesc"),
+        icon: BookOpen,
+        features: [
+          t("pages.teacherFeature1"),
+          t("pages.teacherFeature2"),
+          t("pages.teacherFeature3"),
+        ],
+        accentBar: "from-teal to-teal-accent",
+        iconWrap: "bg-teal/10 text-teal ring-teal/20",
+        ringHover: "group-hover:ring-teal/30",
+      },
+      {
+        label: t("pages.adminPortal"),
+        tagline: t("pages.adminTagline"),
+        desc: t("pages.adminDesc"),
+        icon: Shield,
+        features: [
+          t("pages.adminFeature1"),
+          t("pages.adminFeature2"),
+          t("pages.adminFeature3"),
+        ],
+        accentBar: "from-primary-dark to-primary",
+        iconWrap: "bg-primary/10 text-primary ring-primary/20",
+        ringHover: "group-hover:ring-primary/30",
+      },
+    ],
+    [t]
+  );
 
   if (token && user) {
     return <Navigate to={homePathForRole(user.role)} replace />;
@@ -158,7 +177,7 @@ export function PortalHomePage() {
               className="gap-2 border border-gray-200 bg-white text-primary-dark shadow-sm hover:border-primary/30 hover:bg-bg-light"
             >
               <LogIn className="size-4" />
-              Quick sign in
+              {t("pages.quickSignIn")}
             </Button>
           </Link>
         </div>
@@ -168,36 +187,34 @@ export function PortalHomePage() {
         <div className="mx-auto max-w-3xl text-center">
           <span className="inline-flex items-center gap-1.5 rounded-full border border-gold/30 bg-gold/10 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-primary-dark">
             <Sparkles className="size-3.5 text-gold" aria-hidden />
-            Assalamu Alaikum
+            {t("pages.assalamuAlaikum")}
           </span>
           <h1 className="mt-5 font-display text-3xl font-bold tracking-tight text-portal-heading sm:text-4xl lg:text-[2.75rem] lg:leading-tight">
-            Welcome to {BDOQ_BRAND.shortName}
+            {t("pages.welcomeTo", { brand: BDOQ_BRAND.shortName })}
           </h1>
           <p className="mx-auto mt-4 max-w-2xl text-base leading-relaxed text-zinc-600 dark:text-zinc-400">
-            {BDOQ_BRAND.portalTagline}. Students and guardians share one login; teachers and
-            admins use credentials issued by BDOQ Academy.
+            {t("pages.portalIntro", { tagline: BDOQ_BRAND.portalTagline })}
           </p>
         </div>
 
         <div className="mt-12 grid grid-cols-1 gap-6 md:grid-cols-2 lg:mt-14 lg:grid-cols-3">
-          {PORTALS.map((portal) => (
+          {portals.map((portal) => (
             <PortalCard key={portal.label} config={portal} />
           ))}
         </div>
 
         <div className="mt-14 flex flex-col items-center gap-3 text-center sm:mt-16">
           <p className="text-sm text-zinc-500">
-            New student?{" "}
+            {t("pages.newStudent")}{" "}
             <Link
               to={REGISTER_PATH}
               className="font-semibold text-gold hover:text-gold-dark hover:underline"
             >
-              Create a student account
+              {t("pages.createStudentAccount")}
             </Link>
           </p>
           <p className="max-w-md text-xs leading-relaxed text-zinc-400">
-            Teacher and admin accounts are created by your academy administrator — not through
-            public registration.
+            {t("pages.staffNotice")}
           </p>
         </div>
       </main>

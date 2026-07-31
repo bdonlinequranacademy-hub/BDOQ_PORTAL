@@ -9,18 +9,22 @@ import { TodayClassesBanner } from "@/components/classes/TodayClassesBanner";
 import { WeeklySchedule, toScheduleClassItem } from "@/components/schedule/WeeklySchedule";
 import { classesScheduledToday } from "@/lib/utils/class";
 import { CountryLabel } from "@/components/ui/CountryLabel";
+import { usePortalTranslation } from "@/i18n/LocaleProvider";
 
 export function TeacherClassesPage() {
   const navigate = useNavigate();
+  const { t } = usePortalTranslation();
   const { data: classes = [], isLoading } = useTeacherClasses();
   const todayClasses = classesScheduledToday(classes);
 
   return (
     <PageContainer className="flex flex-col gap-6">
       <div>
-        <h1 className="text-2xl font-bold text-navy">My classes</h1>
+        <h1 className="text-2xl font-bold text-navy">{t("teacher.myClasses")}</h1>
         <p className="mt-0.5 text-sm text-zinc-500">
-          {classes.length} class{classes.length !== 1 ? "es" : ""} · schedules, students, and quick actions
+          {classes.length === 1
+            ? t("teacher.classesSubtitle", { count: String(classes.length) })
+            : t("teacher.classesSubtitlePlural", { count: String(classes.length) })}
         </p>
       </div>
 
@@ -36,9 +40,9 @@ export function TeacherClassesPage() {
       ) : null}
 
       <section>
-        <h2 className="mb-3 font-semibold text-navy">Weekly schedule</h2>
+        <h2 className="mb-3 font-semibold text-navy">{t("teacher.weeklySchedule")}</h2>
         {isLoading ? (
-          <PageLoading label="Loading schedule…" />
+          <PageLoading label={t("teacher.loadingSchedule")} />
         ) : (
           <WeeklySchedule
             classes={classes.map((c) =>
@@ -54,16 +58,16 @@ export function TeacherClassesPage() {
       </section>
 
       {isLoading ? (
-        <PageLoading label="Loading classes…" />
+        <PageLoading label={t("teacher.loadingClasses")} />
       ) : classes.length === 0 ? (
         <EmptyState
           icon={BookOpen}
-          title="No classes assigned"
-          description="An admin will assign classes to your account. You will see schedules and student lists here."
+          title={t("teacher.noClassesAssigned")}
+          description={t("teacher.noClassesAssignedDesc")}
         />
       ) : (
         <section>
-          <h2 className="mb-3 font-semibold text-navy">All classes</h2>
+          <h2 className="mb-3 font-semibold text-navy">{t("teacher.allClasses")}</h2>
           <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
             {classes.map((cls) => (
               <ClassCard
@@ -94,7 +98,9 @@ export function TeacherClassesPage() {
                       ))}
                       {cls.students.length > 3 ? (
                         <span className="text-xs text-zinc-400">
-                          +{cls.students.length - 3} more students
+                          {t("teacher.moreStudents", {
+                            count: String(cls.students.length - 3),
+                          })}
                         </span>
                       ) : null}
                     </div>
@@ -107,7 +113,7 @@ export function TeacherClassesPage() {
                     className="inline-flex items-center gap-1.5 rounded-xl bg-navy/8 px-3 py-2 text-xs font-semibold text-navy transition hover:bg-navy/12"
                   >
                     <ClipboardList className="size-3.5" />
-                    Attendance
+                    {t("teacher.attendance")}
                   </button>
                 }
               />

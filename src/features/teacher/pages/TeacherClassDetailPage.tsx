@@ -8,13 +8,16 @@ import { ClassHero } from "@/components/classes/ClassHero";
 import { CountryLabel } from "@/components/ui/CountryLabel";
 import { formatDuration } from "@/lib/utils/class";
 import { PageLoading } from "@/components/ui/PageLoading";
+import { usePortalTranslation } from "@/i18n/LocaleProvider";
 
 export function TeacherClassDetailPage() {
   const { id = "" } = useParams();
   const navigate = useNavigate();
+  const { t } = usePortalTranslation();
   const { data: cls, isLoading } = useTeacherClass(id);
 
   const schedule = cls?.schedule?.[0];
+  const studentCount = cls?.studentIds?.length ?? cls?.students?.length ?? 0;
 
   return (
     <PageContainer className="flex flex-col gap-5">
@@ -23,17 +26,17 @@ export function TeacherClassDetailPage() {
           type="button"
           onClick={() => navigate("/teacher/classes")}
           className="flex size-9 items-center justify-center rounded-full bg-zinc-100 text-navy"
-          aria-label="Back to classes"
+          aria-label={t("teacher.backToClasses")}
         >
           <ArrowLeft className="size-5" />
         </button>
-        <h1 className="text-xl font-bold text-navy">Class details</h1>
+        <h1 className="text-xl font-bold text-navy">{t("teacher.classDetails")}</h1>
       </div>
 
       {isLoading ? (
         <PageLoading compact />
       ) : !cls ? (
-        <p className="text-sm text-zinc-400">Class not found.</p>
+        <p className="text-sm text-zinc-400">{t("teacher.classNotFound")}</p>
       ) : (
         <>
           <ClassHero
@@ -50,8 +53,12 @@ export function TeacherClassDetailPage() {
             }
             meta={
               <p className="text-sm text-white/80">
-                {cls.studentIds?.length ?? cls.students?.length ?? 0} students
-                {schedule?.duration ? ` · ${formatDuration(schedule.duration)} per session` : ""}
+                {t("teacher.studentsCount", { count: String(studentCount) })}
+                {schedule?.duration
+                  ? ` · ${t("teacher.perSession", {
+                      duration: formatDuration(schedule.duration),
+                    })}`
+                  : ""}
               </p>
             }
           />
@@ -61,14 +68,14 @@ export function TeacherClassDetailPage() {
               onClick={() => navigate(`/teacher/attendance?classId=${cls._id}`)}
               className="flex-1 rounded-xl bg-navy py-2.5 text-sm text-white"
             >
-              Mark attendance
+              {t("teacher.markAttendance")}
             </Button>
             <Button
               onClick={() => navigate(`/teacher/homework?classId=${cls._id}&new=1`)}
               variant="ghost"
               className="flex-1 rounded-xl border border-gold py-2.5 text-sm text-gold-dark"
             >
-              Assign homework
+              {t("teacher.assignHomework")}
             </Button>
           </div>
 
@@ -76,11 +83,11 @@ export function TeacherClassDetailPage() {
             <div className="mb-4 flex items-center gap-2">
               <Users className="size-4 text-navy" />
               <span className="font-bold text-navy">
-                Students ({cls.students?.length ?? cls.studentIds?.length ?? 0})
+                {t("teacher.studentsSection", { count: String(studentCount) })}
               </span>
             </div>
             {!cls.students?.length ? (
-              <p className="text-sm text-zinc-400">No students enrolled in this class.</p>
+              <p className="text-sm text-zinc-400">{t("teacher.noStudentsEnrolled")}</p>
             ) : (
               <div className="divide-y divide-zinc-100">
                 {cls.students.map((student) => (

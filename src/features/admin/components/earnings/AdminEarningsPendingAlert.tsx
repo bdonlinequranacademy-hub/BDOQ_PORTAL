@@ -1,5 +1,6 @@
 import { AlertTriangle } from "lucide-react";
 import { Card } from "@/components/ui/Card";
+import { usePortalTranslation } from "@/i18n/LocaleProvider";
 
 interface IAdminEarningsPendingAlertProps {
   pendingCount: number;
@@ -10,6 +11,8 @@ export function AdminEarningsPendingAlert({
   pendingCount,
   onReview,
 }: IAdminEarningsPendingAlertProps) {
+  const { t, formatNumber } = usePortalTranslation();
+
   if (pendingCount <= 0) return null;
 
   return (
@@ -19,10 +22,9 @@ export function AdminEarningsPendingAlert({
           <AlertTriangle className="size-5 text-amber-700" aria-hidden />
         </div>
         <div>
-          <p className="text-sm font-bold text-amber-900">Session logs awaiting approval</p>
+          <p className="text-sm font-bold text-amber-900">{t("admin.earnings.pendingAlertTitle")}</p>
           <p className="mt-0.5 text-sm text-amber-800/90">
-            {pendingCount} class log{pendingCount === 1 ? "" : "s"} need approval before they count
-            toward verified teacher pay.
+            {t("admin.earnings.pendingAlertBody", { count: formatNumber(pendingCount) })}
           </p>
         </div>
       </div>
@@ -31,7 +33,7 @@ export function AdminEarningsPendingAlert({
         onClick={onReview}
         className="inline-flex h-9 items-center justify-center rounded-xl bg-amber-700 px-4 text-sm font-semibold text-white transition hover:bg-amber-800"
       >
-        Review pending approvals
+        {t("admin.earnings.pendingAlertCta")}
       </button>
     </Card>
   );

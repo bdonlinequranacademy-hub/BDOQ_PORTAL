@@ -1,15 +1,15 @@
 import type { TeacherApplicationStatus } from "@/types/models";
-import {
-  teacherApplicationStatusLabel,
-  teacherApplicationStatusStyles,
-} from "@/features/admin/components/teacher-applications/adminTeacherApplicationsUtils";
+import { teacherApplicationStatusStyles } from "@/features/admin/components/teacher-applications/adminTeacherApplicationsUtils";
 import { cn } from "@/lib/utils/cn";
+import { usePortalTranslation } from "@/i18n/LocaleProvider";
 
 export function TeacherApplicationStatusBadge({
   status,
 }: {
   status: TeacherApplicationStatus;
 }) {
+  const { statusLabel } = usePortalTranslation();
+
   return (
     <span
       className={cn(
@@ -17,7 +17,7 @@ export function TeacherApplicationStatusBadge({
         teacherApplicationStatusStyles(status)
       )}
     >
-      {teacherApplicationStatusLabel(status)}
+      {statusLabel(status === "reviewing" ? "under_review" : status)}
     </span>
   );
 }

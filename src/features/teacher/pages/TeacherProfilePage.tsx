@@ -12,11 +12,11 @@ import { formControlClass } from "@/lib/formControl";
 import { CountrySelect } from "@/components/ui/CountrySelect";
 import { WhatsAppPhoneField } from "@/components/whatsapp/WhatsAppPhoneField";
 import { toast } from "@/stores/uiStore";
-
 import { PageLoading } from "@/components/ui/PageLoading";
 import { ProfileAvatarUpload } from "@/components/profile/ProfileAvatarUpload";
 import { useUploadProfileAvatar } from "@/hooks/useUploadProfileAvatar";
 import { useAuthStore } from "@/stores/authStore";
+import { usePortalTranslation } from "@/i18n/LocaleProvider";
 
 const TIMEZONES = [
   "Asia/Dhaka",
@@ -32,6 +32,7 @@ const TIMEZONES = [
 ];
 
 export function TeacherProfilePage() {
+  const { t } = usePortalTranslation();
   const authUser = useAuthStore((s) => s.user);
   const { data: profile, isLoading } = useTeacherProfile();
   const updateProfile = useUpdateTeacherProfile();
@@ -80,11 +81,11 @@ export function TeacherProfilePage() {
   function handlePasswordSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (newPassword !== confirmPassword) {
-      toast.error("Passwords do not match");
+      toast.error(t("teacher.passwordsDoNotMatch"));
       return;
     }
     if (newPassword.length < 6) {
-      toast.error("Password must be at least 6 characters");
+      toast.error(t("teacher.passwordMinLength"));
       return;
     }
     changePassword.mutate(
@@ -105,13 +106,13 @@ export function TeacherProfilePage() {
   return (
     <PageContainer>
       <PageHeader
-        title="My Profile"
-        subtitle="Timezone, meeting link, payout details, and password"
+        title={t("teacher.myProfile")}
+        subtitle={t("teacher.profileSubtitle")}
         showBismillah
       />
 
       {isLoading ? (
-        <PageLoading label="Loading profile…" />
+        <PageLoading label={t("teacher.loadingProfile")} />
       ) : (
         <div className="grid gap-6 lg:grid-cols-2 lg:items-start">
           <Card className="flex flex-col items-center gap-3 p-6 lg:row-span-2 lg:sticky lg:top-24">
@@ -133,10 +134,10 @@ export function TeacherProfilePage() {
           </Card>
 
           <Card>
-            <h2 className="mb-4 font-bold text-primary-dark">Account & schedule</h2>
+            <h2 className="mb-4 font-bold text-primary-dark">{t("teacher.accountAndSchedule")}</h2>
             <form onSubmit={handleProfileSubmit} className="flex flex-col gap-4">
               <label className="flex flex-col gap-1.5">
-                <span className="text-xs font-medium text-zinc-500">Display name</span>
+                <span className="text-xs font-medium text-zinc-500">{t("teacher.displayName")}</span>
                 <input
                   value={name}
                   onChange={(e) => setName(e.target.value)}
@@ -146,7 +147,7 @@ export function TeacherProfilePage() {
               </label>
 
               <label className="flex flex-col gap-1.5">
-                <span className="text-xs font-medium text-zinc-500">Timezone</span>
+                <span className="text-xs font-medium text-zinc-500">{t("teacher.timezone")}</span>
                 <select
                   value={timezone}
                   onChange={(e) => setTimezone(e.target.value)}
@@ -170,19 +171,19 @@ export function TeacherProfilePage() {
               />
 
               <label className="flex flex-col gap-1.5">
-                <span className="text-xs font-medium text-zinc-500">Class meeting link</span>
+                <span className="text-xs font-medium text-zinc-500">{t("teacher.classMeetingLink")}</span>
                 <input
                   value={meetingLink}
                   onChange={(e) => setMeetingLink(e.target.value)}
-                  placeholder="Zoom / Google Meet URL"
+                  placeholder={t("teacher.meetingLinkPlaceholder")}
                   className={formControlClass}
                 />
               </label>
 
-              <h3 className="pt-2 font-semibold text-primary-dark">Payout details</h3>
+              <h3 className="pt-2 font-semibold text-primary-dark">{t("teacher.payoutDetails")}</h3>
 
               <label className="flex flex-col gap-1.5">
-                <span className="text-xs font-medium text-zinc-500">Bank name</span>
+                <span className="text-xs font-medium text-zinc-500">{t("teacher.bankName")}</span>
                 <input
                   value={bankName}
                   onChange={(e) => setBankName(e.target.value)}
@@ -191,7 +192,7 @@ export function TeacherProfilePage() {
               </label>
 
               <label className="flex flex-col gap-1.5">
-                <span className="text-xs font-medium text-zinc-500">Bank account</span>
+                <span className="text-xs font-medium text-zinc-500">{t("teacher.bankAccount")}</span>
                 <input
                   value={bankAccount}
                   onChange={(e) => setBankAccount(e.target.value)}
@@ -200,7 +201,7 @@ export function TeacherProfilePage() {
               </label>
 
               <label className="flex flex-col gap-1.5">
-                <span className="text-xs font-medium text-zinc-500">bKash number</span>
+                <span className="text-xs font-medium text-zinc-500">{t("teacher.bKashNumber")}</span>
                 <input
                   value={bKashNumber}
                   onChange={(e) => setBKashNumber(e.target.value)}
@@ -213,16 +214,16 @@ export function TeacherProfilePage() {
                 disabled={updateProfile.isPending}
                 className="mt-2 w-full rounded-xl"
               >
-                {updateProfile.isPending ? "Saving…" : "Save profile"}
+                {updateProfile.isPending ? t("teacher.saving") : t("teacher.saveProfile")}
               </Button>
             </form>
           </Card>
 
           <Card>
-            <h2 className="mb-4 font-bold text-primary-dark">Change password</h2>
+            <h2 className="mb-4 font-bold text-primary-dark">{t("teacher.changePassword")}</h2>
             <form onSubmit={handlePasswordSubmit} className="flex flex-col gap-4">
               <label className="flex flex-col gap-1.5">
-                <span className="text-xs font-medium text-zinc-500">Current password</span>
+                <span className="text-xs font-medium text-zinc-500">{t("teacher.currentPassword")}</span>
                 <input
                   type="password"
                   value={currentPassword}
@@ -233,7 +234,7 @@ export function TeacherProfilePage() {
               </label>
 
               <label className="flex flex-col gap-1.5">
-                <span className="text-xs font-medium text-zinc-500">New password</span>
+                <span className="text-xs font-medium text-zinc-500">{t("teacher.newPassword")}</span>
                 <input
                   type="password"
                   value={newPassword}
@@ -245,7 +246,7 @@ export function TeacherProfilePage() {
               </label>
 
               <label className="flex flex-col gap-1.5">
-                <span className="text-xs font-medium text-zinc-500">Confirm new password</span>
+                <span className="text-xs font-medium text-zinc-500">{t("teacher.confirmNewPassword")}</span>
                 <input
                   type="password"
                   value={confirmPassword}
@@ -254,7 +255,7 @@ export function TeacherProfilePage() {
                   required
                 />
                 {passwordMismatch ? (
-                  <span className="text-xs text-red-500">Passwords do not match</span>
+                  <span className="text-xs text-red-500">{t("teacher.passwordsDoNotMatch")}</span>
                 ) : null}
               </label>
 
@@ -268,7 +269,7 @@ export function TeacherProfilePage() {
                 }
                 className="mt-2 w-full rounded-xl"
               >
-                {changePassword.isPending ? "Updating…" : "Update password"}
+                {changePassword.isPending ? t("teacher.updating") : t("teacher.updatePassword")}
               </Button>
             </form>
           </Card>

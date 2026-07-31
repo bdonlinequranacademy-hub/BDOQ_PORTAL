@@ -10,6 +10,7 @@ import {
   EBOOK_CATEGORY_LABELS,
   RESOURCE_TYPE_LABELS,
 } from "@/features/admin/components/resources/adminResourcesUtils";
+import { usePortalTranslation } from "@/i18n/LocaleProvider";
 
 interface IAdminResourceLivePreviewProps {
   type: ResourceType;
@@ -42,6 +43,8 @@ export function AdminResourceLivePreview({
   featured,
   published,
 }: IAdminResourceLivePreviewProps) {
+  const { t } = usePortalTranslation();
+
   const Icon =
     type === "ebook" ? BookOpen : type === "audio" ? Headphones : Video;
 
@@ -106,9 +109,7 @@ export function AdminResourceLivePreview({
             {RESOURCE_TYPE_LABELS[type]}
           </span>
           {featured ? (
-            <span className="absolute right-3 top-3 rounded-md bg-gold px-2 py-0.5 text-[10px] font-bold uppercase text-white">
-              Featured
-            </span>
+            <span className="absolute right-3 top-3 rounded-md bg-gold px-2 py-0.5 text-[10px] font-bold uppercase text-white">{t("admin.cms.shared.statFeatured")}</span>
           ) : null}
         </div>
 

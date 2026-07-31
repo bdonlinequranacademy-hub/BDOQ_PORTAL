@@ -1,5 +1,6 @@
 import { Radio } from "lucide-react";
 import type { LiveMonitorSummary } from "@/types/models";
+import { usePortalTranslation } from "@/i18n/LocaleProvider";
 import { cn } from "@/lib/utils/cn";
 
 interface ILiveMonitorBannerProps {
@@ -13,6 +14,7 @@ export function LiveMonitorBanner({
   onOpenMonitor,
   compact = false,
 }: ILiveMonitorBannerProps) {
+  const { t } = usePortalTranslation();
   const issueCount = summary.teacherLateCount + summary.studentNoShowCount;
   const isLive = summary.liveCount > 0;
 
@@ -40,29 +42,43 @@ export function LiveMonitorBanner({
           <div>
             <p className="font-semibold text-portal-heading">
               {isLive
-                ? `${summary.liveCount} class${summary.liveCount === 1 ? "" : "es"} live now`
-                : "No live classes right now"}
+                ? summary.liveCount === 1
+                  ? t("admin.liveMonitor.banner.classesLiveNow", {
+                      count: String(summary.liveCount),
+                    })
+                  : t("admin.liveMonitor.banner.classesLiveNowPlural", {
+                      count: String(summary.liveCount),
+                    })
+                : t("admin.liveMonitor.banner.noLiveClasses")}
             </p>
             <p className="mt-0.5 text-sm text-portal-muted">
-              {summary.upcomingCount} upcoming · {summary.totalToday} total today
+              {t("admin.liveMonitor.banner.upcomingTotal", {
+                upcoming: String(summary.upcomingCount),
+                total: String(summary.totalToday),
+              })}
               {summary.day ? ` · ${summary.day}` : ""}
               {issueCount > 0 ? (
                 <span className="font-medium text-amber-700 dark:text-amber-400">
                   {" "}
-                  · {issueCount} issue{issueCount === 1 ? "" : "s"}
+                  ·{" "}
+                  {issueCount === 1
+                    ? t("admin.liveMonitor.banner.issue", { count: String(issueCount) })
+                    : t("admin.liveMonitor.banner.issues", { count: String(issueCount) })}
                 </span>
               ) : null}
             </p>
             {!compact ? (
               <div className="mt-2.5 flex flex-wrap gap-2">
                 <span className="rounded-full border border-red-500/25 bg-red-500/10 px-2.5 py-0.5 text-[11px] font-semibold text-red-700 dark:text-red-300">
-                  Live {summary.liveCount}
+                  {t("admin.liveMonitor.banner.live", { count: String(summary.liveCount) })}
                 </span>
                 <span className="rounded-full border border-primary/20 bg-primary/10 px-2.5 py-0.5 text-[11px] font-semibold text-primary dark:text-emerald-300">
-                  Upcoming {summary.upcomingCount}
+                  {t("admin.liveMonitor.banner.upcoming", {
+                    count: String(summary.upcomingCount),
+                  })}
                 </span>
                 <span className="rounded-full border border-portal bg-portal-surface-muted px-2.5 py-0.5 text-[11px] font-semibold text-portal-muted">
-                  Done {summary.completedCount}
+                  {t("admin.liveMonitor.banner.done", { count: String(summary.completedCount) })}
                 </span>
               </div>
             ) : null}
@@ -79,7 +95,7 @@ export function LiveMonitorBanner({
                 : "bg-primary hover:bg-primary-dark dark:bg-emerald-600 dark:hover:bg-emerald-500"
             )}
           >
-            Open monitor →
+            {t("admin.liveMonitor.banner.openMonitor")}
           </button>
         ) : null}
       </div>

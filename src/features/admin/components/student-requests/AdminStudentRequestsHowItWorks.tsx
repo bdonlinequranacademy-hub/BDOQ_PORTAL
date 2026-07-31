@@ -2,6 +2,7 @@ import { ArrowRight, CheckCircle2, ClipboardList, UserPlus } from "lucide-react"
 import { Link } from "react-router-dom";
 import { Card } from "@/components/ui/Card";
 import { cn } from "@/lib/utils/cn";
+import { usePortalTranslation } from "@/i18n/LocaleProvider";
 
 const STEPS = [
   {
@@ -22,9 +23,11 @@ const STEPS = [
 ];
 
 export function AdminStudentRequestsHowItWorks() {
+  const { t } = usePortalTranslation();
+
   return (
     <Card className="rounded-2xl border border-primary/15 bg-gradient-to-r from-primary/[0.06] via-primary/[0.03] to-portal-surface p-4 shadow-sm sm:p-5">
-      <p className="text-sm font-bold text-portal-heading">How this works</p>
+      <p className="text-sm font-bold text-portal-heading">{t("admin.studentRequests.howItWorksTitle")}</p>
       <div className="mt-4 grid gap-4 lg:grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)_auto_minmax(0,1fr)] lg:items-center">
         {STEPS.map((step, index) => {
           const Icon = step.icon;
@@ -41,9 +44,7 @@ export function AdminStudentRequestsHowItWorks() {
                     <Link
                       to="/admin/classes"
                       className="mt-2 inline-flex items-center gap-1 text-xs font-semibold text-primary hover:underline"
-                    >
-                      Go to Classes
-                      <ArrowRight className="size-3" aria-hidden />
+                    >{t("admin.classes.title")}<ArrowRight className="size-3" aria-hidden />
                     </Link>
                   ) : null}
                 </div>

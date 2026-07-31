@@ -1,6 +1,6 @@
 import { Card } from "@/components/ui/Card";
+import { usePortalTranslation } from "@/i18n/LocaleProvider";
 import type { IProgressDistributionSegment } from "@/features/admin/components/progress/adminProgressUtils";
-import { pctOfTotal } from "@/features/admin/components/progress/adminProgressUtils";
 
 interface IAdminProgressDistributionProps {
   segments: IProgressDistributionSegment[];
@@ -11,6 +11,7 @@ export function AdminProgressDistribution({
   segments,
   totalRecords,
 }: IAdminProgressDistributionProps) {
+  const { t, dynamicLabel, formatNumber } = usePortalTranslation();
   const total = Math.max(totalRecords, 1);
 
   let cursor = 0;
@@ -24,10 +25,17 @@ export function AdminProgressDistribution({
     })
     .join(", ");
 
+  const pctLabel = (count: number) => {
+    const pct = Math.round((count / totalRecords) * 1000) / 10;
+    return t("labels.of_total", { pct: `${formatNumber(pct)}%` });
+  };
+
   return (
     <Card className="rounded-2xl border border-portal bg-portal-surface p-5 shadow-[0_8px_24px_-16px_rgba(13,74,47,0.18)]">
-      <h2 className="text-sm font-bold text-portal-heading">Progress distribution</h2>
-      <p className="mt-0.5 text-xs text-portal-muted">{totalRecords} records tracked</p>
+      <h2 className="text-sm font-bold text-portal-heading">{t("admin.progress.progressDistribution")}</h2>
+      <p className="mt-0.5 text-xs text-portal-muted">
+        {t("admin.progress.recordsTracked", { count: String(totalRecords) })}
+      </p>
       <div className="mt-4 flex flex-col items-center gap-4 sm:flex-row">
         <div
           className="relative size-28 shrink-0 rounded-full"
@@ -35,9 +43,9 @@ export function AdminProgressDistribution({
           aria-hidden
         >
           <div className="absolute inset-4 flex flex-col items-center justify-center rounded-full bg-portal-surface text-center">
-            <p className="text-xl font-bold text-portal-heading">{totalRecords}</p>
+            <p className="text-xl font-bold text-portal-heading">{formatNumber(totalRecords)}</p>
             <p className="text-[9px] font-semibold uppercase tracking-wide text-portal-muted">
-              Total
+              {t("labels.total")}
             </p>
           </div>
         </div>
@@ -50,12 +58,12 @@ export function AdminProgressDistribution({
                   style={{ backgroundColor: segment.color }}
                 />
                 <span className="truncate">
-                  {segment.label}{" "}
+                  {dynamicLabel(segment.label)}{" "}
                   <span className="text-portal-muted">({segment.range})</span>
                 </span>
               </span>
               <span className="shrink-0 font-semibold tabular-nums text-portal-muted">
-                {segment.count} · {pctOfTotal(segment.count, totalRecords)}
+                {formatNumber(segment.count)} · {pctLabel(segment.count)}
               </span>
             </div>
           ))}

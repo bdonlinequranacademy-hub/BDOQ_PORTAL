@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { UserPlus } from "lucide-react";
 import {
   useCreateStudentRequest,
@@ -11,11 +11,20 @@ import { Button } from "@/components/ui/Button";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { formControlClass } from "@/lib/formControl";
 import type { StudentRequestStatus } from "@/types/models";
-
 import { PageLoading } from "@/components/ui/PageLoading";
 import { Pagination } from "@/components/ui/Pagination";
 import { usePaginatedList } from "@/lib/hooks/usePaginatedList";
-const COURSE_TYPES = ["Quran", "Tajweed", "Hifz", "Arabic", "Other"];
+import { usePortalTranslation } from "@/i18n/LocaleProvider";
+
+const COURSE_TYPES = ["Quran", "Tajweed", "Hifz", "Arabic", "Other"] as const;
+
+const COURSE_TYPE_KEYS: Record<(typeof COURSE_TYPES)[number], string> = {
+  Quran: "teacher.courseQuran",
+  Tajweed: "teacher.courseTajweed",
+  Hifz: "teacher.courseHifz",
+  Arabic: "teacher.courseArabic",
+  Other: "teacher.courseOther",
+};
 
 function statusStyles(status: StudentRequestStatus) {
   switch (status) {
@@ -29,11 +38,21 @@ function statusStyles(status: StudentRequestStatus) {
 }
 
 export function TeacherRequestStudentPage() {
+  const { t, statusLabel, formatDate } = usePortalTranslation();
   const [message, setMessage] = useState("");
-  const [preferredCourseType, setPreferredCourseType] = useState("Quran");
+  const [preferredCourseType, setPreferredCourseType] = useState<(typeof COURSE_TYPES)[number]>("Quran");
   const { data: requests = [], isLoading } = useTeacherStudentRequests();
   const create = useCreateStudentRequest();
   const pagination = usePaginatedList(requests);
+
+  const courseOptions = useMemo(
+    () =>
+      COURSE_TYPES.map((course) => ({
+        value: course,
+        label: t(COURSE_TYPE_KEYS[course]),
+      })),
+    [t]
+  );
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -54,45 +73,45 @@ export function TeacherRequestStudentPage() {
   return (
     <PageContainer>
       <PageHeader
-        title="Request a Student"
-        subtitle="Ask admin to assign a new student when you have availability"
+        title={t("teacher.requestStudent")}
+        subtitle={t("teacher.requestStudentSubtitle")}
         showBismillah
       />
 
       <div className="grid gap-6 lg:grid-cols-2 lg:items-start">
         <Card className="bg-portal-surface-muted">
-          <p className="text-sm font-semibold text-primary-dark">What happens next</p>
+          <p className="text-sm font-semibold text-primary-dark">{t("teacher.whatHappensNext")}</p>
           <ol className="mt-3 list-decimal space-y-2 pl-5 text-sm leading-relaxed text-portal-muted">
-            <li>Admin reviews your request (usually within 1–2 business days).</li>
-            <li>If approved, admin assigns a matching student to one of your classes.</li>
-            <li>You will see the new student under Students and in your class roster.</li>
+            <li>{t("teacher.requestStep1")}</li>
+            <li>{t("teacher.requestStep2")}</li>
+            <li>{t("teacher.requestStep3")}</li>
           </ol>
         </Card>
 
         <Card>
           <form onSubmit={handleSubmit} className="flex flex-col gap-4">
             <label className="flex flex-col gap-1.5">
-              <span className="form-label">Preferred course</span>
+              <span className="form-label">{t("teacher.preferredCourse")}</span>
               <select
                 value={preferredCourseType}
-                onChange={(e) => setPreferredCourseType(e.target.value)}
+                onChange={(e) => setPreferredCourseType(e.target.value as (typeof COURSE_TYPES)[number])}
                 className={formControlClass}
               >
-                {COURSE_TYPES.map((t) => (
-                  <option key={t} value={t}>
-                    {t}
+                {courseOptions.map((course) => (
+                  <option key={course.value} value={course.value}>
+                    {course.label}
                   </option>
                 ))}
               </select>
             </label>
 
             <label className="flex flex-col gap-1.5">
-              <span className="form-label">Message to admin</span>
+              <span className="form-label">{t("teacher.messageToAdmin")}</span>
               <textarea
                 value={message}
                 onChange={(e) => setMessage(e.target.value)}
                 rows={4}
-                placeholder="Describe your availability, preferred age group, timezone, etc."
+                placeholder={t("teacher.requestMessagePlaceholder")}
                 className={`${formControlClass} resize-y`}
                 required
               />
@@ -103,7 +122,7 @@ export function TeacherRequestStudentPage() {
               disabled={create.isPending || !message.trim()}
               className="w-full rounded-xl sm:w-auto"
             >
-              {create.isPending ? "Sending…" : "Submit request"}
+              {create.isPending ? t("teacher.sending") : t("teacher.submitRequest")}
             </Button>
           </form>
         </Card>
@@ -111,15 +130,15 @@ export function TeacherRequestStudentPage() {
 
       <div>
         <h2 className="mb-3 font-display text-lg font-bold text-primary-dark sm:text-xl">
-          Your requests
+          {t("teacher.yourRequests")}
         </h2>
         {isLoading ? (
-          <PageLoading label="Loading requests…" />
+          <PageLoading label={t("teacher.loadingRequests")} />
         ) : requests.length === 0 ? (
           <EmptyState
             icon={UserPlus}
-            title="No requests yet"
-            description="Submit a request when you are ready to take on a new student."
+            title={t("teacher.noRequestsYet")}
+            description={t("teacher.noRequestsYetDesc")}
           />
         ) : (
           <>
@@ -130,19 +149,21 @@ export function TeacherRequestStudentPage() {
                     <span
                       className={`rounded-full px-2.5 py-0.5 text-xs font-semibold capitalize ${statusStyles(req.status)}`}
                     >
-                      {req.status}
+                      {statusLabel(req.status)}
                     </span>
                     {req.preferredCourseType ? (
-                      <span className="text-xs text-portal-muted">{req.preferredCourseType}</span>
+                      <span className="text-xs text-portal-muted">
+                        {COURSE_TYPE_KEYS[req.preferredCourseType as (typeof COURSE_TYPES)[number]]
+                          ? t(COURSE_TYPE_KEYS[req.preferredCourseType as (typeof COURSE_TYPES)[number]])
+                          : req.preferredCourseType}
+                      </span>
                     ) : null}
-                    <span className="text-xs text-portal-muted">
-                      {new Date(req.createdAt).toLocaleDateString()}
-                    </span>
+                    <span className="text-xs text-portal-muted">{formatDate(req.createdAt)}</span>
                   </div>
                   <p className="text-sm text-primary-dark">{req.message}</p>
                   {req.adminNote ? (
                     <p className="rounded-xl border border-portal bg-portal-surface-muted px-3 py-2 text-xs text-portal-muted">
-                      Admin: {req.adminNote}
+                      {t("teacher.adminNote", { note: req.adminNote })}
                     </p>
                   ) : null}
                 </Card>

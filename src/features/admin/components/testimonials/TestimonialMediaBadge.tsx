@@ -2,6 +2,7 @@ import { Mic, Star, Video } from "lucide-react";
 import type { TestimonialMediaType } from "@/types/models";
 import { mediaTypeLabel } from "@/features/admin/components/testimonials/adminTestimonialsUtils";
 import { cn } from "@/lib/utils/cn";
+import { usePortalTranslation } from "@/i18n/LocaleProvider";
 
 interface ITestimonialMediaBadgeProps {
   type: TestimonialMediaType;
@@ -26,6 +27,8 @@ export function testimonialMediaStyles(type: TestimonialMediaType): string {
 }
 
 export function TestimonialMediaBadge({ type, className }: ITestimonialMediaBadgeProps) {
+  const { t } = usePortalTranslation();
+
   return (
     <span
       className={cn(
@@ -35,7 +38,7 @@ export function TestimonialMediaBadge({ type, className }: ITestimonialMediaBadg
       )}
     >
       <MediaIcon type={type} />
-      {mediaTypeLabel(type)}
+      {mediaTypeLabel(type, t)}
     </span>
   );
 }

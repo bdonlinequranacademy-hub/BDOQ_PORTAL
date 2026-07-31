@@ -2,6 +2,7 @@ import { ArrowRight } from "lucide-react";
 import { Card } from "@/components/ui/Card";
 import { UserInitialAvatar } from "@/components/ui/UserInitialAvatar";
 import type { IHomeworkTeacherRow } from "@/features/admin/components/homework/adminHomeworkUtils";
+import { usePortalTranslation } from "@/i18n/LocaleProvider";
 
 interface IAdminHomeworkByTeacherTableProps {
   rows: IHomeworkTeacherRow[];
@@ -12,19 +13,22 @@ export function AdminHomeworkByTeacherTable({
   rows,
   onViewAll,
 }: IAdminHomeworkByTeacherTableProps) {
+  const { t, formatNumber } = usePortalTranslation();
   const visible = rows.slice(0, 5);
 
   return (
     <Card className="flex h-full flex-col overflow-hidden rounded-2xl border border-portal bg-portal-surface p-0 shadow-[0_8px_24px_-16px_rgba(13,74,47,0.18)]">
       <div className="flex items-center justify-between border-b border-portal px-5 py-4">
-        <h2 className="text-sm font-bold text-portal-heading">By teacher</h2>
+        <h2 className="text-sm font-bold text-portal-heading">
+          {t("admin.homework.byTeacher")}
+        </h2>
         {onViewAll ? (
           <button
             type="button"
             onClick={onViewAll}
             className="text-xs font-semibold text-primary hover:underline"
           >
-            View all
+            {t("actions.viewAll")}
           </button>
         ) : null}
       </div>
@@ -32,18 +36,18 @@ export function AdminHomeworkByTeacherTable({
         <table className="w-full min-w-[520px] border-collapse text-left text-sm">
           <thead>
             <tr className="border-b border-portal bg-portal-muted/30 text-xs font-semibold uppercase tracking-wide text-portal-muted">
-              <th className="px-5 py-3">Teacher</th>
-              <th className="px-3 py-3">Assignments</th>
-              <th className="px-3 py-3">Submitted</th>
-              <th className="px-3 py-3">Pending</th>
-              <th className="px-5 py-3 text-right">Graded</th>
+              <th className="px-5 py-3">{t("tables.teacher")}</th>
+              <th className="px-3 py-3">{t("tables.assignments")}</th>
+              <th className="px-3 py-3">{t("tables.submitted")}</th>
+              <th className="px-3 py-3">{t("tables.pending")}</th>
+              <th className="px-5 py-3 text-right">{t("tables.graded")}</th>
             </tr>
           </thead>
           <tbody>
             {visible.length === 0 ? (
               <tr>
                 <td colSpan={5} className="px-5 py-8 text-center text-sm text-portal-muted">
-                  No teacher homework data yet.
+                  {t("admin.homework.noTeacherData")}
                 </td>
               </tr>
             ) : (
@@ -56,16 +60,16 @@ export function AdminHomeworkByTeacherTable({
                     </div>
                   </td>
                   <td className="px-3 py-3.5 tabular-nums text-portal-heading">
-                    {row.assignmentCount}
+                    {formatNumber(row.assignmentCount)}
                   </td>
                   <td className="px-3 py-3.5 tabular-nums text-portal-heading">
-                    {row.submissions}
+                    {formatNumber(row.submissions)}
                   </td>
                   <td className="px-3 py-3.5 tabular-nums font-medium text-amber-700">
-                    {row.pendingGrade}
+                    {formatNumber(row.pendingGrade)}
                   </td>
                   <td className="px-5 py-3.5 text-right tabular-nums font-semibold text-emerald-700">
-                    {row.graded}
+                    {formatNumber(row.graded)}
                   </td>
                 </tr>
               ))
@@ -80,7 +84,7 @@ export function AdminHomeworkByTeacherTable({
             onClick={onViewAll}
             className="inline-flex items-center gap-1 text-xs font-semibold text-primary"
           >
-            View all teachers
+            {t("admin.homework.viewAllTeachers")}
             <ArrowRight className="size-3.5" aria-hidden />
           </button>
         </div>

@@ -1,11 +1,11 @@
 import type { StudentAdmissionStatus } from "@/types/models";
-import {
-  admissionStatusLabel,
-  admissionStatusStyles,
-} from "@/features/admin/components/student-admissions/adminStudentAdmissionsUtils";
+import { admissionStatusStyles } from "@/features/admin/components/student-admissions/adminStudentAdmissionsUtils";
 import { cn } from "@/lib/utils/cn";
+import { usePortalTranslation } from "@/i18n/LocaleProvider";
 
 export function AdmissionStatusBadge({ status }: { status: StudentAdmissionStatus }) {
+  const { statusLabel } = usePortalTranslation();
+
   return (
     <span
       className={cn(
@@ -13,7 +13,7 @@ export function AdmissionStatusBadge({ status }: { status: StudentAdmissionStatu
         admissionStatusStyles(status)
       )}
     >
-      {admissionStatusLabel(status)}
+      {statusLabel(status === "reviewing" ? "under_review" : status)}
     </span>
   );
 }

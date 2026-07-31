@@ -5,6 +5,7 @@ import {
 } from "lucide-react";
 import { Card } from "@/components/ui/Card";
 import type { CurriculumNode } from "@/lib/api/curriculumApi";
+import { usePortalTranslation } from "@/i18n/LocaleProvider";
 import {
   computeCurriculumStats,
   exportCurriculumFile,
@@ -27,6 +28,8 @@ interface IAdminCurriculumOverviewProps {
 }
 
 export function AdminCurriculumOverview({ tree }: IAdminCurriculumOverviewProps) {
+  const { t, formatNumber } = usePortalTranslation();
+
   const segments = tree
     .map((program) => ({
       label: program.label,
@@ -39,8 +42,8 @@ export function AdminCurriculumOverview({ tree }: IAdminCurriculumOverviewProps)
   if (total === 0) {
     return (
       <Card className="rounded-2xl border border-portal bg-portal-surface p-5 shadow-[0_8px_24px_-16px_rgba(13,74,47,0.18)]">
-        <h2 className="text-sm font-bold text-portal-heading">Curriculum Overview</h2>
-        <p className="mt-2 text-sm text-portal-muted">No sections configured yet.</p>
+        <h2 className="text-sm font-bold text-portal-heading">{t("admin.curriculum.overviewTitle")}</h2>
+        <p className="mt-2 text-sm text-portal-muted">{t("admin.curriculum.noSectionsConfigured")}</p>
       </Card>
     );
   }
@@ -55,7 +58,7 @@ export function AdminCurriculumOverview({ tree }: IAdminCurriculumOverviewProps)
 
   return (
     <Card className="rounded-2xl border border-portal bg-portal-surface p-5 shadow-[0_8px_24px_-16px_rgba(13,74,47,0.18)]">
-      <h2 className="mb-4 text-sm font-bold text-portal-heading">Curriculum Overview</h2>
+      <h2 className="mb-4 text-sm font-bold text-portal-heading">{t("admin.curriculum.overviewTitle")}</h2>
       <div className="flex flex-col items-center gap-5 sm:flex-row sm:items-start">
         <div
           className="relative size-36 shrink-0 rounded-full"
@@ -63,9 +66,9 @@ export function AdminCurriculumOverview({ tree }: IAdminCurriculumOverviewProps)
           aria-hidden
         >
           <div className="absolute inset-5 flex flex-col items-center justify-center rounded-full bg-portal-surface text-center">
-            <p className="text-2xl font-bold text-portal-heading">{total}</p>
+            <p className="text-2xl font-bold text-portal-heading">{formatNumber(total)}</p>
             <p className="text-[10px] font-semibold uppercase tracking-wide text-portal-muted">
-              Sections
+              {t("admin.curriculum.sectionsLabel")}
             </p>
           </div>
         </div>
@@ -80,7 +83,7 @@ export function AdminCurriculumOverview({ tree }: IAdminCurriculumOverviewProps)
                 <span className="truncate text-portal-heading">{segment.label}</span>
               </div>
               <span className="shrink-0 font-semibold tabular-nums text-portal-muted">
-                {Math.round((segment.count / total) * 100)}%
+                {formatNumber(Math.round((segment.count / total) * 100))}%
               </span>
             </div>
           ))}
@@ -96,33 +99,36 @@ interface IAdminCurriculumActivityProps {
 }
 
 export function AdminCurriculumActivity({ tree, dirty }: IAdminCurriculumActivityProps) {
+  const { t, formatNumber } = usePortalTranslation();
   const stats = computeCurriculumStats(tree);
   const items = [
     {
       id: "programs",
-      text: `${stats.programs} programs loaded in curriculum tree`,
+      text: t("admin.curriculum.programsLoaded", { count: formatNumber(stats.programs) }),
       tone: "text-primary",
     },
     {
       id: "sections",
-      text: `${stats.sections} sections across all programs`,
+      text: t("admin.curriculum.sectionsAcrossPrograms", { count: formatNumber(stats.sections) }),
       tone: "text-teal-700",
     },
     {
       id: "topics",
-      text: `${stats.topics + stats.surahs} topics & surahs configured`,
+      text: t("admin.curriculum.topicsSurahsConfigured", {
+        count: formatNumber(stats.topics + stats.surahs),
+      }),
       tone: "text-amber-700",
     },
     {
       id: "save",
-      text: dirty ? "You have unsaved changes — save when ready" : "All changes are saved",
+      text: dirty ? t("admin.curriculum.unsavedChangesHint") : t("admin.curriculum.allChangesSaved"),
       tone: dirty ? "text-red-600" : "text-emerald-700",
     },
   ];
 
   return (
     <Card className="rounded-2xl border border-portal bg-portal-surface p-5 shadow-[0_8px_24px_-16px_rgba(13,74,47,0.18)]">
-      <h2 className="mb-4 text-sm font-bold text-portal-heading">Recent Activity</h2>
+      <h2 className="mb-4 text-sm font-bold text-portal-heading">{t("admin.curriculum.recentActivity")}</h2>
       <div className="flex flex-col gap-3">
         {items.map((item) => (
           <div
@@ -155,24 +161,26 @@ export function AdminCurriculumQuickActions({
   onReset,
   onExportCsv,
 }: IAdminCurriculumQuickActionsProps) {
+  const { t } = usePortalTranslation();
+
   const actions = [
     {
       id: "csv",
-      label: "Export CSV",
+      label: t("filters.exportCsv"),
       icon: FileSpreadsheet,
       onClick: onExportCsv,
       disabled: false,
     },
     {
       id: "reset",
-      label: "Reset Defaults",
+      label: t("admin.curriculum.resetDefaults"),
       icon: RotateCcw,
       onClick: onReset,
       disabled: resetting,
     },
     {
       id: "save",
-      label: saving ? "Saving…" : "Save Changes",
+      label: saving ? t("admin.curriculum.saving") : t("admin.curriculum.saveChanges"),
       icon: Save,
       onClick: onSave,
       disabled: !dirty || saving,
@@ -181,7 +189,7 @@ export function AdminCurriculumQuickActions({
 
   return (
     <Card className="rounded-2xl border border-portal bg-portal-surface p-5 shadow-[0_8px_24px_-16px_rgba(13,74,47,0.18)]">
-      <h2 className="mb-4 text-sm font-bold text-portal-heading">Quick Actions</h2>
+      <h2 className="mb-4 text-sm font-bold text-portal-heading">{t("admin.curriculum.quickActions")}</h2>
       <div className="grid grid-cols-2 gap-3">
         {actions.map((action) => (
           <button

@@ -4,6 +4,7 @@ import {
   Download,
   Inbox,
   RefreshCw,
+  UserPlus,
 } from "lucide-react";
 import { Card } from "@/components/ui/Card";
 import type { StudentAdmissionView } from "@/types/models";
@@ -13,6 +14,7 @@ import {
   groupAdmissionSources,
   type IAdminStudentAdmissionsStats,
 } from "@/features/admin/components/student-admissions/adminStudentAdmissionsUtils";
+import { usePortalTranslation } from "@/i18n/LocaleProvider";
 import { cn } from "@/lib/utils/cn";
 
 const SOURCE_COLORS = ["#32C991", "#3B82F6", "#8B5CF6", "#F59E0B", "#EF4444", "#14B8A6"];
@@ -27,7 +29,8 @@ interface IAdminStudentAdmissionsSidebarProps {
 }
 
 function ApplicationsBySource({ applications }: { applications: StudentAdmissionView[] }) {
-  const sources = groupAdmissionSources(applications).slice(0, 5);
+  const { t, dynamicLabel, formatNumber } = usePortalTranslation();
+  const sources = groupAdmissionSources(applications, t, dynamicLabel).slice(0, 5);
   const total = Math.max(applications.length, 1);
 
   let cursor = 0;
@@ -43,7 +46,9 @@ function ApplicationsBySource({ applications }: { applications: StudentAdmission
 
   return (
     <Card className="rounded-2xl border border-portal bg-portal-surface p-5 shadow-[0_8px_24px_-16px_rgba(13,74,47,0.18)]">
-      <h2 className="text-sm font-bold text-portal-heading">Applications by source</h2>
+      <h2 className="text-sm font-bold text-portal-heading">
+        {t("admin.admissions.sidebarBySource")}
+      </h2>
       <div className="mt-4 flex items-center gap-4">
         <div
           className="relative size-28 shrink-0 rounded-full"
@@ -51,15 +56,15 @@ function ApplicationsBySource({ applications }: { applications: StudentAdmission
           aria-hidden
         >
           <div className="absolute inset-4 flex flex-col items-center justify-center rounded-full bg-portal-surface text-center">
-            <p className="text-xl font-bold text-portal-heading">{applications.length}</p>
+            <p className="text-xl font-bold text-portal-heading">{formatNumber(applications.length)}</p>
             <p className="text-[10px] font-semibold uppercase tracking-wide text-portal-muted">
-              Total
+              {t("stats.total")}
             </p>
           </div>
         </div>
         <div className="flex min-w-0 flex-1 flex-col gap-2 text-xs">
           {sources.length === 0 ? (
-            <p className="text-portal-muted">No source data yet.</p>
+            <p className="text-portal-muted">{t("admin.trialLeads.sidebarNoSourceData")}</p>
           ) : (
             sources.map((source, index) => (
               <div key={source.label} className="flex items-center justify-between gap-2">
@@ -71,7 +76,7 @@ function ApplicationsBySource({ applications }: { applications: StudentAdmission
                   <span className="truncate">{source.label}</span>
                 </span>
                 <span className="shrink-0 font-semibold tabular-nums">
-                  {source.count} · {Math.round((source.count / total) * 100)}%
+                  {formatNumber(source.count)} · {formatNumber(Math.round((source.count / total) * 100))}%
                 </span>
               </div>
             ))
@@ -83,13 +88,16 @@ function ApplicationsBySource({ applications }: { applications: StudentAdmission
 }
 
 function ProgramsInterested({ applications }: { applications: StudentAdmissionView[] }) {
-  const programs = groupAdmissionPrograms(applications).slice(0, 6);
+  const { t, dynamicLabel } = usePortalTranslation();
+  const programs = groupAdmissionPrograms(applications, t, dynamicLabel).slice(0, 6);
 
   return (
     <Card className="rounded-2xl border border-portal bg-portal-surface p-5 shadow-[0_8px_24px_-16px_rgba(13,74,47,0.18)]">
-      <h2 className="text-sm font-bold text-portal-heading">Programs interested</h2>
+      <h2 className="text-sm font-bold text-portal-heading">
+        {t("admin.admissions.sidebarPrograms")}
+      </h2>
       {programs.length === 0 ? (
-        <p className="mt-3 text-sm text-portal-muted">No program data yet.</p>
+        <p className="mt-3 text-sm text-portal-muted">{t("admin.classLogs.noProgramData")}</p>
       ) : (
         <div className="mt-4 flex flex-col gap-2.5">
           {programs.map((program) => (
@@ -107,16 +115,24 @@ function ProgramsInterested({ applications }: { applications: StudentAdmissionVi
 }
 
 function ConversionOverview({ stats }: { stats: IAdminStudentAdmissionsStats }) {
+  const { t, formatNumber } = usePortalTranslation();
+
   return (
     <Card className="rounded-2xl border border-portal bg-portal-surface p-5 shadow-[0_8px_24px_-16px_rgba(13,74,47,0.18)]">
-      <h2 className="text-sm font-bold text-portal-heading">Conversion overview</h2>
+      <h2 className="text-sm font-bold text-portal-heading">
+        {t("admin.admissions.sidebarConversion")}
+      </h2>
       <p className="mt-1 text-xs text-portal-muted">
-        Approved applications compared to total submissions.
+        {t("admin.admissions.sidebarConversionDesc")}
       </p>
       <div className="mt-4">
         <div className="flex items-end justify-between gap-2">
-          <p className="text-2xl font-bold text-portal-heading">{stats.approved} approved</p>
-          <p className="text-sm font-semibold text-primary">{stats.conversionRate}%</p>
+          <p className="text-2xl font-bold text-portal-heading">
+            {t("admin.admissions.sidebarApprovedCount", {
+              count: formatNumber(stats.approved),
+            })}
+          </p>
+          <p className="text-sm font-semibold text-primary">{formatNumber(stats.conversionRate)}%</p>
         </div>
         <div className="mt-3 h-2 overflow-hidden rounded-full bg-portal-muted/40">
           <div
@@ -125,7 +141,7 @@ function ConversionOverview({ stats }: { stats: IAdminStudentAdmissionsStats }) 
           />
         </div>
         <p className="mt-2 text-xs text-portal-muted">
-          {stats.approved} / {stats.total} total applications
+          {formatNumber(stats.approved)} / {formatNumber(stats.total)}
         </p>
       </div>
     </Card>
@@ -140,25 +156,38 @@ export function AdminStudentAdmissionsSidebar({
   onRefresh,
   onReviewNew,
 }: IAdminStudentAdmissionsSidebarProps) {
+  const { t, dynamicLabel } = usePortalTranslation();
+
   const actions = [
     {
-      label: "Review new",
+      id: "review",
+      label: t("admin.admissions.actionReviewNew"),
       icon: Inbox,
       onClick: onReviewNew,
       show: stats.new > 0,
     },
     {
-      label: "Export",
+      id: "export",
+      label: t("admin.common.export"),
       icon: Download,
-      onClick: () => exportStudentAdmissionsFile(filteredApplications, "admissions-filtered"),
+      onClick: () =>
+        exportStudentAdmissionsFile(filteredApplications, "admissions-filtered", t, dynamicLabel),
     },
     {
-      label: "Trial leads",
+      id: "create",
+      label: t("admin.admissions.actionCreateUser"),
+      icon: UserPlus,
+      to: "/admin/users",
+    },
+    {
+      id: "trials",
+      label: t("admin.trialLeads.title"),
       icon: CalendarCheck,
       to: "/admin/trial-bookings",
     },
     {
-      label: "Contact inbox",
+      id: "contact",
+      label: t("admin.contact.title"),
       icon: Inbox,
       to: "/admin/contact-messages",
     },
@@ -170,15 +199,17 @@ export function AdminStudentAdmissionsSidebar({
       <ProgramsInterested applications={applications} />
       <ConversionOverview stats={stats} />
       <Card className="rounded-2xl border border-portal bg-portal-surface p-5 shadow-[0_8px_24px_-16px_rgba(13,74,47,0.18)]">
-        <h2 className="mb-4 text-sm font-bold text-portal-heading">Quick actions</h2>
+        <h2 className="mb-4 text-sm font-bold text-portal-heading">
+          {t("admin.admissions.sidebarQuickActions")}
+        </h2>
         <div className="grid grid-cols-2 gap-2.5">
-          {actions.map(({ label, icon: Icon, to, onClick }) => {
+          {actions.map(({ id, label, icon: Icon, to, onClick }) => {
             const className =
               "inline-flex flex-col items-start gap-2 rounded-xl border border-portal bg-portal-muted/20 px-3 py-3 text-left text-xs font-semibold text-portal-heading transition hover:border-primary/25 hover:bg-primary/5 hover:text-primary";
 
             if (to) {
               return (
-                <Link key={label} to={to} className={className}>
+                <Link key={id} to={to} className={className}>
                   <Icon className="size-4 text-primary" aria-hidden />
                   {label}
                 </Link>
@@ -186,7 +217,7 @@ export function AdminStudentAdmissionsSidebar({
             }
 
             return (
-              <button key={label} type="button" onClick={onClick} className={className}>
+              <button key={id} type="button" onClick={onClick} className={className}>
                 <Icon className="size-4 text-primary" aria-hidden />
                 {label}
               </button>
@@ -203,7 +234,7 @@ export function AdminStudentAdmissionsSidebar({
             className={cn("size-4 text-primary", isFetching && "animate-spin")}
             aria-hidden
           />
-          {isFetching ? "Refreshing…" : "Refresh"}
+          {isFetching ? t("admin.trialLeads.refreshing") : t("admin.trialLeads.actionRefresh")}
         </button>
       </Card>
     </aside>

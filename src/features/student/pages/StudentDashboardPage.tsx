@@ -32,6 +32,7 @@ import { DashboardTwoColumn } from "@/components/dashboard/DashboardTwoColumn";
 import { DashboardNotificationFeed } from "@/components/dashboard/DashboardNotificationFeed";
 import { ProgressMeter } from "@/components/dashboard/ProgressMeter";
 import { QuickActionGrid } from "@/components/dashboard/QuickActionGrid";
+import { usePortalTranslation } from "@/i18n/LocaleProvider";
 
 function isOverdue(dueDate: string) {
   return new Date(dueDate) < new Date();
@@ -39,6 +40,7 @@ function isOverdue(dueDate: string) {
 
 export function StudentDashboardPage() {
   const navigate = useNavigate();
+  const { t, formatDate } = usePortalTranslation();
   const { data: classes = [], isLoading: classesLoading } = useStudentClasses();
   const { data: homework = [] } = useStudentHomework();
   const { data: progress = [] } = useStudentProgress();
@@ -78,7 +80,7 @@ export function StudentDashboardPage() {
           </div>
           <div className="min-w-0 flex-1">
             <p className="text-xs font-semibold uppercase tracking-wide text-primary">
-              Next class today
+              {t("student.nextClassToday")}
             </p>
             <p className="truncate font-bold text-portal-heading">{nextSession.classTitle}</p>
             <p className="text-sm text-portal-muted">
@@ -91,49 +93,51 @@ export function StudentDashboardPage() {
 
       <div className="grid grid-cols-2 items-start gap-2.5 sm:gap-3 lg:grid-cols-4">
         <StatCard
-          label="My classes"
+          label={t("student.myClasses")}
           value={classesLoading ? "…" : classes.length}
           icon={<BookOpen className="size-5" />}
           iconBg="bg-primary/10"
-          hint="Enrolled courses"
+          hint={t("student.enrolledCourses")}
           onClick={() => navigate("/student/classes")}
         />
         <StatCard
-          label="Homework due"
+          label={t("student.homeworkDue")}
           value={pendingHw.length}
           icon={<ClipboardList className="size-5" />}
           iconBg="bg-gold/15"
-          hint="Not submitted yet"
+          hint={t("student.notSubmittedYet")}
           onClick={() => navigate("/student/homework")}
         />
         <StatCard
-          label="Overdue"
+          label={t("student.overdue")}
           value={overdueHw.length}
           icon={<ClipboardList className="size-5 text-red-500" />}
           iconBg="bg-red-50"
-          hint={overdueHw.length > 0 ? "Needs attention" : "All on track"}
+          hint={overdueHw.length > 0 ? t("student.needsAttention") : t("student.allOnTrack")}
           onClick={() => navigate("/student/homework")}
         />
         <StatCard
-          label="Notifications"
+          label={t("student.notifications")}
           value={unreadCount}
           icon={<Bell className="size-5" />}
           iconBg="bg-teal/10"
-          hint="Unread updates"
+          hint={t("student.unreadUpdates")}
           onClick={() => navigate("/student/notifications")}
         />
       </div>
 
       {curriculumPlan.length > 0 ? (
         <DashboardSection
-          title="My study plan"
-          actionLabel="View progress"
+          title={t("student.myStudyPlan")}
+          actionLabel={t("student.viewProgress")}
           onAction={() => navigate("/student/progress")}
         >
           <StudentCurriculumPlan assignments={curriculumPlan} />
           {latestProgress?.curriculumLabels?.program ? (
             <p className="text-xs text-zinc-500">
-              Latest class update: {formatCurriculumPath(latestProgress.curriculumLabels)}
+              {t("student.latestClassUpdate", {
+                path: formatCurriculumPath(latestProgress.curriculumLabels),
+              })}
             </p>
           ) : null}
         </DashboardSection>
@@ -143,21 +147,29 @@ export function StudentDashboardPage() {
         main={
           <>
             <DashboardSection
-              title="Today's classes"
+              title={t("student.todaysClasses")}
               badge={
-                scheduleLoading ? "…" : `${todaySessions.length} session${todaySessions.length === 1 ? "" : "s"}`
+                scheduleLoading
+                  ? "…"
+                  : todaySessions.length === 1
+                    ? t("student.sessionCount", { count: String(todaySessions.length) })
+                    : t("student.sessionsCount", { count: String(todaySessions.length) })
               }
-              subtitle={todaySchedule?.day ? `Academy day: ${todaySchedule.day}` : undefined}
+              subtitle={
+                todaySchedule?.day
+                  ? t("student.academyDay", { day: todaySchedule.day })
+                  : undefined
+              }
               elevated
             >
               {scheduleLoading ? (
-                <PageLoading label="Loading schedule…" />
+                <PageLoading label={t("student.loadingSchedule")} />
               ) : todaySessions.length === 0 ? (
                 <EmptyState
                   icon={Calendar}
-                  title="No classes today"
-                  description="Enjoy your break or review homework while you wait for the next session."
-                  actionLabel="View all classes"
+                  title={t("student.noClassesToday")}
+                  description={t("student.noClassesTodayDesc")}
+                  actionLabel={t("student.viewAllClasses")}
                   onAction={() => navigate("/student/classes")}
                 />
               ) : (
@@ -175,14 +187,14 @@ export function StudentDashboardPage() {
             </DashboardSection>
 
             <DashboardSection
-              title="My classes"
-              actionLabel="View all"
+              title={t("student.myClasses")}
+              actionLabel={t("student.viewAll")}
               onAction={() => navigate("/student/classes")}
             >
               {classesLoading ? (
                 <PageLoading />
               ) : classes.length === 0 ? (
-                <p className="text-sm text-zinc-400">No classes enrolled yet.</p>
+                <p className="text-sm text-zinc-400">{t("student.noClassesEnrolled")}</p>
               ) : (
                 <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
                   {classes.slice(0, 4).map((cls) => (
@@ -199,7 +211,7 @@ export function StudentDashboardPage() {
                       {cls.meetingLink ? (
                         <span className="inline-flex items-center gap-1 text-xs text-primary">
                           <Video className="size-3" aria-hidden />
-                          Join class
+                          {t("student.joinClass")}
                         </span>
                       ) : null}
                     </button>
@@ -209,15 +221,15 @@ export function StudentDashboardPage() {
             </DashboardSection>
 
             <DashboardSection
-              title="Homework due"
-              actionLabel="View all"
+              title={t("student.homeworkDue")}
+              actionLabel={t("student.viewAll")}
               onAction={() => navigate("/student/homework")}
             >
               {pendingHw.length === 0 ? (
                 <EmptyState
                   icon={ClipboardList}
-                  title="You're all caught up"
-                  description="No pending homework right now. Great job staying on track."
+                  title={t("student.allCaughtUp")}
+                  description={t("student.allCaughtUpDesc")}
                 />
               ) : (
                 <div className="flex flex-col gap-3">
@@ -235,7 +247,9 @@ export function StudentDashboardPage() {
                       <div>
                         <p className="text-sm font-semibold text-portal-heading">{hw.title}</p>
                         <p className="text-xs text-portal-muted">
-                          Due {new Date(hw.dueDate).toLocaleDateString()}
+                          {t("student.dueDate", {
+                            date: formatDate(hw.dueDate),
+                          })}
                         </p>
                       </div>
                       <ChevronRight className="size-4 text-zinc-300" aria-hidden />
@@ -249,18 +263,20 @@ export function StudentDashboardPage() {
         aside={
           <>
             {latestProgress ? (
-              <DashboardSection title="My progress" elevated>
+              <DashboardSection title={t("student.myProgress")} elevated>
                 <ProgressMeter
-                  label="Tajweed score"
+                  label={t("student.tajweedScore")}
                   value={latestProgress.tajweedScore}
-                  hint={`${latestProgress.surahsCompleted?.length ?? 0} surahs memorized`}
+                  hint={t("student.surahsMemorized", {
+                    count: String(latestProgress.surahsCompleted?.length ?? 0),
+                  })}
                 />
                 <button
                   type="button"
                   onClick={() => navigate("/student/progress")}
                   className="text-sm font-semibold text-gold hover:underline"
                 >
-                  View full progress →
+                  {t("student.viewFullProgress")}
                 </button>
               </DashboardSection>
             ) : null}
@@ -274,14 +290,14 @@ export function StudentDashboardPage() {
                 <MessageSquare className="size-5 text-emerald-100" aria-hidden />
               </div>
               <div>
-                <p className="font-bold">Weekly summary</p>
-                <p className="text-xs text-white/70">Verified update from portal records</p>
+                <p className="font-bold">{t("student.weeklySummary")}</p>
+                <p className="text-xs text-white/70">{t("student.weeklySummaryDesc")}</p>
               </div>
             </button>
 
             <DashboardSection
-              title="Notifications"
-              actionLabel="See all"
+              title={t("student.notifications")}
+              actionLabel={t("student.seeAll")}
               onAction={() => navigate("/student/notifications")}
             >
               <DashboardNotificationFeed items={notificationItems} />
@@ -291,25 +307,25 @@ export function StudentDashboardPage() {
               columns={2}
               actions={[
                 {
-                  label: "Attendance",
+                  label: t("student.attendance"),
                   icon: <ClipboardList className="size-5 text-teal-600" />,
                   iconBg: "bg-teal/10",
                   onClick: () => navigate("/student/attendance"),
                 },
                 {
-                  label: "All classes",
+                  label: t("student.allClasses"),
                   icon: <BookOpen className="size-5 text-primary" />,
                   iconBg: "bg-primary/10",
                   onClick: () => navigate("/student/classes"),
                 },
                 {
-                  label: "Progress",
+                  label: t("student.progress"),
                   icon: <TrendingUp className="size-5 text-gold" />,
                   iconBg: "bg-gold/15",
                   onClick: () => navigate("/student/progress"),
                 },
                 {
-                  label: "Payments",
+                  label: t("student.payments"),
                   icon: <Bell className="size-5 text-zinc-600" />,
                   iconBg: "bg-zinc-100",
                   onClick: () => navigate("/student/payments"),

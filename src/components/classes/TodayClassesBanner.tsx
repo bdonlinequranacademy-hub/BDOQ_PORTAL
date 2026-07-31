@@ -1,5 +1,6 @@
 import { Sparkles } from "lucide-react";
 import { classTitle, formatScheduleLine, type ScheduleLike } from "@/lib/utils/class";
+import { usePortalTranslation } from "@/i18n/LocaleProvider";
 
 interface TodayClassItem {
   _id: string;
@@ -14,6 +15,8 @@ interface TodayClassesBannerProps {
 }
 
 export function TodayClassesBanner({ classes, onClassClick }: TodayClassesBannerProps) {
+  const { t } = usePortalTranslation();
+
   if (classes.length === 0) return null;
 
   return (
@@ -21,7 +24,7 @@ export function TodayClassesBanner({ classes, onClassClick }: TodayClassesBanner
       <div className="mb-3 flex items-center gap-2">
         <Sparkles className="size-4 text-gold-dark" />
         <h2 className="text-sm font-bold text-navy">
-          Today&apos;s class{classes.length !== 1 ? "es" : ""}
+          {classes.length === 1 ? t("student.todaysClass") : t("student.todaysClassesBanner")}
         </h2>
       </div>
       <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap">
@@ -34,7 +37,7 @@ export function TodayClassesBanner({ classes, onClassClick }: TodayClassesBanner
           >
             <span className="font-semibold text-navy">{classTitle(cls)}</span>
             <span className="mt-0.5 text-xs text-zinc-600">
-              {formatScheduleLine(cls.schedule) ?? "Scheduled today"}
+              {formatScheduleLine(cls.schedule) ?? t("student.scheduledToday")}
             </span>
           </button>
         ))}

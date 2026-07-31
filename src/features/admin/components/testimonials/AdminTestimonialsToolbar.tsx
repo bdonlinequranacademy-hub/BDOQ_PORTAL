@@ -6,6 +6,7 @@ import {
 } from "@/features/admin/components/testimonials/adminTestimonialsUtils";
 import { formControlClass } from "@/lib/formControl";
 import { cn } from "@/lib/utils/cn";
+import { usePortalTranslation } from "@/i18n/LocaleProvider";
 
 interface IAdminTestimonialsToolbarProps {
   tab: AdminTestimonialsTab;
@@ -59,6 +60,8 @@ export function AdminTestimonialsToolbar({
   onSortChange,
   onToggleAdvancedFilters,
 }: IAdminTestimonialsToolbarProps) {
+  const { t } = usePortalTranslation();
+
   return (
     <div className="flex flex-col gap-4 rounded-2xl border border-portal bg-portal-surface p-4 shadow-[0_8px_24px_-16px_rgba(13,74,47,0.18)] sm:p-5">
       <div>
@@ -105,7 +108,7 @@ export function AdminTestimonialsToolbar({
             }
             aria-label="Review type"
           >
-            <option value="">All types</option>
+            <option value="">{t("admin.cms.shared.allTypes")}</option>
             <option value="text">Text</option>
             <option value="audio">Audio</option>
             <option value="video">Video</option>
@@ -119,7 +122,7 @@ export function AdminTestimonialsToolbar({
             aria-label="Status"
           >
             <option value="">All statuses</option>
-            <option value="published">Published</option>
+            <option value="published">{t("admin.common.statPublished")}</option>
             <option value="pending">Pending</option>
           </select>
           <select
@@ -180,8 +183,8 @@ export function AdminTestimonialsToolbar({
               value={sortBy}
               onChange={(e) => onSortChange(e.target.value as TestimonialsSort)}
             >
-              <option value="newest">Newest first</option>
-              <option value="oldest">Oldest first</option>
+              <option value="newest">{t("admin.studentRequests.toolbarSortNewest")}</option>
+              <option value="oldest">{t("admin.studentRequests.toolbarSortOldest")}</option>
               <option value="rating">Highest rating</option>
               <option value="name">Name A–Z</option>
             </select>

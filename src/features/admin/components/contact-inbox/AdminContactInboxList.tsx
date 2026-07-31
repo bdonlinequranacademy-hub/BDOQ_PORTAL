@@ -12,6 +12,7 @@ import {
 import { formControlClass } from "@/lib/formControl";
 import { cn } from "@/lib/utils/cn";
 import type { IPaginatedListResult } from "@/lib/hooks/usePaginatedList";
+import { usePortalTranslation } from "@/i18n/LocaleProvider";
 
 interface IAdminContactInboxListProps {
   messages: ContactMessageView[];
@@ -24,13 +25,6 @@ interface IAdminContactInboxListProps {
   onTabChange: (tab: AdminContactInboxTab) => void;
   onSelect: (message: ContactMessageView) => void;
 }
-
-const TABS: { id: AdminContactInboxTab; label: string }[] = [
-  { id: "all", label: "All" },
-  { id: "new", label: "New" },
-  { id: "replied", label: "Replied" },
-  { id: "closed", label: "Closed" },
-];
 
 const toolbarFieldClass = cn(formControlClass, "h-10 min-h-10 py-2 text-sm shadow-none");
 
@@ -45,6 +39,15 @@ export function AdminContactInboxList({
   onTabChange,
   onSelect,
 }: IAdminContactInboxListProps) {
+  const { t } = usePortalTranslation();
+
+  const tabs: { id: AdminContactInboxTab; label: string }[] = [
+    { id: "all", label: t("admin.contact.listTabAll") },
+    { id: "new", label: t("admin.contact.listTabUnread") },
+    { id: "replied", label: t("admin.contact.listTabReplied") },
+    { id: "closed", label: t("admin.contact.listTabArchived") },
+  ];
+
   return (
     <Card className="flex h-full min-h-[520px] flex-col overflow-hidden rounded-2xl border border-portal bg-portal-surface p-0 shadow-[0_8px_24px_-16px_rgba(13,74,47,0.18)]">
       <div className="border-b border-portal p-4">
@@ -62,7 +65,7 @@ export function AdminContactInboxList({
           />
         </div>
         <div className="mt-3 flex gap-1 overflow-x-auto">
-          {TABS.map((item) => (
+          {tabs.map((item) => (
             <button
               key={item.id}
               type="button"

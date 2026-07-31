@@ -1,6 +1,7 @@
 import { X } from "lucide-react";
 import type { ClassLogView } from "@/types/models";
 import { ClassLogCard } from "@/components/schedule/ClassLogCard";
+import { usePortalTranslation } from "@/i18n/LocaleProvider";
 import { cn } from "@/lib/utils/cn";
 
 interface IAdminClassLogsDetailModalProps {
@@ -18,6 +19,8 @@ export function AdminClassLogsDetailModal({
   onApprove,
   onReject,
 }: IAdminClassLogsDetailModalProps) {
+  const { t } = usePortalTranslation();
+
   if (!log) return null;
 
   return (
@@ -25,7 +28,7 @@ export function AdminClassLogsDetailModal({
       <button
         type="button"
         className="absolute inset-0 bg-[#0A1628]/55 backdrop-blur-[2px]"
-        aria-label="Close log details"
+        aria-label={t("admin.classLogs.closeLogDetails")}
         onClick={onClose}
       />
       <div
@@ -39,13 +42,13 @@ export function AdminClassLogsDetailModal({
       >
         <div className="flex items-center justify-between border-b border-portal px-5 py-4">
           <h2 id="class-log-detail-title" className="text-lg font-bold text-portal-heading">
-            Session log details
+            {t("admin.classLogs.sessionLogDetails")}
           </h2>
           <button
             type="button"
             onClick={onClose}
             className="inline-flex size-9 items-center justify-center rounded-full border border-portal text-portal-muted transition hover:text-primary"
-            aria-label="Close"
+            aria-label={t("actions.close")}
           >
             <X className="size-5" aria-hidden />
           </button>
@@ -58,7 +61,9 @@ export function AdminClassLogsDetailModal({
               log.status === "pending" || log.status === "rejected" ? onApprove : undefined
             }
             onReject={log.status === "pending" ? onReject : undefined}
-            approveLabel={log.status === "rejected" ? "Approve again" : undefined}
+            approveLabel={
+              log.status === "rejected" ? t("admin.classLogs.approveAgain") : undefined
+            }
             actionPending={busy}
           />
         </div>

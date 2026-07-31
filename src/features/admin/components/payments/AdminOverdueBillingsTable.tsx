@@ -1,23 +1,25 @@
 import { UserInitialAvatar } from "@/components/ui/UserInitialAvatar";
 import { Card } from "@/components/ui/Card";
+import { usePortalTranslation } from "@/i18n/LocaleProvider";
 import type { OverdueBillingView } from "@/types/models";
-import { formatPaymentAmount, formatPaymentDate } from "@/features/admin/components/payments/adminPaymentsUtils";
 
 interface IAdminOverdueBillingsTableProps {
   rows: OverdueBillingView[];
 }
 
 export function AdminOverdueBillingsTable({ rows }: IAdminOverdueBillingsTableProps) {
+  const { t, statusLabel, formatDate, formatMoney } = usePortalTranslation();
+
   return (
     <Card className="overflow-hidden rounded-2xl border border-portal bg-portal-surface p-0 shadow-[0_8px_24px_-16px_rgba(13,74,47,0.18)]">
       <div className="hidden overflow-x-auto lg:block">
         <table className="w-full min-w-[720px] border-collapse text-left">
           <thead>
             <tr className="border-b border-portal bg-portal-muted/40 text-xs font-semibold uppercase tracking-wide text-portal-muted">
-              <th className="px-5 py-3.5">Student</th>
-              <th className="px-5 py-3.5">Monthly fee</th>
-              <th className="px-5 py-3.5">Paid until</th>
-              <th className="px-5 py-3.5">Status</th>
+              <th className="px-5 py-3.5">{t("tables.student")}</th>
+              <th className="px-5 py-3.5">{t("tables.monthlyFee")}</th>
+              <th className="px-5 py-3.5">{t("tables.paidUntil")}</th>
+              <th className="px-5 py-3.5">{t("tables.status")}</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-portal/80">
@@ -33,14 +35,15 @@ export function AdminOverdueBillingsTable({ rows }: IAdminOverdueBillingsTablePr
                   </div>
                 </td>
                 <td className="px-5 py-4 text-sm font-bold tabular-nums text-red-700">
-                  {formatPaymentAmount(row.monthlyFee, row.currency)}/mo
+                  {formatMoney(row.monthlyFee, row.currency)}
+                  {t("admin.payments.perMonth")}
                 </td>
                 <td className="px-5 py-4 text-sm text-portal-muted">
-                  {row.paidUntil ? formatPaymentDate(row.paidUntil) : "Not set"}
+                  {row.paidUntil ? formatDate(row.paidUntil) : t("admin.payments.notSet")}
                 </td>
                 <td className="px-5 py-4">
                   <span className="inline-flex rounded-full bg-red-100 px-2.5 py-0.5 text-xs font-semibold capitalize text-red-800">
-                    {row.status.replace(/_/g, " ")}
+                    {statusLabel(row.status.replace(/_/g, " ") === "overdue" ? "overdue" : row.status)}
                   </span>
                 </td>
               </tr>
@@ -63,8 +66,9 @@ export function AdminOverdueBillingsTable({ rows }: IAdminOverdueBillingsTablePr
               </div>
             </div>
             <p className="text-sm font-medium tabular-nums text-red-700">
-              {formatPaymentAmount(row.monthlyFee, row.currency)}/mo · Due{" "}
-              {row.paidUntil ? formatPaymentDate(row.paidUntil) : "not set"}
+              {formatMoney(row.monthlyFee, row.currency)}
+              {t("admin.payments.perMonth")} ·{" "}
+              {row.paidUntil ? formatDate(row.paidUntil) : t("admin.payments.dueNotSet")}
             </p>
           </article>
         ))}

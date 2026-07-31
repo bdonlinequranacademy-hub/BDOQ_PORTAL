@@ -1,6 +1,7 @@
 import { ChevronRight, MessageCircle } from "lucide-react";
 import { Card } from "@/components/ui/Card";
 import { UserInitialAvatar } from "@/components/ui/UserInitialAvatar";
+import { usePortalTranslation } from "@/i18n/LocaleProvider";
 import type { WhatsAppQueueItem } from "@/types/models";
 import { cn } from "@/lib/utils/cn";
 
@@ -15,6 +16,7 @@ export function AdminDashboardWhatsAppStrip({
   actionableCount,
   onOpenQueue,
 }: IAdminDashboardWhatsAppStripProps) {
+  const { t } = usePortalTranslation();
   const previewItems = queue
     .filter((item) => item.category !== "missing_whatsapp")
     .slice(0, 3);
@@ -29,7 +31,9 @@ export function AdminDashboardWhatsAppStrip({
           </div>
           <div className="min-w-0 flex-1">
             <div className="flex flex-wrap items-center gap-2">
-              <p className="font-semibold text-portal-heading">WhatsApp queue</p>
+              <p className="font-semibold text-portal-heading">
+                {t("admin.dashboard.whatsappQueue")}
+              </p>
               {actionableCount > 0 ? (
                 <span className="rounded-full bg-[#25D366]/15 px-2 py-0.5 text-xs font-bold text-[#128C7E]">
                   {actionableCount}
@@ -38,9 +42,11 @@ export function AdminDashboardWhatsAppStrip({
             </div>
             <p className="mt-0.5 text-sm text-portal-muted">
               {actionableCount > 0
-                ? `${actionableCount} ready-to-send reminder${actionableCount === 1 ? "" : "s"}`
-                : "No urgent WhatsApp messages right now"}
-              {missingCount > 0 ? ` · ${missingCount} users need numbers` : ""}
+                ? t("admin.dashboard.whatsappReady", { count: String(actionableCount) })
+                : t("admin.dashboard.whatsappNone")}
+              {missingCount > 0
+                ? ` · ${t("admin.dashboard.whatsappMissingNumbers", { count: String(missingCount) })}`
+                : ""}
             </p>
           </div>
         </div>
@@ -72,7 +78,7 @@ export function AdminDashboardWhatsAppStrip({
             "bg-[#128C7E] hover:bg-[#0e6b60]"
           )}
         >
-          Open queue
+          {t("actions.openQueue")}
           <ChevronRight className="size-4" aria-hidden />
         </button>
       </div>

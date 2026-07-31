@@ -21,6 +21,7 @@ import {
 import { UserAvatar } from "@/components/ui/UserAvatar";
 import { formatCountryWithFlag } from "@/lib/utils/countryDisplay";
 import { waMeUrlFromRaw } from "@/lib/whatsapp";
+import { usePortalTranslation } from "@/i18n/LocaleProvider";
 import { cn } from "@/lib/utils/cn";
 import type { AdminTeacherProfileDetail } from "@/types/models";
 
@@ -42,43 +43,37 @@ const WEEK_DAYS = [
   "Friday",
 ] as const;
 
-const TABS: { id: TabId; label: string }[] = [
-  { id: "overview", label: "Overview" },
-  { id: "classes", label: "Classes & Schedule" },
-  { id: "students", label: "Students" },
-  { id: "activity", label: "Teaching Activity" },
-  { id: "finance", label: "Earnings & Payout" },
-];
-
-function formatJoined(iso?: string): string {
-  if (!iso) return "—";
-  return new Date(iso).toLocaleDateString("en-US", {
-    month: "short",
-    day: "numeric",
-    year: "numeric",
-  });
-}
-
-function formatTimeRange(time: string, duration: number): string {
-  const [hRaw, mRaw] = time.split(":").map(Number);
-  const start = new Date();
-  start.setHours(Number.isFinite(hRaw) ? hRaw : 0, Number.isFinite(mRaw) ? mRaw : 0, 0, 0);
-  const end = new Date(start.getTime() + duration * 60_000);
-  const fmt = (d: Date) =>
-    d.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" });
-  return `${fmt(start)} – ${fmt(end)}`;
-}
-
-function moneyBdt(amount: number): string {
-  return `৳ ${amount.toLocaleString()}`;
-}
-
 export function AdminTeacherProfileView({
   data,
   onEdit,
   onDeactivate,
 }: IAdminTeacherProfileViewProps) {
+  const {
+    t,
+    formatDate,
+    formatDateTime,
+    formatBdt,
+    formatNumber,
+    statusLabel,
+    dynamicLabel,
+  } = usePortalTranslation();
   const [tab, setTab] = useState<TabId>("overview");
+
+  const tabs: { id: TabId; label: string }[] = [
+    { id: "overview", label: t("admin.teacherProfile.tabOverview") },
+    { id: "classes", label: t("admin.teacherProfile.tabClasses") },
+    { id: "students", label: t("admin.teacherProfile.tabStudents") },
+    { id: "activity", label: t("admin.teacherProfile.tabActivity") },
+    { id: "finance", label: t("admin.teacherProfile.tabFinance") },
+  ];
+
+  function formatTimeRange(time: string, duration: number): string {
+    const [hRaw, mRaw] = time.split(":").map(Number);
+    const start = new Date();
+    start.setHours(Number.isFinite(hRaw) ? hRaw : 0, Number.isFinite(mRaw) ? mRaw : 0, 0, 0);
+    const end = new Date(start.getTime() + duration * 60_000);
+    return `${formatDateTime(start.toISOString())} – ${formatDateTime(end.toISOString())}`;
+  }
   const {
     user,
     publicProfile,
@@ -92,13 +87,13 @@ export function AdminTeacherProfileView({
     earnings,
   } = data;
 
-  const title = publicProfile?.title || "Quran Teacher";
+  const title = publicProfile?.title || t("admin.teacherProfile.defaultTitle");
   const specialty = (publicProfile?.skills ?? [])[0];
   const subtitle = specialty ? `${title} · ${specialty}` : title;
   const about =
     publicProfile?.about?.trim() ||
     publicProfile?.bio?.trim() ||
-    `${user.name} teaches at BD Online Quran Academy.`;
+    t("admin.teacherProfile.defaultAbout", { name: user.name });
   const skills = publicProfile?.skills?.length
     ? publicProfile.skills
     : publicProfile?.languages ?? [];
@@ -113,18 +108,18 @@ export function AdminTeacherProfileView({
   const busyDays = slotsByDay.filter((d) => d.slots.length > 0);
 
   const statCards = [
-    { label: "Experience", value: stats.experienceLabel, icon: GraduationCap },
-    { label: "Students", value: `${stats.totalStudents}+`, icon: Users },
-    { label: "Active Classes", value: String(stats.activeClasses), icon: BookOpen },
-    { label: "Homework", value: String(stats.homeworkAssigned), icon: ClipboardList },
+    { label: t("admin.teacherProfile.experience"), value: stats.experienceLabel, icon: GraduationCap },
+    { label: t("tables.students"), value: `${formatNumber(stats.totalStudents)}+`, icon: Users },
+    { label: t("admin.teacherProfile.activeClasses"), value: formatNumber(stats.activeClasses), icon: BookOpen },
+    { label: t("admin.teacherProfile.homework"), value: formatNumber(stats.homeworkAssigned), icon: ClipboardList },
     {
-      label: "Logs Approved",
-      value: String(stats.classLogsApproved),
+      label: t("admin.teacherProfile.logsApproved"),
+      value: formatNumber(stats.classLogsApproved),
       icon: Award,
     },
     {
-      label: "Month Earnings",
-      value: moneyBdt(stats.earningsMonthBdt),
+      label: t("admin.teacherProfile.monthEarnings"),
+      value: formatBdt(stats.earningsMonthBdt),
       icon: Wallet,
     },
   ];
@@ -136,7 +131,7 @@ export function AdminTeacherProfileView({
         className="inline-flex items-center gap-2 text-sm font-medium text-portal-muted transition hover:text-primary"
       >
         <ArrowLeft className="size-4" aria-hidden />
-        Back to Users
+        {t("admin.teacherProfile.backToUsers")}
       </Link>
 
       <section className="overflow-hidden rounded-3xl border border-portal shadow-[0_12px_40px_-24px_rgba(38,155,111,0.45)]">
@@ -154,7 +149,7 @@ export function AdminTeacherProfileView({
           <div className="relative z-10 flex h-full flex-col justify-between p-4 sm:p-6 lg:p-7">
             <div className="flex items-start justify-between gap-3">
               <p className="font-display text-sm font-semibold tracking-wide text-white/90">
-                Ustadh Profile · Full dossier
+                {t("admin.teacherProfile.headerBadge")}
               </p>
               <button
                 type="button"
@@ -162,7 +157,7 @@ export function AdminTeacherProfileView({
                 className="inline-flex items-center gap-2 rounded-xl bg-white/15 px-3 py-2 text-sm font-semibold text-white backdrop-blur-sm transition hover:bg-white/25"
               >
                 <Pencil className="size-3.5" aria-hidden />
-                Edit Profile
+                {t("admin.teacherProfile.editProfile")}
               </button>
             </div>
 
@@ -184,7 +179,7 @@ export function AdminTeacherProfileView({
                     user.isActive !== false ? "bg-primary" : "bg-red-500"
                   )}
                 >
-                  {user.isActive !== false ? "Active" : "Inactive"}
+                  {statusLabel(user.isActive !== false ? "active" : "inactive")}
                 </span>
               </div>
 
@@ -194,13 +189,13 @@ export function AdminTeacherProfileView({
                     {user.name}
                   </h1>
                   {user.emailVerified ? (
-                    <BadgeCheck className="size-5 text-[#2DD4BF]" aria-label="Verified" />
+                    <BadgeCheck className="size-5 text-[#2DD4BF]" aria-label={t("admin.teacherProfile.verified")} />
                   ) : null}
                 </div>
                 <p className="mt-1 text-sm text-white/85">{subtitle}</p>
                 <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-2 text-xs text-white/80 sm:text-sm">
                   {user.gender ? (
-                    <span className="capitalize">{user.gender}</span>
+                    <span>{dynamicLabel(user.gender)}</span>
                   ) : null}
                   {user.country ? (
                     <span className="inline-flex items-center gap-1.5">
@@ -220,7 +215,9 @@ export function AdminTeacherProfileView({
                   ) : null}
                   <span className="inline-flex items-center gap-1.5">
                     <Clock className="size-3.5 shrink-0" aria-hidden />
-                    Joined {formatJoined(user.createdAt)}
+                    {t("admin.teacherProfile.joined", {
+                      date: user.createdAt ? formatDate(user.createdAt) : "—",
+                    })}
                   </span>
                 </div>
               </div>
@@ -251,7 +248,7 @@ export function AdminTeacherProfileView({
       </div>
 
       <div className="flex flex-wrap gap-2 border-b border-portal pb-2">
-        {TABS.map((item) => (
+        {tabs.map((item) => (
           <button
             key={item.id}
             type="button"
@@ -271,7 +268,7 @@ export function AdminTeacherProfileView({
       {tab === "overview" ? (
         <div className="grid grid-cols-1 gap-5 lg:grid-cols-2">
           <section className="rounded-2xl border border-portal bg-portal-surface p-5">
-            <h2 className="font-display text-lg font-semibold text-primary-dark">About</h2>
+            <h2 className="font-display text-lg font-semibold text-primary-dark">{t("admin.teacherProfile.about")}</h2>
             <p className="mt-3 text-sm leading-relaxed text-portal-muted">{about}</p>
             {skills.length > 0 ? (
               <div className="mt-4 flex flex-wrap gap-2">
@@ -289,7 +286,7 @@ export function AdminTeacherProfileView({
               <div className="mt-4">
                 <p className="mb-2 inline-flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wide text-portal-muted">
                   <Languages className="size-3.5" aria-hidden />
-                  Languages
+                  {t("admin.teacherProfile.languages")}
                 </p>
                 <div className="flex flex-wrap gap-2">
                   {languages.map((lang) => (
@@ -307,25 +304,31 @@ export function AdminTeacherProfileView({
 
           <section className="rounded-2xl border border-portal bg-portal-surface p-5">
             <h2 className="font-display text-lg font-semibold text-primary-dark">
-              Account identity
+              {t("admin.teacherProfile.accountIdentity")}
             </h2>
             <dl className="mt-3 grid grid-cols-1 gap-2 text-sm sm:grid-cols-2">
               {[
-                ["Name", user.name],
-                ["Email", user.email],
-                ["Gender", user.gender ? user.gender : "—"],
-                ["Country", user.country ? formatCountryWithFlag(user.country) : "—"],
-                ["WhatsApp", user.whatsapp || "—"],
-                ["Timezone", user.timezone || "Asia/Dhaka"],
-                ["Auth", user.authProvider || "local"],
-                ["Email verified", user.emailVerified ? "Yes" : "No"],
-                ["Status", user.isActive !== false ? "Active" : "Inactive"],
-                ["Joined", formatJoined(user.createdAt)],
+                [t("admin.teacherProfile.name"), user.name],
+                [t("labels.email"), user.email],
+                [t("labels.gender"), user.gender ? dynamicLabel(user.gender) : "—"],
+                [t("labels.country"), user.country ? formatCountryWithFlag(user.country) : "—"],
+                [t("admin.teacherProfile.whatsapp"), user.whatsapp || "—"],
+                [t("admin.teacherProfile.timezone"), user.timezone || "Asia/Dhaka"],
+                [t("admin.teacherProfile.auth"), user.authProvider || "local"],
                 [
-                  "Public profile",
+                  t("admin.teacherProfile.emailVerified"),
+                  user.emailVerified ? t("labels.yes") : t("labels.no"),
+                ],
+                [
+                  t("tables.status"),
+                  statusLabel(user.isActive !== false ? "active" : "inactive"),
+                ],
+                [t("labels.joined"), user.createdAt ? formatDate(user.createdAt) : "—"],
+                [
+                  t("admin.teacherProfile.publicProfile"),
                   publicProfile
-                    ? `${publicProfile.showOnWebsite ? "On website" : "Hidden"}${publicProfile.featured ? " · Featured" : ""}`
-                    : "Not linked",
+                    ? `${publicProfile.showOnWebsite ? t("admin.teacherProfile.onWebsite") : statusLabel("hidden")}${publicProfile.featured ? ` · ${t("admin.teacherProfile.featured")}` : ""}`
+                    : t("admin.teacherProfile.notLinked"),
                 ],
               ].map(([label, value]) => (
                 <div key={label} className="rounded-xl bg-portal-muted/20 px-3 py-2">
@@ -340,7 +343,7 @@ export function AdminTeacherProfileView({
 
           <section className="rounded-2xl border border-portal bg-portal-surface p-5 lg:col-span-2">
             <h2 className="font-display text-lg font-semibold text-primary-dark">
-              Qualifications
+              {t("admin.teacherProfile.qualifications")}
             </h2>
             {qualifications.length > 0 ? (
               <ul className="mt-3 grid gap-2 sm:grid-cols-2">
@@ -356,15 +359,14 @@ export function AdminTeacherProfileView({
               </ul>
             ) : (
               <p className="mt-3 text-sm text-portal-muted">
-                No public qualifications linked yet. These come from the website teacher
-                profile CMS when linked.
+                {t("admin.teacherProfile.noQualifications")}
               </p>
             )}
           </section>
 
           <section className="rounded-2xl border border-portal bg-portal-surface p-5 lg:col-span-2">
             <h2 className="mb-3 font-display text-lg font-semibold text-primary-dark">
-              Quick Actions
+              {t("admin.teacherProfile.quickActions")}
             </h2>
             <div className="flex flex-wrap gap-2">
               {waUrl ? (
@@ -375,20 +377,20 @@ export function AdminTeacherProfileView({
                   className="inline-flex items-center gap-2 rounded-xl bg-primary px-4 py-2.5 text-sm font-semibold text-white hover:bg-primary-dark"
                 >
                   <MessageCircle className="size-4" aria-hidden />
-                  Message Teacher
+                  {t("admin.teacherProfile.messageTeacher")}
                 </a>
               ) : null}
               <Link
                 to="/admin/classes"
                 className="inline-flex items-center gap-2 rounded-xl border border-primary/30 bg-primary/10 px-4 py-2.5 text-sm font-semibold text-primary-dark hover:bg-primary hover:text-white"
               >
-                View Classes
+                {t("admin.teacherProfile.viewClasses")}
               </Link>
               <Link
                 to="/admin/earnings"
                 className="inline-flex items-center gap-2 rounded-xl border border-portal px-4 py-2.5 text-sm font-semibold text-portal-heading hover:border-primary/40"
               >
-                Earnings
+                {t("admin.teacherProfile.earnings")}
               </Link>
               {publicProfile?.slug ? (
                 <a
@@ -397,7 +399,7 @@ export function AdminTeacherProfileView({
                   rel="noreferrer"
                   className="inline-flex items-center gap-2 rounded-xl border border-portal px-4 py-2.5 text-sm font-semibold text-portal-heading hover:border-primary/40"
                 >
-                  Public Profile
+                  {t("admin.teacherProfile.publicProfileLink")}
                 </a>
               ) : null}
               {onDeactivate && user.isActive !== false ? (
@@ -406,7 +408,7 @@ export function AdminTeacherProfileView({
                   onClick={onDeactivate}
                   className="inline-flex items-center gap-2 rounded-xl border border-red-200 bg-red-50 px-4 py-2.5 text-sm font-semibold text-red-600 hover:bg-red-100"
                 >
-                  Deactivate Account
+                  {t("admin.teacherProfile.deactivateAccount")}
                 </button>
               ) : null}
             </div>
@@ -418,10 +420,10 @@ export function AdminTeacherProfileView({
         <div className="grid grid-cols-1 gap-5 xl:grid-cols-2">
           <section className="rounded-2xl border border-portal bg-portal-surface p-5">
             <h2 className="font-display text-lg font-semibold text-primary-dark">
-              Assigned Classes
+              {t("admin.teacherProfile.assignedClasses")}
             </h2>
             {classes.length === 0 ? (
-              <p className="mt-3 text-sm text-portal-muted">No classes assigned.</p>
+              <p className="mt-3 text-sm text-portal-muted">{t("admin.teacherProfile.noClassesAssigned")}</p>
             ) : (
               <ul className="mt-3 space-y-2.5">
                 {classes.map((cls) => (
@@ -434,18 +436,20 @@ export function AdminTeacherProfileView({
                         <div>
                           <p className="font-semibold text-portal-heading">{cls.title}</p>
                           <p className="mt-1 text-xs text-portal-muted">
-                            {cls.studentCount} students
+                            {t("admin.teacherProfile.studentsCount", {
+                              count: formatNumber(cls.studentCount),
+                            })}
                             {cls.schedule
                               ? ` · ${cls.schedule.day} ${cls.schedule.time}`
                               : ""}
                             {cls.sessionRateBdt
-                              ? ` · ${moneyBdt(cls.sessionRateBdt)}/session`
+                              ? ` · ${formatBdt(cls.sessionRateBdt)}${t("labels.session_suffix")}`
                               : ""}
                           </p>
                           {cls.meetingLink ? (
                             <p className="mt-1 inline-flex items-center gap-1 text-xs text-primary">
                               <Video className="size-3" aria-hidden />
-                              Meeting link set
+                              {t("admin.teacherProfile.meetingLinkSet")}
                             </p>
                           ) : null}
                         </div>
@@ -457,7 +461,7 @@ export function AdminTeacherProfileView({
                               : "bg-red-50 text-red-600"
                           )}
                         >
-                          {cls.isActive ? "Active" : "Off"}
+                          {statusLabel(cls.isActive ? "active" : "inactive")}
                         </span>
                       </div>
                     </Link>
@@ -470,13 +474,13 @@ export function AdminTeacherProfileView({
           <section className="rounded-2xl border border-portal bg-portal-surface p-5">
             <div className="mb-3 flex items-center justify-between gap-2">
               <h2 className="font-display text-lg font-semibold text-primary-dark">
-                Weekly Schedule
+                {t("admin.teacherProfile.weeklySchedule")}
               </h2>
               <Link
                 to="/admin/schedule/routine"
                 className="text-xs font-semibold text-primary hover:underline"
               >
-                Full routine →
+                {t("admin.teacherProfile.fullRoutine")}
               </Link>
             </div>
             <div className="mb-4 grid grid-cols-7 gap-1.5">
@@ -490,7 +494,9 @@ export function AdminTeacherProfileView({
                       : "border border-dashed border-portal text-portal-muted"
                   )}
                 >
-                  <p className="text-[10px] font-bold uppercase">{day.slice(0, 3)}</p>
+                  <p className="text-[10px] font-bold uppercase">
+                    {dynamicLabel(day.toLowerCase()).slice(0, 3)}
+                  </p>
                   <p className="mt-1 text-xs font-semibold">
                     {slots.length > 0 ? slots.length : "—"}
                   </p>
@@ -498,12 +504,12 @@ export function AdminTeacherProfileView({
               ))}
             </div>
             {busyDays.length === 0 ? (
-              <p className="text-sm text-portal-muted">No weekly slots yet.</p>
+              <p className="text-sm text-portal-muted">{t("admin.teacherProfile.noWeeklySlots")}</p>
             ) : (
               <div className="space-y-3">
                 {busyDays.map(({ day, slots }) => (
                   <div key={day} className="rounded-xl border border-portal p-3">
-                    <p className="text-sm font-semibold text-primary-dark">{day}</p>
+                    <p className="text-sm font-semibold text-primary-dark">{dynamicLabel(day.toLowerCase())}</p>
                     <ul className="mt-2 space-y-2">
                       {slots.map((slot) => (
                         <li
@@ -516,8 +522,10 @@ export function AdminTeacherProfileView({
                               {slot.classTitle}
                             </p>
                             <p className="text-xs text-portal-muted">
-                              {formatTimeRange(slot.time, slot.duration)} · {slot.duration}{" "}
-                              min
+                              {formatTimeRange(slot.time, slot.duration)} ·{" "}
+                              {t("admin.teacherProfile.minutesShort", {
+                                count: formatNumber(slot.duration),
+                              })}
                             </p>
                           </div>
                         </li>
@@ -534,20 +542,20 @@ export function AdminTeacherProfileView({
       {tab === "students" ? (
         <section className="rounded-2xl border border-portal bg-portal-surface p-5">
           <h2 className="font-display text-lg font-semibold text-primary-dark">
-            Students ({students.length})
+            {t("admin.teacherProfile.studentsTitle", { count: formatNumber(students.length) })}
           </h2>
           {students.length === 0 ? (
-            <p className="mt-3 text-sm text-portal-muted">No students assigned yet.</p>
+            <p className="mt-3 text-sm text-portal-muted">{t("admin.teacherProfile.noStudentsAssigned")}</p>
           ) : (
             <div className="mt-4 overflow-x-auto">
               <table className="w-full min-w-[640px] text-left text-sm">
                 <thead>
                   <tr className="border-b border-portal text-xs uppercase tracking-wide text-portal-muted">
-                    <th className="px-3 py-2">Student</th>
-                    <th className="px-3 py-2">ID</th>
-                    <th className="px-3 py-2">Contact</th>
-                    <th className="px-3 py-2">Classes</th>
-                    <th className="px-3 py-2">Status</th>
+                    <th className="px-3 py-2">{t("tables.student")}</th>
+                    <th className="px-3 py-2">{t("admin.teacherProfile.studentId")}</th>
+                    <th className="px-3 py-2">{t("tables.contact")}</th>
+                    <th className="px-3 py-2">{t("tables.classes")}</th>
+                    <th className="px-3 py-2">{t("tables.status")}</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-portal">
@@ -583,7 +591,7 @@ export function AdminTeacherProfileView({
                               : "bg-red-50 text-red-600"
                           )}
                         >
-                          {student.isActive ? "Active" : "Off"}
+                          {statusLabel(student.isActive ? "active" : "inactive")}
                         </span>
                       </td>
                     </tr>
@@ -600,17 +608,17 @@ export function AdminTeacherProfileView({
           <section className="rounded-2xl border border-portal bg-portal-surface p-5">
             <div className="mb-3 flex items-center justify-between">
               <h2 className="font-display text-lg font-semibold text-primary-dark">
-                Recent Class Logs
+                {t("admin.teacherProfile.recentClassLogs")}
               </h2>
               <Link
                 to="/admin/class-logs"
                 className="text-xs font-semibold text-primary hover:underline"
               >
-                All logs →
+                {t("admin.teacherProfile.allLogs")}
               </Link>
             </div>
             {recentClassLogs.length === 0 ? (
-              <p className="text-sm text-portal-muted">No class logs yet.</p>
+              <p className="text-sm text-portal-muted">{t("admin.teacherProfile.noClassLogs")}</p>
             ) : (
               <ul className="space-y-2.5">
                 {recentClassLogs.map((log) => (
@@ -623,11 +631,15 @@ export function AdminTeacherProfileView({
                         <p className="text-xs text-portal-muted">
                           {log.studentName}
                           {log.studentId ? ` (${log.studentId})` : ""} · {log.sessionDate} ·{" "}
-                          {log.durationMinutes} min
+                          {log.durationMinutes != null
+                            ? t("admin.teacherProfile.minutesShort", {
+                                count: formatNumber(log.durationMinutes),
+                              })
+                            : ""}
                         </p>
                       </div>
                       <span className="rounded-full bg-portal-muted/40 px-2 py-0.5 text-[10px] font-bold uppercase text-portal-heading">
-                        {log.status}
+                        {statusLabel(log.status)}
                       </span>
                     </div>
                     {log.lessonReport ? (
@@ -644,26 +656,28 @@ export function AdminTeacherProfileView({
           <section className="rounded-2xl border border-portal bg-portal-surface p-5">
             <div className="mb-3 flex items-center justify-between">
               <h2 className="font-display text-lg font-semibold text-primary-dark">
-                Homework Assigned
+                {t("admin.teacherProfile.homeworkAssigned")}
               </h2>
               <Link
                 to="/admin/homework"
                 className="text-xs font-semibold text-primary hover:underline"
               >
-                All homework →
+                {t("admin.teacherProfile.allHomework")}
               </Link>
             </div>
             {recentHomework.length === 0 ? (
-              <p className="text-sm text-portal-muted">No homework assigned yet.</p>
+              <p className="text-sm text-portal-muted">{t("admin.teacherProfile.noHomework")}</p>
             ) : (
               <ul className="space-y-2.5">
                 {recentHomework.map((hw) => (
                   <li key={hw._id} className="rounded-xl border border-portal px-3 py-3">
                     <p className="text-sm font-semibold text-portal-heading">{hw.title}</p>
                     <p className="text-xs text-portal-muted">
-                      {hw.classTitle} · Due {formatJoined(hw.dueDate)} ·{" "}
-                      {hw.submissionCount} submission
-                      {hw.submissionCount === 1 ? "" : "s"}
+                      {hw.classTitle} · {t("admin.teacherProfile.due", { date: formatDate(hw.dueDate) })} ·{" "}
+                      {formatNumber(hw.submissionCount)}{" "}
+                      {hw.submissionCount === 1
+                        ? t("admin.teacherProfile.submission")
+                        : t("admin.teacherProfile.submissions")}
                     </p>
                   </li>
                 ))}
@@ -671,20 +685,22 @@ export function AdminTeacherProfileView({
             )}
 
             <h3 className="mb-2 mt-6 text-sm font-semibold text-primary-dark">
-              Student requests
+              {t("admin.teacherProfile.studentRequests")}
             </h3>
             {studentRequests.length === 0 ? (
-              <p className="text-sm text-portal-muted">No student requests.</p>
+              <p className="text-sm text-portal-muted">{t("admin.teacherProfile.noStudentRequests")}</p>
             ) : (
               <ul className="space-y-2">
                 {studentRequests.map((req) => (
                   <li key={req._id} className="rounded-xl border border-portal px-3 py-2.5">
                     <div className="flex items-center justify-between gap-2">
                       <p className="text-xs text-portal-muted">
-                        {formatJoined(req.createdAt)}
-                        {req.preferredCourseType ? ` · ${req.preferredCourseType}` : ""}
+                        {req.createdAt ? formatDate(req.createdAt) : "—"}
+                        {req.preferredCourseType ? ` · ${dynamicLabel(req.preferredCourseType)}` : ""}
                       </p>
-                      <span className="text-[10px] font-bold uppercase">{req.status}</span>
+                      <span className="text-[10px] font-bold uppercase">
+                        {statusLabel(req.status)}
+                      </span>
                     </div>
                     <p className="mt-1 text-sm text-portal-heading">{req.message}</p>
                   </li>
@@ -699,31 +715,31 @@ export function AdminTeacherProfileView({
         <div className="grid grid-cols-1 gap-5 lg:grid-cols-2">
           <section className="rounded-2xl border border-portal bg-portal-surface p-5">
             <h2 className="font-display text-lg font-semibold text-primary-dark">
-              This month ({earnings.month})
+              {t("admin.teacherProfile.thisMonth", { month: earnings.month })}
             </h2>
             <div className="mt-4 grid grid-cols-2 gap-3">
               <div className="rounded-xl bg-primary-light/40 p-4">
-                <p className="text-xs text-portal-muted">Approved earnings</p>
+                <p className="text-xs text-portal-muted">{t("admin.teacherProfile.approvedEarnings")}</p>
                 <p className="mt-1 text-xl font-bold text-primary-dark">
-                  {moneyBdt(earnings.totalBdt)}
+                  {formatBdt(earnings.totalBdt)}
                 </p>
               </div>
               <div className="rounded-xl bg-amber-50 p-4">
-                <p className="text-xs text-portal-muted">Pending</p>
+                <p className="text-xs text-portal-muted">{t("admin.teacherProfile.pending")}</p>
                 <p className="mt-1 text-xl font-bold text-amber-700">
-                  {moneyBdt(earnings.pendingBdt)}
+                  {formatBdt(earnings.pendingBdt)}
                 </p>
               </div>
               <div className="rounded-xl bg-portal-muted/25 p-4">
-                <p className="text-xs text-portal-muted">Verified sessions</p>
+                <p className="text-xs text-portal-muted">{t("admin.teacherProfile.verifiedSessions")}</p>
                 <p className="mt-1 text-xl font-bold text-portal-heading">
-                  {earnings.verifiedSessions}
+                  {formatNumber(earnings.verifiedSessions)}
                 </p>
               </div>
               <div className="rounded-xl bg-portal-muted/25 p-4">
-                <p className="text-xs text-portal-muted">Pending / rejected</p>
+                <p className="text-xs text-portal-muted">{t("admin.teacherProfile.pendingRejected")}</p>
                 <p className="mt-1 text-xl font-bold text-portal-heading">
-                  {earnings.pendingSessions} / {earnings.rejectedSessions}
+                  {formatNumber(earnings.pendingSessions)} / {formatNumber(earnings.rejectedSessions)}
                 </p>
               </div>
             </div>
@@ -731,17 +747,17 @@ export function AdminTeacherProfileView({
               to="/admin/earnings"
               className="mt-4 inline-flex text-sm font-semibold text-primary hover:underline"
             >
-              Open earnings report →
+              {t("admin.teacherProfile.openEarningsReport")}
             </Link>
           </section>
 
           <section className="rounded-2xl border border-portal bg-portal-surface p-5">
             <h2 className="font-display text-lg font-semibold text-primary-dark">
-              Payout details
+              {t("admin.teacherProfile.payoutDetails")}
             </h2>
             <dl className="mt-3 space-y-2 text-sm">
               <div className="rounded-xl bg-portal-muted/20 px-3 py-2">
-                <dt className="text-xs text-portal-muted">Bank</dt>
+                <dt className="text-xs text-portal-muted">{t("admin.teacherProfile.bank")}</dt>
                 <dd className="font-medium text-portal-heading">
                   {user.bankName || "—"}
                   {user.bankAccount ? ` · ${user.bankAccount}` : ""}
@@ -754,7 +770,7 @@ export function AdminTeacherProfileView({
                 </dd>
               </div>
               <div className="rounded-xl bg-portal-muted/20 px-3 py-2">
-                <dt className="text-xs text-portal-muted">Default meeting link</dt>
+                <dt className="text-xs text-portal-muted">{t("admin.teacherProfile.defaultMeetingLink")}</dt>
                 <dd className="font-medium text-portal-heading">
                   {user.meetingLink ? (
                     <a
@@ -763,7 +779,7 @@ export function AdminTeacherProfileView({
                       rel="noreferrer"
                       className="text-primary hover:underline"
                     >
-                      Open link
+                      {t("actions.openLink")}
                     </a>
                   ) : (
                     "—"

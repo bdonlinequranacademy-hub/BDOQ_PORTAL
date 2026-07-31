@@ -1,5 +1,6 @@
 import { Card } from "@/components/ui/Card";
 import { UserInitialAvatar } from "@/components/ui/UserInitialAvatar";
+import { usePortalTranslation } from "@/i18n/LocaleProvider";
 import type { IProgressTopStudent } from "@/features/admin/components/progress/adminProgressUtils";
 
 interface IAdminProgressTopStudentsProps {
@@ -7,13 +8,15 @@ interface IAdminProgressTopStudentsProps {
 }
 
 export function AdminProgressTopStudents({ students }: IAdminProgressTopStudentsProps) {
+  const { t, formatNumber } = usePortalTranslation();
+
   return (
     <Card className="flex h-full flex-col rounded-2xl border border-portal bg-portal-surface p-5 shadow-[0_8px_24px_-16px_rgba(13,74,47,0.18)]">
-      <h2 className="text-sm font-bold text-portal-heading">Top students</h2>
-      <p className="mt-0.5 text-xs text-portal-muted">Highest overall progress</p>
+      <h2 className="text-sm font-bold text-portal-heading">{t("admin.progress.topStudents")}</h2>
+      <p className="mt-0.5 text-xs text-portal-muted">{t("admin.progress.highestOverallProgress")}</p>
       <div className="mt-4 flex flex-1 flex-col gap-3">
         {students.length === 0 ? (
-          <p className="py-6 text-center text-sm text-portal-muted">No progress data yet.</p>
+          <p className="py-6 text-center text-sm text-portal-muted">{t("admin.progress.noProgressData")}</p>
         ) : (
           students.map((student) => (
             <div
@@ -21,7 +24,7 @@ export function AdminProgressTopStudents({ students }: IAdminProgressTopStudents
               className="flex items-center gap-3 rounded-xl border border-portal/80 bg-portal-muted/15 p-3"
             >
               <span className="flex size-7 shrink-0 items-center justify-center rounded-full bg-primary/10 text-xs font-bold text-primary">
-                {student.rank}
+                {formatNumber(student.rank)}
               </span>
               <UserInitialAvatar name={student.name} size="sm" />
               <div className="min-w-0 flex-1">
@@ -29,7 +32,7 @@ export function AdminProgressTopStudents({ students }: IAdminProgressTopStudents
                 <p className="truncate text-xs text-portal-muted">{student.program}</p>
               </div>
               <span className="shrink-0 text-sm font-bold tabular-nums text-primary">
-                {student.overall}%
+                {formatNumber(student.overall)}%
               </span>
             </div>
           ))

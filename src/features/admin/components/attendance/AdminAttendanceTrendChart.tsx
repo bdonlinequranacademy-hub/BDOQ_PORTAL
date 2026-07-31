@@ -1,6 +1,7 @@
 import { useMemo } from "react";
 import { Card } from "@/components/ui/Card";
 import type { IAttendanceTrendPoint } from "@/features/admin/components/attendance/adminAttendanceUtils";
+import { usePortalTranslation } from "@/i18n/LocaleProvider";
 
 interface IAdminAttendanceTrendChartProps {
   data: IAttendanceTrendPoint[];
@@ -40,6 +41,7 @@ function buildAreaPath(
 }
 
 export function AdminAttendanceTrendChart({ data }: IAdminAttendanceTrendChartProps) {
+  const { t, formatNumber } = usePortalTranslation();
   const innerWidth = CHART_WIDTH - PADDING.left - PADDING.right;
   const innerHeight = CHART_HEIGHT - PADDING.top - PADDING.bottom;
   const values = data.map((point) => point.percentage);
@@ -50,31 +52,33 @@ export function AdminAttendanceTrendChart({ data }: IAdminAttendanceTrendChartPr
     () =>
       [0, 25, 50, 75, 100].map((value) => ({
         y: PADDING.top + innerHeight - (value / 100) * innerHeight,
-        label: `${value}%`,
+        label: `${formatNumber(value)}%`,
       })),
-    [innerHeight]
+    [innerHeight, formatNumber]
   );
 
   return (
     <Card className="flex h-full flex-col rounded-2xl border border-portal bg-portal-surface p-5 shadow-[0_8px_24px_-16px_rgba(13,74,47,0.18)]">
       <div>
-        <h2 className="text-sm font-bold text-portal-heading">Attendance trend</h2>
+        <h2 className="text-sm font-bold text-portal-heading">
+          {t("admin.attendance.trendTitle")}
+        </h2>
         <p className="mt-0.5 text-xs text-portal-muted">
-          Attendance rate across tracked classes
+          {t("admin.attendance.trendSubtitle")}
         </p>
       </div>
 
       <div className="mt-3 w-full overflow-x-auto">
         {data.length === 0 ? (
           <p className="py-10 text-center text-sm text-portal-muted">
-            No class attendance data to chart yet.
+            {t("admin.attendance.noChartData")}
           </p>
         ) : (
           <svg
             viewBox={`0 0 ${CHART_WIDTH} ${CHART_HEIGHT}`}
             className="h-auto w-full min-w-[300px]"
             role="img"
-            aria-label="Attendance rate trend chart"
+            aria-label={t("admin.attendance.chartAria")}
           >
             {gridLines.map((line) => (
               <g key={line.label}>

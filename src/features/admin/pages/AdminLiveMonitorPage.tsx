@@ -18,8 +18,10 @@ import { PageLoading } from "@/components/ui/PageLoading";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { useSessionClock } from "@/hooks/useSessionClock";
 import type { LiveMonitorSession } from "@/types/models";
+import { usePortalTranslation } from "@/i18n/LocaleProvider";
 
 export function AdminLiveMonitorPage() {
+  const { t, nav } = usePortalTranslation();
   const navigate = useNavigate();
   const now = useSessionClock();
   const { data, isLoading, isFetching, refetch } = useAdminLiveMonitor();
@@ -97,10 +99,10 @@ export function AdminLiveMonitorPage() {
       ) : (
         <div>
           <h1 className="portal-page-title font-display text-2xl font-bold text-primary-dark sm:text-3xl">
-            Live Class Monitor
+            {t("admin.liveMonitor.title")}
           </h1>
           <p className="portal-page-subtitle mt-1 text-portal-muted">
-            Track today&apos;s sessions and join status in real time.
+            {t("admin.liveMonitor.subtitle")}
           </p>
         </div>
       )}
@@ -112,13 +114,13 @@ export function AdminLiveMonitorPage() {
       </div>
 
       {isLoading ? (
-        <PageLoading label="Loading live sessions…" />
+        <PageLoading label={t("admin.common.loadingLiveSessions")} />
       ) : filteredSessions.length === 0 ? (
         <EmptyState
           icon={Radio}
-          title={filter === "all" ? "No sessions today" : "No sessions in this filter"}
-          description="Sessions appear from the academy routine when students are scheduled."
-          actionLabel="View routine"
+          title={t("admin.liveMonitor.emptyTitle")}
+          description={t("admin.liveMonitor.emptyDesc")}
+          actionLabel={nav("/admin/schedule/routine")}
           onAction={() => navigate("/admin/schedule/routine")}
         />
       ) : (
@@ -134,9 +136,7 @@ export function AdminLiveMonitorPage() {
               onSelect={handleSelectSession}
             />
             <p className="rounded-xl border border-dashed border-portal bg-portal-muted/30 px-4 py-3 text-xs text-portal-muted">
-              Portal clock: {new Date(now).toLocaleTimeString()} · Teacher/student join is
-              recorded when they click <strong className="text-portal-heading">Launch</strong> on
-              their schedule.
+              {t("admin.liveMonitor.portalClockNote")}
             </p>
           </div>
 

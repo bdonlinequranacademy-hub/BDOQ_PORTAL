@@ -13,12 +13,10 @@ import { PageContainer } from "@/components/layout/PageContainer";
 import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { Textarea } from "@/components/ui/Textarea";
-import {
-  formatHomeworkDueLabel,
-  isHomeworkOverdue,
-} from "@/lib/homeworkDue";
+import { formatHomeworkDueLabel, isHomeworkOverdue } from "@/lib/homeworkDue";
 import { formatCurriculumPath } from "@/lib/api/curriculumApi";
 import { PageLoading } from "@/components/ui/PageLoading";
+import { usePortalTranslation } from "@/i18n/LocaleProvider";
 
 const MIN_SUBMISSION_CHARS = 20;
 
@@ -37,6 +35,7 @@ function pathFromHomework(
 export function StudentHomeworkDetailPage() {
   const { id = "" } = useParams();
   const navigate = useNavigate();
+  const { t, formatDate, locale } = usePortalTranslation();
   const user = useAuthStore((s) => s.user);
   const { data: homework = [], isLoading } = useStudentHomework();
   const submit = useSubmitHomework(id);
@@ -50,7 +49,7 @@ export function StudentHomeworkDetailPage() {
 
   const hw = homework.find((h) => h._id === id);
   const classLabel =
-    hw?.class && typeof hw.class === "object" ? hw.class.title : "Class";
+    hw?.class && typeof hw.class === "object" ? hw.class.title : t("student.classFallback");
   const overdue = hw ? isHomeworkOverdue(hw.dueDate, hw.submitted) : false;
   const trimmedLength = content.trim().length;
   const hasGrade = Boolean(hw?.submission?.grade);
@@ -59,6 +58,8 @@ export function StudentHomeworkDetailPage() {
   const underReview = hw?.underReview;
   const returned = status === "returned";
   const curriculumReady = pathReadyToSave(curriculum, curriculumTree);
+  const dueOptions = { t, formatDate };
+  const dateLocale = locale === "bn" ? "bn-BD" : undefined;
 
   useEffect(() => {
     if (!hw) return;
@@ -98,17 +99,17 @@ export function StudentHomeworkDetailPage() {
           type="button"
           onClick={() => navigate("/student/homework")}
           className="flex size-9 items-center justify-center rounded-full bg-zinc-100"
-          aria-label="Back to homework"
+          aria-label={t("student.backToHomework")}
         >
           <ArrowLeft className="size-5 text-primary-dark" />
         </button>
-        <h1 className="text-xl font-bold text-primary-dark">Homework</h1>
+        <h1 className="text-xl font-bold text-primary-dark">{t("student.homework")}</h1>
       </div>
 
       {isLoading ? (
         <PageLoading compact />
       ) : !hw ? (
-        <p className="text-sm text-zinc-400">Not found.</p>
+        <p className="text-sm text-zinc-400">{t("student.notFound")}</p>
       ) : (
         <>
           <div>
@@ -116,7 +117,9 @@ export function StudentHomeworkDetailPage() {
             <p className="text-sm text-zinc-400">{classLabel}</p>
             {hw.curriculumLabels?.program ? (
               <p className="mt-1 text-xs font-medium text-gold">
-                Assigned topic: {formatCurriculumPath(hw.curriculumLabels)}
+                {t("student.assignedTopic", {
+                  path: formatCurriculumPath(hw.curriculumLabels),
+                })}
               </p>
             ) : null}
             <p
@@ -124,9 +127,9 @@ export function StudentHomeworkDetailPage() {
                 overdue ? "text-red-600" : "text-zinc-500"
               }`}
             >
-              {formatHomeworkDueLabel(hw.dueDate, hw.submitted)}
+              {formatHomeworkDueLabel(hw.dueDate, hw.submitted, dueOptions)}
               {!hw.submitted && !underReview
-                ? ` · ${new Date(hw.dueDate).toLocaleString()}`
+                ? ` · ${new Date(hw.dueDate).toLocaleString(dateLocale)}`
                 : ""}
             </p>
           </div>
@@ -141,13 +144,13 @@ export function StudentHomeworkDetailPage() {
             <Card className="flex flex-col gap-3 rounded-2xl border-0 p-5 shadow-sm">
               <div className="flex items-center gap-2 rounded-xl bg-amber-50 px-4 py-3 text-sm text-amber-800">
                 <Clock className="size-5 shrink-0" />
-                <span>
-                  Sent to your teacher for review — not marked as submitted until they approve.
-                </span>
+                <span>{t("student.underReviewMessage")}</span>
               </div>
               {hw.submission.curriculumLabels?.program ? (
                 <p className="text-xs font-medium text-gold">
-                  Your topic: {formatCurriculumPath(hw.submission.curriculumLabels)}
+                  {t("student.yourTopic", {
+                    path: formatCurriculumPath(hw.submission.curriculumLabels),
+                  })}
                 </p>
               ) : null}
               <div className="rounded-xl bg-[#EEF2F8] p-4">
@@ -161,7 +164,7 @@ export function StudentHomeworkDetailPage() {
               <div className="flex items-start gap-2 rounded-xl bg-orange-50 px-4 py-3 text-sm text-orange-800">
                 <RotateCcw className="mt-0.5 size-5 shrink-0" />
                 <div>
-                  <p className="font-semibold">Returned for revision</p>
+                  <p className="font-semibold">{t("student.returnedForRevision")}</p>
                   {hw.submission.reviewFeedback ? (
                     <p className="mt-1">{hw.submission.reviewFeedback}</p>
                   ) : null}
@@ -175,7 +178,7 @@ export function StudentHomeworkDetailPage() {
               {hasGrade ? (
                 <div className="rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-4">
                   <p className="text-xs font-semibold uppercase tracking-wide text-emerald-800">
-                    Teacher feedback
+                    {t("student.teacherFeedback")}
                   </p>
                   <p className="mt-1 text-2xl font-bold text-emerald-700">
                     {hw.submission.grade}
@@ -185,22 +188,24 @@ export function StudentHomeworkDetailPage() {
                       {hw.submission.feedback}
                     </p>
                   ) : (
-                    <p className="mt-2 text-sm text-zinc-500">No written feedback yet.</p>
+                    <p className="mt-2 text-sm text-zinc-500">{t("student.noWrittenFeedback")}</p>
                   )}
                 </div>
               ) : (
                 <div className="rounded-xl bg-emerald-50 px-4 py-3 text-sm text-emerald-800">
-                  Accepted by your teacher — waiting for a grade.
+                  {t("student.acceptedWaitingGrade")}
                 </div>
               )}
 
               <div className="flex items-center gap-2 text-emerald-600">
                 <CheckCircle className="size-5" />
-                <span className="font-semibold">Submitted</span>
+                <span className="font-semibold">{t("student.submitted")}</span>
               </div>
               {hw.submission.curriculumLabels?.program ? (
                 <p className="text-xs font-medium text-gold">
-                  Topic: {formatCurriculumPath(hw.submission.curriculumLabels)}
+                  {t("student.topicLabel", {
+                    path: formatCurriculumPath(hw.submission.curriculumLabels),
+                  })}
                 </p>
               ) : null}
               <div className="rounded-xl bg-[#EEF2F8] p-4">
@@ -211,19 +216,17 @@ export function StudentHomeworkDetailPage() {
             <Card className="flex flex-col gap-4 rounded-2xl border-0 p-5 shadow-sm">
               {overdue ? (
                 <p className="rounded-xl bg-red-50 px-4 py-3 text-sm text-red-700">
-                  This assignment is overdue. Submit as soon as you can.
+                  {t("student.overdueSubmitSoon")}
                 </p>
               ) : null}
 
               <div>
-                <span className="font-semibold text-primary-dark">Lesson topic</span>
-                <p className="mt-1 text-xs text-zinc-500">
-                  Select the exact lesson from your study plan that this homework covers.
-                </p>
+                <span className="font-semibold text-primary-dark">{t("student.lessonTopic")}</span>
+                <p className="mt-1 text-xs text-zinc-500">{t("student.lessonTopicDesc")}</p>
               </div>
 
               {treeLoading ? (
-                <PageLoading compact label="Loading your study plan…" />
+                <PageLoading compact label={t("student.loadingStudyPlan")} />
               ) : (
                 <NestedCurriculumSelect
                   tree={curriculumTree}
@@ -233,18 +236,18 @@ export function StudentHomeworkDetailPage() {
                 />
               )}
 
-              <span className="font-semibold text-primary-dark">Your submission</span>
+              <span className="font-semibold text-primary-dark">{t("student.yourSubmission")}</span>
               <Textarea
                 value={content}
                 onChange={(e) => setContent(e.target.value)}
-                placeholder="Write your answer, recitation notes, or reflection…"
+                placeholder={t("student.submissionPlaceholder")}
                 rows={8}
                 className="resize-none"
               />
               <p className="text-xs text-zinc-500">
-                {trimmedLength} characters
+                {t("student.charCount", { count: String(trimmedLength) })}
                 {trimmedLength > 0 && trimmedLength < MIN_SUBMISSION_CHARS
-                  ? ` · aim for at least ${MIN_SUBMISSION_CHARS} characters`
+                  ? t("student.charMinHint", { min: String(MIN_SUBMISSION_CHARS) })
                   : ""}
               </p>
               <Button
@@ -254,10 +257,10 @@ export function StudentHomeworkDetailPage() {
               >
                 <Send className="size-4" />
                 {submit.isPending
-                  ? "Sending…"
+                  ? t("student.sending")
                   : returned
-                    ? "Resubmit for review"
-                    : "Send for teacher review"}
+                    ? t("student.resubmitForReview")
+                    : t("student.sendForReview")}
               </Button>
             </Card>
           ) : null}

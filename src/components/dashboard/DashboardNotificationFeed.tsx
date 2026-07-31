@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
 import { cn } from "@/lib/utils/cn";
+import { usePortalTranslation } from "@/i18n/LocaleProvider";
 
 export interface INotificationFeedItem {
   id: string;
@@ -18,10 +19,13 @@ interface IDashboardNotificationFeedProps {
 
 export function DashboardNotificationFeed({
   items,
-  emptyMessage = "No new notifications.",
+  emptyMessage,
 }: IDashboardNotificationFeedProps) {
+  const { t } = usePortalTranslation();
+  const empty = emptyMessage ?? t("dashboard.noNotifications");
+
   if (items.length === 0) {
-    return <p className="text-sm text-portal-muted">{emptyMessage}</p>;
+    return <p className="text-sm text-portal-muted">{empty}</p>;
   }
 
   return (

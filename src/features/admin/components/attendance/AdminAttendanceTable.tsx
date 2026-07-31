@@ -7,6 +7,7 @@ import {
   getTeacherName,
 } from "@/features/admin/components/attendance/adminAttendanceUtils";
 import { cn } from "@/lib/utils/cn";
+import { usePortalTranslation } from "@/i18n/LocaleProvider";
 
 interface IAdminAttendanceTableProps {
   rows: AttendanceOverview[];
@@ -22,31 +23,35 @@ export function AdminAttendanceTable({
   classes,
   totalCount,
 }: IAdminAttendanceTableProps) {
+  const { t, formatNumber } = usePortalTranslation();
+
   return (
     <Card className="overflow-hidden rounded-2xl border border-portal bg-portal-surface p-0 shadow-[0_8px_24px_-16px_rgba(13,74,47,0.18)]">
       <div className="flex items-center justify-between border-b border-portal px-5 py-4">
         <h2 className="text-sm font-bold text-portal-heading">
-          Class attendance ({totalCount})
+          {t("admin.attendance.classAttendanceCount", {
+            count: formatNumber(totalCount),
+          })}
         </h2>
       </div>
       <div className="overflow-x-auto">
         <table className="w-full min-w-[980px] border-collapse text-left text-sm">
           <thead>
             <tr className="border-b border-portal bg-portal-muted/40 text-xs font-semibold uppercase tracking-wide text-portal-muted">
-              <th className="px-5 py-3.5">Class</th>
-              <th className="px-5 py-3.5">Teacher</th>
-              <th className="px-5 py-3.5">Records</th>
-              <th className="px-5 py-3.5">Present</th>
-              <th className="px-5 py-3.5">Absent</th>
-              <th className="px-5 py-3.5">Attendance %</th>
-              <th className="px-5 py-3.5 text-right">Actions</th>
+              <th className="px-5 py-3.5">{t("tables.class")}</th>
+              <th className="px-5 py-3.5">{t("tables.teacher")}</th>
+              <th className="px-5 py-3.5">{t("tables.records")}</th>
+              <th className="px-5 py-3.5">{t("tables.present")}</th>
+              <th className="px-5 py-3.5">{t("tables.absent")}</th>
+              <th className="px-5 py-3.5">{t("tables.attendancePct")}</th>
+              <th className="px-5 py-3.5 text-right">{t("tables.actions")}</th>
             </tr>
           </thead>
           <tbody>
             {rows.length === 0 ? (
               <tr>
                 <td colSpan={7} className="px-5 py-8 text-center text-sm text-portal-muted">
-                  No attendance rows match your filters.
+                  {t("admin.attendance.noRowsMatch")}
                 </td>
               </tr>
             ) : (
@@ -69,17 +74,19 @@ export function AdminAttendanceTable({
                       <p className="font-semibold text-portal-heading">{row.class.title}</p>
                     </td>
                     <td className="px-5 py-4 text-portal-heading">{getTeacherName(cls)}</td>
-                    <td className="px-5 py-4 tabular-nums text-portal-heading">{row.total}</td>
+                    <td className="px-5 py-4 tabular-nums text-portal-heading">
+                      {formatNumber(row.total)}
+                    </td>
                     <td className="px-5 py-4 tabular-nums font-medium text-emerald-700">
-                      {row.present}
+                      {formatNumber(row.present)}
                     </td>
                     <td className="px-5 py-4 tabular-nums font-medium text-red-600">
-                      {row.absent}
+                      {formatNumber(row.absent)}
                     </td>
                     <td className="px-5 py-4">
                       <div className="flex min-w-[120px] items-center gap-2">
                         <span className={cn("font-semibold tabular-nums", pctClass)}>
-                          {row.percentage}%
+                          {formatNumber(row.percentage)}%
                         </span>
                         <div className="h-2 flex-1 overflow-hidden rounded-full bg-portal-muted/50">
                           <div
@@ -95,8 +102,10 @@ export function AdminAttendanceTable({
                           <Link
                             to={`/admin/classes/${classId}`}
                             className={actionClass}
-                            aria-label={`View ${row.class.title}`}
-                            title="View class"
+                            aria-label={t("admin.homework.viewAssignment", {
+                              title: row.class.title,
+                            })}
+                            title={t("actions.viewClass")}
                           >
                             <Eye className="size-4" aria-hidden />
                           </Link>
@@ -105,8 +114,8 @@ export function AdminAttendanceTable({
                           <Link
                             to={`/admin/classes/${classId}?tab=attendance`}
                             className={actionClass}
-                            aria-label={`Attendance details for ${row.class.title}`}
-                            title="Class attendance"
+                            aria-label={t("actions.classAttendance")}
+                            title={t("actions.classAttendance")}
                           >
                             <BarChart3 className="size-4" aria-hidden />
                           </Link>

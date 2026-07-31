@@ -3,10 +3,12 @@ import { CheckCircle } from "lucide-react";
 import { useStudentHomework } from "@/features/student/hooks/useStudent";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
+import { usePortalTranslation } from "@/i18n/LocaleProvider";
 
 export function StudentHomeworkSuccessPage() {
   const navigate = useNavigate();
   const [params] = useSearchParams();
+  const { t } = usePortalTranslation();
   const id = params.get("id") ?? "";
   const { data: homework = [] } = useStudentHomework();
 
@@ -19,25 +21,27 @@ export function StudentHomeworkSuccessPage() {
           <CheckCircle className="size-10 text-emerald-600" />
         </div>
         <h1 className="text-2xl font-bold text-primary-dark">
-          Homework Submitted!
+          {t("student.homeworkSubmitted")}
         </h1>
-        <p className="max-w-sm text-sm text-zinc-500">
-          Your teacher will review and grade your work soon.
-        </p>
+        <p className="max-w-sm text-sm text-zinc-500">{t("student.teacherWillReview")}</p>
       </div>
 
       <Card className="w-full max-w-md rounded-2xl border-0 bg-[#F8FAFF] p-5 shadow-sm">
-        <span className="mb-2 block font-bold text-primary-dark">What happens next</span>
+        <span className="mb-2 block font-bold text-primary-dark">
+          {t("student.whatHappensNext")}
+        </span>
         <ol className="list-decimal space-y-2 pl-5 text-sm text-zinc-600">
-          <li>Your teacher receives your submission instantly.</li>
-          <li>They review your work and add a grade plus feedback.</li>
-          <li>You will see the grade on this homework page and in your list.</li>
+          <li>{t("student.successStep1")}</li>
+          <li>{t("student.successStep2")}</li>
+          <li>{t("student.successStep3")}</li>
         </ol>
       </Card>
 
       {submitted.length > 0 && (
         <Card className="w-full max-w-md rounded-2xl border-0 p-5 shadow-sm">
-          <span className="mb-3 block font-bold text-primary-dark">Submission history</span>
+          <span className="mb-3 block font-bold text-primary-dark">
+            {t("student.submissionHistory")}
+          </span>
           <div className="flex max-h-48 flex-col gap-2 overflow-y-auto">
             {submitted.map((hw) => (
               <button
@@ -62,14 +66,14 @@ export function StudentHomeworkSuccessPage() {
           onClick={() => navigate("/student/homework")}
           className="h-12 rounded-xl bg-primary-dark text-white"
         >
-          Back to Homework
+          {t("student.backToHomeworkBtn")}
         </Button>
         <Button
           onClick={() => navigate("/student")}
           variant="ghost"
           className="h-12 rounded-xl border border-zinc-200"
         >
-          Dashboard
+          {t("student.dashboard")}
         </Button>
       </div>
     </div>

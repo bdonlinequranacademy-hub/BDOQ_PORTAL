@@ -1,6 +1,7 @@
 import { Card } from "@/components/ui/Card";
 import { cn } from "@/lib/utils/cn";
 import type { IResourceCategoryRow } from "@/features/admin/components/resources/adminResourcesUtils";
+import { usePortalTranslation } from "@/i18n/LocaleProvider";
 
 interface IAdminResourcesCategoriesCardProps {
   rows: IResourceCategoryRow[];
@@ -13,10 +14,16 @@ export function AdminResourcesCategoriesCard({
   activeKey,
   onSelect,
 }: IAdminResourcesCategoriesCardProps) {
+  const { t } = usePortalTranslation();
+
   return (
     <Card className="rounded-2xl border border-portal bg-portal-surface p-5 shadow-[0_8px_24px_-16px_rgba(13,74,47,0.18)]">
-      <h2 className="text-sm font-bold text-portal-heading">Resource Categories</h2>
-      <p className="mt-0.5 text-xs text-portal-muted">By type & ebook topic</p>
+      <h2 className="text-sm font-bold text-portal-heading">
+        {t("admin.cms.resources.resourceCategories")}
+      </h2>
+      <p className="mt-0.5 text-xs text-portal-muted">
+        {t("admin.cms.resources.byTypeTopic")}
+      </p>
 
       <ul className="mt-4 space-y-1">
         {rows.map((row) => {

@@ -6,6 +6,7 @@ import { SessionActionButtons } from "@/components/schedule/SessionActionButtons
 import { SessionStatusBadge } from "@/components/schedule/SessionStatusBadge";
 import { useSessionJoin } from "@/hooks/useSessionJoin";
 import { normalizeMeetingLink } from "@/lib/utils/meetingLink";
+import { usePortalTranslation } from "@/i18n/LocaleProvider";
 
 interface SessionSlotCardProps {
   session: SessionSlotView;
@@ -23,6 +24,8 @@ export function SessionSlotCard({
   onMarkAttendance,
   onLogSession,
 }: SessionSlotCardProps) {
+  const { t } = usePortalTranslation();
+
   const { trackAndOpenMeeting } = useSessionJoin(joinRole ?? "student");
   const meetingHref = normalizeMeetingLink(session.meetingLink);
 
@@ -63,9 +66,7 @@ export function SessionSlotCard({
               onClick={() => trackAndOpenMeeting(session._id, meetingHref)}
               className="ml-auto inline-flex items-center gap-1 text-primary"
             >
-              <Video className="size-3" />
-              Join
-            </button>
+              <Video className="size-3" />{t("shared.schedule.join")}</button>
           ) : (
             <a
               href={meetingHref}
@@ -73,9 +74,7 @@ export function SessionSlotCard({
               rel="noreferrer"
               className="ml-auto inline-flex items-center gap-1 text-primary"
             >
-              <Video className="size-3" />
-              Join
-            </a>
+              <Video className="size-3" />{t("shared.schedule.join")}</a>
           )
         ) : null}
       </div>

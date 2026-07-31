@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/Button";
 import type { AttendanceRateFilter } from "@/features/admin/components/attendance/adminAttendanceUtils";
 import { formControlClass } from "@/lib/formControl";
 import { cn } from "@/lib/utils/cn";
+import { usePortalTranslation } from "@/i18n/LocaleProvider";
 
 interface IAdminAttendanceOverviewHeaderProps {
   classFilter: string;
@@ -29,6 +30,8 @@ export function AdminAttendanceOverviewHeader({
   onRefresh,
   onExport,
 }: IAdminAttendanceOverviewHeaderProps) {
+  const { t } = usePortalTranslation();
+
   return (
     <div className="portal-card-islamic portal-card--lg relative overflow-hidden rounded-2xl border border-portal bg-portal-surface px-5 py-6 shadow-[0_8px_24px_-16px_rgba(13,74,47,0.18)] sm:px-8 sm:py-8">
       <div
@@ -48,13 +51,13 @@ export function AdminAttendanceOverviewHeader({
       <div className="relative flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
         <div>
           <p className="text-xs font-semibold uppercase tracking-[0.18em] text-primary">
-            Academy analytics
+            {t("admin.attendance.analyticsBadge")}
           </p>
           <h1 className="portal-page-title mt-1 font-display text-2xl font-bold text-primary-dark sm:text-3xl">
-            Attendance Analytics
+            {t("admin.attendance.title")}
           </h1>
           <p className="portal-page-subtitle mt-2 max-w-2xl text-sm text-portal-muted sm:text-base">
-            Track class attendance and student participation across all active classes.
+            {t("admin.attendance.subtitle")}
           </p>
         </div>
 
@@ -67,9 +70,9 @@ export function AdminAttendanceOverviewHeader({
               )}
               value={classFilter}
               onChange={(event) => onClassChange(event.target.value)}
-              aria-label="Filter by class"
+              aria-label={t("filters.filterByClass")}
             >
-              <option value="">All classes</option>
+              <option value="">{t("filters.allClasses")}</option>
               {classes.map((cls) => (
                 <option key={cls._id} value={cls._id}>
                   {cls.title}
@@ -86,12 +89,12 @@ export function AdminAttendanceOverviewHeader({
               onChange={(event) =>
                 onRateFilterChange(event.target.value as AttendanceRateFilter)
               }
-              aria-label="Filter by attendance rate"
+              aria-label={t("filters.filterAttendanceRate")}
             >
-              <option value="all">All rates</option>
-              <option value="low">Needs attention (&lt;60%)</option>
-              <option value="good">Good (60–79%)</option>
-              <option value="excellent">Excellent (80%+)</option>
+              <option value="all">{t("filters.allRates")}</option>
+              <option value="low">{t("filters.needsAttentionPct")}</option>
+              <option value="good">{t("admin.attendance.rateGood")}</option>
+              <option value="excellent">{t("filters.excellentPct")}</option>
             </select>
           </div>
 
@@ -104,7 +107,7 @@ export function AdminAttendanceOverviewHeader({
               className="inline-flex shrink-0 items-center gap-2 rounded-xl border border-portal bg-portal-surface/80 px-4 backdrop-blur-sm disabled:opacity-45"
             >
               <Eraser className="size-4" aria-hidden />
-              Clear filters
+              {t("filters.clearFilters")}
             </Button>
             <Button
               type="button"
@@ -117,7 +120,7 @@ export function AdminAttendanceOverviewHeader({
                 className={cn("size-4", isFetching && "animate-spin")}
                 aria-hidden
               />
-              Refresh
+              {t("actions.refresh")}
             </Button>
             <Button
               type="button"
@@ -126,7 +129,7 @@ export function AdminAttendanceOverviewHeader({
               className="inline-flex shrink-0 items-center gap-2 rounded-xl border border-portal bg-portal-surface/80 px-4 backdrop-blur-sm"
             >
               <Download className="size-4" aria-hidden />
-              Export report
+              {t("actions.exportReport")}
             </Button>
           </div>
         </div>

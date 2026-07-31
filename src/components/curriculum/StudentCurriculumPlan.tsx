@@ -3,6 +3,7 @@ import {
   formatCurriculumPath,
   type CurriculumAssignment,
 } from "@/lib/api/curriculumApi";
+import { usePortalTranslation } from "@/i18n/LocaleProvider";
 
 export function curriculumAssignmentKey(a: CurriculumAssignment) {
   return `${a.programId}|${a.unitId ?? ""}|${a.topicId ?? ""}`;
@@ -23,6 +24,8 @@ export function StudentCurriculumPlan({
   togglingKey = null,
   emptyMessage,
 }: StudentCurriculumPlanProps) {
+  const { t, formatDate } = usePortalTranslation();
+
   if (!assignments.length) {
     return emptyMessage ? (
       <p className="text-sm text-portal-muted">{emptyMessage}</p>
@@ -35,7 +38,10 @@ export function StudentCurriculumPlan({
     <div className="flex flex-col gap-3">
       <div className="flex items-center justify-between gap-2">
         <span className="text-xs font-semibold text-portal-muted">
-          {completedCount} of {assignments.length} completed
+          {t("student.curriculumCompletedOf", {
+            completed: String(completedCount),
+            total: String(assignments.length),
+          })}
         </span>
         <div className="h-1.5 flex-1 max-w-32 overflow-hidden rounded-full bg-portal-muted">
           <div
@@ -84,11 +90,13 @@ export function StudentCurriculumPlan({
                   </span>
                   {completed && assignment.completedAt ? (
                     <span className="mt-0.5 block text-[10px] text-emerald-400">
-                      Completed {new Date(assignment.completedAt).toLocaleDateString()}
+                      {t("student.curriculumCompleted", {
+                        date: formatDate(assignment.completedAt),
+                      })}
                     </span>
                   ) : (
                     <span className="mt-0.5 block text-[10px] text-portal-muted">
-                      Tap when finished
+                      {t("student.curriculumTapWhenFinished")}
                     </span>
                   )}
                 </span>
@@ -126,10 +134,14 @@ export function StudentCurriculumPlan({
                 </span>
                 {completed && assignment.completedAt ? (
                   <span className="mt-0.5 block text-[10px] text-emerald-400">
-                    Completed {new Date(assignment.completedAt).toLocaleDateString()}
+                    {t("student.curriculumCompleted", {
+                      date: formatDate(assignment.completedAt),
+                    })}
                   </span>
                 ) : (
-                  <span className="mt-0.5 block text-[10px] text-portal-muted">In progress</span>
+                  <span className="mt-0.5 block text-[10px] text-portal-muted">
+                    {t("student.curriculumInProgress")}
+                  </span>
                 )}
               </span>
             </div>

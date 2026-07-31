@@ -6,21 +6,21 @@ import {
 } from "@/features/teacher/hooks/useTeacher";
 import { PageContainer } from "@/components/layout/PageContainer";
 import { ClassLogCard } from "@/components/schedule/ClassLogCard";
-import {
-  CurriculumProgramFilter,
-} from "@/components/curriculum/CurriculumProgramFilter";
+import { CurriculumProgramFilter } from "@/components/curriculum/CurriculumProgramFilter";
 import { useCurriculumTree } from "@/components/curriculum/NestedCurriculumSelect";
 import { matchesProgramFilter } from "@/lib/api/curriculumApi";
 import { Card } from "@/components/ui/Card";
 import { formControlClass } from "@/lib/formControl";
 import { ClipboardList, Search } from "lucide-react";
-
 import { PageLoading } from "@/components/ui/PageLoading";
 import { Pagination } from "@/components/ui/Pagination";
 import { usePaginatedList } from "@/lib/hooks/usePaginatedList";
+import { usePortalTranslation } from "@/i18n/LocaleProvider";
+
 type Filter = "all" | ClassLogStatus;
 
 export function TeacherClassLogsPage() {
+  const { t, statusLabel } = usePortalTranslation();
   const [filter, setFilter] = useState<Filter>("all");
   const [programFilter, setProgramFilter] = useState("");
   const [search, setSearch] = useState("");
@@ -30,10 +30,10 @@ export function TeacherClassLogsPage() {
   const { data: curriculumTree = [] } = useCurriculumTree();
 
   const filters: { id: Filter; label: string; count?: number }[] = [
-    { id: "all", label: "All" },
-    { id: "pending", label: "Pending", count: stats?.pending },
-    { id: "approved", label: "Approved", count: stats?.approved },
-    { id: "rejected", label: "Rejected", count: stats?.rejected },
+    { id: "all", label: t("teacher.filterAll") },
+    { id: "pending", label: statusLabel("pending"), count: stats?.pending },
+    { id: "approved", label: statusLabel("approved"), count: stats?.approved },
+    { id: "rejected", label: statusLabel("rejected"), count: stats?.rejected },
   ];
 
   const missingProgramCount = useMemo(
@@ -58,30 +58,31 @@ export function TeacherClassLogsPage() {
     resetDeps: [filter, programFilter, search],
   });
 
+  const statCards = [
+    { label: statusLabel("pending"), value: stats?.pending ?? 0, color: "text-amber-600" },
+    { label: statusLabel("approved"), value: stats?.approved ?? 0, color: "text-emerald-600" },
+    { label: statusLabel("rejected"), value: stats?.rejected ?? 0, color: "text-red-500" },
+  ];
+
   return (
     <PageContainer className="flex flex-col gap-6">
       <div>
-        <h1 className="text-2xl font-bold text-primary-dark">My Class Logs</h1>
-        <p className="mt-1 text-sm text-zinc-500">
-          Session logs with lesson reports — pending admin approval
-        </p>
+        <h1 className="text-2xl font-bold text-primary-dark">{t("teacher.myClassLogs")}</h1>
+        <p className="mt-1 text-sm text-zinc-500">{t("teacher.classLogsSubtitle")}</p>
       </div>
 
       {missingProgramCount > 0 ? (
         <Card className="rounded-2xl border-0 bg-amber-50 p-4 shadow-sm">
           <p className="text-sm text-amber-800">
-            {missingProgramCount} older log{missingProgramCount === 1 ? "" : "s"} without a study
-            program — new logs require a program when submitting.
+            {missingProgramCount === 1
+              ? t("teacher.olderLogsNoProgram", { count: String(missingProgramCount) })
+              : t("teacher.olderLogsNoProgramPlural", { count: String(missingProgramCount) })}
           </p>
         </Card>
       ) : null}
 
       <div className="grid grid-cols-3 gap-3">
-        {[
-          { label: "Pending", value: stats?.pending ?? 0, color: "text-amber-600" },
-          { label: "Approved", value: stats?.approved ?? 0, color: "text-emerald-600" },
-          { label: "Rejected", value: stats?.rejected ?? 0, color: "text-red-500" },
-        ].map((s) => (
+        {statCards.map((s) => (
           <Card key={s.label} className="rounded-2xl border-0 p-4 shadow-sm">
             <span className="text-xs text-zinc-400">{s.label}</span>
             <p className={`text-2xl font-bold ${s.color}`}>{s.value}</p>
@@ -94,7 +95,7 @@ export function TeacherClassLogsPage() {
           <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-zinc-400" />
           <input
             className={`${formControlClass} pl-10`}
-            placeholder="Search student, class, report…"
+            placeholder={t("teacher.searchStudentClassReport")}
             value={search}
             onChange={(e) => setSearch(e.target.value)}
           />
@@ -125,17 +126,17 @@ export function TeacherClassLogsPage() {
       </div>
 
       {isLoading ? (
-        <PageLoading label="Loading class logs…" />
+        <PageLoading label={t("teacher.loadingClassLogs")} />
       ) : visibleLogs.length === 0 ? (
         <Card className="flex flex-col items-center gap-3 rounded-2xl border border-dashed border-zinc-200 p-10 text-center">
           <ClipboardList className="size-10 text-zinc-300" />
           <p className="font-semibold text-primary-dark">
-            {logs.length === 0 ? "No class logs yet" : "No logs match your filters"}
+            {logs.length === 0 ? t("teacher.noClassLogsYet") : t("teacher.noLogsMatchFilters")}
           </p>
           <p className="text-sm text-zinc-400">
             {logs.length === 0
-              ? 'Use "Log Session" from Today\'s Schedule after each class.'
-              : "Try clearing search or program filter."}
+              ? t("teacher.noClassLogsYetDesc")
+              : t("teacher.clearSearchOrFilter")}
           </p>
         </Card>
       ) : (

@@ -1,4 +1,8 @@
 import type { PaymentMethod } from "@/types/models";
+import type { LocaleType } from "@/i18n/types";
+import { getStoredLocale } from "@/i18n/locale";
+import { formatLocaleMoney, formatLocaleDate } from "@/i18n/format";
+import { translatePaymentMethod } from "@/i18n/messages";
 
 export const PAYMENT_METHOD_LABELS: Record<PaymentMethod | string, string> = {
   zelle: "Zelle",
@@ -11,24 +15,26 @@ export const PAYMENT_METHOD_LABELS: Record<PaymentMethod | string, string> = {
   other: "Other",
 };
 
-export function paymentMethodLabel(method: string): string {
-  return PAYMENT_METHOD_LABELS[method] ?? method.replace(/_/g, " ");
+export function paymentMethodLabel(
+  method: string,
+  locale: LocaleType = getStoredLocale() ?? "en"
+): string {
+  return translatePaymentMethod(locale, method);
 }
 
-export function formatMoney(amount: number, currency: string): string {
-  try {
-    return new Intl.NumberFormat(undefined, {
-      style: "currency",
-      currency,
-      minimumFractionDigits: 2,
-    }).format(amount);
-  } catch {
-    return `${currency} ${amount.toFixed(2)}`;
-  }
+export function formatMoney(
+  amount: number,
+  currency: string,
+  locale: LocaleType = getStoredLocale() ?? "en"
+): string {
+  return formatLocaleMoney(locale, amount, currency);
 }
 
-export function formatInvoiceDate(iso: string): string {
-  return new Date(iso).toLocaleDateString("en-GB", {
+export function formatInvoiceDate(
+  iso: string,
+  locale: LocaleType = getStoredLocale() ?? "en"
+): string {
+  return formatLocaleDate(locale, iso, {
     day: "numeric",
     month: "long",
     year: "numeric",

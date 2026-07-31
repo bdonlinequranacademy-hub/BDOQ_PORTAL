@@ -9,6 +9,7 @@ import {
   groupRequestsByStatus,
 } from "@/features/admin/components/student-requests/adminStudentRequestsUtils";
 import { cn } from "@/lib/utils/cn";
+import { usePortalTranslation } from "@/i18n/LocaleProvider";
 
 interface IAdminStudentRequestsSidebarProps {
   requests: StudentRequestView[];
@@ -20,6 +21,8 @@ interface IAdminStudentRequestsSidebarProps {
 }
 
 function RequestOverview({ requests }: { requests: StudentRequestView[] }) {
+  const { t } = usePortalTranslation();
+
   const segments = groupRequestsByStatus(requests);
   const total = Math.max(requests.length, 1);
 
@@ -35,7 +38,7 @@ function RequestOverview({ requests }: { requests: StudentRequestView[] }) {
 
   return (
     <Card className="rounded-2xl border border-portal bg-portal-surface p-5 shadow-[0_8px_24px_-16px_rgba(13,74,47,0.18)]">
-      <h2 className="text-sm font-bold text-portal-heading">Request overview</h2>
+      <h2 className="text-sm font-bold text-portal-heading">{t("admin.studentRequests.sidebarStatusChart")}</h2>
       <div className="mt-4 flex items-center gap-4">
         <div
           className="relative size-28 shrink-0 rounded-full"
@@ -44,14 +47,12 @@ function RequestOverview({ requests }: { requests: StudentRequestView[] }) {
         >
           <div className="absolute inset-4 flex flex-col items-center justify-center rounded-full bg-portal-surface text-center">
             <p className="text-xl font-bold text-portal-heading">{requests.length}</p>
-            <p className="text-[10px] font-semibold uppercase tracking-wide text-portal-muted">
-              Total
-            </p>
+            <p className="text-[10px] font-semibold uppercase tracking-wide text-portal-muted">{t("stats.total")}</p>
           </div>
         </div>
         <div className="flex min-w-0 flex-1 flex-col gap-2 text-xs">
           {segments.length === 0 ? (
-            <p className="text-portal-muted">No requests yet.</p>
+            <p className="text-portal-muted">{t("admin.studentRequests.noRequests")}</p>
           ) : (
             segments.map((segment) => (
               <div key={segment.label} className="flex items-center justify-between gap-2">
@@ -75,14 +76,16 @@ function RequestOverview({ requests }: { requests: StudentRequestView[] }) {
 }
 
 function TopCoursesRequested({ requests }: { requests: StudentRequestView[] }) {
+  const { t } = usePortalTranslation();
+
   const courses = groupCoursesRequested(requests).slice(0, 6);
   const max = Math.max(...courses.map((item) => item.count), 1);
 
   return (
     <Card className="rounded-2xl border border-portal bg-portal-surface p-5 shadow-[0_8px_24px_-16px_rgba(13,74,47,0.18)]">
-      <h2 className="text-sm font-bold text-portal-heading">Top courses requested</h2>
+      <h2 className="text-sm font-bold text-portal-heading">{t("admin.studentRequests.sidebarByCourse")}</h2>
       {courses.length === 0 ? (
-        <p className="mt-3 text-sm text-portal-muted">No course data yet.</p>
+        <p className="mt-3 text-sm text-portal-muted">{t("admin.cms.shared.noRecent")}</p>
       ) : (
         <div className="mt-4 flex flex-col gap-3">
           {courses.map((course) => (
@@ -106,13 +109,15 @@ function TopCoursesRequested({ requests }: { requests: StudentRequestView[] }) {
 }
 
 function RecentActivity({ requests }: { requests: StudentRequestView[] }) {
+  const { t } = usePortalTranslation();
+
   const activity = buildStudentRequestActivity(requests);
 
   return (
     <Card className="rounded-2xl border border-portal bg-portal-surface p-5 shadow-[0_8px_24px_-16px_rgba(13,74,47,0.18)]">
-      <h2 className="text-sm font-bold text-portal-heading">Recent activity</h2>
+      <h2 className="text-sm font-bold text-portal-heading">{t("admin.studentRequests.sidebarActivity")}</h2>
       {activity.length === 0 ? (
-        <p className="mt-3 text-sm text-portal-muted">No recent activity.</p>
+        <p className="mt-3 text-sm text-portal-muted">{t("admin.cms.shared.noRecent")}</p>
       ) : (
         <div className="mt-4 flex max-h-[260px] flex-col gap-3 overflow-y-auto pr-1">
           {activity.map((item) => (
@@ -136,38 +141,34 @@ export function AdminStudentRequestsSidebar({
   onReviewPending,
   pendingCount,
 }: IAdminStudentRequestsSidebarProps) {
+  const { t, formatNumber } = usePortalTranslation();
+
   return (
     <aside className="flex flex-col gap-4">
       <RequestOverview requests={requests} />
       <TopCoursesRequested requests={requests} />
       <RecentActivity requests={requests} />
       <Card className="rounded-2xl border border-portal bg-portal-surface p-5 shadow-[0_8px_24px_-16px_rgba(13,74,47,0.18)]">
-        <h2 className="mb-4 text-sm font-bold text-portal-heading">Quick actions</h2>
+        <h2 className="mb-4 text-sm font-bold text-portal-heading">{t("admin.cms.shared.quickActions")}</h2>
         <div className="flex flex-col gap-2.5">
           {pendingCount > 0 ? (
             <button
               type="button"
               onClick={onReviewPending}
               className="inline-flex h-10 items-center justify-center rounded-xl bg-primary-dark px-4 text-sm font-semibold text-white transition hover:bg-primary"
-            >
-              Review pending ({pendingCount})
-            </button>
+            >{t("admin.studentRequests.alertCta")} ({formatNumber(pendingCount)})</button>
           ) : null}
           <button
             type="button"
             onClick={() => exportStudentRequestsFile(filteredRequests, "student-requests-filtered")}
             className="inline-flex h-10 items-center justify-center gap-2 rounded-xl border border-portal px-4 text-sm font-semibold text-portal-heading transition hover:border-primary/25 hover:text-primary"
           >
-            <Download className="size-4 text-primary" aria-hidden />
-            Export report
-          </button>
+            <Download className="size-4 text-primary" aria-hidden />{t("admin.common.export")}</button>
           <Link
             to="/admin/classes"
             className="inline-flex h-10 items-center justify-center gap-2 rounded-xl border border-portal px-4 text-sm font-semibold text-portal-heading transition hover:border-primary/25 hover:text-primary"
           >
-            <GraduationCap className="size-4 text-primary" aria-hidden />
-            Go to Classes
-          </Link>
+            <GraduationCap className="size-4 text-primary" aria-hidden />{t("admin.classes.title")}</Link>
           <button
             type="button"
             onClick={onRefresh}
@@ -178,7 +179,7 @@ export function AdminStudentRequestsSidebar({
               className={cn("size-4 text-primary", isFetching && "animate-spin")}
               aria-hidden
             />
-            {isFetching ? "Refreshing…" : "Refresh"}
+            {isFetching ? t("admin.trialLeads.refreshing") : t("admin.trialLeads.actionRefresh")}
           </button>
         </div>
       </Card>

@@ -1,6 +1,6 @@
 import { Card } from "@/components/ui/Card";
+import { usePortalTranslation } from "@/i18n/LocaleProvider";
 import {
-  formatEarningsAmount,
   type IEarningsProgramSegment,
 } from "@/features/admin/components/earnings/adminEarningsUtils";
 
@@ -13,6 +13,8 @@ export function AdminEarningsProgramDonut({
   segments,
   totalBdt,
 }: IAdminEarningsProgramDonutProps) {
+  const { t, statusLabel, formatBdt, formatNumber } = usePortalTranslation();
+
   const total = Math.max(
     segments.reduce((sum, segment) => sum + segment.amount, 0),
     totalBdt,
@@ -31,7 +33,7 @@ export function AdminEarningsProgramDonut({
 
   return (
     <Card className="flex h-full flex-col rounded-2xl border border-portal bg-portal-surface p-5 shadow-[0_8px_24px_-16px_rgba(13,74,47,0.18)]">
-      <h2 className="text-sm font-bold text-portal-heading">Earnings by program</h2>
+      <h2 className="text-sm font-bold text-portal-heading">{t("admin.earnings.donutTitle")}</h2>
       <div className="mt-4 flex min-h-[220px] flex-1 flex-col items-center justify-center gap-4 sm:flex-row">
         <div
           className="relative size-32 shrink-0 rounded-full"
@@ -39,15 +41,15 @@ export function AdminEarningsProgramDonut({
           aria-hidden
         >
           <div className="absolute inset-5 flex flex-col items-center justify-center rounded-full bg-portal-surface text-center">
-            <p className="text-lg font-bold text-portal-heading">{formatEarningsAmount(totalBdt)}</p>
+            <p className="text-lg font-bold text-portal-heading">{formatBdt(totalBdt)}</p>
             <p className="text-[10px] font-semibold uppercase tracking-wide text-portal-muted">
-              Verified
+              {statusLabel("approved")}
             </p>
           </div>
         </div>
         <div className="flex w-full min-w-0 flex-1 flex-col gap-2.5 text-xs">
           {segments.length === 0 ? (
-            <p className="text-sm text-portal-muted">No verified program earnings yet.</p>
+            <p className="text-sm text-portal-muted">{t("admin.earnings.donutEmpty")}</p>
           ) : (
             segments.map((segment) => (
               <div key={segment.label} className="flex items-center justify-between gap-2">
@@ -59,8 +61,7 @@ export function AdminEarningsProgramDonut({
                   <span className="truncate">{segment.label}</span>
                 </span>
                 <span className="shrink-0 font-semibold tabular-nums text-portal-muted">
-                  {formatEarningsAmount(segment.amount)} ·{" "}
-                  {Math.round((segment.amount / total) * 100)}%
+                  {formatBdt(segment.amount)} · {formatNumber(Math.round((segment.amount / total) * 100))}%
                 </span>
               </div>
             ))
