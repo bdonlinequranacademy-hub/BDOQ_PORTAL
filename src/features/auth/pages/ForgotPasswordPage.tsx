@@ -1,6 +1,6 @@
 import { useState, type FormEvent } from "react";
 import { Link } from "react-router-dom";
-import { Mail } from "lucide-react";
+import { CheckCircle2, Mail } from "lucide-react";
 import { AuthLayout } from "@/components/layout/AuthLayout";
 import { forgotPasswordRequest } from "@/features/auth/api/authApi";
 import { toast } from "@/stores/uiStore";
@@ -27,16 +27,51 @@ export function ForgotPasswordPage() {
     }
   }
 
+  const stepList = [
+    t("auth.resetSentStep1"),
+    t("auth.resetSentStep2"),
+    t("auth.resetSentStep3"),
+  ];
+
   return (
     <AuthLayout>
       <div className="flex w-full max-w-md flex-col gap-6 py-4">
         <h1 className="text-2xl font-bold text-navy">{t("auth.forgotPasswordTitle")}</h1>
         {sent ? (
-          <p className="text-sm text-zinc-500">
-            {t("auth.resetSentDetail", { email })}
-          </p>
+          <div className="rounded-2xl border border-primary/20 bg-[#F0FBF6] p-6">
+            <div className="mb-4 flex items-center gap-3">
+              <span className="flex size-11 items-center justify-center rounded-full bg-primary/15 text-primary-dark">
+                <CheckCircle2 className="size-6" aria-hidden="true" />
+              </span>
+              <div>
+                <h2 className="text-lg font-semibold text-navy">{t("auth.resetSentTitle")}</h2>
+                <p className="text-sm text-zinc-600">{email}</p>
+              </div>
+            </div>
+            <p className="text-sm leading-relaxed text-zinc-600">
+              {t("auth.resetSentDetail", { email })}
+            </p>
+            {stepList.length > 0 && (
+              <ol className="mt-4 space-y-2 border-t border-primary/10 pt-4">
+                {stepList.map((step, index) => (
+                  <li
+                    key={step}
+                    className="flex gap-3 text-sm leading-relaxed text-zinc-600"
+                  >
+                    <span className="mt-0.5 flex size-6 shrink-0 items-center justify-center rounded-full bg-white text-xs font-bold text-primary-dark">
+                      {index + 1}
+                    </span>
+                    <span>{step}</span>
+                  </li>
+                ))}
+              </ol>
+            )}
+          </div>
         ) : (
           <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+            <p className="text-sm leading-relaxed text-zinc-500">
+              {t("auth.forgotPasswordIntro")}
+            </p>
             <div className="relative">
               <Mail className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-zinc-400" />
               <input
