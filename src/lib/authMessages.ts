@@ -10,7 +10,7 @@ export const AUTH_ERROR_MESSAGES: Record<string, string> = {
   oauth_disabled:
     "Google sign-in is not available right now. Please use your email and password instead.",
   deactivated:
-    "This account has been deactivated. Contact BDOQ Academy support at contact@bdonlinequranacademy.com.",
+    "This account has been deactivated. Contact BDOQ Academy support at bdonlinequranacademy@gmail.com.",
 };
 
 export function authErrorMessage(code: string | null): string | null {

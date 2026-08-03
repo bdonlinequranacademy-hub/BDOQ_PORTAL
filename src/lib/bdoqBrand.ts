@@ -7,8 +7,8 @@ export const BDOQ_BRAND = {
     "A reliable virtual classroom for online Quran teachers and students",
   portalTagline: "Your Quran learning portal — classes, Tajweed, Hifz & progress",
   website: "https://bdonlinequranacademy.com",
-  email: "contact@bdonlinequranacademy.com",
-  contactBD: "+8801923-947460",
+  email: "bdonlinequranacademy@gmail.com",
+  contactBD: "+8801923947460",
   contactEG: "+20122681709",
   address: "Gopalganj, Dhaka, Bangladesh",
 } as const;
