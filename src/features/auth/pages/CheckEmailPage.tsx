@@ -35,9 +35,9 @@ export function CheckEmailPage() {
         <p className="max-w-sm text-sm leading-relaxed text-zinc-500">
           {t("auth.checkEmailBody", { email: email || t("auth.yourInbox") })}
         </p>
-        <p className="text-xs text-zinc-400">
-          {t("auth.devSmtpHint")}
-        </p>
+        {import.meta.env.DEV && (
+          <p className="text-xs text-zinc-400">{t("auth.devSmtpHint")}</p>
+        )}
         {email && (
           <button
             type="button"
