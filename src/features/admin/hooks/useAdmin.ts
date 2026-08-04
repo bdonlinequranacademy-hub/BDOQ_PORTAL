@@ -952,6 +952,38 @@ export function useUpdateTrialBookingStatus() {
   });
 }
 
+export function useUpdateTrialBooking() {
+  const qc = useQueryClient();
+  const addToast = useUiStore((s) => s.addToast);
+  return useMutation({
+    mutationFn: ({
+      id,
+      payload,
+    }: {
+      id: string;
+      payload: Parameters<typeof adminApi.updateTrialBooking>[1];
+    }) => adminApi.updateTrialBooking(id, payload),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["admin", "trialBookings"] });
+      addToast("success", "Trial lead saved");
+    },
+    onError: () => addToast("error", "Failed to save trial lead"),
+  });
+}
+
+export function useDeleteTrialBooking() {
+  const qc = useQueryClient();
+  const addToast = useUiStore((s) => s.addToast);
+  return useMutation({
+    mutationFn: (id: string) => adminApi.deleteTrialBooking(id),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["admin", "trialBookings"] });
+      addToast("success", "Trial lead deleted");
+    },
+    onError: () => addToast("error", "Failed to delete trial lead"),
+  });
+}
+
 export function useAdminStudentAdmissions(status?: StudentAdmissionStatus) {
   return useQuery({
     queryKey: adminKeys.studentAdmissions(status),

@@ -742,6 +742,8 @@ export interface TrialBookingView {
   email?: string;
   whatsapp: string;
   country?: string;
+  age?: string;
+  learnerGender?: "male" | "female";
   learnerType: "child" | "teen" | "adult";
   timeSlot?:
     | "anytime"

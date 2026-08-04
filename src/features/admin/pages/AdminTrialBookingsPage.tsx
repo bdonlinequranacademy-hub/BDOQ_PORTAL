@@ -3,6 +3,8 @@ import { CalendarCheck, Download } from "lucide-react";
 import type { TrialBookingStatus, TrialBookingView } from "@/types/models";
 import {
   useAdminTrialBookings,
+  useDeleteTrialBooking,
+  useUpdateTrialBooking,
   useUpdateTrialBookingStatus,
 } from "@/features/admin/hooks/useAdmin";
 import { PageContainer } from "@/components/layout/PageContainer";
@@ -18,6 +20,7 @@ import {
   AdminTrialLeadsToolbar,
 } from "@/features/admin/components/trial-leads/AdminTrialLeadsTable";
 import { AdminTrialLeadsSidebar } from "@/features/admin/components/trial-leads/AdminTrialLeadsSidebar";
+import { AdminTrialLeadDetailModal } from "@/features/admin/components/trial-leads/AdminTrialLeadDetailModal";
 import {
   computeTrialLeadsStats,
   exportTrialLeadsFile,
@@ -25,6 +28,7 @@ import {
   extractSourceOptions,
   filterTrialLeads,
   type AdminTrialLeadsTab,
+  type ITrialLeadUpdatePayload,
 } from "@/features/admin/components/trial-leads/adminTrialLeadsUtils";
 import { usePortalTranslation } from "@/i18n/LocaleProvider";
 
@@ -36,10 +40,14 @@ export function AdminTrialBookingsPage() {
   const [sourceFilter, setSourceFilter] = useState("");
   const [dateFrom, setDateFrom] = useState("");
   const [dateTo, setDateTo] = useState("");
+  const [selectedLead, setSelectedLead] = useState<TrialBookingView | null>(null);
+  const [modalMode, setModalMode] = useState<"view" | "edit">("view");
 
   const { data: bookings = [], isLoading, isError, isFetching, refetch } =
     useAdminTrialBookings();
   const updateStatus = useUpdateTrialBookingStatus();
+  const updateLead = useUpdateTrialBooking();
+  const deleteLead = useDeleteTrialBooking();
 
   const stats = useMemo(() => computeTrialLeadsStats(bookings), [bookings]);
   const courseOptions = useMemo(() => extractCourseOptions(bookings), [bookings]);
@@ -75,10 +83,50 @@ export function AdminTrialBookingsPage() {
     resetDeps: [tab, search, courseFilter, sourceFilter, dateFrom, dateTo],
   });
 
-  const busy = updateStatus.isPending;
+  const busy = updateStatus.isPending || updateLead.isPending || deleteLead.isPending;
+
+  function openLead(lead: TrialBookingView, mode: "view" | "edit" = "view") {
+    setSelectedLead(lead);
+    setModalMode(mode);
+  }
+
+  function closeLeadModal() {
+    setSelectedLead(null);
+    setModalMode("view");
+  }
 
   function handleAdvanceStatus(lead: TrialBookingView, status: TrialBookingStatus) {
-    updateStatus.mutate({ id: lead._id, status });
+    updateStatus.mutate(
+      { id: lead._id, status },
+      {
+        onSuccess: () => {
+          setSelectedLead((current) =>
+            current?._id === lead._id ? { ...current, status } : current
+          );
+        },
+      }
+    );
+  }
+
+  function handleSaveLead(lead: TrialBookingView, payload: ITrialLeadUpdatePayload) {
+    updateLead.mutate(
+      { id: lead._id, payload },
+      {
+        onSuccess: (response) => {
+          const updated = response.data;
+          if (updated) {
+            setSelectedLead(updated);
+            setModalMode("view");
+          }
+        },
+      }
+    );
+  }
+
+  function handleDeleteLead(lead: TrialBookingView) {
+    deleteLead.mutate(lead._id, {
+      onSuccess: () => closeLeadModal(),
+    });
   }
 
   function handleExport() {
@@ -160,6 +208,9 @@ export function AdminTrialBookingsPage() {
             <AdminTrialLeadsTable
               leads={pagination.paginatedItems}
               busy={busy}
+              onView={(lead) => openLead(lead, "view")}
+              onEdit={(lead) => openLead(lead, "edit")}
+              onDelete={handleDeleteLead}
               onAdvanceStatus={handleAdvanceStatus}
             />
             <Pagination pagination={pagination} itemLabel={t("admin.common.leadsItemLabel")} />
@@ -173,6 +224,17 @@ export function AdminTrialBookingsPage() {
           />
         </div>
       )}
+
+      <AdminTrialLeadDetailModal
+        lead={selectedLead}
+        courseOptions={courseOptions}
+        busy={busy}
+        initialMode={modalMode}
+        onClose={closeLeadModal}
+        onUpdateStatus={handleAdvanceStatus}
+        onSave={handleSaveLead}
+        onDelete={handleDeleteLead}
+      />
     </PageContainer>
   );
 }

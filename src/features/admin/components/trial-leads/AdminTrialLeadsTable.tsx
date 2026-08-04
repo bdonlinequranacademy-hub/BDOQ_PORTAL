@@ -1,4 +1,4 @@
-import { Download, Mail, Phone, Search } from "lucide-react";
+import { Download, Eye, Mail, Pencil, Phone, Search, Trash2 } from "lucide-react";
 import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { UserInitialAvatar } from "@/components/ui/UserInitialAvatar";
@@ -23,6 +23,9 @@ import { cn } from "@/lib/utils/cn";
 interface IAdminTrialLeadsTableProps {
   leads: TrialBookingView[];
   busy: boolean;
+  onView: (lead: TrialBookingView) => void;
+  onEdit: (lead: TrialBookingView) => void;
+  onDelete: (lead: TrialBookingView) => void;
   onAdvanceStatus: (lead: TrialBookingView, status: TrialBookingStatus) => void;
 }
 
@@ -32,6 +35,9 @@ const contactActionClass =
 export function AdminTrialLeadsTable({
   leads,
   busy,
+  onView,
+  onEdit,
+  onDelete,
   onAdvanceStatus,
 }: IAdminTrialLeadsTableProps) {
   const { t, formatDateTime } = usePortalTranslation();
@@ -70,10 +76,21 @@ export function AdminTrialLeadsTable({
                     <div className="flex items-center gap-3">
                       <UserInitialAvatar name={lead.parentName} size="sm" />
                       <div className="min-w-0">
-                        <p className="text-sm font-semibold text-portal-heading">
-                          {lead.parentName}
-                        </p>
+                        <button
+                          type="button"
+                          onClick={() => onView(lead)}
+                          className="text-left"
+                        >
+                          <p className="text-sm font-semibold text-portal-heading transition hover:text-primary">
+                            {lead.parentName}
+                          </p>
+                        </button>
                         <p className="text-xs text-portal-muted">{lead.whatsapp}</p>
+                        {lead.age ? (
+                          <p className="text-xs text-portal-muted">
+                            {t("admin.trialLeads.fieldAge")}: {lead.age}
+                          </p>
+                        ) : null}
                         {lead.email ? (
                           <p className="truncate text-xs text-portal-muted">{lead.email}</p>
                         ) : null}
@@ -139,6 +156,44 @@ export function AdminTrialLeadsTable({
                           <Mail className="size-4" aria-hidden />
                         </a>
                       ) : null}
+                      <button
+                        type="button"
+                        onClick={() => onView(lead)}
+                        className={contactActionClass}
+                        aria-label={t("admin.trialLeads.viewLead")}
+                        title={t("admin.trialLeads.viewLead")}
+                      >
+                        <Eye className="size-4" aria-hidden />
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => onEdit(lead)}
+                        className={contactActionClass}
+                        aria-label={t("admin.trialLeads.editLead")}
+                        title={t("admin.trialLeads.editLead")}
+                      >
+                        <Pencil className="size-4" aria-hidden />
+                      </button>
+                      <button
+                        type="button"
+                        disabled={busy}
+                        onClick={() => {
+                          const confirmed = window.confirm(
+                            t("admin.trialLeads.confirmDeleteLead", {
+                              name: lead.parentName,
+                            })
+                          );
+                          if (confirmed) onDelete(lead);
+                        }}
+                        className={cn(
+                          contactActionClass,
+                          "text-red-600 hover:border-red-200 hover:text-red-700 disabled:opacity-50"
+                        )}
+                        aria-label={t("admin.trialLeads.deleteLead")}
+                        title={t("admin.trialLeads.deleteLead")}
+                      >
+                        <Trash2 className="size-4" aria-hidden />
+                      </button>
                       <TrialLeadStatusMenu
                         lead={lead}
                         busy={busy}

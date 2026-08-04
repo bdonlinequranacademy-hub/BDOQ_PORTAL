@@ -61,15 +61,223 @@ export function formatLeadSourceDetail(
   return t("admin.trialLeads.sourceFreeTrialForm");
 }
 
+const LEGACY_GENDER_PREFIX = "Learner: ";
+
+export function extractTrialLeadGender(
+  booking: TrialBookingView
+): "male" | "female" | undefined {
+  if (booking.learnerGender === "male" || booking.learnerGender === "female") {
+    return booking.learnerGender;
+  }
+  const legacy = booking.preferredDays.find((entry) =>
+    entry.startsWith(LEGACY_GENDER_PREFIX)
+  );
+  if (!legacy) return undefined;
+  const value = legacy.slice(LEGACY_GENDER_PREFIX.length).trim();
+  return value === "male" || value === "female" ? value : undefined;
+}
+
+export function extractTrialLeadPreferredTimes(booking: TrialBookingView): string[] {
+  return booking.preferredDays.filter(
+    (entry) => !entry.startsWith(LEGACY_GENDER_PREFIX)
+  );
+}
+
+const TIME_SLOT_I18N: Record<NonNullable<TrialBookingView["timeSlot"]>, string> = {
+  anytime: "admin.trialLeads.timeSlotAnytime",
+  early_morning: "admin.trialLeads.timeSlotEarlyMorning",
+  morning: "admin.trialLeads.timeSlotMorning",
+  afternoon: "admin.trialLeads.timeSlotAfternoon",
+  evening: "admin.trialLeads.timeSlotEvening",
+  late_evening: "admin.trialLeads.timeSlotLateEvening",
+};
+
+const LEARNER_TYPE_I18N: Record<TrialBookingView["learnerType"], string> = {
+  child: "admin.trialLeads.learnerTypeChild",
+  teen: "admin.trialLeads.learnerTypeTeen",
+  adult: "admin.trialLeads.learnerTypeAdult",
+};
+
+const TEACHER_PREFERENCE_I18N: Record<TrialBookingView["teacherPreference"], string> = {
+  any: "admin.trialLeads.teacherPreferenceAny",
+  male: "admin.trialLeads.teacherPreferenceMale",
+  female: "admin.trialLeads.teacherPreferenceFemale",
+};
+
+export function formatTrialTimeSlot(
+  slot: TrialBookingView["timeSlot"],
+  t: PortalTranslate
+): string {
+  if (!slot) return t("admin.trialLeads.notProvided");
+  return t(TIME_SLOT_I18N[slot]);
+}
+
+export function formatLearnerTypeLabel(
+  learnerType: TrialBookingView["learnerType"],
+  t: PortalTranslate
+): string {
+  return t(LEARNER_TYPE_I18N[learnerType]);
+}
+
+export function formatTeacherPreferenceLabel(
+  preference: TrialBookingView["teacherPreference"],
+  t: PortalTranslate
+): string {
+  return t(TEACHER_PREFERENCE_I18N[preference]);
+}
+
+export interface ITrialLeadDisplayRow {
+  key: string;
+  label: string;
+  value: string;
+  fullWidth?: boolean;
+}
+
+export interface ITrialLeadDisplaySection {
+  title: string;
+  rows: ITrialLeadDisplayRow[];
+}
+
+export function buildTrialLeadDisplaySections(
+  lead: TrialBookingView,
+  t: PortalTranslate
+): ITrialLeadDisplaySection[] {
+  const gender = extractTrialLeadGender(lead);
+  const preferredTimes = extractTrialLeadPreferredTimes(lead);
+  const genderLabel =
+    gender === "male"
+      ? t("admin.trialLeads.genderMale")
+      : gender === "female"
+        ? t("admin.trialLeads.genderFemale")
+        : t("admin.trialLeads.notProvided");
+
+  return [
+    {
+      title: t("admin.trialLeads.modalSectionContact"),
+      rows: [
+        { key: "name", label: t("admin.trialLeads.csvName"), value: lead.parentName },
+        { key: "whatsapp", label: t("admin.trialLeads.csvWhatsapp"), value: lead.whatsapp },
+        {
+          key: "email",
+          label: t("admin.trialLeads.csvEmail"),
+          value: lead.email?.trim() || t("admin.trialLeads.notProvided"),
+        },
+        {
+          key: "country",
+          label: t("admin.trialLeads.csvCountry"),
+          value: lead.country?.trim() || t("admin.trialLeads.notProvided"),
+        },
+      ],
+    },
+    {
+      title: t("admin.trialLeads.modalSectionLearner"),
+      rows: [
+        {
+          key: "age",
+          label: t("admin.trialLeads.fieldAge"),
+          value: lead.age?.trim() || t("admin.trialLeads.notProvided"),
+        },
+        { key: "gender", label: t("admin.trialLeads.fieldGender"), value: genderLabel },
+        {
+          key: "learnerType",
+          label: t("admin.trialLeads.fieldLearnerType"),
+          value: formatLearnerTypeLabel(lead.learnerType, t),
+        },
+      ],
+    },
+    {
+      title: t("admin.trialLeads.modalSectionBooking"),
+      rows: [
+        {
+          key: "course",
+          label: t("admin.trialLeads.csvCourse"),
+          value: formatCourseInterest(lead.courseSlug, t),
+        },
+        {
+          key: "teacher",
+          label: t("admin.trialLeads.fieldTeacherPreference"),
+          value: formatTeacherPreferenceLabel(lead.teacherPreference, t),
+        },
+        {
+          key: "timeSlot",
+          label: t("admin.trialLeads.fieldTimeSlot"),
+          value: formatTrialTimeSlot(lead.timeSlot, t),
+        },
+        {
+          key: "preferredTimes",
+          label: t("admin.trialLeads.fieldPreferredTimes"),
+          value:
+            preferredTimes.length > 0
+              ? preferredTimes.join(", ")
+              : t("admin.trialLeads.notProvided"),
+          fullWidth: true,
+        },
+        {
+          key: "timezone",
+          label: t("admin.trialLeads.fieldTimezone"),
+          value: lead.timezone?.trim() || t("admin.trialLeads.notProvided"),
+        },
+      ],
+    },
+    {
+      title: t("admin.trialLeads.modalSectionSource"),
+      rows: [
+        {
+          key: "source",
+          label: t("admin.trialLeads.csvSource"),
+          value: formatLeadSource(lead, t),
+        },
+        {
+          key: "sourceDetail",
+          label: t("admin.trialLeads.fieldSourceDetail"),
+          value: formatLeadSourceDetail(lead, t),
+        },
+        {
+          key: "utmSource",
+          label: t("admin.trialLeads.fieldUtmSource"),
+          value: lead.utmSource?.trim() || t("admin.trialLeads.notProvided"),
+        },
+        {
+          key: "utmMedium",
+          label: t("admin.trialLeads.fieldUtmMedium"),
+          value: lead.utmMedium?.trim() || t("admin.trialLeads.notProvided"),
+        },
+        {
+          key: "utmCampaign",
+          label: t("admin.trialLeads.fieldUtmCampaign"),
+          value: lead.utmCampaign?.trim() || t("admin.trialLeads.notProvided"),
+        },
+      ],
+    },
+  ];
+}
+
+export function trialLeadStatusActions(
+  status: TrialBookingStatus,
+  t: PortalTranslate,
+  statusLabel: StatusLabelFn
+): { status: TrialBookingStatus; label: string }[] {
+  const next = nextTrialLeadStatus(status);
+  if (!next) return [];
+  const label = nextTrialLeadActionLabel(status, t, statusLabel);
+  if (!label) return [];
+  return [{ status: next, label }];
+}
+
 export function leadSearchText(booking: TrialBookingView): string {
+  const gender = extractTrialLeadGender(booking);
   return [
     booking.parentName,
     booking.email,
     booking.whatsapp,
     booking.country,
+    booking.age,
+    gender,
     booking.courseSlug,
     booking.source,
     booking.utmSource,
+    booking.timezone,
+    ...extractTrialLeadPreferredTimes(booking),
   ]
     .filter(Boolean)
     .join(" ")
@@ -200,6 +408,41 @@ export const TRIAL_LEAD_STATUSES: TrialBookingStatus[] = [
   "closed",
 ];
 
+export const TRIAL_LEAD_AGE_OPTIONS = [
+  ...Array.from({ length: 67 }, (_, index) => String(index + 4)),
+  "70+",
+];
+
+export interface ITrialLeadUpdatePayload {
+  parentName?: string;
+  email?: string;
+  whatsapp?: string;
+  country?: string;
+  age?: string;
+  learnerGender?: "male" | "female";
+  teacherPreference?: "any" | "female" | "male";
+  preferredDays?: string[];
+  timezone?: string;
+  courseSlug?: string;
+  status?: TrialBookingStatus;
+}
+
+export function buildTrialLeadEditDefaults(lead: TrialBookingView) {
+  return {
+    parentName: lead.parentName,
+    email: lead.email ?? "",
+    whatsapp: lead.whatsapp,
+    country: lead.country ?? "Bangladesh",
+    age: lead.age ?? "",
+    learnerGender: extractTrialLeadGender(lead) ?? ("male" as const),
+    courseSlug: lead.courseSlug ?? "",
+    teacherPreference: lead.teacherPreference,
+    preferredTimes: extractTrialLeadPreferredTimes(lead).join(", "),
+    timezone: lead.timezone ?? "",
+    status: lead.status,
+  };
+}
+
 export function nextTrialLeadActionLabel(
   status: TrialBookingStatus,
   t: PortalTranslate,
@@ -259,25 +502,39 @@ export function exportTrialLeadsFile(
     t("admin.trialLeads.csvEmail"),
     t("admin.trialLeads.csvWhatsapp"),
     t("admin.trialLeads.csvCountry"),
+    t("admin.trialLeads.fieldAge"),
+    t("admin.trialLeads.fieldGender"),
+    t("admin.trialLeads.fieldLearnerType"),
     t("admin.trialLeads.csvCourse"),
+    t("admin.trialLeads.fieldTeacherPreference"),
+    t("admin.trialLeads.fieldPreferredTimes"),
+    t("admin.trialLeads.fieldTimezone"),
     t("admin.trialLeads.csvSource"),
     t("admin.trialLeads.csvStatus"),
     t("admin.trialLeads.csvRequestedAt"),
   ];
   const lines = [
     header.join(","),
-    ...bookings.map((booking) =>
-      [
+    ...bookings.map((booking) => {
+      const gender = extractTrialLeadGender(booking);
+      const preferredTimes = extractTrialLeadPreferredTimes(booking);
+      return [
         csvEscape(booking.parentName),
         csvEscape(booking.email ?? ""),
         csvEscape(booking.whatsapp),
         csvEscape(booking.country ?? ""),
+        csvEscape(booking.age ?? ""),
+        csvEscape(gender ?? ""),
+        csvEscape(formatLearnerTypeLabel(booking.learnerType, t)),
         csvEscape(formatCourseInterest(booking.courseSlug, t)),
+        csvEscape(formatTeacherPreferenceLabel(booking.teacherPreference, t)),
+        csvEscape(preferredTimes.join("; ")),
+        csvEscape(booking.timezone ?? ""),
         csvEscape(formatLeadSource(booking, t)),
         csvEscape(booking.status),
         csvEscape(booking.createdAt),
-      ].join(",")
-    ),
+      ].join(",");
+    }),
   ];
 
   const blob = new Blob([lines.join("\n")], { type: "text/csv;charset=utf-8" });

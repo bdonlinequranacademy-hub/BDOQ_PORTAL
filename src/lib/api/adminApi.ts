@@ -257,6 +257,31 @@ export const adminApi = {
       })
       .then((r) => r.data),
 
+  updateTrialBooking: (
+    id: string,
+    payload: {
+      parentName?: string;
+      email?: string;
+      whatsapp?: string;
+      country?: string;
+      age?: string;
+      learnerGender?: "male" | "female";
+      teacherPreference?: "any" | "female" | "male";
+      preferredDays?: string[];
+      timezone?: string;
+      courseSlug?: string;
+      status?: TrialBookingStatus;
+    }
+  ) =>
+    apiClient
+      .patch<ApiResponse<TrialBookingView>>(`/admin/trial-bookings/${id}`, payload)
+      .then((r) => r.data),
+
+  deleteTrialBooking: (id: string) =>
+    apiClient
+      .delete<ApiResponse<null>>(`/admin/trial-bookings/${id}`)
+      .then((r) => r.data),
+
   getStudentAdmissions: (status?: StudentAdmissionStatus) =>
     apiClient
       .get<ApiResponse<StudentAdmissionView[]>>("/admin/student-admissions", {
