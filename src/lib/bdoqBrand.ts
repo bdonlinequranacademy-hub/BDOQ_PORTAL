@@ -2,7 +2,7 @@
 export const BDOQ_BRAND = {
   name: "BDOQ Academy",
   shortName: "BDOQ Academy",
-  logoSrc: "/brand/bdoq-logo.png?v=4",
+  logoSrc: "/brand/bdoq-logo.png?v=5",
   tagline:
     "A reliable virtual classroom for online Quran teachers and students",
   portalTagline: "Your Quran learning portal — classes, Tajweed, Hifz & progress",
