@@ -1,4 +1,8 @@
-import type { StudentAdmissionStatus, StudentAdmissionView } from "@/types/models";
+import type {
+  StudentAdmissionStatus,
+  StudentAdmissionView,
+  StudentAdmissionClassDay,
+} from "@/types/models";
 import { parseWhatsApp } from "@/lib/whatsapp";
 import type {
   PortalTranslate,
@@ -6,6 +10,129 @@ import type {
 } from "@/features/admin/components/trial-leads/adminTrialLeadsUtils";
 
 export type AdminStudentAdmissionsTab = "all" | StudentAdmissionStatus;
+
+export const ADMISSION_CLASS_DAYS: StudentAdmissionClassDay[] = [
+  "Saturday",
+  "Sunday",
+  "Monday",
+  "Tuesday",
+  "Wednesday",
+  "Thursday",
+  "Friday",
+];
+
+const PACKAGE_DEFAULTS = {
+  basic: { classesPerWeek: 2, durationMinutes: 30, monthlyFeeBdt: 2000, monthlyFeeUsd: 25 },
+  standard: { classesPerWeek: 3, durationMinutes: 40, monthlyFeeBdt: 3000, monthlyFeeUsd: 35 },
+  advance: { classesPerWeek: 4, durationMinutes: 50, monthlyFeeBdt: 4000, monthlyFeeUsd: 45 },
+  premium: { classesPerWeek: 5, durationMinutes: 60, monthlyFeeBdt: 5000, monthlyFeeUsd: 55 },
+} as const;
+
+function getPackageDefaults(plan?: string) {
+  const key = plan?.trim().toLowerCase() as keyof typeof PACKAGE_DEFAULTS;
+  return PACKAGE_DEFAULTS[key] ?? PACKAGE_DEFAULTS.standard;
+}
+
+function parseClassTimeFrom24h(time?: string): {
+  classTimeHour: string;
+  classTimeMinute: string;
+  classTimePeriod: "AM" | "PM";
+} {
+  if (!time?.trim()) {
+    return { classTimeHour: "6", classTimeMinute: "00", classTimePeriod: "PM" };
+  }
+  const [hourRaw, minuteRaw] = time.split(":");
+  const hour24 = Number.parseInt(hourRaw ?? "18", 10);
+  const minute = minuteRaw?.padStart(2, "0") ?? "00";
+  if (Number.isNaN(hour24)) {
+    return { classTimeHour: "6", classTimeMinute: "00", classTimePeriod: "PM" };
+  }
+  const period: "AM" | "PM" = hour24 >= 12 ? "PM" : "AM";
+  const hour12 = hour24 % 12 === 0 ? 12 : hour24 % 12;
+  return {
+    classTimeHour: String(hour12),
+    classTimeMinute: minute,
+    classTimePeriod: period,
+  };
+}
+
+export interface IAdmissionEnrollmentPayload {
+  classStartDate?: string;
+  classDays?: StudentAdmissionClassDay[];
+  classesPerWeek?: number;
+  classDurationMinutes?: number;
+  classTimeHour?: string;
+  classTimeMinute?: string;
+  classTimePeriod?: "AM" | "PM";
+  assignedTeacherSlug?: string;
+  meetingPlatform?: string;
+  meetingLink?: string;
+  monthlyFeeAmount?: number;
+  monthlyFeeCurrency?: "bdt" | "usd";
+}
+
+export function buildAdmissionEnrollmentFormState(application: StudentAdmissionView) {
+  const formData = application.formData;
+  const packagePlan =
+    typeof formData.packagePlan === "string" ? formData.packagePlan : "standard";
+  const defaults = getPackageDefaults(packagePlan);
+  const preferredTime = parseClassTimeFrom24h(
+    application.classTime ||
+      (typeof formData.preferredHour === "string"
+        ? `${formData.preferredHour}:${formData.preferredMinute ?? "00"}`
+        : undefined)
+  );
+
+  if (formData.preferredPeriod === "AM" || formData.preferredPeriod === "PM") {
+    preferredTime.classTimePeriod = formData.preferredPeriod;
+  }
+  if (typeof formData.preferredHour === "string") {
+    preferredTime.classTimeHour = formData.preferredHour;
+  }
+  if (typeof formData.preferredMinute === "string") {
+    preferredTime.classTimeMinute = formData.preferredMinute;
+  }
+
+  const currency =
+    application.monthlyFeeCurrency ||
+    (formData.admissionFeeCurrency === "usd" ? "usd" : "bdt");
+
+  return {
+    classStartDate: application.classStartDate ?? "",
+    classDays: application.classDays?.length
+      ? application.classDays
+      : ([] as StudentAdmissionClassDay[]),
+    classesPerWeek: application.classesPerWeek ?? defaults.classesPerWeek,
+    classDurationMinutes:
+      application.classDurationMinutes ?? defaults.durationMinutes,
+    classTimeHour: preferredTime.classTimeHour,
+    classTimeMinute: preferredTime.classTimeMinute,
+    classTimePeriod: preferredTime.classTimePeriod,
+    teacherSlug:
+      application.assignedTeacherSlug ??
+      (typeof formData.assignedTeacherSlug === "string"
+        ? formData.assignedTeacherSlug
+        : ""),
+    meetingPlatform:
+      application.meetingPlatform ??
+      (typeof formData.meetingPlatform === "string"
+        ? (formData.meetingPlatform as
+            | "google_meet"
+            | "zoom"
+            | "teams"
+            | "whatsapp"
+            | "custom"
+            | "")
+        : ""),
+    meetingLink:
+      application.meetingLink ??
+      (typeof formData.meetingLink === "string" ? formData.meetingLink : ""),
+    monthlyFeeAmount:
+      application.monthlyFeeAmount ??
+      (currency === "usd" ? defaults.monthlyFeeUsd : defaults.monthlyFeeBdt),
+    monthlyFeeCurrency: currency,
+  };
+}
 
 export interface IAdminStudentAdmissionsStats {
   total: number;

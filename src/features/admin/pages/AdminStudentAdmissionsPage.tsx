@@ -1,9 +1,16 @@
 import { useMemo, useState } from "react";
 import { Download, GraduationCap } from "lucide-react";
-import type { StudentAdmissionStatus, StudentAdmissionView } from "@/types/models";
+import type {
+  StudentAdmissionPaymentStatus,
+  StudentAdmissionStatus,
+  StudentAdmissionView,
+} from "@/types/models";
 import {
   useAdminStudentAdmissions,
   useUpdateStudentAdmissionStatus,
+  useUpdateStudentAdmissionPaymentStatus,
+  useUpdateStudentAdmissionEnrollment,
+  useAdminTeacherProfiles,
 } from "@/features/admin/hooks/useAdmin";
 import { PageContainer } from "@/components/layout/PageContainer";
 import { Button } from "@/components/ui/Button";
@@ -27,6 +34,7 @@ import {
   extractSourceOptions,
   filterStudentAdmissions,
   type AdminStudentAdmissionsTab,
+  type IAdmissionEnrollmentPayload,
 } from "@/features/admin/components/student-admissions/adminStudentAdmissionsUtils";
 import { usePortalTranslation } from "@/i18n/LocaleProvider";
 
@@ -43,7 +51,10 @@ export function AdminStudentAdmissionsPage() {
 
   const { data: applications = [], isLoading, isError, isFetching, refetch } =
     useAdminStudentAdmissions();
+  const { data: teachers = [] } = useAdminTeacherProfiles();
   const updateStatus = useUpdateStudentAdmissionStatus();
+  const updatePaymentStatus = useUpdateStudentAdmissionPaymentStatus();
+  const updateEnrollment = useUpdateStudentAdmissionEnrollment();
 
   const stats = useMemo(() => computeStudentAdmissionsStats(applications), [applications]);
   const programOptions = useMemo(
@@ -99,17 +110,52 @@ export function AdminStudentAdmissionsPage() {
     resetDeps: [tab, search, programFilter, countryFilter, sourceFilter, dateFrom, dateTo],
   });
 
-  const busy = updateStatus.isPending;
+  const busy =
+    updateStatus.isPending ||
+    updatePaymentStatus.isPending ||
+    updateEnrollment.isPending;
+
+  function syncSelectedApp(updated: StudentAdmissionView | undefined): void {
+    if (updated && selectedApp?._id === updated._id) {
+      setSelectedApp(updated);
+    }
+  }
 
   function handleUpdateStatus(app: StudentAdmissionView, status: StudentAdmissionStatus) {
     updateStatus.mutate(
       { id: app._id, status },
       {
-        onSuccess: () => {
+        onSuccess: (response) => {
+          syncSelectedApp(response.data ?? undefined);
           if (selectedApp?._id === app._id && status === "closed") {
             setSelectedApp(null);
           }
         },
+      }
+    );
+  }
+
+  function handleUpdatePaymentStatus(
+    app: StudentAdmissionView,
+    paymentStatus: StudentAdmissionPaymentStatus,
+    rejectReason?: string
+  ) {
+    updatePaymentStatus.mutate(
+      { id: app._id, paymentStatus, rejectReason },
+      {
+        onSuccess: (response) => syncSelectedApp(response.data ?? undefined),
+      }
+    );
+  }
+
+  function handleSaveEnrollment(
+    app: StudentAdmissionView,
+    payload: IAdmissionEnrollmentPayload
+  ) {
+    updateEnrollment.mutate(
+      { id: app._id, payload },
+      {
+        onSuccess: (response) => syncSelectedApp(response.data ?? undefined),
       }
     );
   }
@@ -212,9 +258,12 @@ export function AdminStudentAdmissionsPage() {
 
       <AdminStudentAdmissionDetailModal
         application={selectedApp}
+        teachers={teachers}
         busy={busy}
         onClose={() => setSelectedApp(null)}
         onUpdateStatus={handleUpdateStatus}
+        onUpdatePaymentStatus={handleUpdatePaymentStatus}
+        onSaveEnrollment={handleSaveEnrollment}
       />
     </PageContainer>
   );

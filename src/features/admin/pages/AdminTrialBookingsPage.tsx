@@ -3,7 +3,10 @@ import { CalendarCheck, Download } from "lucide-react";
 import type { TrialBookingStatus, TrialBookingView } from "@/types/models";
 import {
   useAdminTrialBookings,
+  useAdminTeacherProfiles,
   useDeleteTrialBooking,
+  useSendTrialInvitation,
+  useConvertTrialToAdmission,
   useUpdateTrialBooking,
   useUpdateTrialBookingStatus,
 } from "@/features/admin/hooks/useAdmin";
@@ -19,6 +22,7 @@ import {
   AdminTrialLeadsTable,
   AdminTrialLeadsToolbar,
 } from "@/features/admin/components/trial-leads/AdminTrialLeadsTable";
+import type { IConvertTrialResult } from "@/features/admin/components/trial-leads/TrialLeadConvertPanel";
 import { AdminTrialLeadsSidebar } from "@/features/admin/components/trial-leads/AdminTrialLeadsSidebar";
 import { AdminTrialLeadDetailModal } from "@/features/admin/components/trial-leads/AdminTrialLeadDetailModal";
 import {
@@ -28,6 +32,7 @@ import {
   extractSourceOptions,
   filterTrialLeads,
   type AdminTrialLeadsTab,
+  type ITrialLeadSchedulingPayload,
   type ITrialLeadUpdatePayload,
 } from "@/features/admin/components/trial-leads/adminTrialLeadsUtils";
 import { usePortalTranslation } from "@/i18n/LocaleProvider";
@@ -42,12 +47,16 @@ export function AdminTrialBookingsPage() {
   const [dateTo, setDateTo] = useState("");
   const [selectedLead, setSelectedLead] = useState<TrialBookingView | null>(null);
   const [modalMode, setModalMode] = useState<"view" | "edit">("view");
+  const [convertResult, setConvertResult] = useState<IConvertTrialResult | null>(null);
 
   const { data: bookings = [], isLoading, isError, isFetching, refetch } =
     useAdminTrialBookings();
+  const { data: teachers = [] } = useAdminTeacherProfiles();
   const updateStatus = useUpdateTrialBookingStatus();
   const updateLead = useUpdateTrialBooking();
   const deleteLead = useDeleteTrialBooking();
+  const sendInvitation = useSendTrialInvitation();
+  const convertTrial = useConvertTrialToAdmission();
 
   const stats = useMemo(() => computeTrialLeadsStats(bookings), [bookings]);
   const courseOptions = useMemo(() => extractCourseOptions(bookings), [bookings]);
@@ -83,16 +92,23 @@ export function AdminTrialBookingsPage() {
     resetDeps: [tab, search, courseFilter, sourceFilter, dateFrom, dateTo],
   });
 
-  const busy = updateStatus.isPending || updateLead.isPending || deleteLead.isPending;
+  const busy =
+    updateStatus.isPending ||
+    updateLead.isPending ||
+    deleteLead.isPending ||
+    sendInvitation.isPending ||
+    convertTrial.isPending;
 
   function openLead(lead: TrialBookingView, mode: "view" | "edit" = "view") {
     setSelectedLead(lead);
     setModalMode(mode);
+    setConvertResult(null);
   }
 
   function closeLeadModal() {
     setSelectedLead(null);
     setModalMode("view");
+    setConvertResult(null);
   }
 
   function handleAdvanceStatus(lead: TrialBookingView, status: TrialBookingStatus) {
@@ -117,6 +133,66 @@ export function AdminTrialBookingsPage() {
           if (updated) {
             setSelectedLead(updated);
             setModalMode("view");
+          }
+        },
+      }
+    );
+  }
+
+  function handleSaveScheduling(
+    lead: TrialBookingView,
+    payload: ITrialLeadSchedulingPayload
+  ) {
+    updateLead.mutate(
+      {
+        id: lead._id,
+        payload: {
+          teacherSlug: payload.teacherSlug,
+          meetingPlatform: payload.meetingPlatform,
+          meetingLink: payload.meetingLink,
+        },
+      },
+      {
+        onSuccess: (response) => {
+          const updated = response.data;
+          if (updated) setSelectedLead(updated);
+        },
+      }
+    );
+  }
+
+  function handleSendInvitation(
+    lead: TrialBookingView,
+    payload: ITrialLeadSchedulingPayload
+  ) {
+    sendInvitation.mutate(
+      { id: lead._id, payload },
+      {
+        onSuccess: (response) => {
+          const updated = response.data?.booking;
+          if (updated) setSelectedLead(updated);
+        },
+      }
+    );
+  }
+
+  function handleConvertLead(
+    lead: TrialBookingView,
+    payload: { email: string; createUser: boolean }
+  ) {
+    convertTrial.mutate(
+      { id: lead._id, payload },
+      {
+        onSuccess: (response) => {
+          const data = response.data;
+          if (data?.booking) setSelectedLead(data.booking);
+          if (data) {
+            setConvertResult({
+              prefillUrl: data.prefillUrl,
+              portalAdmissionPath: data.portalAdmissionPath,
+              user: data.user,
+              admission: data.admission,
+            });
           }
         },
       }
@@ -228,11 +304,16 @@ export function AdminTrialBookingsPage() {
       <AdminTrialLeadDetailModal
         lead={selectedLead}
         courseOptions={courseOptions}
+        teachers={teachers}
         busy={busy}
         initialMode={modalMode}
         onClose={closeLeadModal}
         onUpdateStatus={handleAdvanceStatus}
         onSave={handleSaveLead}
+        onSaveScheduling={handleSaveScheduling}
+        onSendInvitation={handleSendInvitation}
+        onConvert={handleConvertLead}
+        convertResult={convertResult}
         onDelete={handleDeleteLead}
       />
     </PageContainer>

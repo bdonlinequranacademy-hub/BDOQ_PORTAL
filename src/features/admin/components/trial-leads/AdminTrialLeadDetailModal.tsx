@@ -5,15 +5,21 @@ import { UserInitialAvatar } from "@/components/ui/UserInitialAvatar";
 import { WhatsAppLinkButton } from "@/components/whatsapp/WhatsAppLinkButton";
 import { waMeUrlFromRaw } from "@/lib/whatsapp";
 import { trialLeadFollowUpMessage } from "@/lib/whatsappMessageTemplates";
-import type { TrialBookingStatus, TrialBookingView } from "@/types/models";
+import type { AdminTeacherProfile, TrialBookingStatus, TrialBookingView } from "@/types/models";
 import { TrialLeadStatusBadge } from "@/features/admin/components/trial-leads/TrialLeadStatusBadge";
 import { TrialLeadEditForm } from "@/features/admin/components/trial-leads/TrialLeadEditForm";
+import { TrialLeadSchedulingPanel } from "@/features/admin/components/trial-leads/TrialLeadSchedulingPanel";
+import {
+  TrialLeadConvertPanel,
+  type IConvertTrialResult,
+} from "@/features/admin/components/trial-leads/TrialLeadConvertPanel";
 import {
   buildTrialLeadDisplaySections,
   trialLeadMailtoHref,
   trialLeadStatusActions,
   trialLeadTelHref,
   type ITrialLeadDisplaySection,
+  type ITrialLeadSchedulingPayload,
   type ITrialLeadUpdatePayload,
 } from "@/features/admin/components/trial-leads/adminTrialLeadsUtils";
 import { usePortalTranslation } from "@/i18n/LocaleProvider";
@@ -22,11 +28,16 @@ import { cn } from "@/lib/utils/cn";
 interface IAdminTrialLeadDetailModalProps {
   lead: TrialBookingView | null;
   courseOptions: string[];
+  teachers: AdminTeacherProfile[];
   busy: boolean;
   initialMode?: "view" | "edit";
   onClose: () => void;
   onUpdateStatus: (lead: TrialBookingView, status: TrialBookingStatus) => void;
   onSave: (lead: TrialBookingView, payload: ITrialLeadUpdatePayload) => void;
+  onSaveScheduling: (lead: TrialBookingView, payload: ITrialLeadSchedulingPayload) => void;
+  onSendInvitation: (lead: TrialBookingView, payload: ITrialLeadSchedulingPayload) => void;
+  onConvert: (lead: TrialBookingView, payload: { email: string; createUser: boolean }) => void;
+  convertResult: IConvertTrialResult | null;
   onDelete: (lead: TrialBookingView) => void;
 }
 
@@ -53,11 +64,16 @@ function LeadSection({ section }: { section: ITrialLeadDisplaySection }) {
 export function AdminTrialLeadDetailModal({
   lead,
   courseOptions,
+  teachers,
   busy,
   initialMode = "view",
   onClose,
   onUpdateStatus,
   onSave,
+  onSaveScheduling,
+  onSendInvitation,
+  onConvert,
+  convertResult,
   onDelete,
 }: IAdminTrialLeadDetailModalProps) {
   const { t, formatDateTime, statusLabel } = usePortalTranslation();
@@ -207,6 +223,19 @@ export function AdminTrialLeadDetailModal({
               </div>
 
               <div className="mt-5 space-y-5">
+                <TrialLeadSchedulingPanel
+                  lead={activeLead}
+                  teachers={teachers}
+                  busy={busy}
+                  onSave={(payload) => onSaveScheduling(activeLead, payload)}
+                  onSendInvitation={(payload) => onSendInvitation(activeLead, payload)}
+                />
+                <TrialLeadConvertPanel
+                  lead={activeLead}
+                  busy={busy}
+                  lastResult={convertResult}
+                  onConvert={(payload) => onConvert(activeLead, payload)}
+                />
                 {sections.map((section) => (
                   <LeadSection key={section.title} section={section} />
                 ))}

@@ -2,7 +2,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { adminApi } from "@/lib/api/adminApi";
 import { useUiStore } from "@/stores/uiStore";
 import { useAuthStore } from "@/stores/authStore";
-import type { Role, ClassSchedule, BlogPostStatus, BlogCategory, ClassLogStatus, StudentRequestStatus, TrialBookingStatus, ContactMessageStatus, NewsletterSubscriberStatus, StudentAdmissionStatus, TeacherApplicationStatus, BillingCurrency, ResourceType, ResourceStatus } from "@/types/models";
+import type { Role, ClassSchedule, BlogPostStatus, BlogCategory, ClassLogStatus, StudentRequestStatus, TrialBookingStatus, ContactMessageStatus, NewsletterSubscriberStatus, StudentAdmissionStatus, StudentAdmissionPaymentStatus, TeacherApplicationStatus, BillingCurrency, ResourceType, ResourceStatus } from "@/types/models";
 
 export const adminKeys = {
   stats: ["admin", "stats"] as const,
@@ -984,6 +984,56 @@ export function useDeleteTrialBooking() {
   });
 }
 
+export function useSendTrialInvitation() {
+  const qc = useQueryClient();
+  const addToast = useUiStore((s) => s.addToast);
+  return useMutation({
+    mutationFn: ({
+      id,
+      payload,
+    }: {
+      id: string;
+      payload?: Parameters<typeof adminApi.sendTrialInvitation>[1];
+    }) => adminApi.sendTrialInvitation(id, payload),
+    onSuccess: (response) => {
+      qc.invalidateQueries({ queryKey: ["admin", "trialBookings"] });
+      const delivery = response.data?.delivery;
+      if (delivery?.emailSent && delivery.whatsappUrl) {
+        addToast("success", "Email sent — opening WhatsApp");
+        window.open(delivery.whatsappUrl, "_blank", "noopener,noreferrer");
+      } else if (delivery?.emailSent) {
+        addToast("success", "Invitation email sent");
+      } else if (delivery?.whatsappUrl) {
+        addToast("success", "Opening WhatsApp with invitation message");
+        window.open(delivery.whatsappUrl, "_blank", "noopener,noreferrer");
+      } else {
+        addToast("success", "Invitation recorded");
+      }
+    },
+    onError: () => addToast("error", "Failed to send trial invitation"),
+  });
+}
+
+export function useConvertTrialToAdmission() {
+  const qc = useQueryClient();
+  const addToast = useUiStore((s) => s.addToast);
+  return useMutation({
+    mutationFn: ({
+      id,
+      payload,
+    }: {
+      id: string;
+      payload: Parameters<typeof adminApi.convertTrialToAdmission>[1];
+    }) => adminApi.convertTrialToAdmission(id, payload),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["admin", "trialBookings"] });
+      qc.invalidateQueries({ queryKey: ["admin", "studentAdmissions"] });
+      addToast("success", "Trial lead converted to admission");
+    },
+    onError: () => addToast("error", "Failed to convert trial lead"),
+  });
+}
+
 export function useAdminStudentAdmissions(status?: StudentAdmissionStatus) {
   return useQuery({
     queryKey: adminKeys.studentAdmissions(status),
@@ -1010,6 +1060,46 @@ export function useUpdateStudentAdmissionStatus() {
       addToast("success", "Admission application updated");
     },
     onError: () => addToast("error", "Failed to update admission application"),
+  });
+}
+
+export function useUpdateStudentAdmissionPaymentStatus() {
+  const qc = useQueryClient();
+  const addToast = useUiStore((s) => s.addToast);
+  return useMutation({
+    mutationFn: ({
+      id,
+      paymentStatus,
+      rejectReason,
+    }: {
+      id: string;
+      paymentStatus: StudentAdmissionPaymentStatus;
+      rejectReason?: string;
+    }) => adminApi.updateStudentAdmissionPaymentStatus(id, paymentStatus, rejectReason),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["admin", "studentAdmissions"] });
+      addToast("success", "Payment status updated");
+    },
+    onError: () => addToast("error", "Failed to update payment status"),
+  });
+}
+
+export function useUpdateStudentAdmissionEnrollment() {
+  const qc = useQueryClient();
+  const addToast = useUiStore((s) => s.addToast);
+  return useMutation({
+    mutationFn: ({
+      id,
+      payload,
+    }: {
+      id: string;
+      payload: Parameters<typeof adminApi.updateStudentAdmissionEnrollment>[1];
+    }) => adminApi.updateStudentAdmissionEnrollment(id, payload),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["admin", "studentAdmissions"] });
+      addToast("success", "Enrollment setup saved");
+    },
+    onError: () => addToast("error", "Failed to save enrollment setup"),
   });
 }
 

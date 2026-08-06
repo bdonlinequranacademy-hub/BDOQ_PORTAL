@@ -739,12 +739,16 @@ export type TrialBookingStatus = "new" | "contacted" | "scheduled" | "closed";
 export interface TrialBookingView {
   _id: string;
   parentName: string;
+  studentName?: string;
   email?: string;
   whatsapp: string;
   country?: string;
   age?: string;
   learnerGender?: "male" | "female";
   learnerType: "child" | "teen" | "adult";
+  preferredTrialDate?: string;
+  preferredTrialTime?: string;
+  additionalNote?: string;
   timeSlot?:
     | "anytime"
     | "early_morning"
@@ -758,6 +762,12 @@ export interface TrialBookingView {
   source?: string;
   courseSlug?: string;
   teacherSlug?: string;
+  meetingPlatform?: "google_meet" | "zoom" | "teams" | "whatsapp" | "custom";
+  meetingLink?: string;
+  invitationSentAt?: string;
+  convertedAdmissionId?: string;
+  convertedUserId?: string;
+  convertedAt?: string;
   utmSource?: string;
   utmMedium?: string;
   utmCampaign?: string;
@@ -769,6 +779,17 @@ export interface TrialBookingView {
 
 export type StudentAdmissionStatus = "new" | "reviewing" | "approved" | "closed";
 
+export type StudentAdmissionPaymentStatus = "pending" | "verified" | "rejected";
+
+export type StudentAdmissionClassDay =
+  | "Saturday"
+  | "Sunday"
+  | "Monday"
+  | "Tuesday"
+  | "Wednesday"
+  | "Thursday"
+  | "Friday";
+
 export interface StudentAdmissionView {
   _id: string;
   fullName: string;
@@ -778,6 +799,24 @@ export interface StudentAdmissionView {
   locale?: "en" | "bn";
   status: StudentAdmissionStatus;
   adminNote?: string;
+  sourceTrialBookingId?: string;
+  convertedFromTrial?: boolean;
+  paymentStatus?: StudentAdmissionPaymentStatus;
+  paymentVerifiedAt?: string;
+  paymentRejectedAt?: string;
+  paymentRejectReason?: string;
+  classStartDate?: string;
+  classDays?: StudentAdmissionClassDay[];
+  classesPerWeek?: number;
+  classDurationMinutes?: number;
+  classTime?: string;
+  assignedTeacherSlug?: string;
+  assignedTeacherName?: string;
+  meetingPlatform?: "google_meet" | "zoom" | "teams" | "whatsapp" | "custom";
+  meetingLink?: string;
+  monthlyFeeAmount?: number;
+  monthlyFeeCurrency?: "bdt" | "usd";
+  enrollmentSetupAt?: string;
   createdAt: string;
   updatedAt: string;
 }

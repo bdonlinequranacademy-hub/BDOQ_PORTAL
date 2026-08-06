@@ -48,6 +48,7 @@ export function TrialLeadEditForm({
     event.preventDefault();
     onSave({
       parentName: form.parentName.trim(),
+      studentName: form.studentName.trim(),
       email: form.email.trim(),
       whatsapp: form.whatsapp.trim(),
       country: form.country.trim(),
@@ -55,6 +56,9 @@ export function TrialLeadEditForm({
       learnerGender: form.learnerGender,
       courseSlug: form.courseSlug.trim(),
       teacherPreference: form.teacherPreference,
+      preferredTrialDate: form.preferredTrialDate.trim(),
+      preferredTrialTime: form.preferredTrialTime.trim(),
+      additionalNote: form.additionalNote.trim(),
       preferredDays: form.preferredTimes
         .split(",")
         .map((item) => item.trim())
@@ -69,11 +73,23 @@ export function TrialLeadEditForm({
       <div className="grid gap-4 sm:grid-cols-2">
         <label className="block sm:col-span-2">
           <span className="mb-1 block text-xs font-semibold uppercase tracking-wide text-portal-muted">
-            {t("admin.trialLeads.csvName")}
+            {t("admin.trialLeads.fieldParentName")}
           </span>
           <Input
             value={form.parentName}
             onChange={(event) => updateField("parentName", event.target.value)}
+            className={fieldClass}
+            required
+          />
+        </label>
+
+        <label className="block sm:col-span-2">
+          <span className="mb-1 block text-xs font-semibold uppercase tracking-wide text-portal-muted">
+            {t("admin.trialLeads.fieldStudentName")}
+          </span>
+          <Input
+            value={form.studentName}
+            onChange={(event) => updateField("studentName", event.target.value)}
             className={fieldClass}
             required
           />
@@ -188,6 +204,41 @@ export function TrialLeadEditForm({
             <option value="female">{t("admin.trialLeads.teacherPreferenceFemale")}</option>
           </Select>
         </div>
+
+        <label className="block">
+          <span className="mb-1 block text-xs font-semibold uppercase tracking-wide text-portal-muted">
+            {t("admin.trialLeads.fieldTrialDate")}
+          </span>
+          <Input
+            type="date"
+            value={form.preferredTrialDate}
+            onChange={(event) => updateField("preferredTrialDate", event.target.value)}
+            className={fieldClass}
+          />
+        </label>
+
+        <label className="block">
+          <span className="mb-1 block text-xs font-semibold uppercase tracking-wide text-portal-muted">
+            {t("admin.trialLeads.fieldTrialTime")}
+          </span>
+          <Input
+            type="time"
+            value={form.preferredTrialTime}
+            onChange={(event) => updateField("preferredTrialTime", event.target.value)}
+            className={fieldClass}
+          />
+        </label>
+
+        <label className="block sm:col-span-2">
+          <span className="mb-1 block text-xs font-semibold uppercase tracking-wide text-portal-muted">
+            {t("admin.trialLeads.fieldAdditionalNote")}
+          </span>
+          <Input
+            value={form.additionalNote}
+            onChange={(event) => updateField("additionalNote", event.target.value)}
+            className={fieldClass}
+          />
+        </label>
 
         <label className="block sm:col-span-2">
           <span className="mb-1 block text-xs font-semibold uppercase tracking-wide text-portal-muted">

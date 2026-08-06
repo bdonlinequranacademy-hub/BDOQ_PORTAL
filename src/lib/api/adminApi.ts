@@ -44,6 +44,8 @@ import type {
   TrialBookingStatus,
   StudentAdmissionView,
   StudentAdmissionStatus,
+  StudentAdmissionPaymentStatus,
+  StudentAdmissionClassDay,
   TeacherApplicationView,
   TeacherApplicationStatus,
   SessionSlotView,
@@ -261,11 +263,18 @@ export const adminApi = {
     id: string,
     payload: {
       parentName?: string;
+      studentName?: string;
       email?: string;
       whatsapp?: string;
       country?: string;
       age?: string;
       learnerGender?: "male" | "female";
+      preferredTrialDate?: string;
+      preferredTrialTime?: string;
+      additionalNote?: string;
+      teacherSlug?: string;
+      meetingPlatform?: "google_meet" | "zoom" | "teams" | "whatsapp" | "custom";
+      meetingLink?: string;
       teacherPreference?: "any" | "female" | "male";
       preferredDays?: string[];
       timezone?: string;
@@ -280,6 +289,43 @@ export const adminApi = {
   deleteTrialBooking: (id: string) =>
     apiClient
       .delete<ApiResponse<null>>(`/admin/trial-bookings/${id}`)
+      .then((r) => r.data),
+
+  sendTrialInvitation: (
+    id: string,
+    payload?: {
+      teacherSlug?: string;
+      meetingPlatform?: "google_meet" | "zoom" | "teams" | "whatsapp" | "custom";
+      meetingLink?: string;
+    }
+  ) =>
+    apiClient
+      .post<
+        ApiResponse<{
+          booking: TrialBookingView;
+          delivery: {
+            emailSent: boolean;
+            emailError?: string;
+            whatsappUrl: string | null;
+          };
+        }>
+      >(`/admin/trial-bookings/${id}/send-invitation`, payload ?? {})
+      .then((r) => r.data),
+
+  convertTrialToAdmission: (
+    id: string,
+    payload: { email: string; createUser?: boolean; locale?: "en" | "bn" }
+  ) =>
+    apiClient
+      .post<
+        ApiResponse<{
+          booking: TrialBookingView;
+          admission: StudentAdmissionView;
+          user?: { _id: string; email: string; temporaryPassword?: string };
+          prefillUrl: string;
+          portalAdmissionPath: string;
+        }>
+      >(`/admin/trial-bookings/${id}/convert-to-admission`, payload)
       .then((r) => r.data),
 
   getStudentAdmissions: (status?: StudentAdmissionStatus) =>
@@ -298,6 +344,42 @@ export const adminApi = {
       .patch<ApiResponse<StudentAdmissionView>>(
         `/admin/student-admissions/${id}/status`,
         { status, adminNote }
+      )
+      .then((r) => r.data),
+
+  updateStudentAdmissionPaymentStatus: (
+    id: string,
+    paymentStatus: StudentAdmissionPaymentStatus,
+    rejectReason?: string
+  ) =>
+    apiClient
+      .patch<ApiResponse<StudentAdmissionView>>(
+        `/admin/student-admissions/${id}/payment-status`,
+        { paymentStatus, rejectReason }
+      )
+      .then((r) => r.data),
+
+  updateStudentAdmissionEnrollment: (
+    id: string,
+    payload: {
+      classStartDate?: string;
+      classDays?: StudentAdmissionClassDay[];
+      classesPerWeek?: number;
+      classDurationMinutes?: number;
+      classTimeHour?: string;
+      classTimeMinute?: string;
+      classTimePeriod?: "AM" | "PM";
+      assignedTeacherSlug?: string;
+      meetingPlatform?: string;
+      meetingLink?: string;
+      monthlyFeeAmount?: number;
+      monthlyFeeCurrency?: "bdt" | "usd";
+    }
+  ) =>
+    apiClient
+      .patch<ApiResponse<StudentAdmissionView>>(
+        `/admin/student-admissions/${id}/enrollment`,
+        payload
       )
       .then((r) => r.data),
 

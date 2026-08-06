@@ -1,4 +1,9 @@
 import type { TrialBookingStatus, TrialBookingView } from "@/types/models";
+import {
+  formatTrialBangladeshSchedule,
+  formatTrialParentSchedule,
+} from "@/lib/trialScheduleDisplay";
+import { formatTrialMeetingPlatformLabel } from "@/lib/trialMeetingPlatform";
 import { parseWhatsApp } from "@/lib/whatsapp";
 
 export type AdminTrialLeadsTab = "all" | TrialBookingStatus;
@@ -151,11 +156,27 @@ export function buildTrialLeadDisplaySections(
         ? t("admin.trialLeads.genderFemale")
         : t("admin.trialLeads.notProvided");
 
+  const parentLocalSchedule = formatTrialParentSchedule(
+    lead.preferredTrialDate,
+    lead.preferredTrialTime,
+    lead.timezone
+  );
+  const bdSchedule = formatTrialBangladeshSchedule(
+    lead.preferredTrialDate,
+    lead.preferredTrialTime,
+    lead.timezone
+  );
+
   return [
     {
       title: t("admin.trialLeads.modalSectionContact"),
       rows: [
-        { key: "name", label: t("admin.trialLeads.csvName"), value: lead.parentName },
+        { key: "parentName", label: t("admin.trialLeads.fieldParentName"), value: lead.parentName },
+        {
+          key: "studentName",
+          label: t("admin.trialLeads.fieldStudentName"),
+          value: lead.studentName?.trim() || t("admin.trialLeads.notProvided"),
+        },
         { key: "whatsapp", label: t("admin.trialLeads.csvWhatsapp"), value: lead.whatsapp },
         {
           key: "email",
@@ -198,24 +219,80 @@ export function buildTrialLeadDisplaySections(
           label: t("admin.trialLeads.fieldTeacherPreference"),
           value: formatTeacherPreferenceLabel(lead.teacherPreference, t),
         },
-        {
-          key: "timeSlot",
-          label: t("admin.trialLeads.fieldTimeSlot"),
-          value: formatTrialTimeSlot(lead.timeSlot, t),
-        },
-        {
-          key: "preferredTimes",
-          label: t("admin.trialLeads.fieldPreferredTimes"),
-          value:
-            preferredTimes.length > 0
-              ? preferredTimes.join(", ")
-              : t("admin.trialLeads.notProvided"),
-          fullWidth: true,
-        },
+        ...(parentLocalSchedule
+          ? [
+              {
+                key: "trialLocal",
+                label: t("admin.trialLeads.fieldTrialLocalTime"),
+                value: parentLocalSchedule,
+              },
+              {
+                key: "trialBd",
+                label: t("admin.trialLeads.fieldTrialBdTime"),
+                value: bdSchedule ?? t("admin.trialLeads.notProvided"),
+              },
+            ]
+          : [
+              {
+                key: "timeSlot",
+                label: t("admin.trialLeads.fieldTimeSlot"),
+                value: formatTrialTimeSlot(lead.timeSlot, t),
+              },
+              {
+                key: "preferredTimes",
+                label: t("admin.trialLeads.fieldPreferredTimes"),
+                value:
+                  preferredTimes.length > 0
+                    ? preferredTimes.join(", ")
+                    : t("admin.trialLeads.notProvided"),
+                fullWidth: true,
+              },
+            ]),
         {
           key: "timezone",
           label: t("admin.trialLeads.fieldTimezone"),
           value: lead.timezone?.trim() || t("admin.trialLeads.notProvided"),
+        },
+        {
+          key: "additionalNote",
+          label: t("admin.trialLeads.fieldAdditionalNote"),
+          value: lead.additionalNote?.trim() || t("admin.trialLeads.notProvided"),
+          fullWidth: true,
+        },
+      ],
+    },
+    {
+      title: t("admin.trialLeads.modalSectionScheduling"),
+      rows: [
+        {
+          key: "assignedTeacher",
+          label: t("admin.trialLeads.fieldAssignedTeacher"),
+          value: lead.teacherSlug?.trim() || t("admin.trialLeads.notProvided"),
+        },
+        {
+          key: "meetingPlatform",
+          label: t("admin.trialLeads.fieldMeetingPlatform"),
+          value: formatTrialMeetingPlatformLabel(lead.meetingPlatform, t),
+        },
+        {
+          key: "meetingLink",
+          label: t("admin.trialLeads.fieldMeetingLink"),
+          value: lead.meetingLink?.trim() || t("admin.trialLeads.notProvided"),
+          fullWidth: true,
+        },
+        {
+          key: "invitationSent",
+          label: t("admin.trialLeads.fieldInvitationSent"),
+          value: lead.invitationSentAt
+            ? t("admin.trialLeads.invitationSentYes")
+            : t("admin.trialLeads.invitationNotSent"),
+        },
+        {
+          key: "converted",
+          label: t("admin.trialLeads.fieldConverted"),
+          value: lead.convertedAdmissionId
+            ? t("admin.trialLeads.convertedYes")
+            : t("admin.trialLeads.convertedNo"),
         },
       ],
     },
@@ -268,6 +345,7 @@ export function leadSearchText(booking: TrialBookingView): string {
   const gender = extractTrialLeadGender(booking);
   return [
     booking.parentName,
+    booking.studentName,
     booking.email,
     booking.whatsapp,
     booking.country,
@@ -277,6 +355,9 @@ export function leadSearchText(booking: TrialBookingView): string {
     booking.source,
     booking.utmSource,
     booking.timezone,
+    booking.preferredTrialDate,
+    booking.preferredTrialTime,
+    booking.additionalNote,
     ...extractTrialLeadPreferredTimes(booking),
   ]
     .filter(Boolean)
@@ -415,11 +496,18 @@ export const TRIAL_LEAD_AGE_OPTIONS = [
 
 export interface ITrialLeadUpdatePayload {
   parentName?: string;
+  studentName?: string;
   email?: string;
   whatsapp?: string;
   country?: string;
   age?: string;
   learnerGender?: "male" | "female";
+  preferredTrialDate?: string;
+  preferredTrialTime?: string;
+  additionalNote?: string;
+  teacherSlug?: string;
+  meetingPlatform?: "google_meet" | "zoom" | "teams" | "whatsapp" | "custom";
+  meetingLink?: string;
   teacherPreference?: "any" | "female" | "male";
   preferredDays?: string[];
   timezone?: string;
@@ -427,9 +515,22 @@ export interface ITrialLeadUpdatePayload {
   status?: TrialBookingStatus;
 }
 
+export interface ITrialLeadSchedulingPayload {
+  teacherSlug: string;
+  meetingPlatform?: "google_meet" | "zoom" | "teams" | "whatsapp" | "custom";
+  meetingLink: string;
+}
+
+export interface ITrialInvitationDelivery {
+  emailSent: boolean;
+  emailError?: string;
+  whatsappUrl: string | null;
+}
+
 export function buildTrialLeadEditDefaults(lead: TrialBookingView) {
   return {
     parentName: lead.parentName,
+    studentName: lead.studentName ?? "",
     email: lead.email ?? "",
     whatsapp: lead.whatsapp,
     country: lead.country ?? "Bangladesh",
@@ -437,6 +538,9 @@ export function buildTrialLeadEditDefaults(lead: TrialBookingView) {
     learnerGender: extractTrialLeadGender(lead) ?? ("male" as const),
     courseSlug: lead.courseSlug ?? "",
     teacherPreference: lead.teacherPreference,
+    preferredTrialDate: lead.preferredTrialDate ?? "",
+    preferredTrialTime: lead.preferredTrialTime ?? "",
+    additionalNote: lead.additionalNote ?? "",
     preferredTimes: extractTrialLeadPreferredTimes(lead).join(", "),
     timezone: lead.timezone ?? "",
     status: lead.status,

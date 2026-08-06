@@ -8,22 +8,38 @@ import {
   buildAdmissionDisplaySections,
   type IAdmissionDisplaySection,
 } from "@/lib/admissionFormDisplay";
-import type { StudentAdmissionStatus, StudentAdmissionView } from "@/types/models";
+import type {
+  AdminTeacherProfile,
+  StudentAdmissionPaymentStatus,
+  StudentAdmissionStatus,
+  StudentAdmissionView,
+} from "@/types/models";
 import { AdmissionStatusBadge } from "@/features/admin/components/student-admissions/AdmissionStatusBadge";
+import { AdmissionPaymentStatusBadge } from "@/features/admin/components/student-admissions/AdmissionPaymentStatusBadge";
+import { AdmissionPaymentReviewPanel } from "@/features/admin/components/student-admissions/AdmissionPaymentReviewPanel";
+import { AdmissionEnrollmentSetupPanel } from "@/features/admin/components/student-admissions/AdmissionEnrollmentSetupPanel";
 import {
   admissionMailtoHref,
   admissionStatusActions,
   admissionTelHref,
   getAdmissionCountry,
+  type IAdmissionEnrollmentPayload,
 } from "@/features/admin/components/student-admissions/adminStudentAdmissionsUtils";
 import { usePortalTranslation } from "@/i18n/LocaleProvider";
 import { cn } from "@/lib/utils/cn";
 
 interface IAdminStudentAdmissionDetailModalProps {
   application: StudentAdmissionView | null;
+  teachers: AdminTeacherProfile[];
   busy: boolean;
   onClose: () => void;
   onUpdateStatus: (app: StudentAdmissionView, status: StudentAdmissionStatus) => void;
+  onUpdatePaymentStatus: (
+    app: StudentAdmissionView,
+    status: StudentAdmissionPaymentStatus,
+    rejectReason?: string
+  ) => void;
+  onSaveEnrollment: (app: StudentAdmissionView, payload: IAdmissionEnrollmentPayload) => void;
 }
 
 function AdmissionSection({ section }: { section: IAdmissionDisplaySection }) {
@@ -75,9 +91,12 @@ function AdmissionSection({ section }: { section: IAdmissionDisplaySection }) {
 
 export function AdminStudentAdmissionDetailModal({
   application,
+  teachers,
   busy,
   onClose,
   onUpdateStatus,
+  onUpdatePaymentStatus,
+  onSaveEnrollment,
 }: IAdminStudentAdmissionDetailModalProps) {
   const { t, formatDateTime, pickField } = usePortalTranslation();
 
@@ -129,6 +148,7 @@ export function AdminStudentAdmissionDetailModal({
               </h2>
               <div className="mt-1 flex flex-wrap items-center gap-2">
                 <AdmissionStatusBadge status={application.status} />
+                <AdmissionPaymentStatusBadge status={application.paymentStatus} />
                 {lang ? (
                   <span className="rounded-full bg-portal-muted/40 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-portal-muted">
                     {lang}
@@ -184,6 +204,22 @@ export function AdminStudentAdmissionDetailModal({
               <p className="mt-1 text-sm text-portal-heading">{application.adminNote}</p>
             </div>
           ) : null}
+
+          <div className="mt-5 space-y-4">
+            <AdmissionPaymentReviewPanel
+              application={application}
+              busy={busy}
+              onUpdatePaymentStatus={(status, rejectReason) =>
+                onUpdatePaymentStatus(application, status, rejectReason)
+              }
+            />
+            <AdmissionEnrollmentSetupPanel
+              application={application}
+              teachers={teachers}
+              busy={busy}
+              onSave={(payload) => onSaveEnrollment(application, payload)}
+            />
+          </div>
 
           <div className="mt-5 space-y-5">
             {sections.map((section) => (

@@ -7,6 +7,7 @@ import { waMeUrlFromRaw } from "@/lib/whatsapp";
 import { admissionFollowUpMessage } from "@/lib/whatsappMessageTemplates";
 import type { StudentAdmissionStatus, StudentAdmissionView } from "@/types/models";
 import { AdmissionStatusBadge } from "@/features/admin/components/student-admissions/AdmissionStatusBadge";
+import { AdmissionPaymentStatusBadge } from "@/features/admin/components/student-admissions/AdmissionPaymentStatusBadge";
 import {
   admissionMailtoHref,
   admissionTelHref,
@@ -52,6 +53,7 @@ export function AdminStudentAdmissionsTable({
               <th className="px-5 py-3.5">{t("admin.admissions.tableProgram")}</th>
               <th className="px-5 py-3.5">{t("admin.admissions.tableSource")}</th>
               <th className="px-5 py-3.5">{t("admin.trialLeads.tableStatus")}</th>
+              <th className="px-5 py-3.5">{t("admin.admissions.tablePayment")}</th>
               <th className="px-5 py-3.5">{t("admin.admissions.tableSubmitted")}</th>
               <th className="px-5 py-3.5 text-right">{t("tables.actions")}</th>
             </tr>
@@ -106,6 +108,9 @@ export function AdminStudentAdmissionsTable({
                   </td>
                   <td className="px-5 py-4">
                     <AdmissionStatusBadge status={app.status} />
+                  </td>
+                  <td className="px-5 py-4">
+                    <AdmissionPaymentStatusBadge status={app.paymentStatus} />
                   </td>
                   <td className="px-5 py-4">
                     <p className="text-xs font-bold tracking-wide text-portal-muted">
