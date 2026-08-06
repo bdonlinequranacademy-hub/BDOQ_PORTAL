@@ -87,12 +87,12 @@ export function WhatsAppPhoneField({
             }}
             className={cn(
               formControlClass,
-              "h-11 w-[7.5rem] appearance-none bg-zinc-50 pl-2 pr-7 text-sm font-medium"
+              "h-11 w-[11rem] appearance-none bg-zinc-50 pl-2 pr-7 text-sm font-medium"
             )}
           >
             {DIAL_CODE_OPTIONS.map((opt) => (
               <option key={`${opt.country}-${opt.code}`} value={opt.code.replace("+", "")}>
-                {opt.code}
+                {opt.code} {opt.country}
               </option>
             ))}
           </select>

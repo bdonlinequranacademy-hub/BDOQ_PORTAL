@@ -19,7 +19,7 @@ import { PageContainer } from "@/components/layout/PageContainer";
 import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { formControlClass } from "@/lib/formControl";
-import { PROFILE_TIMEZONES } from "@/lib/profileTimezones";
+import { PROFILE_TIMEZONE_OPTIONS } from "@/lib/profileTimezones";
 import { CountrySelect } from "@/components/ui/CountrySelect";
 import { WhatsAppPhoneField } from "@/components/whatsapp/WhatsAppPhoneField";
 import { toast } from "@/stores/uiStore";
@@ -330,9 +330,9 @@ export function StudentProfilePage() {
                       onChange={(e) => setTimezone(e.target.value)}
                       className={formControlClass}
                     >
-                      {PROFILE_TIMEZONES.map((tz) => (
-                        <option key={tz} value={tz}>
-                          {tz.replace("_", " ")}
+                      {PROFILE_TIMEZONE_OPTIONS.map((tz) => (
+                        <option key={tz.value} value={tz.value}>
+                          {tz.label}
                         </option>
                       ))}
                     </select>

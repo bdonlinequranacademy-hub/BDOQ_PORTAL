@@ -11,16 +11,22 @@
   "categories": ["education", "productivity"],
   "icons": [
     {
-      "src": "/brand/bdoq-logo.png",
-      "sizes": "192x192",
+      "src": "/brand/bdoq-icon.png",
+      "sizes": "512x512",
       "type": "image/png",
       "purpose": "any"
     },
     {
-      "src": "/brand/bdoq-logo.png",
+      "src": "/brand/bdoq-icon.png",
       "sizes": "512x512",
       "type": "image/png",
-      "purpose": "any maskable"
+      "purpose": "maskable"
+    },
+    {
+      "src": "/apple-touch-icon.png",
+      "sizes": "180x180",
+      "type": "image/png",
+      "purpose": "any"
     }
   ]
 }

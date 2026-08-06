@@ -5,7 +5,7 @@ import { Select } from "@/components/ui/Select";
 import { CountrySelect } from "@/components/ui/CountrySelect";
 import { WhatsAppPhoneField } from "@/components/whatsapp/WhatsAppPhoneField";
 import { CurriculumAssignmentEditor } from "@/components/curriculum/NestedCurriculumSelect";
-import { PROFILE_TIMEZONES } from "@/lib/profileTimezones";
+import { PROFILE_TIMEZONE_OPTIONS } from "@/lib/profileTimezones";
 import { ASSIGNABLE_ROLES } from "@/lib/assignableRoles";
 import {
   AdminUserFormFullWidth,
@@ -196,9 +196,9 @@ export function AdminEditUserModal({
               value={form.timezone}
               onChange={(event) => onChange("timezone", event.target.value)}
             >
-              {PROFILE_TIMEZONES.map((tz) => (
-                <option key={tz} value={tz}>
-                  {tz.replace(/_/g, " ")}
+              {PROFILE_TIMEZONE_OPTIONS.map((tz) => (
+                <option key={tz.value} value={tz.value}>
+                  {tz.label}
                 </option>
               ))}
             </Select>
