@@ -1,4 +1,5 @@
-import { Mail, Phone, X } from "lucide-react";
+import { Mail, Phone, UserCircle, X } from "lucide-react";
+import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/Button";
 import { UserInitialAvatar } from "@/components/ui/UserInitialAvatar";
 import { WhatsAppLinkButton } from "@/components/whatsapp/WhatsAppLinkButton";
@@ -191,6 +192,15 @@ export function AdminStudentAdmissionDetailModal({
               </span>
             )}
             <WhatsAppLinkButton href={wa} label={t("admin.admissions.modalWhatsApp")} size="sm" />
+            {application.linkedUserId ? (
+              <Link
+                to={`/admin/users/${application.linkedUserId}`}
+                className="inline-flex items-center gap-2 rounded-xl border border-primary/30 bg-primary/10 px-3 py-2 text-sm font-semibold text-primary-dark transition hover:bg-primary/15"
+              >
+                <UserCircle className="size-4" aria-hidden />
+                {t("admin.admissions.openStudentProfile")}
+              </Link>
+            ) : null}
             <p className="text-xs text-portal-muted sm:ml-auto">
               {t("admin.admissions.tableSubmitted")} {formatDateTime(application.createdAt)}
             </p>

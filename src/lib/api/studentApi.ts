@@ -8,6 +8,7 @@ import type {
   Notification,
   TodaySchedulePayload,
   StudentProfile,
+  StudentProfileHub,
   WeeklyFamilyReport,
   StudentBillingView,
   PaymentRecordView,
@@ -80,6 +81,11 @@ export const studentApi = {
 
   getProfile: () =>
     apiClient.get<ApiResponse<StudentProfile>>("/student/profile").then((r) => r.data),
+
+  getProfileHub: () =>
+    apiClient
+      .get<ApiResponse<StudentProfileHub>>("/student/profile/hub")
+      .then((r) => r.data),
 
   updateProfile: (payload: {
     name?: string;

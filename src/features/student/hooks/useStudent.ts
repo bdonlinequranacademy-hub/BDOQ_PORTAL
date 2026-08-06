@@ -12,6 +12,7 @@ export const studentKeys = {
   notifications: ["student", "notifications"] as const,
   todaySchedule: ["student", "schedule", "today"] as const,
   profile: ["student", "profile"] as const,
+  profileHub: ["student", "profile", "hub"] as const,
   paymentStatus: ["student", "payments", "status"] as const,
   payments: ["student", "payments"] as const,
 };
@@ -126,6 +127,14 @@ export function useStudentProfile() {
   });
 }
 
+export function useStudentProfileHub() {
+  return useQuery({
+    queryKey: studentKeys.profileHub,
+    queryFn: studentApi.getProfileHub,
+    select: (r) => r.data,
+  });
+}
+
 export function useUpdateStudentProfile() {
   const qc = useQueryClient();
   const addToast = useUiStore((s) => s.addToast);
@@ -133,6 +142,7 @@ export function useUpdateStudentProfile() {
     mutationFn: studentApi.updateProfile,
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: studentKeys.profile });
+      qc.invalidateQueries({ queryKey: studentKeys.profileHub });
       addToast("success", "Profile updated");
     },
     onError: () => addToast("error", "Failed to update profile"),

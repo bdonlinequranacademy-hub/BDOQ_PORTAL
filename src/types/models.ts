@@ -218,6 +218,31 @@ export interface StudentProgressRecord {
   updatedBy?: PopulatedUserRef;
 }
 
+export interface ParentInfo {
+  name?: string;
+  relationship?: string;
+  whatsapp?: string;
+  email?: string;
+}
+
+export interface StudentEnrollmentSummary {
+  admissionId: string;
+  packagePlan?: string;
+  classStartDate?: string;
+  classDays?: string[];
+  classesPerWeek?: number;
+  classDurationMinutes?: number;
+  classTime?: string;
+  assignedTeacherName?: string;
+  assignedTeacherSlug?: string;
+  meetingPlatform?: "google_meet" | "zoom" | "teams" | "whatsapp" | "custom";
+  meetingLink?: string;
+  monthlyFeeAmount?: number;
+  monthlyFeeCurrency?: "bdt" | "usd";
+  paymentStatus?: string;
+  convertedFromTrial?: boolean;
+}
+
 export interface AdminUser {
   id: string;
   name: string;
@@ -231,6 +256,9 @@ export interface AdminUser {
   country?: string;
   whatsapp?: string;
   curriculumAssignments?: CurriculumAssignment[];
+  parentInfo?: ParentInfo;
+  sourceAdmissionId?: string;
+  profileNotes?: string;
   createdAt?: string;
   avatarUrl?: string;
   meetingLink?: string;
@@ -348,6 +376,9 @@ export interface AdminTeacherProfileDetail {
 export interface AdminStudentProfileDetail {
   kind: "student";
   user: AdminUser;
+  parentInfo?: ParentInfo;
+  profileNotes?: string;
+  enrollment?: StudentEnrollmentSummary | null;
   stats: {
     activeClasses: number;
     totalClasses: number;
@@ -368,6 +399,7 @@ export interface AdminStudentProfileDetail {
     description: string;
     schedule: AdminUserProfileClassSchedule | null;
     meetingLink: string;
+    meetingPlatform?: "google_meet" | "zoom" | "teams" | "whatsapp" | "custom";
     isActive: boolean;
     teacher: {
       _id: string;
@@ -667,6 +699,43 @@ export interface StudentProfile {
   whatsapp: string;
   avatarUrl?: string;
   gender?: "male" | "female";
+  parentInfo?: ParentInfo;
+}
+
+export interface StudentProfileHub {
+  profile: StudentProfile;
+  enrollment: StudentEnrollmentSummary | null;
+  classes: Array<{
+    _id: string;
+    title: string;
+    schedule: ClassSchedule | null;
+    meetingLink: string;
+    meetingPlatform?: "google_meet" | "zoom" | "teams" | "whatsapp" | "custom";
+    isActive: boolean;
+    teacherName: string;
+    teacherEmail: string;
+    teacherWhatsapp: string;
+  }>;
+  stats: {
+    activeClasses: number;
+    attendanceRate: number | null;
+    progressRecords: number;
+    recentPayments: number;
+  };
+  billing: {
+    monthlyFee: number;
+    currency: string;
+    dueDay: number;
+    paidUntil: string | null;
+    isActive: boolean;
+  } | null;
+  recentPayments: Array<{
+    _id: string;
+    amount: number;
+    currency: string;
+    status: string;
+    createdAt?: string;
+  }>;
 }
 
 export interface AdminProfile {
@@ -817,6 +886,7 @@ export interface StudentAdmissionView {
   monthlyFeeAmount?: number;
   monthlyFeeCurrency?: "bdt" | "usd";
   enrollmentSetupAt?: string;
+  linkedUserId?: string;
   createdAt: string;
   updatedAt: string;
 }

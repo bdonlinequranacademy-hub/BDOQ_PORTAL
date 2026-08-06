@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import {
   ArrowLeft,
@@ -7,19 +7,24 @@ import {
   CheckCircle2,
   ClipboardList,
   Clock,
+  ExternalLink,
   Mail,
   MapPin,
   MessageCircle,
   Pencil,
   Phone,
+  StickyNote,
+  UserRound,
   Wallet,
 } from "lucide-react";
 import { UserAvatar } from "@/components/ui/UserAvatar";
 import { formatCountryWithFlag } from "@/lib/utils/countryDisplay";
 import { waMeUrlFromRaw } from "@/lib/whatsapp";
+import { formatTrialMeetingPlatformLabel } from "@/lib/trialMeetingPlatform";
 import { usePortalTranslation } from "@/i18n/LocaleProvider";
 import { cn } from "@/lib/utils/cn";
-import type { AdminStudentProfileDetail } from "@/types/models";
+import { useUpdateUser } from "@/features/admin/hooks/useAdmin";
+import type { AdminStudentProfileDetail, ParentInfo, StudentEnrollmentSummary } from "@/types/models";
 
 interface IAdminStudentProfileViewProps {
   data: AdminStudentProfileDetail;
@@ -27,7 +32,132 @@ interface IAdminStudentProfileViewProps {
   onDeactivate?: () => void;
 }
 
-type TabId = "overview" | "classes" | "learning" | "finance";
+type TabId = "overview" | "classes" | "learning" | "finance" | "notes";
+
+function ParentInfoSection({
+  parentInfo,
+  t,
+}: {
+  parentInfo?: ParentInfo;
+  t: (key: string) => string;
+}) {
+  if (!parentInfo?.name && !parentInfo?.whatsapp && !parentInfo?.email) {
+    return (
+      <p className="mt-3 text-sm text-portal-muted">{t("admin.studentProfile.noParentInfo")}</p>
+    );
+  }
+
+  return (
+    <dl className="mt-3 grid grid-cols-1 gap-2 text-sm sm:grid-cols-2">
+      {[
+        [t("admin.studentProfile.parentName"), parentInfo?.name || "—"],
+        [t("admin.studentProfile.parentRelationship"), parentInfo?.relationship || "—"],
+        [t("admin.studentProfile.parentWhatsapp"), parentInfo?.whatsapp || "—"],
+        [t("admin.studentProfile.parentEmail"), parentInfo?.email || "—"],
+      ].map(([label, value]) => (
+        <div key={label} className="rounded-xl bg-portal-muted/20 px-3 py-2">
+          <dt className="text-[11px] font-medium uppercase tracking-wide text-portal-muted">
+            {label}
+          </dt>
+          <dd className="mt-0.5 font-medium text-portal-heading">{value}</dd>
+        </div>
+      ))}
+    </dl>
+  );
+}
+
+function EnrollmentSummarySection({
+  enrollment,
+  t,
+  formatDate,
+  formatMoney,
+  statusLabel,
+}: {
+  enrollment: StudentEnrollmentSummary;
+  t: (key: string, params?: Record<string, string>) => string;
+  formatDate: (value: string) => string;
+  formatMoney: (amount: number, currency: string) => string;
+  statusLabel: (status: string) => string;
+}) {
+  return (
+    <dl className="mt-3 grid grid-cols-1 gap-2 text-sm sm:grid-cols-2">
+      {[
+        [t("admin.studentProfile.enrollmentPlan"), enrollment.packagePlan || "—"],
+        [
+          t("admin.studentProfile.enrollmentStart"),
+          enrollment.classStartDate ? formatDate(enrollment.classStartDate) : "—",
+        ],
+        [
+          t("admin.studentProfile.enrollmentSchedule"),
+          enrollment.classDays?.length
+            ? `${enrollment.classDays.join(", ")}${enrollment.classTime ? ` · ${enrollment.classTime}` : ""}`
+            : enrollment.classTime || "—",
+        ],
+        [
+          t("admin.studentProfile.enrollmentFrequency"),
+          enrollment.classesPerWeek
+            ? t("admin.studentProfile.classesPerWeek", {
+                count: String(enrollment.classesPerWeek),
+              })
+            : "—",
+        ],
+        [
+          t("admin.studentProfile.enrollmentDuration"),
+          enrollment.classDurationMinutes
+            ? t("admin.studentProfile.minutesShort", {
+                count: String(enrollment.classDurationMinutes),
+              })
+            : "—",
+        ],
+        [t("admin.studentProfile.enrollmentTeacher"), enrollment.assignedTeacherName || "—"],
+        [
+          t("admin.studentProfile.enrollmentPlatform"),
+          enrollment.meetingPlatform
+            ? formatTrialMeetingPlatformLabel(enrollment.meetingPlatform, t)
+            : "—",
+        ],
+        [
+          t("admin.studentProfile.enrollmentFee"),
+          enrollment.monthlyFeeAmount != null
+            ? formatMoney(
+                enrollment.monthlyFeeAmount,
+                enrollment.monthlyFeeCurrency?.toUpperCase() ?? "BDT"
+              )
+            : "—",
+        ],
+        [
+          t("admin.studentProfile.enrollmentPayment"),
+          enrollment.paymentStatus ? statusLabel(enrollment.paymentStatus) : "—",
+        ],
+      ].map(([label, value]) => (
+        <div key={label} className="rounded-xl bg-primary-light/30 px-3 py-2">
+          <dt className="text-[11px] font-medium uppercase tracking-wide text-portal-muted">
+            {label}
+          </dt>
+          <dd className="mt-0.5 font-medium text-portal-heading">{value}</dd>
+        </div>
+      ))}
+      {enrollment.meetingLink ? (
+        <div className="sm:col-span-2 rounded-xl bg-primary-light/30 px-3 py-2">
+          <dt className="text-[11px] font-medium uppercase tracking-wide text-portal-muted">
+            {t("admin.studentProfile.enrollmentMeetingLink")}
+          </dt>
+          <dd className="mt-0.5">
+            <a
+              href={enrollment.meetingLink}
+              target="_blank"
+              rel="noreferrer"
+              className="inline-flex items-center gap-1 text-sm font-medium text-primary hover:underline"
+            >
+              {enrollment.meetingLink}
+              <ExternalLink className="size-3.5" aria-hidden />
+            </a>
+          </dd>
+        </div>
+      ) : null}
+    </dl>
+  );
+}
 
 export function AdminStudentProfileView({
   data,
@@ -44,12 +174,24 @@ export function AdminStudentProfileView({
     paymentMethod,
   } = usePortalTranslation();
   const [tab, setTab] = useState<TabId>("overview");
+  const updateUser = useUpdateUser(data.user.id);
+  const [notesDraft, setNotesDraft] = useState(
+    data.profileNotes ?? data.user.profileNotes ?? ""
+  );
+
+  useEffect(() => {
+    setNotesDraft(data.profileNotes ?? data.user.profileNotes ?? "");
+  }, [data.profileNotes, data.user.profileNotes, data.user.id]);
+
+  const parentInfo = data.parentInfo ?? data.user.parentInfo;
+  const enrollment = data.enrollment ?? null;
 
   const tabs: { id: TabId; label: string }[] = [
     { id: "overview", label: t("admin.studentProfile.tabOverview") },
     { id: "classes", label: t("admin.studentProfile.tabClasses") },
     { id: "learning", label: t("admin.studentProfile.tabLearning") },
     { id: "finance", label: t("admin.studentProfile.tabFinance") },
+    { id: "notes", label: t("admin.studentProfile.tabNotes") },
   ];
   const {
     user,
@@ -228,6 +370,34 @@ export function AdminStudentProfileView({
 
       {tab === "overview" ? (
         <div className="grid grid-cols-1 gap-5 lg:grid-cols-2">
+          {enrollment ? (
+            <section className="rounded-2xl border border-primary/20 bg-primary-light/20 p-5 lg:col-span-2">
+              <div className="flex items-center gap-2">
+                <BookOpen className="size-5 text-primary-dark" aria-hidden />
+                <h2 className="font-display text-lg font-semibold text-primary-dark">
+                  {t("admin.studentProfile.enrollmentSummary")}
+                </h2>
+              </div>
+              <EnrollmentSummarySection
+                enrollment={enrollment}
+                t={t}
+                formatDate={formatDate}
+                formatMoney={formatMoney}
+                statusLabel={statusLabel}
+              />
+            </section>
+          ) : null}
+
+          <section className="rounded-2xl border border-portal bg-portal-surface p-5">
+            <div className="flex items-center gap-2">
+              <UserRound className="size-5 text-primary-dark" aria-hidden />
+              <h2 className="font-display text-lg font-semibold text-primary-dark">
+                {t("admin.studentProfile.parentGuardian")}
+              </h2>
+            </div>
+            <ParentInfoSection parentInfo={parentInfo} t={t} />
+          </section>
+
           <section className="rounded-2xl border border-portal bg-portal-surface p-5">
             <h2 className="font-display text-lg font-semibold text-primary-dark">
               {t("admin.studentProfile.accountIdentity")}
@@ -379,7 +549,21 @@ export function AdminStudentProfileView({
                         {cls.schedule
                           ? ` · ${cls.schedule.day} ${cls.schedule.time}`
                           : ""}
+                        {cls.meetingPlatform
+                          ? ` · ${formatTrialMeetingPlatformLabel(cls.meetingPlatform, t)}`
+                          : ""}
                       </p>
+                      {cls.meetingLink ? (
+                        <a
+                          href={cls.meetingLink}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="mt-1 inline-flex items-center gap-1 text-xs font-medium text-primary hover:underline"
+                        >
+                          {t("admin.studentProfile.joinMeeting")}
+                          <ExternalLink className="size-3" aria-hidden />
+                        </a>
+                      ) : null}
                       {cls.teacher?.email || cls.teacher?.whatsapp ? (
                         <p className="mt-1 text-xs text-portal-muted">
                           {cls.teacher.email}
@@ -627,6 +811,37 @@ export function AdminStudentProfileView({
             )}
           </section>
         </div>
+      ) : null}
+
+      {tab === "notes" ? (
+        <section className="rounded-2xl border border-portal bg-portal-surface p-5">
+          <div className="mb-3 flex items-center gap-2">
+            <StickyNote className="size-5 text-primary-dark" aria-hidden />
+            <h2 className="font-display text-lg font-semibold text-primary-dark">
+              {t("admin.studentProfile.profileNotes")}
+            </h2>
+          </div>
+          <p className="mb-3 text-sm text-portal-muted">{t("admin.studentProfile.profileNotesHint")}</p>
+          <textarea
+            value={notesDraft}
+            onChange={(e) => setNotesDraft(e.target.value)}
+            rows={8}
+            className="w-full rounded-xl border border-portal bg-white px-4 py-3 text-sm text-portal-heading outline-none transition focus:border-primary/40"
+            placeholder={t("admin.studentProfile.profileNotesPlaceholder")}
+          />
+          <div className="mt-3 flex justify-end">
+            <button
+              type="button"
+              disabled={updateUser.isPending}
+              onClick={() => updateUser.mutate({ profileNotes: notesDraft })}
+              className="inline-flex items-center gap-2 rounded-xl bg-primary px-4 py-2.5 text-sm font-semibold text-white hover:bg-primary-dark disabled:opacity-60"
+            >
+              {updateUser.isPending
+                ? t("admin.studentProfile.savingNotes")
+                : t("admin.studentProfile.saveNotes")}
+            </button>
+          </div>
+        </section>
       ) : null}
     </div>
   );

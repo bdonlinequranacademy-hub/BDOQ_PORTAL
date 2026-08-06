@@ -166,10 +166,13 @@ export function useUpdateUser(id: string) {
         gender: "male" | "female" | "";
         timezone: string;
         country: string;
+        whatsapp: string;
+        profileNotes: string;
       }>
     ) => adminApi.updateUser(id, payload),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["admin", "users"] });
+      qc.invalidateQueries({ queryKey: adminKeys.userProfile(id) });
       addToast("success", "User updated");
     },
     onError: () => addToast("error", "Failed to update user"),

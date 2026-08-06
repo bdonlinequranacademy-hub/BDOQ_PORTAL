@@ -192,6 +192,7 @@ export const adminComponentStringsEn = {
     modalAdminNote: "Admin note",
     modalWhatsApp: "WhatsApp",
     modalReplyEmail: "Reply via email",
+    openStudentProfile: "Open student profile",
     modalPersonalInfo: "Personal information",
     modalParentInfo: "Parent / guardian information",
     modalDeviceInfo: "Device & connectivity",

@@ -122,6 +122,7 @@ export const adminApi = {
       country: string;
       whatsapp: string;
       curriculumAssignments: CurriculumAssignment[];
+      profileNotes: string;
     }>
   ) =>
     apiClient.put<ApiResponse<AdminUser>>(`/admin/users/${id}`, payload).then((r) => r.data),

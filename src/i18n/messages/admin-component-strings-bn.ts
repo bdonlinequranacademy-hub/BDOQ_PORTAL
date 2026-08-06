@@ -192,6 +192,7 @@ export const adminComponentStringsBn = {
     modalAdminNote: "অ্যাডমিন নোট",
     modalWhatsApp: "WhatsApp",
     modalReplyEmail: "ইমেইলে উত্তর",
+    openStudentProfile: "শিক্ষার্থী প্রোফাইল খুলুন",
     modalPersonalInfo: "ব্যক্তিগত তথ্য",
     modalParentInfo: "অভিভাবকের তথ্য",
     modalDeviceInfo: "ডিভাইস ও সংযোগ",
