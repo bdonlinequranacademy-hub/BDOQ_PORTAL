@@ -66,6 +66,10 @@ const FIELD_LABELS: Record<string, string> = {
   payCurrentMonthTuition: "Paying this month’s tuition in advance",
   monthlyTuitionAmount: "This month’s tuition amount",
   monthlyTuitionReference: "Monthly tuition reference",
+  monthlyTuitionPaymentMethod: "Monthly tuition payment method",
+  monthlyTuitionDate: "Monthly tuition payment date",
+  monthlyTuitionProofUrl: "Monthly tuition screenshot",
+  monthlyTuitionChoice: "Paying this month’s tuition now",
   parentName: "Parent / guardian name",
   guardianName: "Guardian name",
   parentRelationship: "Relationship to student",
@@ -79,6 +83,8 @@ const FIELD_LABELS: Record<string, string> = {
 };
 
 const VALUE_LABELS: Record<string, string> = {
+  yes: "Yes",
+  no: "No",
   male: "Male",
   female: "Female",
   "not-started": "Not started yet",
@@ -190,8 +196,12 @@ const SECTIONS: { title: string; fields: string[] }[] = [
       "admissionPaymentNote",
       "admissionPaymentProofUrl",
       "payCurrentMonthTuition",
+      "monthlyTuitionChoice",
       "monthlyTuitionAmount",
+      "monthlyTuitionPaymentMethod",
       "monthlyTuitionReference",
+      "monthlyTuitionDate",
+      "monthlyTuitionProofUrl",
     ],
   },
   {
@@ -215,6 +225,8 @@ const HEADER_FIELDS = new Set(["fullName", "name", "email", "whatsapp"]);
 const HIDDEN_FIELDS = new Set([
   "admissionPaymentProofPublicId",
   "admissionPaymentProofFile",
+  "monthlyTuitionProofPublicId",
+  "monthlyTuitionProofFile",
   "locale",
   "password",
   "confirmPassword",
@@ -278,12 +290,12 @@ export function buildAdmissionDisplaySections(
       const value = formatSingleValue(formData[key]);
       if (!value) continue;
 
-      if (key === "admissionPaymentProofUrl") {
+      if (key === "admissionPaymentProofUrl" || key === "monthlyTuitionProofUrl") {
         const viewUrl = toViewableUploadUrl(value);
         rows.push({
           key,
           label: FIELD_LABELS[key] ?? humanizeKey(key),
-          value: "Payment proof",
+          value: key === "monthlyTuitionProofUrl" ? "Monthly tuition screenshot" : "Payment proof",
           href: viewUrl,
           imageUrl: isImageUploadUrl(viewUrl) ? viewUrl : toPreviewImageUrl(viewUrl),
           fullWidth: true,
