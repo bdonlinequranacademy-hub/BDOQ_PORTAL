@@ -38,6 +38,7 @@ interface IAdminTrialLeadDetailModalProps {
   onSendInvitation: (lead: TrialBookingView, payload: ITrialLeadSchedulingPayload) => void;
   onConvert: (lead: TrialBookingView, payload: { email: string; createUser: boolean }) => void;
   convertResult: IConvertTrialResult | null;
+  canDelete?: boolean;
   onDelete: (lead: TrialBookingView) => void;
 }
 
@@ -74,6 +75,7 @@ export function AdminTrialLeadDetailModal({
   onSendInvitation,
   onConvert,
   convertResult,
+  canDelete = false,
   onDelete,
 }: IAdminTrialLeadDetailModalProps) {
   const { t, formatDateTime, statusLabel } = usePortalTranslation();
@@ -142,16 +144,18 @@ export function AdminTrialLeadDetailModal({
                 >
                   <Pencil className="size-4" aria-hidden />
                 </button>
-                <button
-                  type="button"
-                  onClick={handleDelete}
-                  disabled={busy}
-                  className="inline-flex size-9 items-center justify-center rounded-full border border-red-200 text-red-600 transition hover:bg-red-50 disabled:opacity-50"
-                  aria-label={t("admin.trialLeads.deleteLead")}
-                  title={t("admin.trialLeads.deleteLead")}
-                >
-                  <Trash2 className="size-4" aria-hidden />
-                </button>
+                {canDelete ? (
+                  <button
+                    type="button"
+                    onClick={handleDelete}
+                    disabled={busy}
+                    className="inline-flex size-9 items-center justify-center rounded-full border border-red-200 text-red-600 transition hover:bg-red-50 disabled:opacity-50"
+                    aria-label={t("admin.trialLeads.deleteLead")}
+                    title={t("admin.trialLeads.deleteLead")}
+                  >
+                    <Trash2 className="size-4" aria-hidden />
+                  </button>
+                ) : null}
               </>
             ) : null}
             <button

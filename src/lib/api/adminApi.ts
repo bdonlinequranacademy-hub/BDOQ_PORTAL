@@ -384,6 +384,11 @@ export const adminApi = {
       )
       .then((r) => r.data),
 
+  deleteStudentAdmission: (id: string) =>
+    apiClient
+      .delete<ApiResponse<null>>(`/admin/student-admissions/${id}`)
+      .then((r) => r.data),
+
   getTeacherApplications: (status?: TeacherApplicationStatus) =>
     apiClient
       .get<ApiResponse<TeacherApplicationView[]>>("/admin/teacher-applications", {
@@ -401,6 +406,11 @@ export const adminApi = {
         `/admin/teacher-applications/${id}/status`,
         { status, adminNote }
       )
+      .then((r) => r.data),
+
+  deleteTeacherApplication: (id: string) =>
+    apiClient
+      .delete<ApiResponse<null>>(`/admin/teacher-applications/${id}`)
       .then((r) => r.data),
 
   getContactMessages: (status?: ContactMessageStatus) =>

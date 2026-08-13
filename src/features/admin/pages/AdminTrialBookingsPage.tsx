@@ -36,9 +36,13 @@ import {
   type ITrialLeadUpdatePayload,
 } from "@/features/admin/components/trial-leads/adminTrialLeadsUtils";
 import { usePortalTranslation } from "@/i18n/LocaleProvider";
+import { isSuperAdmin } from "@/lib/assignableRoles";
+import { useAuthStore } from "@/stores/authStore";
 
 export function AdminTrialBookingsPage() {
   const { t } = usePortalTranslation();
+  const actorRole = useAuthStore((s) => s.user?.role);
+  const canDelete = isSuperAdmin(actorRole ?? "admin");
   const [tab, setTab] = useState<AdminTrialLeadsTab>("all");
   const [search, setSearch] = useState("");
   const [courseFilter, setCourseFilter] = useState("");
@@ -284,6 +288,7 @@ export function AdminTrialBookingsPage() {
             <AdminTrialLeadsTable
               leads={pagination.paginatedItems}
               busy={busy}
+              canDelete={canDelete}
               onView={(lead) => openLead(lead, "view")}
               onEdit={(lead) => openLead(lead, "edit")}
               onDelete={handleDeleteLead}
@@ -314,6 +319,7 @@ export function AdminTrialBookingsPage() {
         onSendInvitation={handleSendInvitation}
         onConvert={handleConvertLead}
         convertResult={convertResult}
+        canDelete={canDelete}
         onDelete={handleDeleteLead}
       />
     </PageContainer>

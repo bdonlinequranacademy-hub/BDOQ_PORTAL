@@ -1,4 +1,4 @@
-import { Download, Eye, Phone, Search } from "lucide-react";
+import { Download, Eye, Phone, Search, Trash2 } from "lucide-react";
 import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { UserInitialAvatar } from "@/components/ui/UserInitialAvatar";
@@ -28,7 +28,9 @@ import { usePortalTranslation } from "@/i18n/LocaleProvider";
 interface IAdminTeacherApplicationsTableProps {
   applications: TeacherApplicationView[];
   busy: boolean;
+  canDelete?: boolean;
   onView: (app: TeacherApplicationView) => void;
+  onDelete?: (app: TeacherApplicationView) => void;
   onAdvanceStatus: (app: TeacherApplicationView, status: TeacherApplicationStatus) => void;
 }
 
@@ -38,7 +40,9 @@ const contactActionClass =
 export function AdminTeacherApplicationsTable({
   applications,
   busy,
+  canDelete = false,
   onView,
+  onDelete,
   onAdvanceStatus,
 }: IAdminTeacherApplicationsTableProps) {
   const { t } = usePortalTranslation();
@@ -160,6 +164,28 @@ export function AdminTeacherApplicationsTable({
                       >
                         <Eye className="size-4" aria-hidden />
                       </button>
+                      {canDelete && onDelete ? (
+                        <button
+                          type="button"
+                          disabled={busy}
+                          onClick={() => {
+                            const confirmed = window.confirm(
+                              t("admin.teacherApplications.confirmDeleteApplication", {
+                                name: app.fullName,
+                              })
+                            );
+                            if (confirmed) onDelete(app);
+                          }}
+                          className={cn(
+                            contactActionClass,
+                            "text-red-600 hover:border-red-200 hover:text-red-700 disabled:opacity-50"
+                          )}
+                          aria-label={t("admin.teacherApplications.deleteApplication")}
+                          title={t("admin.teacherApplications.deleteApplication")}
+                        >
+                          <Trash2 className="size-4" aria-hidden />
+                        </button>
+                      ) : null}
                       <AdminStatusMenu
                         item={app}
                         currentStatus={app.status}

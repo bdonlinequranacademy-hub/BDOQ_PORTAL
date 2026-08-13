@@ -1106,6 +1106,19 @@ export function useUpdateStudentAdmissionEnrollment() {
   });
 }
 
+export function useDeleteStudentAdmission() {
+  const qc = useQueryClient();
+  const addToast = useUiStore((s) => s.addToast);
+  return useMutation({
+    mutationFn: (id: string) => adminApi.deleteStudentAdmission(id),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["admin", "studentAdmissions"] });
+      addToast("success", "Admission application deleted");
+    },
+    onError: () => addToast("error", "Failed to delete admission application"),
+  });
+}
+
 export function useAdminTeacherApplications(status?: TeacherApplicationStatus) {
   return useQuery({
     queryKey: adminKeys.teacherApplications(status),
@@ -1132,6 +1145,19 @@ export function useUpdateTeacherApplicationStatus() {
       addToast("success", "Teacher application updated");
     },
     onError: () => addToast("error", "Failed to update teacher application"),
+  });
+}
+
+export function useDeleteTeacherApplication() {
+  const qc = useQueryClient();
+  const addToast = useUiStore((s) => s.addToast);
+  return useMutation({
+    mutationFn: (id: string) => adminApi.deleteTeacherApplication(id),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["admin", "teacherApplications"] });
+      addToast("success", "Teacher application deleted");
+    },
+    onError: () => addToast("error", "Failed to delete teacher application"),
   });
 }
 

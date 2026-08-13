@@ -7,6 +7,7 @@ import type {
 } from "@/types/models";
 import {
   useAdminStudentAdmissions,
+  useDeleteStudentAdmission,
   useUpdateStudentAdmissionStatus,
   useUpdateStudentAdmissionPaymentStatus,
   useUpdateStudentAdmissionEnrollment,
@@ -37,9 +38,13 @@ import {
   type IAdmissionEnrollmentPayload,
 } from "@/features/admin/components/student-admissions/adminStudentAdmissionsUtils";
 import { usePortalTranslation } from "@/i18n/LocaleProvider";
+import { isSuperAdmin } from "@/lib/assignableRoles";
+import { useAuthStore } from "@/stores/authStore";
 
 export function AdminStudentAdmissionsPage() {
   const { t, dynamicLabel } = usePortalTranslation();
+  const actorRole = useAuthStore((s) => s.user?.role);
+  const canDelete = isSuperAdmin(actorRole ?? "admin");
   const [tab, setTab] = useState<AdminStudentAdmissionsTab>("all");
   const [search, setSearch] = useState("");
   const [programFilter, setProgramFilter] = useState("");
@@ -55,6 +60,7 @@ export function AdminStudentAdmissionsPage() {
   const updateStatus = useUpdateStudentAdmissionStatus();
   const updatePaymentStatus = useUpdateStudentAdmissionPaymentStatus();
   const updateEnrollment = useUpdateStudentAdmissionEnrollment();
+  const deleteApplication = useDeleteStudentAdmission();
 
   const stats = useMemo(() => computeStudentAdmissionsStats(applications), [applications]);
   const programOptions = useMemo(
@@ -113,7 +119,8 @@ export function AdminStudentAdmissionsPage() {
   const busy =
     updateStatus.isPending ||
     updatePaymentStatus.isPending ||
-    updateEnrollment.isPending;
+    updateEnrollment.isPending ||
+    deleteApplication.isPending;
 
   function syncSelectedApp(updated: StudentAdmissionView | undefined): void {
     if (updated && selectedApp?._id === updated._id) {
@@ -158,6 +165,14 @@ export function AdminStudentAdmissionsPage() {
         onSuccess: (response) => syncSelectedApp(response.data ?? undefined),
       }
     );
+  }
+
+  function handleDelete(app: StudentAdmissionView) {
+    deleteApplication.mutate(app._id, {
+      onSuccess: () => {
+        if (selectedApp?._id === app._id) setSelectedApp(null);
+      },
+    });
   }
 
   function handleExport() {
@@ -240,7 +255,9 @@ export function AdminStudentAdmissionsPage() {
             <AdminStudentAdmissionsTable
               applications={pagination.paginatedItems}
               busy={busy}
+              canDelete={canDelete}
               onView={setSelectedApp}
+              onDelete={handleDelete}
               onAdvanceStatus={handleUpdateStatus}
             />
             <Pagination pagination={pagination} itemLabel={t("admin.common.applicationsItemLabel")} />
@@ -260,10 +277,12 @@ export function AdminStudentAdmissionsPage() {
         application={selectedApp}
         teachers={teachers}
         busy={busy}
+        canDelete={canDelete}
         onClose={() => setSelectedApp(null)}
         onUpdateStatus={handleUpdateStatus}
         onUpdatePaymentStatus={handleUpdatePaymentStatus}
         onSaveEnrollment={handleSaveEnrollment}
+        onDelete={handleDelete}
       />
     </PageContainer>
   );

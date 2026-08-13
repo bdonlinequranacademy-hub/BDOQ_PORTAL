@@ -1,4 +1,4 @@
-import { Phone, X } from "lucide-react";
+import { Phone, Trash2, X } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { UserInitialAvatar } from "@/components/ui/UserInitialAvatar";
 import { WhatsAppLinkButton } from "@/components/whatsapp/WhatsAppLinkButton";
@@ -25,8 +25,10 @@ import { usePortalTranslation } from "@/i18n/LocaleProvider";
 interface IAdminTeacherApplicationDetailModalProps {
   application: TeacherApplicationView | null;
   busy: boolean;
+  canDelete?: boolean;
   onClose: () => void;
   onUpdateStatus: (app: TeacherApplicationView, status: TeacherApplicationStatus) => void;
+  onDelete?: (app: TeacherApplicationView) => void;
 }
 
 function DisplaySection({ section }: { section: ITeacherApplicationDisplaySection }) {
@@ -52,8 +54,10 @@ function DisplaySection({ section }: { section: ITeacherApplicationDisplaySectio
 export function AdminTeacherApplicationDetailModal({
   application,
   busy,
+  canDelete = false,
   onClose,
   onUpdateStatus,
+  onDelete,
 }: IAdminTeacherApplicationDetailModalProps) {
   const { t } = usePortalTranslation();
 
@@ -105,14 +109,35 @@ export function AdminTeacherApplicationDetailModal({
               </div>
             </div>
           </div>
-          <button
-            type="button"
-            onClick={onClose}
-            className="inline-flex size-9 items-center justify-center rounded-full border border-portal text-portal-muted transition hover:text-primary"
-            aria-label={t("admin.admissions.modalClose")}
-          >
-            <X className="size-5" aria-hidden />
-          </button>
+          <div className="flex items-center gap-1">
+            {canDelete && onDelete ? (
+              <button
+                type="button"
+                disabled={busy}
+                onClick={() => {
+                  const confirmed = window.confirm(
+                    t("admin.teacherApplications.confirmDeleteApplication", {
+                      name: application.fullName,
+                    })
+                  );
+                  if (confirmed) onDelete(application);
+                }}
+                className="inline-flex size-9 items-center justify-center rounded-full border border-red-200 text-red-600 transition hover:bg-red-50 disabled:opacity-50"
+                aria-label={t("admin.teacherApplications.deleteApplication")}
+                title={t("admin.teacherApplications.deleteApplication")}
+              >
+                <Trash2 className="size-4" aria-hidden />
+              </button>
+            ) : null}
+            <button
+              type="button"
+              onClick={onClose}
+              className="inline-flex size-9 items-center justify-center rounded-full border border-portal text-portal-muted transition hover:text-primary"
+              aria-label={t("admin.admissions.modalClose")}
+            >
+              <X className="size-5" aria-hidden />
+            </button>
+          </div>
         </div>
       }
       footer={

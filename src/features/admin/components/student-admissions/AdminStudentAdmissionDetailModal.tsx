@@ -1,4 +1,4 @@
-import { Phone, UserCircle, X } from "lucide-react";
+import { Phone, Trash2, UserCircle, X } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/Button";
 import { UserInitialAvatar } from "@/components/ui/UserInitialAvatar";
@@ -33,6 +33,7 @@ interface IAdminStudentAdmissionDetailModalProps {
   application: StudentAdmissionView | null;
   teachers: AdminTeacherProfile[];
   busy: boolean;
+  canDelete?: boolean;
   onClose: () => void;
   onUpdateStatus: (app: StudentAdmissionView, status: StudentAdmissionStatus) => void;
   onUpdatePaymentStatus: (
@@ -41,6 +42,7 @@ interface IAdminStudentAdmissionDetailModalProps {
     rejectReason?: string
   ) => void;
   onSaveEnrollment: (app: StudentAdmissionView, payload: IAdmissionEnrollmentPayload) => void;
+  onDelete?: (app: StudentAdmissionView) => void;
 }
 
 function AdmissionSection({
@@ -94,10 +96,12 @@ export function AdminStudentAdmissionDetailModal({
   application,
   teachers,
   busy,
+  canDelete = false,
   onClose,
   onUpdateStatus,
   onUpdatePaymentStatus,
   onSaveEnrollment,
+  onDelete,
 }: IAdminStudentAdmissionDetailModalProps) {
   const { t, formatDateTime, pickField } = usePortalTranslation();
 
@@ -147,14 +151,35 @@ export function AdminStudentAdmissionDetailModal({
               </div>
             </div>
           </div>
-          <button
-            type="button"
-            onClick={onClose}
-            className="inline-flex size-9 items-center justify-center rounded-full border border-portal text-portal-muted transition hover:text-primary"
-            aria-label={t("admin.admissions.modalClose")}
-          >
-            <X className="size-5" aria-hidden />
-          </button>
+          <div className="flex items-center gap-1">
+            {canDelete && onDelete ? (
+              <button
+                type="button"
+                disabled={busy}
+                onClick={() => {
+                  const confirmed = window.confirm(
+                    t("admin.admissions.confirmDeleteApplication", {
+                      name: application.fullName,
+                    })
+                  );
+                  if (confirmed) onDelete(application);
+                }}
+                className="inline-flex size-9 items-center justify-center rounded-full border border-red-200 text-red-600 transition hover:bg-red-50 disabled:opacity-50"
+                aria-label={t("admin.admissions.deleteApplication")}
+                title={t("admin.admissions.deleteApplication")}
+              >
+                <Trash2 className="size-4" aria-hidden />
+              </button>
+            ) : null}
+            <button
+              type="button"
+              onClick={onClose}
+              className="inline-flex size-9 items-center justify-center rounded-full border border-portal text-portal-muted transition hover:text-primary"
+              aria-label={t("admin.admissions.modalClose")}
+            >
+              <X className="size-5" aria-hidden />
+            </button>
+          </div>
         </div>
       }
       footer={

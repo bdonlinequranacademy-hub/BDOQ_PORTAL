@@ -3,6 +3,7 @@ import { Briefcase, Download } from "lucide-react";
 import type { TeacherApplicationStatus, TeacherApplicationView } from "@/types/models";
 import {
   useAdminTeacherApplications,
+  useDeleteTeacherApplication,
   useUpdateTeacherApplicationStatus,
 } from "@/features/admin/hooks/useAdmin";
 import { PageContainer } from "@/components/layout/PageContainer";
@@ -28,9 +29,13 @@ import {
   type AdminTeacherApplicationsTab,
 } from "@/features/admin/components/teacher-applications/adminTeacherApplicationsUtils";
 import { usePortalTranslation } from "@/i18n/LocaleProvider";
+import { isSuperAdmin } from "@/lib/assignableRoles";
+import { useAuthStore } from "@/stores/authStore";
 
 export function AdminTeacherApplicationsPage() {
   const { t } = usePortalTranslation();
+  const actorRole = useAuthStore((s) => s.user?.role);
+  const canDelete = isSuperAdmin(actorRole ?? "admin");
   const [tab, setTab] = useState<AdminTeacherApplicationsTab>("all");
   const [search, setSearch] = useState("");
   const [subjectFilter, setSubjectFilter] = useState("");
@@ -42,6 +47,7 @@ export function AdminTeacherApplicationsPage() {
   const { data: applications = [], isLoading, isError, isFetching, refetch } =
     useAdminTeacherApplications();
   const updateStatus = useUpdateTeacherApplicationStatus();
+  const deleteApplication = useDeleteTeacherApplication();
 
   const stats = useMemo(() => computeTeacherApplicationsStats(applications), [applications]);
   const subjectOptions = useMemo(() => extractSubjectOptions(applications), [applications]);
@@ -80,7 +86,7 @@ export function AdminTeacherApplicationsPage() {
     resetDeps: [tab, search, subjectFilter, countryFilter, dateFrom, dateTo],
   });
 
-  const busy = updateStatus.isPending;
+  const busy = updateStatus.isPending || deleteApplication.isPending;
 
   function handleUpdateStatus(app: TeacherApplicationView, status: TeacherApplicationStatus) {
     updateStatus.mutate(
@@ -93,6 +99,14 @@ export function AdminTeacherApplicationsPage() {
         },
       }
     );
+  }
+
+  function handleDelete(app: TeacherApplicationView) {
+    deleteApplication.mutate(app._id, {
+      onSuccess: () => {
+        if (selectedApp?._id === app._id) setSelectedApp(null);
+      },
+    });
   }
 
   function handleExport() {
@@ -172,7 +186,9 @@ export function AdminTeacherApplicationsPage() {
             <AdminTeacherApplicationsTable
               applications={pagination.paginatedItems}
               busy={busy}
+              canDelete={canDelete}
               onView={setSelectedApp}
+              onDelete={handleDelete}
               onAdvanceStatus={handleUpdateStatus}
             />
             <Pagination pagination={pagination} itemLabel={t("admin.common.applicationsItemLabel")} />
@@ -191,8 +207,10 @@ export function AdminTeacherApplicationsPage() {
       <AdminTeacherApplicationDetailModal
         application={selectedApp}
         busy={busy}
+        canDelete={canDelete}
         onClose={() => setSelectedApp(null)}
         onUpdateStatus={handleUpdateStatus}
+        onDelete={handleDelete}
       />
     </PageContainer>
   );

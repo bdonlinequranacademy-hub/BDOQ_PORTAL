@@ -23,6 +23,7 @@ import { cn } from "@/lib/utils/cn";
 interface IAdminTrialLeadsTableProps {
   leads: TrialBookingView[];
   busy: boolean;
+  canDelete?: boolean;
   onView: (lead: TrialBookingView) => void;
   onEdit: (lead: TrialBookingView) => void;
   onDelete: (lead: TrialBookingView) => void;
@@ -35,6 +36,7 @@ const contactActionClass =
 export function AdminTrialLeadsTable({
   leads,
   busy,
+  canDelete = false,
   onView,
   onEdit,
   onDelete,
@@ -174,26 +176,28 @@ export function AdminTrialLeadsTable({
                       >
                         <Pencil className="size-4" aria-hidden />
                       </button>
-                      <button
-                        type="button"
-                        disabled={busy}
-                        onClick={() => {
-                          const confirmed = window.confirm(
-                            t("admin.trialLeads.confirmDeleteLead", {
-                              name: lead.parentName,
-                            })
-                          );
-                          if (confirmed) onDelete(lead);
-                        }}
-                        className={cn(
-                          contactActionClass,
-                          "text-red-600 hover:border-red-200 hover:text-red-700 disabled:opacity-50"
-                        )}
-                        aria-label={t("admin.trialLeads.deleteLead")}
-                        title={t("admin.trialLeads.deleteLead")}
-                      >
-                        <Trash2 className="size-4" aria-hidden />
-                      </button>
+                      {canDelete ? (
+                        <button
+                          type="button"
+                          disabled={busy}
+                          onClick={() => {
+                            const confirmed = window.confirm(
+                              t("admin.trialLeads.confirmDeleteLead", {
+                                name: lead.parentName,
+                              })
+                            );
+                            if (confirmed) onDelete(lead);
+                          }}
+                          className={cn(
+                            contactActionClass,
+                            "text-red-600 hover:border-red-200 hover:text-red-700 disabled:opacity-50"
+                          )}
+                          aria-label={t("admin.trialLeads.deleteLead")}
+                          title={t("admin.trialLeads.deleteLead")}
+                        >
+                          <Trash2 className="size-4" aria-hidden />
+                        </button>
+                      ) : null}
                       <TrialLeadStatusMenu
                         lead={lead}
                         busy={busy}
