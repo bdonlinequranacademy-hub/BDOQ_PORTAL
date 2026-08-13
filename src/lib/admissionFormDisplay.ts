@@ -210,6 +210,9 @@ const HIDDEN_FIELDS = new Set([
   "admissionPaymentProofPublicId",
   "admissionPaymentProofFile",
   "locale",
+  "password",
+  "confirmPassword",
+  "passwordHash",
 ]);
 
 function humanizeKey(key: string): string {
