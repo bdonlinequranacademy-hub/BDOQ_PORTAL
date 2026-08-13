@@ -13,6 +13,7 @@ interface IAdminPaymentMethodsOverviewProps {
 const METHOD_ACCENTS: Record<string, string> = {
   bkash: "border-[#E2136E]/25 bg-[#E2136E]/8 text-[#E2136E]",
   nagad: "border-orange-500/25 bg-orange-500/8 text-orange-700",
+  rocket: "border-violet-600/25 bg-violet-600/8 text-violet-700",
   wise: "border-emerald-500/25 bg-emerald-500/8 text-emerald-700",
   bank_transfer: "border-primary/25 bg-primary/8 text-primary-dark",
   paypal: "border-blue-500/25 bg-blue-500/8 text-blue-700",

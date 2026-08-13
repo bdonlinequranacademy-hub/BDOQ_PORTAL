@@ -11,6 +11,7 @@ export const PAYMENT_METHOD_LABELS: Record<string, string> = {
   cash_app: "Cash App",
   bkash: "bKash",
   nagad: "Nagad",
+  rocket: "Rocket",
   other: "Other",
 };
 

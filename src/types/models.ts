@@ -1098,6 +1098,9 @@ export type PaymentMethod =
   | "bank_transfer"
   | "paypal"
   | "cash_app"
+  | "bkash"
+  | "nagad"
+  | "rocket"
   | "other";
 export type PaymentStatus = "pending" | "approved" | "rejected";
 

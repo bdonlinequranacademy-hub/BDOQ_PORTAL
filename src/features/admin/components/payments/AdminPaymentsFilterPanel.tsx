@@ -29,6 +29,7 @@ const PAYMENT_METHOD_KEYS = [
   "cash_app",
   "bkash",
   "nagad",
+  "rocket",
   "other",
 ] as const;
 

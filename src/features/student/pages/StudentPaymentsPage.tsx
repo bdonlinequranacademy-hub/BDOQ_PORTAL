@@ -26,6 +26,9 @@ const METHODS: PaymentMethod[] = [
   "wise",
   "bank_transfer",
   "cash_app",
+  "bkash",
+  "nagad",
+  "rocket",
   "other",
 ];
 
