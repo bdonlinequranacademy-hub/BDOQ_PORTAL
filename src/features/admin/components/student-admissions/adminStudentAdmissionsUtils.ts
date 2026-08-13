@@ -4,6 +4,12 @@ import type {
   StudentAdmissionClassDay,
 } from "@/types/models";
 import { parseWhatsApp } from "@/lib/whatsapp";
+import {
+  admissionConfirmedMessage,
+  admissionFollowUpMessage,
+} from "@/lib/whatsappMessageTemplates";
+import { formatClockTime } from "@/i18n/format";
+import { formatTrialMeetingPlatformLabel } from "@/lib/trialMeetingPlatform";
 import type {
   PortalTranslate,
   StatusLabelFn,
@@ -272,6 +278,61 @@ export function getAdmissionSource(
 
 export function getAdmissionSourceDetail(t: PortalTranslate): string {
   return t("admin.admissions.sourceAdmissionForm");
+}
+
+export function buildAdmissionWhatsAppMessage(
+  app: StudentAdmissionView,
+  t: PortalTranslate,
+  dynamicLabel: DynamicLabelFn
+): string {
+  if (app.status !== "approved" && app.status !== "closed") {
+    return admissionFollowUpMessage(app.fullName);
+  }
+
+  const planDetail = getAdmissionProgramDetail(app, t, dynamicLabel);
+  const plan =
+    planDetail === t("admin.admissions.sourceAdmissionForm") ? undefined : planDetail;
+
+  const monthlyFee =
+    app.monthlyFeeAmount != null
+      ? `${app.monthlyFeeAmount} ${app.monthlyFeeCurrency === "usd" ? "USD" : "BDT"}`
+      : getAdmissionFeeSummary(app, dynamicLabel) ?? undefined;
+
+  const paymentStatus =
+    app.paymentStatus === "verified"
+      ? "Verified"
+      : app.paymentStatus === "rejected"
+        ? "Rejected"
+        : app.paymentStatus === "pending"
+          ? "Pending"
+          : undefined;
+
+  const startDate = app.classStartDate
+    ? new Date(`${app.classStartDate}T00:00:00`).toLocaleDateString("en-GB", {
+        day: "numeric",
+        month: "short",
+        year: "numeric",
+      })
+    : undefined;
+
+  return admissionConfirmedMessage({
+    name: app.fullName,
+    status: app.status,
+    program: getAdmissionProgram(app, t, dynamicLabel),
+    plan,
+    teacherName: app.assignedTeacherName?.trim() || undefined,
+    classDays: app.classDays,
+    classTime: app.classTime ? formatClockTime(app.classTime) : undefined,
+    durationMinutes: app.classDurationMinutes,
+    classesPerWeek: app.classesPerWeek,
+    startDate,
+    platform: app.meetingPlatform
+      ? formatTrialMeetingPlatformLabel(app.meetingPlatform, t)
+      : undefined,
+    meetingLink: app.meetingLink?.trim() || undefined,
+    monthlyFee,
+    paymentStatus,
+  });
 }
 
 export function admissionSearchText(app: StudentAdmissionView): string {

@@ -4,7 +4,6 @@ import { Button } from "@/components/ui/Button";
 import { UserInitialAvatar } from "@/components/ui/UserInitialAvatar";
 import { WhatsAppLinkButton } from "@/components/whatsapp/WhatsAppLinkButton";
 import { waMeUrlFromRaw } from "@/lib/whatsapp";
-import { admissionFollowUpMessage } from "@/lib/whatsappMessageTemplates";
 import {
   buildAdmissionDisplaySections,
   type IAdmissionDisplaySection,
@@ -24,6 +23,7 @@ import { AdminImageDocumentCard } from "@/features/admin/components/shared/Admin
 import {
   admissionStatusActions,
   admissionTelHref,
+  buildAdmissionWhatsAppMessage,
   getAdmissionCountry,
   type IAdmissionEnrollmentPayload,
 } from "@/features/admin/components/student-admissions/adminStudentAdmissionsUtils";
@@ -103,7 +103,7 @@ export function AdminStudentAdmissionDetailModal({
   onSaveEnrollment,
   onDelete,
 }: IAdminStudentAdmissionDetailModalProps) {
-  const { t, formatDateTime, pickField } = usePortalTranslation();
+  const { t, formatDateTime, pickField, dynamicLabel } = usePortalTranslation();
 
   if (!application) return null;
 
@@ -113,7 +113,7 @@ export function AdminStudentAdmissionDetailModal({
   const wa = waMeUrlFromRaw(
     application.whatsapp,
     country,
-    admissionFollowUpMessage(application.fullName)
+    buildAdmissionWhatsAppMessage(application, t, dynamicLabel)
   );
   const telHref = admissionTelHref(application.whatsapp, country);
   const lang =

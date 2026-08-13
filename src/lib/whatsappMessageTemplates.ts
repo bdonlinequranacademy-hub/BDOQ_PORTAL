@@ -11,6 +11,66 @@ We are reviewing your form and will contact you shortly with next steps.
 JazakAllah Khair.`;
 }
 
+export interface IAdmissionConfirmedMessageInput {
+  name: string;
+  status: "approved" | "closed";
+  program?: string;
+  plan?: string;
+  teacherName?: string;
+  classDays?: string[];
+  classTime?: string;
+  durationMinutes?: number;
+  classesPerWeek?: number;
+  startDate?: string;
+  platform?: string;
+  meetingLink?: string;
+  monthlyFee?: string;
+  paymentStatus?: string;
+}
+
+export function admissionConfirmedMessage(input: IAdmissionConfirmedMessageInput): string {
+  const first = input.name.split(" ")[0] || input.name;
+  const intro =
+    input.status === "closed"
+      ? `Your admission file at ${ACADEMY} is *closed*. Your class details are below.`
+      : `Alhamdulillah — your admission at ${ACADEMY} is *confirmed*.`;
+
+  const lines = [
+    `Assalamu Alaikum ${first},`,
+    "",
+    intro,
+    "",
+    `*Student:* ${input.name}`,
+    input.program ? `*Program:* ${input.program}` : null,
+    input.plan ? `*Plan:* ${input.plan}` : null,
+    input.teacherName ? `*Teacher:* ${input.teacherName}` : null,
+    input.classDays && input.classDays.length > 0
+      ? `*Class days:* ${input.classDays.join(", ")}`
+      : null,
+    input.classTime ? `*Class time:* ${input.classTime}` : null,
+    input.durationMinutes
+      ? `*Duration:* ${input.durationMinutes} minutes`
+      : null,
+    input.classesPerWeek
+      ? `*Classes per week:* ${input.classesPerWeek}`
+      : null,
+    input.startDate ? `*Start date:* ${input.startDate}` : null,
+    input.platform ? `*Platform:* ${input.platform}` : null,
+    input.meetingLink ? `*Join class:* ${input.meetingLink}` : null,
+    input.monthlyFee ? `*Monthly fee:* ${input.monthlyFee}` : null,
+    input.paymentStatus ? `*Payment:* ${input.paymentStatus}` : null,
+    "",
+    !input.teacherName || !input.meetingLink
+      ? "If any class detail is missing, reply here and we will send it right away."
+      : "Please join on time. Save this number and reply here if you have any questions.",
+    "",
+    "JazakAllah Khair.",
+    ACADEMY,
+  ].filter((line): line is string => line !== null);
+
+  return lines.join("\n");
+}
+
 export function trialLeadFollowUpMessage(parentName: string): string {
   const first = parentName.split(" ")[0] || parentName;
   return `Assalamu Alaikum ${first},

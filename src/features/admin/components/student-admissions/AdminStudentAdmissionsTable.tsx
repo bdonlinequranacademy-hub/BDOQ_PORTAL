@@ -4,13 +4,13 @@ import { Button } from "@/components/ui/Button";
 import { UserInitialAvatar } from "@/components/ui/UserInitialAvatar";
 import { WhatsAppLinkButton } from "@/components/whatsapp/WhatsAppLinkButton";
 import { waMeUrlFromRaw } from "@/lib/whatsapp";
-import { admissionFollowUpMessage } from "@/lib/whatsappMessageTemplates";
 import type { StudentAdmissionStatus, StudentAdmissionView } from "@/types/models";
 import { AdmissionStatusBadge } from "@/features/admin/components/student-admissions/AdmissionStatusBadge";
 import { AdmissionPaymentStatusBadge } from "@/features/admin/components/student-admissions/AdmissionPaymentStatusBadge";
 import { AdminStatusMenu } from "@/features/admin/components/shared/AdminStatusMenu";
 import {
   admissionTelHref,
+  buildAdmissionWhatsAppMessage,
   getAdmissionCountry,
   getAdmissionFeeSummary,
   getAdmissionProgram,
@@ -67,7 +67,7 @@ export function AdminStudentAdmissionsTable({
               const wa = waMeUrlFromRaw(
                 app.whatsapp,
                 country,
-                admissionFollowUpMessage(app.fullName)
+                buildAdmissionWhatsAppMessage(app, t, dynamicLabel)
               );
               const telHref = admissionTelHref(app.whatsapp, country);
               return (
