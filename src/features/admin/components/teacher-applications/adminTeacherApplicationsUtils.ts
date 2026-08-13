@@ -1,5 +1,6 @@
 import type { TeacherApplicationStatus, TeacherApplicationView } from "@/types/models";
 import { parseWhatsApp } from "@/lib/whatsapp";
+import { toViewableUploadUrl } from "@/lib/toViewableUploadUrl";
 import type {
   PortalTranslate,
 } from "@/features/admin/components/trial-leads/adminTrialLeadsUtils";
@@ -500,10 +501,21 @@ export function teacherApplicationFileLinks(
   files: TeacherApplicationView["files"]
 ): { label: string; url: string }[] {
   const items: { label: string; url: string }[] = [];
-  if (files.certificateUrl) items.push({ label: "Certificate", url: files.certificateUrl });
-  if (files.cvUrl) items.push({ label: "CV", url: files.cvUrl });
-  if (files.profilePhotoUrl) items.push({ label: "Profile photo", url: files.profilePhotoUrl });
-  if (files.screenshotUrl) items.push({ label: "Social screenshot", url: files.screenshotUrl });
+  if (files.certificateUrl) {
+    items.push({ label: "Certificate", url: toViewableUploadUrl(files.certificateUrl) });
+  }
+  if (files.cvUrl) {
+    items.push({ label: "CV", url: toViewableUploadUrl(files.cvUrl) });
+  }
+  if (files.profilePhotoUrl) {
+    items.push({ label: "Profile photo", url: toViewableUploadUrl(files.profilePhotoUrl) });
+  }
+  if (files.screenshotUrl) {
+    items.push({
+      label: "Social screenshot",
+      url: toViewableUploadUrl(files.screenshotUrl),
+    });
+  }
   return items;
 }
 

@@ -18,6 +18,7 @@ import { usePaginatedList } from "@/lib/hooks/usePaginatedList";
 import { CountrySelect } from "@/components/ui/CountrySelect";
 import type { BillingCurrency, PaymentMethod, PaymentStatus } from "@/types/models";
 import { usePortalTranslation } from "@/i18n/LocaleProvider";
+import { toViewableUploadUrl } from "@/lib/toViewableUploadUrl";
 
 const CURRENCIES: BillingCurrency[] = ["USD", "GBP", "EUR", "BDT", "CAD", "AUD"];
 const METHODS: PaymentMethod[] = [
@@ -300,7 +301,7 @@ export function StudentPaymentsPage() {
                       </Link>
                     ) : null}
                     <a
-                      href={p.screenshotUrl}
+                      href={toViewableUploadUrl(p.screenshotUrl)}
                       target="_blank"
                       rel="noreferrer"
                       className="text-xs font-semibold text-gold hover:underline"

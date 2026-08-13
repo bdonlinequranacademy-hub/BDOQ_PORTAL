@@ -11,6 +11,7 @@ import {
   PAYMENT_METHOD_LABELS,
   paymentStatusStyles,
 } from "@/features/admin/components/payments/adminPaymentsUtils";
+import { toViewableUploadUrl } from "@/lib/toViewableUploadUrl";
 
 interface IAdminPaymentsTableProps {
   payments: PaymentRecordView[];
@@ -36,7 +37,7 @@ function PaymentRowActions({
   return (
     <div className="flex items-center justify-end gap-1">
       <a
-        href={payment.screenshotUrl}
+        href={toViewableUploadUrl(payment.screenshotUrl)}
         target="_blank"
         rel="noreferrer"
         className="rounded-lg p-2 text-portal-muted transition hover:bg-portal-muted/50 hover:text-primary"
@@ -223,7 +224,7 @@ export function AdminPaymentsTable({
 
               <div className="flex flex-wrap items-center justify-between gap-2 border-t border-portal/80 pt-3">
                 <a
-                  href={payment.screenshotUrl}
+                  href={toViewableUploadUrl(payment.screenshotUrl)}
                   target="_blank"
                   rel="noreferrer"
                   className="inline-flex items-center gap-1.5 text-xs font-semibold text-primary hover:underline"

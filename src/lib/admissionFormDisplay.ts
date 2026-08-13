@@ -1,3 +1,5 @@
+import { isImageUploadUrl, toViewableUploadUrl } from "@/lib/toViewableUploadUrl";
+
 export interface IAdmissionDisplayRow {
   key: string;
   label: string;
@@ -268,12 +270,13 @@ export function buildAdmissionDisplaySections(
       if (!value) continue;
 
       if (key === "admissionPaymentProofUrl") {
+        const viewUrl = toViewableUploadUrl(value);
         rows.push({
           key,
           label: FIELD_LABELS[key] ?? humanizeKey(key),
-          value: "View payment screenshot",
-          href: value,
-          imageUrl: value,
+          value: isImageUploadUrl(value) ? "View payment screenshot" : "Open payment proof",
+          href: viewUrl,
+          imageUrl: isImageUploadUrl(value) ? value : undefined,
           fullWidth: true,
         });
         usedKeys.add(key);
