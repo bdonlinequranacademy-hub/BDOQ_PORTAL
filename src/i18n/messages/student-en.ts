@@ -248,6 +248,10 @@ export const studentEn = {
   noBillingSetup: "Billing has not been set up yet.",
   noRecentPayments: "No recent payments recorded.",
   managePayments: "Manage payments",
+  optionalPaymentsTitle: "Gifts & Donations",
+  optionalPaymentsSubtitle:
+    "Optional teacher gifts, Eid salami, student sponsorship, sadaqah, and custom payments — separate from monthly tuition.",
+  optionalPaymentsOpenGifts: "Open gifts & donations",
 
   // Weekly summary
   weeklySummaryPageDesc: "Template progress update for learners and guardians on this account",

@@ -20,6 +20,7 @@ export const teacherKeys = {
   earnings: (month?: string) => ["teacher", "earnings", month] as const,
   profile: ["teacher", "profile"] as const,
   studentRequests: ["teacher", "studentRequests"] as const,
+  optionalPayments: ["teacher", "optional-payments"] as const,
   classAttendance: (classId?: string, date?: string) =>
     ["teacher", "classAttendance", classId, date] as const,
 };
@@ -251,6 +252,42 @@ export function useTeacherEarnings(month?: string) {
     queryKey: teacherKeys.earnings(month),
     queryFn: () => teacherApi.getEarnings(month),
     select: (r) => r.data,
+  });
+}
+
+export function useTeacherOptionalPayments() {
+  return useQuery({
+    queryKey: teacherKeys.optionalPayments,
+    queryFn: teacherApi.getOptionalPayments,
+    select: (r) => r.data ?? [],
+  });
+}
+
+export function useSubmitTeacherOptionalPayment() {
+  const qc = useQueryClient();
+  const addToast = useUiStore((s) => s.addToast);
+  return useMutation({
+    mutationFn: teacherApi.submitOptionalPayment,
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: teacherKeys.optionalPayments });
+      addToast("success", "Gift / donation submitted for review");
+    },
+    onError: (error: unknown) => {
+      const message =
+        error &&
+        typeof error === "object" &&
+        "response" in error &&
+        error.response &&
+        typeof error.response === "object" &&
+        "data" in error.response &&
+        error.response.data &&
+        typeof error.response.data === "object" &&
+        "message" in error.response.data &&
+        typeof error.response.data.message === "string"
+          ? error.response.data.message
+          : "Failed to submit gift / donation";
+      addToast("error", message);
+    },
   });
 }
 

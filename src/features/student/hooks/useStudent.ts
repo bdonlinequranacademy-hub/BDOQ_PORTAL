@@ -15,6 +15,7 @@ export const studentKeys = {
   profileHub: ["student", "profile", "hub"] as const,
   paymentStatus: ["student", "payments", "status"] as const,
   payments: ["student", "payments"] as const,
+  optionalPayments: ["student", "optional-payments"] as const,
 };
 
 export function useStudentClasses() {
@@ -171,6 +172,42 @@ export function useStudentPayments() {
     queryKey: studentKeys.payments,
     queryFn: studentApi.getPayments,
     select: (r) => r.data ?? [],
+  });
+}
+
+export function useStudentOptionalPayments() {
+  return useQuery({
+    queryKey: studentKeys.optionalPayments,
+    queryFn: studentApi.getOptionalPayments,
+    select: (r) => r.data ?? [],
+  });
+}
+
+export function useSubmitStudentOptionalPayment() {
+  const qc = useQueryClient();
+  const addToast = useUiStore((s) => s.addToast);
+  return useMutation({
+    mutationFn: studentApi.submitOptionalPayment,
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: studentKeys.optionalPayments });
+      addToast("success", "Gift / donation submitted for review");
+    },
+    onError: (error: unknown) => {
+      const message =
+        error &&
+        typeof error === "object" &&
+        "response" in error &&
+        error.response &&
+        typeof error.response === "object" &&
+        "data" in error.response &&
+        error.response.data &&
+        typeof error.response.data === "object" &&
+        "message" in error.response.data &&
+        typeof error.response.data.message === "string"
+          ? error.response.data.message
+          : "Failed to submit gift / donation";
+      addToast("error", message);
+    },
   });
 }
 

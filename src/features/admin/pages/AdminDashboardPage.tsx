@@ -17,6 +17,7 @@ import {
   BookOpenCheck,
   Library,
   CreditCard,
+  Gift,
   MessageSquareQuote,
   Percent,
   CheckCircle2,
@@ -43,6 +44,7 @@ import { usePortalTranslation } from "@/i18n/LocaleProvider";
 const QUICK_LINK_PATHS = [
   { to: "/admin/users", icon: <Users className="size-5 text-primary" /> },
   { to: "/admin/payments", icon: <CreditCard className="size-5 text-primary" /> },
+  { to: "/admin/gifts", icon: <Gift className="size-5 text-primary" /> },
   { to: "/admin/resources", icon: <Library className="size-5 text-primary" /> },
   { to: "/admin/classes", icon: <BookOpen className="size-5 text-primary" /> },
   { to: "/admin/schedule/routine", icon: <CalendarDays className="size-5 text-primary" /> },
@@ -68,6 +70,7 @@ export function AdminDashboardPage() {
   const coverage = stats?.curriculumCoverage;
   const liveSummary = stats?.liveSummary;
   const pendingPayments = pending?.pendingPayments ?? 0;
+  const pendingOptionalPayments = pending?.pendingOptionalPayments ?? 0;
   const pendingLogs = pending?.pendingClassLogs ?? 0;
   const pendingRequests = pending?.pendingStudentRequests ?? 0;
   const newTrials = pending?.newTrials ?? 0;
@@ -145,6 +148,17 @@ export function AdminDashboardPage() {
         accent: "primary",
       });
     }
+    if (pendingOptionalPayments > 0) {
+      items.push({
+        id: "optional-payments",
+        title: t("admin.dashboard.pendingOptionalPayments", {
+          count: String(pendingOptionalPayments),
+        }),
+        actionLabel: t("actions.reviewOptionalPayments"),
+        onAction: () => navigate("/admin/gifts"),
+        accent: "primary",
+      });
+    }
     if (pendingLogs > 0) {
       items.push({
         id: "class-logs",
@@ -173,6 +187,7 @@ export function AdminDashboardPage() {
     newTrials,
     pendingLogs,
     pendingPayments,
+    pendingOptionalPayments,
     pendingRequests,
     t,
     locale,

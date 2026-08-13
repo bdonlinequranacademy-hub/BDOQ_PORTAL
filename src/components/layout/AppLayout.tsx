@@ -31,6 +31,7 @@ import {
   Mail,
   CircleHelp,
   LayoutTemplate,
+  Gift,
 } from "lucide-react";
 import { usePortalTranslation } from "@/i18n/LocaleProvider";
 import { useAuthStore } from "@/stores/authStore";
@@ -58,6 +59,7 @@ function navItemsForRole(role: Role): IPortalNavItem[] {
         { label: "Progress", icon: <TrendingUp className="size-5" />, path: "/teacher/progress" },
         { label: "Weekly Report", icon: <MessageSquare className="size-5" />, path: "/teacher/weekly-report" },
         { label: "Earnings", icon: <Banknote className="size-5" />, path: "/teacher/earnings" },
+        { label: "Gifts & Donations", icon: <Gift className="size-5" />, path: "/teacher/gifts" },
         { label: "Availability", icon: <Clock className="size-5" />, path: "/teacher/availability" },
         { label: "Request Student", icon: <UserPlus className="size-5" />, path: "/teacher/student-requests" },
         { label: "Notifications", icon: <Bell className="size-5" />, path: "/teacher/notifications" },
@@ -72,6 +74,7 @@ function navItemsForRole(role: Role): IPortalNavItem[] {
         { label: "Progress", icon: <TrendingUp className="size-5" />, path: "/student/progress" },
         { label: "Weekly Summary", icon: <MessageSquare className="size-5" />, path: "/student/summary" },
         { label: "Payments", icon: <CreditCard className="size-5" />, path: "/student/payments" },
+        { label: "Gifts & Donations", icon: <Gift className="size-5" />, path: "/student/gifts" },
         { label: "Notifications", icon: <Bell className="size-5" />, path: "/student/notifications" },
         { label: "Profile", icon: <User className="size-5" />, path: "/student/profile" },
       ];
@@ -81,6 +84,7 @@ function navItemsForRole(role: Role): IPortalNavItem[] {
         { label: "Dashboard", icon: <LayoutDashboard className="size-5" />, path: "/admin" },
         { label: "Users", icon: <Users className="size-5" />, path: "/admin/users" },
         { label: "Payments", icon: <CreditCard className="size-5" />, path: "/admin/payments" },
+        { label: "Gifts & Donations", icon: <Gift className="size-5" />, path: "/admin/gifts" },
         { label: "Curriculum", icon: <Library className="size-5" />, path: "/admin/curriculum" },
         { label: "Classes", icon: <BookOpen className="size-5" />, path: "/admin/classes" },
         { label: "Routine", icon: <CalendarDays className="size-5" />, path: "/admin/schedule/routine" },

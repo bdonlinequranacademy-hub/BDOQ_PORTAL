@@ -30,6 +30,8 @@ export interface IPortalMessages {
   months: StringMap;
   payments: {
     methods: StringMap;
+    categories: StringMap;
+    optional: StringMap;
   };
   admin: {
     dashboard: StringMap;
@@ -54,6 +56,7 @@ export interface IPortalMessages {
     teacherApplications: StringMap;
     studentRequests: StringMap;
     contact: StringMap;
+    optionalPayments: StringMap;
     newsletter: StringMap;
     whatsapp: StringMap;
     certificates: StringMap;

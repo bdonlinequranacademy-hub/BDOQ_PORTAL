@@ -27,6 +27,7 @@ import type {
   AvailabilityCheckResult,
   ClassAttendanceEntry,
   WeeklyFamilyReport,
+  OptionalPaymentView,
 } from "@/types/models";
 
 export type { TeacherStudent };
@@ -273,5 +274,17 @@ export const teacherApi = {
   createStudentRequest: (payload: { message: string; preferredCourseType?: string }) =>
     apiClient
       .post<ApiResponse<StudentRequestView>>("/teacher/student-requests", payload)
+      .then((r) => r.data),
+
+  getOptionalPayments: () =>
+    apiClient
+      .get<ApiResponse<OptionalPaymentView[]>>("/teacher/optional-payments")
+      .then((r) => r.data),
+
+  submitOptionalPayment: (formData: FormData) =>
+    apiClient
+      .post<ApiResponse<OptionalPaymentView>>("/teacher/optional-payments", formData, {
+        headers: { "Content-Type": "multipart/form-data" },
+      })
       .then((r) => r.data),
 };

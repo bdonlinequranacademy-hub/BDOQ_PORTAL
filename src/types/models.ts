@@ -1011,6 +1011,7 @@ export interface AdminStats {
     newTeacherApplications?: number;
     pendingClassLogs: number;
     pendingPayments?: number;
+    pendingOptionalPayments?: number;
     pendingStudentRequests?: number;
   };
   curriculumCoverage?: {
@@ -1099,6 +1100,46 @@ export type PaymentMethod =
   | "cash_app"
   | "other";
 export type PaymentStatus = "pending" | "approved" | "rejected";
+
+export type OptionalPaymentCategory =
+  | "teacher_bakhshish"
+  | "eid_gift"
+  | "sponsor_student"
+  | "sadaqah"
+  | "custom";
+
+export type OptionalPaymentMethod = "bkash" | "nagad" | "rocket" | "bank";
+export type OptionalPaymentCurrency = "BDT" | "USD";
+export type OptionalPaymentSource = "public" | "portal";
+
+export interface OptionalPaymentView {
+  _id: string;
+  category: OptionalPaymentCategory;
+  customLabel?: string;
+  amount: number;
+  currency: OptionalPaymentCurrency;
+  method: OptionalPaymentMethod;
+  payerName: string;
+  email?: string;
+  whatsapp?: string;
+  note?: string;
+  reference: string;
+  paymentDate: string;
+  screenshotUrl: string;
+  status: PaymentStatus;
+  rejectionReason?: string;
+  linkedUser?: {
+    _id: string;
+    name: string;
+    email: string;
+    role: string;
+  } | null;
+  source: OptionalPaymentSource;
+  locale?: "en" | "bn";
+  reviewedAt?: string;
+  createdAt: string;
+  updatedAt: string;
+}
 export type BillingStatus = "current" | "due_soon" | "overdue" | "not_set";
 
 export interface StudentBillingView {

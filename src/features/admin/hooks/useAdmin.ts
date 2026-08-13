@@ -3,7 +3,7 @@ import { adminApi } from "@/lib/api/adminApi";
 import { getApiErrorMessage } from "@/lib/api/getApiErrorMessage";
 import { useUiStore } from "@/stores/uiStore";
 import { useAuthStore } from "@/stores/authStore";
-import type { Role, ClassSchedule, BlogPostStatus, BlogCategory, ClassLogStatus, StudentRequestStatus, TrialBookingStatus, ContactMessageStatus, NewsletterSubscriberStatus, StudentAdmissionStatus, StudentAdmissionPaymentStatus, TeacherApplicationStatus, BillingCurrency, ResourceType, ResourceStatus } from "@/types/models";
+import type { Role, ClassSchedule, BlogPostStatus, BlogCategory, ClassLogStatus, StudentRequestStatus, TrialBookingStatus, ContactMessageStatus, NewsletterSubscriberStatus, StudentAdmissionStatus, StudentAdmissionPaymentStatus, TeacherApplicationStatus, BillingCurrency, ResourceType, ResourceStatus, PaymentStatus, OptionalPaymentCategory } from "@/types/models";
 
 export const adminKeys = {
   stats: ["admin", "stats"] as const,
@@ -41,6 +41,8 @@ export const adminKeys = {
   studentAdmissions: (status?: string) => ["admin", "studentAdmissions", status] as const,
   teacherApplications: (status?: string) => ["admin", "teacherApplications", status] as const,
   contactMessages: (status?: string) => ["admin", "contactMessages", status] as const,
+  optionalPayments: (status?: string, category?: string) =>
+    ["admin", "optionalPayments", status, category] as const,
   newsletterSubscribers: (status?: string) =>
     ["admin", "newsletterSubscribers", status] as const,
   homework: ["admin", "homework"] as const,
@@ -1180,6 +1182,46 @@ export function useDeleteTeacherApplication() {
       addToast("success", "Teacher application deleted");
     },
     onError: () => addToast("error", "Failed to delete teacher application"),
+  });
+}
+
+export function useAdminOptionalPayments(
+  status?: PaymentStatus,
+  category?: OptionalPaymentCategory
+) {
+  return useQuery({
+    queryKey: adminKeys.optionalPayments(status, category),
+    queryFn: () => adminApi.getOptionalPayments(status, category),
+    select: (r) => r.data ?? [],
+  });
+}
+
+export function useApproveOptionalPayment() {
+  const qc = useQueryClient();
+  const addToast = useUiStore((s) => s.addToast);
+  return useMutation({
+    mutationFn: (id: string) => adminApi.approveOptionalPayment(id),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["admin", "optionalPayments"] });
+      qc.invalidateQueries({ queryKey: adminKeys.stats });
+      addToast("success", "Gift / donation approved");
+    },
+    onError: () => addToast("error", "Failed to approve payment"),
+  });
+}
+
+export function useRejectOptionalPayment() {
+  const qc = useQueryClient();
+  const addToast = useUiStore((s) => s.addToast);
+  return useMutation({
+    mutationFn: ({ id, reason }: { id: string; reason: string }) =>
+      adminApi.rejectOptionalPayment(id, reason),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["admin", "optionalPayments"] });
+      qc.invalidateQueries({ queryKey: adminKeys.stats });
+      addToast("success", "Gift / donation rejected");
+    },
+    onError: () => addToast("error", "Failed to reject payment"),
   });
 }
 

@@ -268,4 +268,7 @@ export const teacherBn = {
   unknown: "অজানা",
   logout: "লগআউট",
   devHome: "Dev home",
+  optionalPaymentsTitle: "উপহার ও দান",
+  optionalPaymentsSubtitle:
+    "ঐচ্ছিক উপহার, ঈদ সালামী, স্পন্সরশিপ, সাদাকাহ বা কাস্টম পেমেন্ট পাঠান। এটি আপনার আয়ের পেজ নয়।",
 } as const;

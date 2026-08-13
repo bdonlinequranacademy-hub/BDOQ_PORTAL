@@ -53,6 +53,9 @@ import type {
   StudentBillingView,
   PaymentRecordView,
   PaymentInvoiceView,
+  OptionalPaymentView,
+  OptionalPaymentCategory,
+  PaymentStatus,
   CertificateView,
   AdminProfile,
   OverdueBillingView,
@@ -417,6 +420,28 @@ export const adminApi = {
     apiClient
       .get<ApiResponse<ContactMessageView[]>>("/admin/contact-messages", {
         params: status ? { status } : {},
+      })
+      .then((r) => r.data),
+
+  getOptionalPayments: (status?: PaymentStatus, category?: OptionalPaymentCategory) =>
+    apiClient
+      .get<ApiResponse<OptionalPaymentView[]>>("/admin/optional-payments", {
+        params: {
+          ...(status ? { status } : {}),
+          ...(category ? { category } : {}),
+        },
+      })
+      .then((r) => r.data),
+
+  approveOptionalPayment: (id: string) =>
+    apiClient
+      .patch<ApiResponse<OptionalPaymentView>>(`/admin/optional-payments/${id}/approve`)
+      .then((r) => r.data),
+
+  rejectOptionalPayment: (id: string, reason: string) =>
+    apiClient
+      .patch<ApiResponse<OptionalPaymentView>>(`/admin/optional-payments/${id}/reject`, {
+        reason,
       })
       .then((r) => r.data),
 

@@ -17,6 +17,7 @@ const ADMIN_GROUPS: Record<string, readonly string[]> = {
   management: [
     "/admin/users",
     "/admin/payments",
+    "/admin/gifts",
     "/admin/curriculum",
     "/admin/classes",
     "/admin/schedule/routine",
@@ -62,6 +63,7 @@ const TEACHER_GROUPS: Record<string, readonly string[]> = {
   students: ["/teacher/students", "/teacher/student-requests"],
   account: [
     "/teacher/earnings",
+    "/teacher/gifts",
     "/teacher/availability",
     "/teacher/notifications",
     "/teacher/profile",
@@ -76,7 +78,7 @@ const STUDENT_GROUPS: Record<string, readonly string[]> = {
     "/student/progress",
     "/student/summary",
   ],
-  account: ["/student/payments", "/student/notifications", "/student/profile"],
+  account: ["/student/payments", "/student/gifts", "/student/notifications", "/student/profile"],
 };
 
 const SECTION_LABELS: Record<string, string> = {

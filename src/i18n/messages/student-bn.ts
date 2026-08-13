@@ -239,6 +239,10 @@ export const studentBn = {
   noBillingSetup: "এখনও বিলিং সেটআপ হয়নি।",
   noRecentPayments: "কোনো সাম্প্রতিক পেমেন্ট নেই।",
   managePayments: "পেমেন্ট পরিচালনা",
+  optionalPaymentsTitle: "উপহার ও দান",
+  optionalPaymentsSubtitle:
+    "ঐচ্ছিক শিক্ষক উপহার, ঈদ সালামী, শিক্ষার্থী স্পন্সর, সাদাকাহ ও কাস্টম পেমেন্ট — মাসিক টিউশন থেকে আলাদা।",
+  optionalPaymentsOpenGifts: "উপহার ও দান খুলুন",
 
   weeklySummaryPageDesc: "এই অ্যাকাউন্টের শিক্ষার্থী ও অভিভাবকদের জন্য টেমপ্লেট অগ্রগতি আপডেট",
   buildingReport: "রিপোর্ট তৈরি হচ্ছে…",

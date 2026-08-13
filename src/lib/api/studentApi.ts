@@ -13,6 +13,7 @@ import type {
   StudentBillingView,
   PaymentRecordView,
   PaymentInvoiceView,
+  OptionalPaymentView,
 } from "@/types/models";
 import { normalizeCurriculumAssignments } from "@/lib/utils/normalize";
 
@@ -125,5 +126,17 @@ export const studentApi = {
   getPaymentInvoice: (paymentId: string) =>
     apiClient
       .get<ApiResponse<PaymentInvoiceView>>(`/student/payments/${paymentId}/invoice`)
+      .then((r) => r.data),
+
+  getOptionalPayments: () =>
+    apiClient
+      .get<ApiResponse<OptionalPaymentView[]>>("/student/optional-payments")
+      .then((r) => r.data),
+
+  submitOptionalPayment: (formData: FormData) =>
+    apiClient
+      .post<ApiResponse<OptionalPaymentView>>("/student/optional-payments", formData, {
+        headers: { "Content-Type": "multipart/form-data" },
+      })
       .then((r) => r.data),
 };

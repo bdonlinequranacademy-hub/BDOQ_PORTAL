@@ -15,6 +15,7 @@ export function portalPagesForRole(role: Role): PortalPageLink[] {
         { label: "My Routine", path: "/teacher/schedule/routine", keywords: "weekly schedule" },
         { label: "Class Logs", path: "/teacher/class-logs", keywords: "session logs" },
         { label: "Earnings", path: "/teacher/earnings", keywords: "pay salary bdt" },
+        { label: "Gifts & Donations", path: "/teacher/gifts", keywords: "bakhshish eid sadaqah donation sponsor" },
         { label: "Availability", path: "/teacher/availability", keywords: "free am i" },
         { label: "Request Student", path: "/teacher/student-requests", keywords: "new student" },
         { label: "Weekly Family Report", path: "/teacher/weekly-report", keywords: "weekly parent report template" },
@@ -35,6 +36,7 @@ export function portalPagesForRole(role: Role): PortalPageLink[] {
         { label: "Progress", path: "/student/progress", keywords: "tajweed hifz noorani qaida" },
         { label: "Weekly Summary", path: "/student/summary", keywords: "weekly report parent" },
         { label: "Payments", path: "/student/payments", keywords: "tuition fee bdt monthly package" },
+        { label: "Gifts & Donations", path: "/student/gifts", keywords: "bakhshish eid sadaqah donation sponsor gift" },
         { label: "Notifications", path: "/student/notifications", keywords: "alerts class reminder" },
         { label: "Profile", path: "/student/profile", keywords: "account settings" },
       ];
@@ -45,6 +47,7 @@ export function portalPagesForRole(role: Role): PortalPageLink[] {
         { label: "WhatsApp queue", path: "/admin/whatsapp-queue", keywords: "whatsapp payment reminder leads" },
         { label: "Users", path: "/admin/users", keywords: "students teachers" },
         { label: "Payments", path: "/admin/payments", keywords: "tuition billing zelle wise approve" },
+        { label: "Gifts & Donations", path: "/admin/gifts", keywords: "bakhshish eid sadaqah donation sponsor optional" },
         { label: "Curriculum", path: "/admin/curriculum", keywords: "programs quran tajweed tree" },
         { label: "Classes", path: "/admin/classes", keywords: "courses schedule" },
         { label: "Academy Routine", path: "/admin/schedule/routine", keywords: "weekly slots" },

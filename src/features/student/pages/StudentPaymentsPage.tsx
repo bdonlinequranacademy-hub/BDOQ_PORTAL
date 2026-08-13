@@ -110,6 +110,12 @@ export function StudentPaymentsPage() {
       <div>
         <h1 className="text-2xl font-bold text-navy">{t("student.tuitionPayments")}</h1>
         <p className="text-sm text-zinc-500">{t("student.paymentsSubtitle")}</p>
+        <Link
+          to="/student/gifts"
+          className="mt-3 inline-flex text-sm font-semibold text-primary hover:underline"
+        >
+          {t("student.optionalPaymentsOpenGifts")} →
+        </Link>
       </div>
 
       <div className="grid gap-4 md:grid-cols-3">

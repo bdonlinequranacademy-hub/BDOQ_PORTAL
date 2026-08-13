@@ -330,6 +330,18 @@ export const StudentPaymentsPage = lazyNamed(
   () => import("@/features/student/pages/StudentPaymentsPage"),
   "StudentPaymentsPage"
 );
+export const StudentGiftsPage = lazyNamed(
+  () => import("@/features/student/pages/StudentGiftsPage"),
+  "StudentGiftsPage"
+);
+export const TeacherGiftsPage = lazyNamed(
+  () => import("@/features/teacher/pages/TeacherGiftsPage"),
+  "TeacherGiftsPage"
+);
+export const AdminGiftsPage = lazyNamed(
+  () => import("@/features/admin/pages/AdminGiftsPage"),
+  "AdminGiftsPage"
+);
 
 export const PaymentInvoicePage = lazyNamed(
   () => import("@/features/payments/pages/PaymentInvoicePage"),

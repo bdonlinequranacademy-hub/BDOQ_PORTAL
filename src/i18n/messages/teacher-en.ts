@@ -287,4 +287,7 @@ export const teacherEn = {
   unknown: "unknown",
   logout: "Logout",
   devHome: "Dev home",
+  optionalPaymentsTitle: "Gifts & Donations",
+  optionalPaymentsSubtitle:
+    "Send an optional gift, Eid salami, sponsorship, sadaqah, or custom payment. This is not your earnings page.",
 } as const;
