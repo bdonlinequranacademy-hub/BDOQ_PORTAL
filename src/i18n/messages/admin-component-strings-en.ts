@@ -147,6 +147,7 @@ export const adminComponentStringsEn = {
     prefillLinkLabel: "Send this link so the parent can complete payment:",
     copyLink: "Copy link",
     copyPrefillLink: "Copy prefill link",
+    sendPrefillWhatsApp: "Send on WhatsApp",
     copied: "Copied",
     tempPassword: "Temporary portal password: {password}",
     openAdmissions: "Open student admissions",

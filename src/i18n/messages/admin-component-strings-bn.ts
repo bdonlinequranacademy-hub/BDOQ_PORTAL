@@ -147,6 +147,7 @@ export const adminComponentStringsBn = {
     prefillLinkLabel: "Parent-কে payment সম্পূর্ণ করতে এই লিঙ্ক পাঠান:",
     copyLink: "লিঙ্ক কপি",
     copyPrefillLink: "Prefill লিঙ্ক কপি",
+    sendPrefillWhatsApp: "WhatsApp-এ পাঠান",
     copied: "কপি হয়েছে",
     tempPassword: "অস্থায়ী portal password: {password}",
     openAdmissions: "Student admissions খুলুন",

@@ -3,6 +3,9 @@ import { ArrowRight, Copy, UserPlus } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
+import { WhatsAppLinkButton } from "@/components/whatsapp/WhatsAppLinkButton";
+import { waMeUrlFromRaw } from "@/lib/whatsapp";
+import { trialAdmissionPrefillMessage } from "@/lib/whatsappMessageTemplates";
 import type { TrialBookingView } from "@/types/models";
 import { usePortalTranslation } from "@/i18n/LocaleProvider";
 import { formControlClass } from "@/lib/formControl";
@@ -62,6 +65,19 @@ export function TrialLeadConvertPanel({
     return lastResult;
   }, [lastResult]);
 
+  const prefillUrl = resultForLead?.prefillUrl || lead.prefillUrl;
+  const prefillWa = prefillUrl
+    ? waMeUrlFromRaw(
+        lead.whatsapp,
+        lead.country,
+        trialAdmissionPrefillMessage({
+          parentName: lead.parentName,
+          studentName: lead.studentName,
+          prefillUrl,
+        })
+      )
+    : null;
+
   if (isConverted) {
     return (
       <section className="rounded-2xl border border-emerald-200 bg-emerald-50/70 p-4">
@@ -75,24 +91,32 @@ export function TrialLeadConvertPanel({
               })
             : t("admin.trialLeads.convertDoneHint")}
         </p>
-        {resultForLead?.prefillUrl ? (
+        {prefillUrl ? (
           <div className="mt-3 space-y-2">
             <p className="text-xs font-medium text-emerald-900">
               {t("admin.trialLeads.prefillLinkLabel")}
             </p>
-            <div className="flex flex-col gap-2 sm:flex-row">
-              <Input value={resultForLead.prefillUrl} readOnly className={fieldClass} />
-              <Button
-                type="button"
-                variant="ghost"
-                className="h-10 shrink-0 rounded-xl border border-emerald-200 px-3"
-                onClick={() => void copyText("prefill", resultForLead.prefillUrl)}
-              >
-                <Copy className="size-4" aria-hidden />
-                {copied === "prefill"
-                  ? t("admin.trialLeads.copied")
-                  : t("admin.trialLeads.copyLink")}
-              </Button>
+            <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
+              <Input value={prefillUrl} readOnly className={fieldClass} />
+              <div className="flex shrink-0 flex-wrap gap-2">
+                <Button
+                  type="button"
+                  variant="ghost"
+                  className="h-10 rounded-xl border border-emerald-200 px-3"
+                  onClick={() => void copyText("prefill", prefillUrl)}
+                >
+                  <Copy className="size-4" aria-hidden />
+                  {copied === "prefill"
+                    ? t("admin.trialLeads.copied")
+                    : t("admin.trialLeads.copyLink")}
+                </Button>
+                <WhatsAppLinkButton
+                  href={prefillWa}
+                  label={t("admin.trialLeads.sendPrefillWhatsApp")}
+                  size="md"
+                  className="h-10"
+                />
+              </div>
             </div>
           </div>
         ) : null}
@@ -174,17 +198,24 @@ export function TrialLeadConvertPanel({
           ) : null}
           <div className="mt-3 flex flex-col gap-2">
             <Input value={resultForLead.prefillUrl} readOnly className={fieldClass} />
-            <Button
-              type="button"
-              variant="ghost"
-              className="h-9 self-start rounded-xl border border-portal px-3"
-              onClick={() => void copyText("prefill", resultForLead.prefillUrl)}
-            >
-              <Copy className="size-4" aria-hidden />
-              {copied === "prefill"
-                ? t("admin.trialLeads.copied")
-                : t("admin.trialLeads.copyPrefillLink")}
-            </Button>
+            <div className="flex flex-wrap gap-2">
+              <Button
+                type="button"
+                variant="ghost"
+                className="h-9 rounded-xl border border-portal px-3"
+                onClick={() => void copyText("prefill", resultForLead.prefillUrl)}
+              >
+                <Copy className="size-4" aria-hidden />
+                {copied === "prefill"
+                  ? t("admin.trialLeads.copied")
+                  : t("admin.trialLeads.copyPrefillLink")}
+              </Button>
+              <WhatsAppLinkButton
+                href={prefillWa}
+                label={t("admin.trialLeads.sendPrefillWhatsApp")}
+                size="sm"
+              />
+            </div>
           </div>
         </div>
       ) : null}

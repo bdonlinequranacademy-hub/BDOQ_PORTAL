@@ -837,6 +837,7 @@ export interface TrialBookingView {
   convertedAdmissionId?: string;
   convertedUserId?: string;
   convertedAt?: string;
+  prefillUrl?: string;
   utmSource?: string;
   utmMedium?: string;
   utmCampaign?: string;

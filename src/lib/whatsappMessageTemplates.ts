@@ -71,6 +71,33 @@ export function admissionConfirmedMessage(input: IAdmissionConfirmedMessageInput
   return lines.join("\n");
 }
 
+export function trialAdmissionPrefillMessage(input: {
+  parentName: string;
+  studentName?: string;
+  prefillUrl: string;
+}): string {
+  const first = input.parentName.split(" ")[0] || input.parentName;
+  const studentLine = input.studentName?.trim()
+    ? `*Student:* ${input.studentName.trim()}`
+    : null;
+
+  return [
+    `Assalamu Alaikum ${first},`,
+    "",
+    `Alhamdulillah — you completed a *free trial class* with ${ACADEMY}. We hope you liked it.`,
+    "",
+    studentLine,
+    "To continue with us as a student, please open this link, complete the admission form and payment:",
+    "",
+    `*Apply here:* ${input.prefillUrl}`,
+    "",
+    "JazakAllah Khair.",
+    ACADEMY,
+  ]
+    .filter((line): line is string => line !== null)
+    .join("\n");
+}
+
 export function trialLeadFollowUpMessage(parentName: string): string {
   const first = parentName.split(" ")[0] || parentName;
   return `Assalamu Alaikum ${first},
