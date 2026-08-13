@@ -415,6 +415,8 @@ export const adminComponentStringsEn = {
     editDesc: "Update account details and portal access.",
     creating: "Creating…",
     createUser: "Create user",
+    createFailed: "Failed to create user",
+    emailAlreadyExists: "This email is already registered. Use a different email.",
     saving: "Saving…",
     saveChanges: "Save changes",
     accountRole: "Account role",

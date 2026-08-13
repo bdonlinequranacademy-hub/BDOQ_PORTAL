@@ -17,6 +17,7 @@ import { formControlClass, formHintClass, formLabelClass } from "@/lib/formContr
 import type { CurriculumAssignment, Role } from "@/types/models";
 import type { CurriculumNode } from "@/lib/api/curriculumApi";
 import { usePortalTranslation } from "@/i18n/LocaleProvider";
+import { getApiErrorMessage } from "@/lib/api/getApiErrorMessage";
 
 export interface ICreateUserPayload {
   name: string;
@@ -80,6 +81,7 @@ export function AdminCreateUserModal({
   const [showPassword, setShowPassword] = useState(false);
   const [showCurriculum, setShowCurriculum] = useState(false);
   const [whatsappError, setWhatsappError] = useState<string | null>(null);
+  const [submitError, setSubmitError] = useState<string | null>(null);
 
   useEffect(() => {
     if (!open) return;
@@ -90,6 +92,7 @@ export function AdminCreateUserModal({
     setShowPassword(false);
     setShowCurriculum(false);
     setWhatsappError(null);
+    setSubmitError(null);
   }, [open, creatableRoles]);
 
   function resetAndClose() {
@@ -116,27 +119,41 @@ export function AdminCreateUserModal({
     (!needsContact || form.country.trim().length > 0) &&
     (!isTeacher || (form.gender === "male" || form.gender === "female"));
 
+  function localizeSubmitError(message: string): string {
+    if (message === "Email already exists") {
+      return t("admin.users.emailAlreadyExists");
+    }
+    return message;
+  }
+
   async function handleSubmit() {
     if (!canSubmit) return;
+    setSubmitError(null);
 
-    await onSubmit({
-      name: form.name.trim(),
-      email: form.email.trim(),
-      password: form.password,
-      role: form.role,
-      ...(isTeacher && form.gender ? { gender: form.gender } : {}),
-      ...(needsContact ? { country: form.country, whatsapp: form.whatsapp } : {}),
-      ...(isStudent
-        ? {
-            timezone: form.timezone,
-            curriculumAssignments: form.curriculumAssignments,
-          }
-        : {}),
-    });
+    try {
+      await onSubmit({
+        name: form.name.trim(),
+        email: form.email.trim(),
+        password: form.password,
+        role: form.role,
+        ...(isTeacher && form.gender ? { gender: form.gender } : {}),
+        ...(needsContact ? { country: form.country, whatsapp: form.whatsapp } : {}),
+        ...(isStudent
+          ? {
+              timezone: form.timezone,
+              curriculumAssignments: form.curriculumAssignments,
+            }
+          : {}),
+      });
 
-    setForm(EMPTY_FORM);
-    setShowPassword(false);
-    setShowCurriculum(false);
+      setForm(EMPTY_FORM);
+      setShowPassword(false);
+      setShowCurriculum(false);
+    } catch (error) {
+      setSubmitError(
+        localizeSubmitError(getApiErrorMessage(error, t("admin.users.createFailed")))
+      );
+    }
   }
 
   const roleHintKey = ROLE_HINT_KEYS[form.role];
@@ -170,6 +187,14 @@ export function AdminCreateUserModal({
       }
     >
       <div className="flex flex-col gap-4">
+        {submitError ? (
+          <div
+            className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm font-medium text-red-700"
+            role="alert"
+          >
+            {submitError}
+          </div>
+        ) : null}
         <div className="rounded-xl border border-portal bg-portal-surface p-1">
           <p className="px-3 pt-2 text-xs font-medium uppercase tracking-wide text-portal-muted">
             {t("admin.users.accountRole")}

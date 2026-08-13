@@ -415,6 +415,8 @@ export const adminComponentStringsBn = {
     editDesc: "অ্যাকাউন্টের তথ্য ও পোর্টাল অ্যাক্সেস আপডেট করুন।",
     creating: "তৈরি হচ্ছে…",
     createUser: "ব্যবহারকারী তৈরি",
+    createFailed: "ব্যবহারকারী তৈরি করা যায়নি",
+    emailAlreadyExists: "এই ইমেইল ইতিমধ্যে নিবন্ধিত। অন্য ইমেইল ব্যবহার করুন।",
     saving: "সংরক্ষণ হচ্ছে…",
     saveChanges: "পরিবর্তন সংরক্ষণ",
     accountRole: "অ্যাকাউন্ট ভূমিকা",

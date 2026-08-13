@@ -1,5 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { adminApi } from "@/lib/api/adminApi";
+import { getApiErrorMessage } from "@/lib/api/getApiErrorMessage";
 import { useUiStore } from "@/stores/uiStore";
 import { useAuthStore } from "@/stores/authStore";
 import type { Role, ClassSchedule, BlogPostStatus, BlogCategory, ClassLogStatus, StudentRequestStatus, TrialBookingStatus, ContactMessageStatus, NewsletterSubscriberStatus, StudentAdmissionStatus, StudentAdmissionPaymentStatus, TeacherApplicationStatus, BillingCurrency, ResourceType, ResourceStatus } from "@/types/models";
@@ -148,7 +149,8 @@ export function useCreateUser() {
       qc.invalidateQueries({ queryKey: adminKeys.stats });
       addToast("success", "User created");
     },
-    onError: () => addToast("error", "Failed to create user"),
+    onError: (error: unknown) =>
+      addToast("error", getApiErrorMessage(error, "Failed to create user")),
   });
 }
 
@@ -175,7 +177,8 @@ export function useUpdateUser(id: string) {
       qc.invalidateQueries({ queryKey: adminKeys.userProfile(id) });
       addToast("success", "User updated");
     },
-    onError: () => addToast("error", "Failed to update user"),
+    onError: (error: unknown) =>
+      addToast("error", getApiErrorMessage(error, "Failed to update user")),
   });
 }
 
