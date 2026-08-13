@@ -25,7 +25,6 @@ const METHODS: PaymentMethod[] = [
   "zelle",
   "wise",
   "bank_transfer",
-  "paypal",
   "cash_app",
   "other",
 ];

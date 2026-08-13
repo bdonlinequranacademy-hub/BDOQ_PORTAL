@@ -19,7 +19,6 @@ export function StudentGiftsPage() {
       subtitle={t("student.optionalPaymentsSubtitle")}
       tuitionHref="/student/payments"
       payerName={profile?.name}
-      payerEmail={profile?.email}
       payerWhatsapp={profile?.whatsapp}
       payments={payments}
       isLoading={isLoading}

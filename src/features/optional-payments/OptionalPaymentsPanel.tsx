@@ -29,7 +29,6 @@ interface IOptionalPaymentsPanelProps {
   subtitle: string;
   tuitionHref?: string;
   payerName?: string;
-  payerEmail?: string;
   payerWhatsapp?: string;
   payments: OptionalPaymentView[];
   isLoading: boolean;
@@ -50,7 +49,6 @@ export function OptionalPaymentsPanel({
   subtitle,
   tuitionHref,
   payerName,
-  payerEmail,
   payerWhatsapp,
   payments,
   isLoading,
@@ -69,7 +67,6 @@ export function OptionalPaymentsPanel({
   const [currency, setCurrency] = useState<OptionalPaymentCurrency>("BDT");
   const [method, setMethod] = useState<OptionalPaymentMethod>("bkash");
   const [name, setName] = useState(payerName ?? "");
-  const [email, setEmail] = useState(payerEmail ?? "");
   const [whatsapp, setWhatsapp] = useState(payerWhatsapp ?? "");
   const [reference, setReference] = useState("");
   const [paymentDate, setPaymentDate] = useState("");
@@ -78,9 +75,8 @@ export function OptionalPaymentsPanel({
 
   useEffect(() => {
     if (payerName) setName(payerName);
-    if (payerEmail) setEmail(payerEmail);
     if (payerWhatsapp) setWhatsapp(payerWhatsapp);
-  }, [payerName, payerEmail, payerWhatsapp]);
+  }, [payerName, payerWhatsapp]);
 
   function handleSubmit(event: FormEvent) {
     event.preventDefault();
@@ -93,7 +89,6 @@ export function OptionalPaymentsPanel({
     formData.append("currency", currency);
     formData.append("method", method);
     formData.append("payerName", name);
-    if (email) formData.append("email", email);
     if (whatsapp) formData.append("whatsapp", whatsapp);
     formData.append("reference", reference);
     formData.append("paymentDate", paymentDate);
@@ -165,12 +160,6 @@ export function OptionalPaymentsPanel({
             value={name}
             onChange={(e) => setName(e.target.value)}
             required
-          />
-          <Input
-            type="email"
-            label={t("payments.optional.email")}
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
           />
           <Input
             label={t("payments.optional.whatsapp")}

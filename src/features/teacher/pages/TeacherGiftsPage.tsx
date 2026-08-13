@@ -18,7 +18,6 @@ export function TeacherGiftsPage() {
       title={t("teacher.optionalPaymentsTitle")}
       subtitle={t("teacher.optionalPaymentsSubtitle")}
       payerName={profile?.name}
-      payerEmail={profile?.email}
       payerWhatsapp={profile?.whatsapp}
       payments={payments}
       isLoading={isLoading}

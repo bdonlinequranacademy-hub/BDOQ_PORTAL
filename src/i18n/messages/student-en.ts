@@ -157,7 +157,7 @@ export const studentEn = {
   // Payments
   tuitionPayments: "Tuition & payments",
   paymentsSubtitle:
-    "Submit manual payment proof after bank transfer, Zelle, Wise, or PayPal.",
+    "Submit manual payment proof after bank transfer, Zelle, or Wise.",
   notSet: "Not set",
   pendingReview: "Pending review",
   noBillingPlan: "Your academy has not set a billing plan yet. Contact admin before submitting payment.",

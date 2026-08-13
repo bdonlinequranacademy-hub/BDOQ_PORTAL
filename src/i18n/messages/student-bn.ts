@@ -149,7 +149,7 @@ export const studentBn = {
 
   tuitionPayments: "টিউশন ও পেমেন্ট",
   paymentsSubtitle:
-    "ব্যাংক ট্রান্সফার, Zelle, Wise বা PayPal-এর পর ম্যানুয়াল পেমেন্ট প্রমাণ জমা দিন।",
+    "ব্যাংক ট্রান্সফার, Zelle বা Wise-এর পর ম্যানুয়াল পেমেন্ট প্রমাণ জমা দিন।",
   notSet: "নির্ধারিত নয়",
   pendingReview: "রিভিউ অপেক্ষমাণ",
   noBillingPlan:

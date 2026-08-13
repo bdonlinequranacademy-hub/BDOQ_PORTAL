@@ -26,7 +26,6 @@ const PAYMENT_METHOD_KEYS = [
   "zelle",
   "wise",
   "bank_transfer",
-  "paypal",
   "cash_app",
   "bkash",
   "nagad",
