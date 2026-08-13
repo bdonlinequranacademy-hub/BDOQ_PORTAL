@@ -55,7 +55,7 @@ export function AdminStudentAdmissionsTable({
               <th className="px-5 py-3.5">{t("admin.admissions.tableApplicant")}</th>
               <th className="px-5 py-3.5">{t("admin.admissions.tableProgram")}</th>
               <th className="px-5 py-3.5">{t("admin.admissions.tableSource")}</th>
-              <th className="px-5 py-3.5">{t("admin.trialLeads.tableStatus")}</th>
+              <th className="px-5 py-3.5">{t("tables.status")}</th>
               <th className="px-5 py-3.5">{t("admin.admissions.tablePayment")}</th>
               <th className="px-5 py-3.5">{t("admin.admissions.tableSubmitted")}</th>
               <th className="px-5 py-3.5 text-right">{t("tables.actions")}</th>

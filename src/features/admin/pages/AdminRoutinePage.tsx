@@ -99,7 +99,7 @@ export function AdminRoutinePage() {
   const teacherOptions = useMemo(
     () =>
       [...teachers]
-        .filter((teacher) => teacher.role === "teacher")
+        .filter((teacher) => teacher.role === "teacher" && teacher.isActive !== false)
         .map((teacher) => ({ id: teacher.id, name: teacher.name }))
         .sort((a, b) => a.name.localeCompare(b.name)),
     [teachers]

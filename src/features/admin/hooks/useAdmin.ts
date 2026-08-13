@@ -1061,11 +1061,19 @@ export function useUpdateStudentAdmissionStatus() {
       status: StudentAdmissionStatus;
       adminNote?: string;
     }) => adminApi.updateStudentAdmissionStatus(id, status, adminNote),
-    onSuccess: () => {
+    onSuccess: (_response, variables) => {
       qc.invalidateQueries({ queryKey: ["admin", "studentAdmissions"] });
-      addToast("success", "Admission application updated");
+      qc.invalidateQueries({ queryKey: ["admin", "users"] });
+      qc.invalidateQueries({ queryKey: adminKeys.stats });
+      addToast(
+        "success",
+        variables.status === "approved"
+          ? "Approved — student now appears across the portal"
+          : "Admission application updated"
+      );
     },
-    onError: () => addToast("error", "Failed to update admission application"),
+    onError: (error: unknown) =>
+      addToast("error", getApiErrorMessage(error, "Failed to update admission application")),
   });
 }
 
@@ -1084,6 +1092,8 @@ export function useUpdateStudentAdmissionPaymentStatus() {
     }) => adminApi.updateStudentAdmissionPaymentStatus(id, paymentStatus, rejectReason),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["admin", "studentAdmissions"] });
+      qc.invalidateQueries({ queryKey: ["admin", "users"] });
+      qc.invalidateQueries({ queryKey: adminKeys.stats });
       addToast("success", "Payment status updated");
     },
     onError: () => addToast("error", "Failed to update payment status"),
@@ -1143,11 +1153,19 @@ export function useUpdateTeacherApplicationStatus() {
       status: TeacherApplicationStatus;
       adminNote?: string;
     }) => adminApi.updateTeacherApplicationStatus(id, status, adminNote),
-    onSuccess: () => {
+    onSuccess: (_response, variables) => {
       qc.invalidateQueries({ queryKey: ["admin", "teacherApplications"] });
-      addToast("success", "Teacher application updated");
+      qc.invalidateQueries({ queryKey: ["admin", "users"] });
+      qc.invalidateQueries({ queryKey: adminKeys.stats });
+      addToast(
+        "success",
+        variables.status === "approved"
+          ? "Approved — teacher now appears across the portal"
+          : "Teacher application updated"
+      );
     },
-    onError: () => addToast("error", "Failed to update teacher application"),
+    onError: (error: unknown) =>
+      addToast("error", getApiErrorMessage(error, "Failed to update teacher application")),
   });
 }
 

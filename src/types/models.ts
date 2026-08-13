@@ -915,6 +915,7 @@ export interface TeacherApplicationView {
   locale?: "en" | "bn";
   status: TeacherApplicationStatus;
   adminNote?: string;
+  linkedUserId?: string;
   createdAt: string;
   updatedAt: string;
 }

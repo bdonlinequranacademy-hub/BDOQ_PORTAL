@@ -1,4 +1,5 @@
-import { Phone, Trash2, X } from "lucide-react";
+import { Phone, Trash2, UserCircle, X } from "lucide-react";
+import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/Button";
 import { UserInitialAvatar } from "@/components/ui/UserInitialAvatar";
 import { WhatsAppLinkButton } from "@/components/whatsapp/WhatsAppLinkButton";
@@ -186,10 +187,24 @@ export function AdminTeacherApplicationDetailModal({
           size="sm"
           disabledReason={t("admin.teacherApplications.invalidWhatsApp")}
         />
+        {application.linkedUserId ? (
+          <Link
+            to={`/admin/users/${application.linkedUserId}`}
+            className="inline-flex items-center gap-2 rounded-xl border border-primary/30 bg-primary/10 px-3 py-2 text-sm font-semibold text-primary-dark transition hover:bg-primary/15"
+          >
+            <UserCircle className="size-4" aria-hidden />
+            {t("admin.teacherApplications.openTeacherProfile")}
+          </Link>
+        ) : null}
         <p className="text-xs text-portal-muted sm:ml-auto">
           Applied {applied.date} · {applied.time}
         </p>
       </div>
+      {application.status === "approved" && application.linkedUserId ? (
+        <p className="mt-3 rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-2 text-sm text-emerald-800">
+          {t("admin.teacherApplications.accountActiveHint")}
+        </p>
+      ) : null}
 
       {application.adminNote ? (
         <div className="mt-4 rounded-xl border border-amber-500/25 bg-amber-500/10 p-4">

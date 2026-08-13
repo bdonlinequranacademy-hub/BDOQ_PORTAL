@@ -28,6 +28,7 @@ export function AdminClassFormPage() {
   const { data: existing } = useAdminClass(isEdit ? id! : "");
   const { data: teachers = [] } = useAdminUsers("teacher");
   const { data: students = [] } = useAdminUsers("student");
+  const activeTeachers = teachers.filter((user) => user.isActive !== false);
   const createClass = useCreateClass();
   const updateClass = useUpdateClass(id ?? "");
 
@@ -164,7 +165,10 @@ export function AdminClassFormPage() {
               className={formControlClass}
             >
               <option value="">Select teacher…</option>
-              {teachers.map((t) => (
+              {(teacherId && !activeTeachers.some((user) => user.id === teacherId)
+                ? teachers.filter((user) => user.id === teacherId || user.isActive !== false)
+                : activeTeachers
+              ).map((t) => (
                 <option key={t.id} value={t.id}>
                   {t.name}
                 </option>
@@ -266,7 +270,9 @@ export function AdminClassFormPage() {
               : `Each student gets one routine slot on the next ${scheduleDay} at ${scheduleTime}.`}
           </p>
           <div className="max-h-48 overflow-y-auto flex flex-col gap-2">
-            {students.map((s) => (
+            {students
+              .filter((s) => s.isActive !== false || selectedStudents.includes(s.id))
+              .map((s) => (
               <label
                 key={s.id}
                 className="flex cursor-pointer items-center gap-3 rounded-lg px-2 py-2 hover:bg-zinc-50"

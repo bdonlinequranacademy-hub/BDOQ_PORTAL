@@ -238,6 +238,11 @@ export function AdminStudentAdmissionDetailModal({
           {t("admin.admissions.tableSubmitted")} {formatDateTime(application.createdAt)}
         </p>
       </div>
+      {application.status === "approved" && application.linkedUserId ? (
+        <p className="mt-3 rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-2 text-sm text-emerald-800">
+          {t("admin.admissions.accountActiveHint")}
+        </p>
+      ) : null}
 
       {application.adminNote ? (
         <div className="mt-4 rounded-xl border border-amber-500/25 bg-amber-500/10 p-4">
