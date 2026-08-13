@@ -4,6 +4,7 @@ import type {
   PopulatedUserRef,
   ScheduleEntry,
 } from "@/types/models";
+import { formatClockTime } from "@/i18n/format";
 
 export function classTitle(cls: { title?: string; name?: string }) {
   return cls.title ?? cls.name ?? "Untitled class";
@@ -79,11 +80,12 @@ export function primaryScheduleEntry(schedule?: ScheduleLike): ClassSchedule | u
 export function formatScheduleLine(schedule?: ScheduleLike): string | null {
   const entry = primaryScheduleEntry(schedule);
   if (!entry?.day || !entry?.time) return null;
+  const timeLabel = formatClockTime(entry.time);
   const duration = entry.duration ? ` · ${formatDuration(entry.duration)}` : "";
   if (entry.repeatWeekly === false) {
-    return `One ${entry.day} · ${entry.time}${duration}`;
+    return `One ${entry.day} · ${timeLabel}${duration}`;
   }
-  return `Every ${entry.day} · ${entry.time}${duration}`;
+  return `Every ${entry.day} · ${timeLabel}${duration}`;
 }
 
 export function formatDuration(minutes?: number): string {

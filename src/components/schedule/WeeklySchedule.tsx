@@ -1,6 +1,7 @@
 import { Calendar } from "lucide-react";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { classTitle, formatDuration, getTodayWeekDay } from "@/lib/utils/class";
+import { formatClockTime } from "@/i18n/format";
 import { usePortalTranslation } from "@/i18n/LocaleProvider";
 
 const WEEK_DAYS = [
@@ -110,7 +111,7 @@ export function WeeklySchedule({ classes, onClassClick }: WeeklyScheduleProps) {
                     {classTitle(cls)}
                   </p>
                   <p className="text-[10px] text-portal-muted">
-                    {cls.schedule?.time}
+                    {cls.schedule?.time ? formatClockTime(cls.schedule.time) : ""}
                     {cls.schedule?.duration
                       ? ` · ${formatDuration(cls.schedule.duration)}`
                       : ""}

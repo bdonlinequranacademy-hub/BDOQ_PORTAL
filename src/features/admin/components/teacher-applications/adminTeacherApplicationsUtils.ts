@@ -1,4 +1,5 @@
 import type { TeacherApplicationStatus, TeacherApplicationView } from "@/types/models";
+import { formatAmPmTime } from "@/i18n/format";
 import { parseWhatsApp } from "@/lib/whatsapp";
 import { isImageUploadUrl, toPreviewImageUrl, toViewableUploadUrl } from "@/lib/toViewableUploadUrl";
 import type {
@@ -211,7 +212,7 @@ export function formatAppliedAt(iso: string): { date: string; time: string } {
         year: "numeric",
       })
       .toUpperCase(),
-    time: value.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
+    time: formatAmPmTime(value),
   };
 }
 

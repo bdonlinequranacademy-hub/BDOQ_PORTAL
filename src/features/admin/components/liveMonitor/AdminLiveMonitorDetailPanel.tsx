@@ -29,7 +29,7 @@ import {
   sessionHasIssue,
   sessionIssueMessage,
 } from "@/features/admin/components/liveMonitor/liveMonitorUtils";
-import { intlLocale } from "@/i18n/format";
+import { formatAmPmTime } from "@/i18n/format";
 import { usePortalTranslation } from "@/i18n/LocaleProvider";
 import { cn } from "@/lib/utils/cn";
 
@@ -42,7 +42,7 @@ export function AdminLiveMonitorDetailPanel({
   session,
   now,
 }: IAdminLiveMonitorDetailPanelProps) {
-  const { t, dynamicLabel, role, locale } = usePortalTranslation();
+  const { t, dynamicLabel, role } = usePortalTranslation();
   const navigate = useNavigate();
   const [tab, setTab] = useState<LiveMonitorDetailTab>("overview");
   const meetingHref = normalizeMeetingLink(session.meetingLink);
@@ -61,10 +61,7 @@ export function AdminLiveMonitorDetailPanel({
   }
 
   function formatJoinedTime(iso: string): string {
-    return new Date(iso).toLocaleTimeString(intlLocale(locale), {
-      hour: "2-digit",
-      minute: "2-digit",
-    });
+    return formatAmPmTime(iso);
   }
 
   return (

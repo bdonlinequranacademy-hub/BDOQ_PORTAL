@@ -1,4 +1,5 @@
 import type { ClassLogStatus, ClassLogView } from "@/types/models";
+import { formatAmPmTime } from "@/i18n/format";
 import { formatCurriculumPath } from "@/lib/api/curriculumApi";
 import { matchesProgramFilter } from "@/lib/api/curriculumApi";
 
@@ -167,10 +168,7 @@ export function buildClassLogActivity(logs: ClassLogView[]): IClassLogActivityIt
     .slice(0, 8)
     .map((log) => ({
       id: log._id,
-      timeLabel: new Date(log.createdAt).toLocaleTimeString([], {
-        hour: "2-digit",
-        minute: "2-digit",
-      }),
+      timeLabel: formatAmPmTime(log.createdAt),
       title: `${log.teacher.name} submitted a log`,
       detail: `${log.classTitle} · ${log.student.name}`,
       tone: log.status,

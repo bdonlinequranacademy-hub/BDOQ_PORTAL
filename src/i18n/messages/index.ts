@@ -24,6 +24,16 @@ function resolveNestedValue(
   return typeof current === "string" ? current : undefined;
 }
 
+function humanizeMissingKey(key: string): string {
+  const last = key.split(".").pop() ?? key;
+  const spaced = last
+    .replace(/([a-z])([A-Z])/g, "$1 $2")
+    .replace(/[_-]+/g, " ")
+    .trim();
+  if (!spaced) return key;
+  return spaced.charAt(0).toUpperCase() + spaced.slice(1);
+}
+
 export function translate(
   locale: LocaleType,
   key: string,
@@ -32,7 +42,7 @@ export function translate(
   const value =
     resolveNestedValue(messages[locale], key) ??
     resolveNestedValue(messages.en, key) ??
-    key;
+    humanizeMissingKey(key);
 
   if (!params) return value;
 

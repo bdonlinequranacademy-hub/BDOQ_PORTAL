@@ -2,7 +2,7 @@ import { Link } from "react-router-dom";
 import { CalendarDays, Copy, ExternalLink, Radio, RefreshCw } from "lucide-react";
 import type { LiveMonitorSummary } from "@/types/models";
 import { computeIssueCount } from "@/features/admin/components/liveMonitor/adminLiveMonitorUtils";
-import { intlLocale } from "@/i18n/format";
+import { formatAmPmTime } from "@/i18n/format";
 import { usePortalTranslation } from "@/i18n/LocaleProvider";
 import { cn } from "@/lib/utils/cn";
 
@@ -19,16 +19,11 @@ export function AdminLiveMonitorHero({
   isFetching,
   onRefresh,
 }: IAdminLiveMonitorHeroProps) {
-  const { t, locale } = usePortalTranslation();
+  const { t } = usePortalTranslation();
   const isLive = summary.liveCount > 0;
   const issueCount = computeIssueCount(summary);
 
-  const updatedTime = updatedAt
-    ? new Date(updatedAt).toLocaleTimeString(intlLocale(locale), {
-        hour: "2-digit",
-        minute: "2-digit",
-      })
-    : null;
+  const updatedTime = updatedAt ? formatAmPmTime(updatedAt) : null;
 
   return (
     <div

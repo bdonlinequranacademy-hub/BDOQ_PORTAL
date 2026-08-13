@@ -1,4 +1,5 @@
 import type { ContactMessageStatus, ContactMessageView } from "@/types/models";
+import { formatAmPmDateTime, formatAmPmTime } from "@/i18n/format";
 
 export type AdminContactInboxTab = "all" | ContactMessageStatus;
 
@@ -59,20 +60,14 @@ export function formatInboxTime(iso: string): string {
   yesterdayStart.setDate(yesterdayStart.getDate() - 1);
 
   if (value >= todayStart) {
-    return value.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+    return formatAmPmTime(value);
   }
   if (value >= yesterdayStart) return "Yesterday";
   return value.toLocaleDateString([], { month: "short", day: "numeric" });
 }
 
 export function formatInboxDateTime(iso: string): string {
-  return new Date(iso).toLocaleString([], {
-    month: "short",
-    day: "numeric",
-    year: "numeric",
-    hour: "2-digit",
-    minute: "2-digit",
-  });
+  return formatAmPmDateTime(iso, "en-US");
 }
 
 export function messageSearchText(message: ContactMessageView): string {

@@ -1,4 +1,5 @@
 import type { ClassSchedule } from "@/types/models";
+import { formatClockTime } from "@/i18n/format";
 import { formatDuration, primaryScheduleEntry } from "@/lib/utils/class";
 
 const WEEK_DAYS = [
@@ -51,7 +52,7 @@ export function getNextScheduleInfo(schedule?: ClassSchedule | null): {
     year: "numeric",
   });
 
-  const timeLabel = entry.time ? ` · ${entry.time}` : "";
+  const timeLabel = entry.time ? ` · ${formatClockTime(entry.time)}` : "";
   const durationLabel = entry.duration ? ` · ${formatDuration(entry.duration)}` : "";
 
   return {
@@ -93,7 +94,7 @@ export function getUpcomingScheduleSessions(
           month: "short",
         })
         .toUpperCase(),
-      time: entry.time,
+      time: entry.time ? formatClockTime(entry.time) : undefined,
     });
   }
 

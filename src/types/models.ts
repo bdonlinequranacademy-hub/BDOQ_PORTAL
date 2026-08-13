@@ -1417,6 +1417,7 @@ export interface AdminTeacherProfile {
   experience?: string;
   languages: string[];
   courseSlugs: string[];
+  linkedUserId?: string;
   createdAt?: string;
   updatedAt?: string;
 }

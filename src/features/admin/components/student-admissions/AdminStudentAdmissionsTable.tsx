@@ -44,7 +44,7 @@ export function AdminStudentAdmissionsTable({
   onDelete,
   onAdvanceStatus,
 }: IAdminStudentAdmissionsTableProps) {
-  const { t, dynamicLabel, formatDateTime } = usePortalTranslation();
+  const { t, dynamicLabel, formatDate, formatTime } = usePortalTranslation();
 
   return (
     <Card className="overflow-hidden rounded-2xl border border-portal bg-portal-surface p-0 shadow-[0_8px_24px_-16px_rgba(13,74,47,0.18)]">
@@ -70,8 +70,6 @@ export function AdminStudentAdmissionsTable({
                 admissionFollowUpMessage(app.fullName)
               );
               const telHref = admissionTelHref(app.whatsapp, country);
-              const appliedParts = formatDateTime(app.createdAt).split(", ");
-
               return (
                 <tr
                   key={app._id}
@@ -114,10 +112,10 @@ export function AdminStudentAdmissionsTable({
                   </td>
                   <td className="px-5 py-4">
                     <p className="text-xs font-bold tracking-wide text-portal-muted">
-                      {appliedParts[0]?.toUpperCase() ?? formatDateTime(app.createdAt)}
+                      {formatDate(app.createdAt).toUpperCase()}
                     </p>
                     <p className="mt-1 text-sm font-semibold tabular-nums text-portal-heading">
-                      {appliedParts[1]?.trim() ?? ""}
+                      {formatTime(app.createdAt)}
                     </p>
                   </td>
                   <td className="px-5 py-4">

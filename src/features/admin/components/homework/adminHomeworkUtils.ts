@@ -1,4 +1,5 @@
 import type { AdminHomeworkItem } from "@/types/models";
+import { formatAmPmDateTime, formatAmPmTime } from "@/i18n/format";
 import { formatCurriculumPath } from "@/lib/api/curriculumApi";
 import { formatHomeworkDueLabel, isHomeworkOverdue } from "@/lib/homeworkDue";
 
@@ -141,7 +142,7 @@ export function formatCreatedAt(iso: string): { date: string; time: string } {
         year: "numeric",
       })
       .toUpperCase(),
-    time: value.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
+    time: formatAmPmTime(value),
   };
 }
 
@@ -548,7 +549,7 @@ export function exportHomeworkFile(items: AdminHomeworkItem[], filename: string)
     String(item.gradedCount ?? 0),
     String(item.pendingGradeCount ?? 0),
     homeworkGradingStatusLabel(getHomeworkGradingStatus(item)),
-    new Date(item.createdAt).toLocaleString(),
+    formatAmPmDateTime(item.createdAt),
   ]);
 
   const csv = [headers, ...rows].map((row) => row.map(escapeCsv).join(",")).join("\n");

@@ -3,7 +3,8 @@ import { Send } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { Select } from "@/components/ui/Select";
-import type { AdminTeacherProfile, TrialBookingView } from "@/types/models";
+import type { TrialBookingView } from "@/types/models";
+import type { ITeacherAssignmentOption } from "@/lib/teacherAssignmentOptions";
 import {
   TRIAL_MEETING_PLATFORM_OPTIONS,
   type TrialMeetingPlatform,
@@ -16,7 +17,7 @@ import type { ITrialLeadSchedulingPayload } from "@/features/admin/components/tr
 
 interface ITrialLeadSchedulingPanelProps {
   lead: TrialBookingView;
-  teachers: AdminTeacherProfile[];
+  teachers: ITeacherAssignmentOption[];
   busy: boolean;
   onSave: (payload: ITrialLeadSchedulingPayload) => void;
   onSendInvitation: (payload: ITrialLeadSchedulingPayload) => void;
@@ -25,9 +26,9 @@ interface ITrialLeadSchedulingPanelProps {
 const fieldClass = cn(formControlClass, "shadow-none");
 
 function filterTeachersForLead(
-  teachers: AdminTeacherProfile[],
+  teachers: ITeacherAssignmentOption[],
   lead: TrialBookingView
-): AdminTeacherProfile[] {
+): ITeacherAssignmentOption[] {
   if (lead.teacherPreference === "any") return teachers;
   return teachers.filter((teacher) => teacher.gender === lead.teacherPreference);
 }
@@ -100,12 +101,17 @@ export function TrialLeadSchedulingPanel({
           >
             <option value="">{t("admin.trialLeads.selectTeacher")}</option>
             {teacherChoices.map((teacher) => (
-              <option key={teacher.id} value={teacher.slug}>
+              <option key={teacher.slug} value={teacher.slug}>
                 {teacher.name}
                 {teacher.gender === "female" ? ` (${t("admin.trialLeads.genderFemale")})` : ""}
               </option>
             ))}
           </Select>
+          {teacherChoices.length === 0 ? (
+            <p className="mt-1 text-xs text-amber-700">
+              {t("admin.trialLeads.noTeachersAvailable")}
+            </p>
+          ) : null}
         </div>
 
         <div className="block">

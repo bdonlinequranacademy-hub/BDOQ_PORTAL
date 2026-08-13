@@ -3,6 +3,7 @@ import { ChevronLeft, ChevronRight, FileText, Plus } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import { Card } from "@/components/ui/Card";
 import { usePortalTranslation } from "@/i18n/LocaleProvider";
+import { formatClockTime } from "@/i18n/format";
 import type { AdminClass } from "@/types/models";
 import {
   classTitle,
@@ -43,7 +44,7 @@ function AdminClassesTodaySchedule({ classes }: { classes: AdminClass[] }) {
       ) : (
         <div className="flex flex-col gap-3">
           {todayClasses.slice(0, 4).map((cls) => {
-            const time = primaryScheduleEntry(cls.schedule)?.time ?? "—";
+            const time = formatClockTime(primaryScheduleEntry(cls.schedule)?.time ?? "—");
             return (
               <div
                 key={cls._id}

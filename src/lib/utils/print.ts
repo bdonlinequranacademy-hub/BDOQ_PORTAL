@@ -24,7 +24,14 @@ export function printHtmlContent(title: string, bodyHtml: string) {
       </head>
       <body>
         <h1>${safeTitle}</h1>
-        <p class="meta">BDOQ Academy · ${new Date().toLocaleString()}</p>
+          <p class="meta">BDOQ Academy · ${new Date().toLocaleString("en-US", {
+            day: "numeric",
+            month: "short",
+            year: "numeric",
+            hour: "numeric",
+            minute: "2-digit",
+            hour12: true,
+          })}</p>
         <div class="content">${bodyHtml}</div>
         <p class="meta no-print" style="margin-top:2rem">Use your browser print dialog to save as PDF.</p>
       </body>

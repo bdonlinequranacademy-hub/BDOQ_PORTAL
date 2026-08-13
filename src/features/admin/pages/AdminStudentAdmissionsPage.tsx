@@ -12,6 +12,7 @@ import {
   useUpdateStudentAdmissionPaymentStatus,
   useUpdateStudentAdmissionEnrollment,
   useAdminTeacherProfiles,
+  useAdminUsers,
 } from "@/features/admin/hooks/useAdmin";
 import { PageContainer } from "@/components/layout/PageContainer";
 import { Button } from "@/components/ui/Button";
@@ -38,6 +39,7 @@ import {
   type IAdmissionEnrollmentPayload,
 } from "@/features/admin/components/student-admissions/adminStudentAdmissionsUtils";
 import { usePortalTranslation } from "@/i18n/LocaleProvider";
+import { buildTeacherAssignmentOptions } from "@/lib/teacherAssignmentOptions";
 import { isSuperAdmin } from "@/lib/assignableRoles";
 import { useAuthStore } from "@/stores/authStore";
 
@@ -56,7 +58,12 @@ export function AdminStudentAdmissionsPage() {
 
   const { data: applications = [], isLoading, isError, isFetching, refetch } =
     useAdminStudentAdmissions();
-  const { data: teachers = [] } = useAdminTeacherProfiles();
+  const { data: teacherProfiles = [] } = useAdminTeacherProfiles();
+  const { data: portalTeachers = [] } = useAdminUsers("teacher");
+  const teachers = useMemo(
+    () => buildTeacherAssignmentOptions(teacherProfiles, portalTeachers),
+    [teacherProfiles, portalTeachers]
+  );
   const updateStatus = useUpdateStudentAdmissionStatus();
   const updatePaymentStatus = useUpdateStudentAdmissionPaymentStatus();
   const updateEnrollment = useUpdateStudentAdmissionEnrollment();

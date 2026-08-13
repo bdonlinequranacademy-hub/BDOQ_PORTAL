@@ -10,11 +10,11 @@ import {
   type IAdmissionDisplaySection,
 } from "@/lib/admissionFormDisplay";
 import type {
-  AdminTeacherProfile,
   StudentAdmissionPaymentStatus,
   StudentAdmissionStatus,
   StudentAdmissionView,
 } from "@/types/models";
+import type { ITeacherAssignmentOption } from "@/lib/teacherAssignmentOptions";
 import { AdmissionStatusBadge } from "@/features/admin/components/student-admissions/AdmissionStatusBadge";
 import { AdmissionPaymentStatusBadge } from "@/features/admin/components/student-admissions/AdmissionPaymentStatusBadge";
 import { AdmissionPaymentReviewPanel } from "@/features/admin/components/student-admissions/AdmissionPaymentReviewPanel";
@@ -31,7 +31,7 @@ import { usePortalTranslation } from "@/i18n/LocaleProvider";
 
 interface IAdminStudentAdmissionDetailModalProps {
   application: StudentAdmissionView | null;
-  teachers: AdminTeacherProfile[];
+  teachers: ITeacherAssignmentOption[];
   busy: boolean;
   canDelete?: boolean;
   onClose: () => void;

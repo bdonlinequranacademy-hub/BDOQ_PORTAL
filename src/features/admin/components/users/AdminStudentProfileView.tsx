@@ -18,6 +18,7 @@ import {
   Wallet,
 } from "lucide-react";
 import { UserAvatar } from "@/components/ui/UserAvatar";
+import { formatClockTime } from "@/i18n/format";
 import { formatCountryWithFlag } from "@/lib/utils/countryDisplay";
 import { waMeUrlFromRaw } from "@/lib/whatsapp";
 import { formatTrialMeetingPlatformLabel } from "@/lib/trialMeetingPlatform";
@@ -549,7 +550,7 @@ export function AdminStudentProfileView({
                           "—"
                         )}
                         {cls.schedule
-                          ? ` · ${cls.schedule.day} ${cls.schedule.time}`
+                          ? ` · ${cls.schedule.day} ${formatClockTime(cls.schedule.time)}`
                           : ""}
                         {cls.meetingPlatform
                           ? ` · ${formatTrialMeetingPlatformLabel(cls.meetingPlatform, t)}`

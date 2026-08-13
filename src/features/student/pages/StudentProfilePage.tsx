@@ -28,6 +28,7 @@ import { ProfileAvatarUpload } from "@/components/profile/ProfileAvatarUpload";
 import { useUploadProfileAvatar } from "@/hooks/useUploadProfileAvatar";
 import { useAuthStore } from "@/stores/authStore";
 import { usePortalTranslation } from "@/i18n/LocaleProvider";
+import { formatClockTime } from "@/i18n/format";
 import { formatTrialMeetingPlatformLabel } from "@/lib/trialMeetingPlatform";
 import { cn } from "@/lib/utils/cn";
 import type { ParentInfo, StudentEnrollmentSummary } from "@/types/models";
@@ -376,7 +377,7 @@ export function StudentProfilePage() {
                       <p className="mt-1 text-xs text-zinc-500">
                         {cls.teacherName}
                         {cls.schedule
-                          ? ` · ${cls.schedule.day} ${cls.schedule.time}`
+                          ? ` · ${cls.schedule.day} ${formatClockTime(cls.schedule.time)}`
                           : ""}
                         {cls.meetingPlatform
                           ? ` · ${formatTrialMeetingPlatformLabel(cls.meetingPlatform, t)}`

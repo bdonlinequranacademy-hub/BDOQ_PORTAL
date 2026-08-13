@@ -35,7 +35,7 @@ function pathFromHomework(
 export function StudentHomeworkDetailPage() {
   const { id = "" } = useParams();
   const navigate = useNavigate();
-  const { t, formatDate, locale } = usePortalTranslation();
+  const { t, formatDate, formatDateTime } = usePortalTranslation();
   const user = useAuthStore((s) => s.user);
   const { data: homework = [], isLoading } = useStudentHomework();
   const submit = useSubmitHomework(id);
@@ -59,7 +59,6 @@ export function StudentHomeworkDetailPage() {
   const returned = status === "returned";
   const curriculumReady = pathReadyToSave(curriculum, curriculumTree);
   const dueOptions = { t, formatDate };
-  const dateLocale = locale === "bn" ? "bn-BD" : undefined;
 
   useEffect(() => {
     if (!hw) return;
@@ -129,7 +128,7 @@ export function StudentHomeworkDetailPage() {
             >
               {formatHomeworkDueLabel(hw.dueDate, hw.submitted, dueOptions)}
               {!hw.submitted && !underReview
-                ? ` · ${new Date(hw.dueDate).toLocaleString(dateLocale)}`
+                ? ` · ${formatDateTime(hw.dueDate)}`
                 : ""}
             </p>
           </div>

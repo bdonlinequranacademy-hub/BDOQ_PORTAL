@@ -19,7 +19,9 @@ import {
   Wallet,
 } from "lucide-react";
 import { UserAvatar } from "@/components/ui/UserAvatar";
+import { formatClockTime } from "@/i18n/format";
 import { formatCountryWithFlag } from "@/lib/utils/countryDisplay";
+import { parseTimeSortKey } from "@/lib/utils/schedule";
 import { waMeUrlFromRaw } from "@/lib/whatsapp";
 import { usePortalTranslation } from "@/i18n/LocaleProvider";
 import { cn } from "@/lib/utils/cn";
@@ -51,7 +53,6 @@ export function AdminTeacherProfileView({
   const {
     t,
     formatDate,
-    formatDateTime,
     formatBdt,
     formatNumber,
     statusLabel,
@@ -68,11 +69,15 @@ export function AdminTeacherProfileView({
   ];
 
   function formatTimeRange(time: string, duration: number): string {
-    const [hRaw, mRaw] = time.split(":").map(Number);
-    const start = new Date();
-    start.setHours(Number.isFinite(hRaw) ? hRaw : 0, Number.isFinite(mRaw) ? mRaw : 0, 0, 0);
-    const end = new Date(start.getTime() + duration * 60_000);
-    return `${formatDateTime(start.toISOString())} – ${formatDateTime(end.toISOString())}`;
+    const startLabel = formatClockTime(time);
+    const startMinutes = parseTimeSortKey(startLabel);
+    const endMinutes = (startMinutes + duration) % (24 * 60);
+    const endHours = Math.floor(endMinutes / 60);
+    const endMins = endMinutes % 60;
+    const endLabel = formatClockTime(
+      `${String(endHours).padStart(2, "0")}:${String(endMins).padStart(2, "0")}`
+    );
+    return `${startLabel} – ${endLabel}`;
   }
   const {
     user,
@@ -442,7 +447,7 @@ export function AdminTeacherProfileView({
                               count: formatNumber(cls.studentCount),
                             })}
                             {cls.schedule
-                              ? ` · ${cls.schedule.day} ${cls.schedule.time}`
+                              ? ` · ${cls.schedule.day} ${formatClockTime(cls.schedule.time)}`
                               : ""}
                             {cls.sessionRateBdt
                               ? ` · ${formatBdt(cls.sessionRateBdt)}${t("labels.session_suffix")}`

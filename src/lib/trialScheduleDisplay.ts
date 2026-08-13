@@ -20,7 +20,7 @@ export function formatTrialParentSchedule(
   if (!date?.trim() || !time?.trim()) return null;
   const tz = timeZone?.trim() || DEFAULT_TIMEZONE;
   const utc = zonedLocalToUtc(date, time, tz);
-  const label = new Intl.DateTimeFormat("en-GB", {
+  const label = new Intl.DateTimeFormat("en-US", {
     timeZone: tz,
     day: "numeric",
     month: "short",
@@ -40,7 +40,7 @@ export function formatTrialBangladeshSchedule(
   if (!date?.trim() || !time?.trim()) return null;
   const sourceTz = sourceTimeZone?.trim() || DEFAULT_TIMEZONE;
   const utc = zonedLocalToUtc(date, time, sourceTz);
-  const label = new Intl.DateTimeFormat("en-GB", {
+  const label = new Intl.DateTimeFormat("en-US", {
     timeZone: BD_TIMEZONE,
     day: "numeric",
     month: "short",

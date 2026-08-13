@@ -15,6 +15,7 @@ import {
   formatLocaleDateTime,
   formatLocaleMoney,
   formatLocaleNumber,
+  formatLocaleTime,
   formatLocaleUsd,
 } from "@/i18n/format";
 import {
@@ -44,6 +45,7 @@ interface ILocaleContextValue {
   dynamicLabel: (key: string) => string;
   paymentMethod: (method: string) => string;
   formatDate: (iso: string) => string;
+  formatTime: (iso: string) => string;
   formatDateTime: (iso: string) => string;
   formatMoney: (amount: number, currency: string) => string;
   formatBdt: (amount: number) => string;
@@ -89,6 +91,7 @@ export function LocaleProvider({ children }: { children: ReactNode }) {
       dynamicLabel: (key) => translateDynamicLabel(locale, key),
       paymentMethod: (method) => translatePaymentMethod(locale, method),
       formatDate: (iso) => formatLocaleDate(locale, iso),
+      formatTime: (iso) => formatLocaleTime(locale, iso),
       formatDateTime: (iso) => formatLocaleDateTime(locale, iso),
       formatMoney: (amount, currency) => formatLocaleMoney(locale, amount, currency),
       formatBdt: (amount) => formatLocaleBdt(locale, amount),

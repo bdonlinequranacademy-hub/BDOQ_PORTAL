@@ -1,4 +1,5 @@
 import type { StudentRequestStatus, StudentRequestView } from "@/types/models";
+import { formatAmPmTime } from "@/i18n/format";
 import type { PortalTranslate } from "@/features/admin/components/trial-leads/adminTrialLeadsUtils";
 
 export type AdminStudentRequestsTab = "all" | StudentRequestStatus;
@@ -51,7 +52,7 @@ export function formatRequestTime(iso: string): { date: string; time: string } {
         year: "numeric",
       })
       .toUpperCase(),
-    time: value.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
+    time: formatAmPmTime(value),
   };
 }
 

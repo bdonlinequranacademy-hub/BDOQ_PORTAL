@@ -11,13 +11,12 @@ import { usePaginatedList } from "@/lib/hooks/usePaginatedList";
 import { usePortalTranslation } from "@/i18n/LocaleProvider";
 
 export function StudentNotificationsPage() {
-  const { t, locale } = usePortalTranslation();
+  const { t, formatDateTime } = usePortalTranslation();
   const { data: notifications = [], isLoading } = useStudentNotifications();
   const markRead = useMarkNotificationRead();
 
   const unread = notifications.filter((n) => !n.isRead);
   const pagination = usePaginatedList(notifications);
-  const dateLocale = locale === "bn" ? "bn-BD" : undefined;
 
   return (
     <PageContainer className="flex flex-col gap-6">
@@ -54,7 +53,7 @@ export function StudentNotificationsPage() {
                   <p className="font-semibold text-primary-dark">{n.title}</p>
                   <p className="text-sm text-zinc-600">{n.message}</p>
                   <p className="text-xs text-zinc-400">
-                    {new Date(n.createdAt).toLocaleString(dateLocale)}
+                    {formatDateTime(n.createdAt)}
                   </p>
                 </div>
                 {!n.isRead && (

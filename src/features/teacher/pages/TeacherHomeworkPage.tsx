@@ -75,7 +75,7 @@ function toFormInitial(hw: Homework): Partial<HomeworkFormValues> & { homeworkId
 
 export function TeacherHomeworkPage() {
   const navigate = useNavigate();
-  const { t, formatDate } = usePortalTranslation();
+  const { t, formatDate, formatTime } = usePortalTranslation();
   const [searchParams, setSearchParams] = useSearchParams();
   const user = useAuthStore((s) => s.user);
   const { data: homework = [], isLoading } = useTeacherHomework();
@@ -350,10 +350,7 @@ export function TeacherHomeworkPage() {
                     </span>
                     <span className="text-xs text-zinc-400">
                       {hw.title} ·{" "}
-                      {new Date(sub.submittedAt).toLocaleTimeString(undefined, {
-                        hour: "2-digit",
-                        minute: "2-digit",
-                      })}
+                      {formatTime(sub.submittedAt)}
                     </span>
                   </div>
                   <Button

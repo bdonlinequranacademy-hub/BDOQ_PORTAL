@@ -1,6 +1,6 @@
 import { CheckCircle2, Clock, GraduationCap, User, XCircle } from "lucide-react";
 import type { LiveMonitorJoinStatus } from "@/types/models";
-import { intlLocale } from "@/i18n/format";
+import { formatAmPmTime } from "@/i18n/format";
 import { usePortalTranslation } from "@/i18n/LocaleProvider";
 import { cn } from "@/lib/utils/cn";
 
@@ -45,11 +45,8 @@ const STATUS_CONFIG: Record<
   },
 };
 
-function formatJoinedTime(iso: string, locale: "en" | "bn"): string {
-  return new Date(iso).toLocaleTimeString(intlLocale(locale), {
-    hour: "2-digit",
-    minute: "2-digit",
-  });
+function formatJoinedTime(iso: string): string {
+  return formatAmPmTime(iso);
 }
 
 export function LiveMonitorJoinBadge({
@@ -58,13 +55,13 @@ export function LiveMonitorJoinBadge({
   variant = "inline",
   joinedAt,
 }: ILiveMonitorJoinBadgeProps) {
-  const { t, statusLabel, role, locale } = usePortalTranslation();
+  const { t, statusLabel, role } = usePortalTranslation();
   const config = STATUS_CONFIG[status];
   const StatusIcon = config.icon;
   const RoleIcon = roleKey === "teacher" ? GraduationCap : User;
   const roleLabel = role(roleKey);
   const statusText = statusLabel(status);
-  const joinedLabel = joinedAt ? formatJoinedTime(joinedAt, locale) : null;
+  const joinedLabel = joinedAt ? formatJoinedTime(joinedAt) : null;
 
   if (variant === "panel") {
     return (

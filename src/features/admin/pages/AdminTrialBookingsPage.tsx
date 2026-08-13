@@ -4,6 +4,7 @@ import type { TrialBookingStatus, TrialBookingView } from "@/types/models";
 import {
   useAdminTrialBookings,
   useAdminTeacherProfiles,
+  useAdminUsers,
   useDeleteTrialBooking,
   useSendTrialInvitation,
   useConvertTrialToAdmission,
@@ -36,6 +37,7 @@ import {
   type ITrialLeadUpdatePayload,
 } from "@/features/admin/components/trial-leads/adminTrialLeadsUtils";
 import { usePortalTranslation } from "@/i18n/LocaleProvider";
+import { buildTeacherAssignmentOptions } from "@/lib/teacherAssignmentOptions";
 import { isSuperAdmin } from "@/lib/assignableRoles";
 import { useAuthStore } from "@/stores/authStore";
 
@@ -55,7 +57,12 @@ export function AdminTrialBookingsPage() {
 
   const { data: bookings = [], isLoading, isError, isFetching, refetch } =
     useAdminTrialBookings();
-  const { data: teachers = [] } = useAdminTeacherProfiles();
+  const { data: teacherProfiles = [] } = useAdminTeacherProfiles();
+  const { data: portalTeachers = [] } = useAdminUsers("teacher");
+  const teachers = useMemo(
+    () => buildTeacherAssignmentOptions(teacherProfiles, portalTeachers),
+    [teacherProfiles, portalTeachers]
+  );
   const updateStatus = useUpdateTrialBookingStatus();
   const updateLead = useUpdateTrialBooking();
   const deleteLead = useDeleteTrialBooking();

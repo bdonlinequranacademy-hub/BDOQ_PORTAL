@@ -4,10 +4,10 @@ import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { Select } from "@/components/ui/Select";
 import type {
-  AdminTeacherProfile,
   StudentAdmissionClassDay,
   StudentAdmissionView,
 } from "@/types/models";
+import type { ITeacherAssignmentOption } from "@/lib/teacherAssignmentOptions";
 import {
   TRIAL_MEETING_PLATFORM_OPTIONS,
   type TrialMeetingPlatform,
@@ -23,7 +23,7 @@ import { cn } from "@/lib/utils/cn";
 
 interface IAdmissionEnrollmentSetupPanelProps {
   application: StudentAdmissionView;
-  teachers: AdminTeacherProfile[];
+  teachers: ITeacherAssignmentOption[];
   busy: boolean;
   onSave: (payload: IAdmissionEnrollmentPayload) => void;
 }
@@ -258,11 +258,16 @@ export function AdmissionEnrollmentSetupPanel({
               </option>
             ))}
           </Select>
+          {teachers.length === 0 ? (
+            <p className="mt-1 text-xs text-amber-700">
+              {t("admin.admissions.noTeachersAvailable")}
+            </p>
+          ) : null}
         </label>
 
         <label>
           <span className="mb-1 block text-xs font-semibold uppercase tracking-wide text-portal-muted">
-            {t("admin.trialLeads.fieldPlatform")}
+            {t("admin.admissions.fieldMeetingPlatform")}
           </span>
           <Select
             value={meetingPlatform}
@@ -271,7 +276,7 @@ export function AdmissionEnrollmentSetupPanel({
             }
             className={fieldClass}
           >
-            <option value="">{t("admin.trialLeads.selectPlatform")}</option>
+            <option value="">{t("admin.admissions.selectPlatform")}</option>
             {TRIAL_MEETING_PLATFORM_OPTIONS.map((option) => (
               <option key={option.value} value={option.value}>
                 {t(option.labelKey)}
@@ -282,7 +287,7 @@ export function AdmissionEnrollmentSetupPanel({
 
         <label className="sm:col-span-2">
           <span className="mb-1 block text-xs font-semibold uppercase tracking-wide text-portal-muted">
-            {t("admin.trialLeads.fieldMeetingLink")}
+            {t("admin.admissions.fieldMeetingLink")}
           </span>
           <Input
             value={meetingLink}

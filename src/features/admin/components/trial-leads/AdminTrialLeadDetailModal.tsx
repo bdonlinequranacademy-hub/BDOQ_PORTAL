@@ -6,7 +6,8 @@ import { UserInitialAvatar } from "@/components/ui/UserInitialAvatar";
 import { WhatsAppLinkButton } from "@/components/whatsapp/WhatsAppLinkButton";
 import { waMeUrlFromRaw } from "@/lib/whatsapp";
 import { trialLeadFollowUpMessage } from "@/lib/whatsappMessageTemplates";
-import type { AdminTeacherProfile, TrialBookingStatus, TrialBookingView } from "@/types/models";
+import type { TrialBookingStatus, TrialBookingView } from "@/types/models";
+import type { ITeacherAssignmentOption } from "@/lib/teacherAssignmentOptions";
 import { TrialLeadStatusBadge } from "@/features/admin/components/trial-leads/TrialLeadStatusBadge";
 import { TrialLeadEditForm } from "@/features/admin/components/trial-leads/TrialLeadEditForm";
 import { TrialLeadSchedulingPanel } from "@/features/admin/components/trial-leads/TrialLeadSchedulingPanel";
@@ -28,7 +29,7 @@ import { usePortalTranslation } from "@/i18n/LocaleProvider";
 interface IAdminTrialLeadDetailModalProps {
   lead: TrialBookingView | null;
   courseOptions: string[];
-  teachers: AdminTeacherProfile[];
+  teachers: ITeacherAssignmentOption[];
   busy: boolean;
   initialMode?: "view" | "edit";
   onClose: () => void;

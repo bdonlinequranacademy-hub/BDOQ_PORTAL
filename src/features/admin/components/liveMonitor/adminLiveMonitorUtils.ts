@@ -1,4 +1,5 @@
 import type { LiveMonitorSession, LiveMonitorSummary } from "@/types/models";
+import { formatAmPmTime } from "@/i18n/format";
 import { sessionHasIssue, sessionIssueMessage } from "./liveMonitorUtils";
 
 export type LiveMonitorDetailTab = "overview" | "participants";
@@ -71,10 +72,7 @@ export function formatLiveElapsed(session: LiveMonitorSession, nowMs: number): s
 
 export function formatTimeLabel(iso?: string): string {
   if (!iso) return "—";
-  return new Date(iso).toLocaleTimeString([], {
-    hour: "2-digit",
-    minute: "2-digit",
-  });
+  return formatAmPmTime(iso);
 }
 
 export function buildSessionActivity(
