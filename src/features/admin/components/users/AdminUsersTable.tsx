@@ -141,17 +141,23 @@ export function AdminUsersTable({
                           >
                             <Pencil className="size-4" />
                           </button>
-                          {isActive ? (
-                            <button
-                              type="button"
-                              onClick={() => onDeactivate(user)}
-                              className="rounded-lg p-2 text-portal-muted transition hover:bg-red-50 hover:text-red-600"
-                              aria-label={t("admin.users.deactivateUserNamed", { name: user.name })}
-                              title={t("admin.common.deactivateUser")}
-                            >
-                              <Trash2 className="size-4" />
-                            </button>
-                          ) : null}
+                          <button
+                            type="button"
+                            onClick={() => onDeactivate(user)}
+                            className="rounded-lg p-2 text-portal-muted transition hover:bg-red-50 hover:text-red-600"
+                            aria-label={
+                              isActive
+                                ? t("admin.users.deactivateUserNamed", { name: user.name })
+                                : t("admin.users.deleteUserNamed", { name: user.name })
+                            }
+                            title={
+                              isActive
+                                ? t("admin.common.deactivateUser")
+                                : t("admin.common.deleteUser")
+                            }
+                          >
+                            <Trash2 className="size-4" />
+                          </button>
                         </>
                       ) : (
                         <span className="px-2 py-2 text-[10px] font-medium uppercase tracking-wide text-portal-muted">
@@ -247,16 +253,18 @@ export function AdminUsersTable({
                     >
                       <Pencil className="size-4" />
                     </button>
-                    {isActive ? (
-                      <button
-                        type="button"
-                        onClick={() => onDeactivate(user)}
-                        className="rounded-lg p-2 text-red-500 hover:bg-red-50"
-                        aria-label={t("admin.users.deactivateUserNamed", { name: user.name })}
-                      >
-                        <Trash2 className="size-4" />
-                      </button>
-                    ) : null}
+                    <button
+                      type="button"
+                      onClick={() => onDeactivate(user)}
+                      className="rounded-lg p-2 text-red-500 hover:bg-red-50"
+                      aria-label={
+                        isActive
+                          ? t("admin.users.deactivateUserNamed", { name: user.name })
+                          : t("admin.users.deleteUserNamed", { name: user.name })
+                      }
+                    >
+                      <Trash2 className="size-4" />
+                    </button>
                   </>
                 ) : (
                   <span className="text-[10px] font-medium uppercase tracking-wide text-portal-muted">

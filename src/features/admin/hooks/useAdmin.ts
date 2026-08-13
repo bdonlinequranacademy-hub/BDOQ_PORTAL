@@ -187,12 +187,13 @@ export function useDeleteUser() {
   const addToast = useUiStore((s) => s.addToast);
   return useMutation({
     mutationFn: adminApi.deleteUser,
-    onSuccess: () => {
+    onSuccess: (response) => {
       qc.invalidateQueries({ queryKey: ["admin", "users"] });
       qc.invalidateQueries({ queryKey: adminKeys.stats });
-      addToast("success", "User deactivated");
+      const deleted = response.message?.toLowerCase().includes("deleted");
+      addToast("success", deleted ? "User deleted" : "User deactivated");
     },
-    onError: () => addToast("error", "Failed to deactivate user"),
+    onError: () => addToast("error", "Failed to remove user"),
   });
 }
 

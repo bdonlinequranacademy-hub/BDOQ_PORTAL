@@ -472,8 +472,6 @@ const DISPLAY_SECTIONS: { title: string; fields: string[] }[] = [
       "languages",
       "expectedSalary",
       "referralSource",
-      "tajweedExperience",
-      "hifzExperience",
       "availability",
       "teachingDevices",
       "internetType",

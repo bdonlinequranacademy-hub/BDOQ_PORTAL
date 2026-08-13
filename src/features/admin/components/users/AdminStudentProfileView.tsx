@@ -498,13 +498,15 @@ export function AdminStudentProfileView({
                   {t("admin.studentProfile.messageStudent")}
                 </a>
               ) : null}
-              {onDeactivate && user.isActive !== false ? (
+              {onDeactivate ? (
                 <button
                   type="button"
                   onClick={onDeactivate}
                   className="inline-flex items-center gap-2 rounded-xl border border-red-200 bg-red-50 px-4 py-2.5 text-sm font-semibold text-red-600 hover:bg-red-100"
                 >
-                  {t("admin.studentProfile.deactivateAccount")}
+                  {user.isActive !== false
+                    ? t("admin.studentProfile.deactivateAccount")
+                    : t("admin.studentProfile.deleteAccount")}
                 </button>
               ) : null}
             </div>

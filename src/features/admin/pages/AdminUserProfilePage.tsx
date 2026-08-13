@@ -26,9 +26,12 @@ export function AdminUserProfilePage() {
 
   function handleDeactivate() {
     if (!data?.user) return;
+    const isActive = data.user.isActive !== false;
     if (
       !window.confirm(
-        t("admin.userProfile.confirmDeactivate", { name: data.user.name })
+        isActive
+          ? t("admin.userProfile.confirmDeactivate", { name: data.user.name })
+          : t("admin.userProfile.confirmDelete", { name: data.user.name })
       )
     ) {
       return;

@@ -136,9 +136,12 @@ export function AdminUsersPage() {
   }, [searchParams, users, allUsers, editUserId]);
 
   function handleDeactivate(user: (typeof users)[number]) {
+    const isActive = user.isActive !== false;
     if (
       !window.confirm(
-        t("admin.users.confirmDeactivate", { name: user.name })
+        isActive
+          ? t("admin.users.confirmDeactivate", { name: user.name })
+          : t("admin.users.confirmDelete", { name: user.name })
       )
     ) {
       return;
