@@ -1,4 +1,5 @@
-import { Mail, Phone, UserCircle, X } from "lucide-react";
+import { useEffect } from "react";
+import { Phone, UserCircle, X } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/Button";
 import { UserInitialAvatar } from "@/components/ui/UserInitialAvatar";
@@ -20,7 +21,6 @@ import { AdmissionPaymentStatusBadge } from "@/features/admin/components/student
 import { AdmissionPaymentReviewPanel } from "@/features/admin/components/student-admissions/AdmissionPaymentReviewPanel";
 import { AdmissionEnrollmentSetupPanel } from "@/features/admin/components/student-admissions/AdmissionEnrollmentSetupPanel";
 import {
-  admissionMailtoHref,
   admissionStatusActions,
   admissionTelHref,
   getAdmissionCountry,
@@ -101,6 +101,15 @@ export function AdminStudentAdmissionDetailModal({
 }: IAdminStudentAdmissionDetailModalProps) {
   const { t, formatDateTime, pickField } = usePortalTranslation();
 
+  useEffect(() => {
+    if (!application) return undefined;
+    const previous = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = previous;
+    };
+  }, [application]);
+
   if (!application) return null;
 
   const country = getAdmissionCountry(application) ?? undefined;
@@ -112,7 +121,6 @@ export function AdminStudentAdmissionDetailModal({
     admissionFollowUpMessage(application.fullName)
   );
   const telHref = admissionTelHref(application.whatsapp, country);
-  const mailHref = admissionMailtoHref(application, t);
   const lang =
     application.locale === "bn"
       ? pickField("English", "Bengali", "English")
@@ -121,7 +129,7 @@ export function AdminStudentAdmissionDetailModal({
         : null;
 
   return (
-    <div className="fixed inset-0 z-[100] flex items-end justify-center p-0 sm:items-center sm:p-4">
+    <div className="fixed inset-0 z-[100] flex items-center justify-center p-3 sm:p-6">
       <button
         type="button"
         className="absolute inset-0 bg-[#0A1628]/55 backdrop-blur-[2px]"
@@ -133,11 +141,11 @@ export function AdminStudentAdmissionDetailModal({
         aria-modal="true"
         aria-labelledby="admission-detail-title"
         className={cn(
-          "relative z-10 flex max-h-[92vh] w-full max-w-3xl flex-col overflow-hidden",
-          "rounded-t-3xl border border-portal bg-portal-surface shadow-2xl sm:rounded-2xl"
+          "relative z-10 flex h-[min(90vh,880px)] w-full max-w-3xl flex-col overflow-hidden",
+          "rounded-2xl border border-portal bg-portal-surface shadow-2xl"
         )}
       >
-        <div className="flex items-center justify-between border-b border-portal px-5 py-4">
+        <div className="flex shrink-0 items-center justify-between border-b border-portal px-5 py-4">
           <div className="flex min-w-0 items-center gap-3">
             <UserInitialAvatar name={application.fullName} size="md" />
             <div className="min-w-0">
@@ -168,15 +176,8 @@ export function AdminStudentAdmissionDetailModal({
           </button>
         </div>
 
-        <div className="overflow-y-auto p-5">
+        <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain p-5">
           <div className="flex flex-col gap-3 rounded-2xl border border-portal bg-portal-muted/20 p-4 sm:flex-row sm:flex-wrap sm:items-center">
-            <a
-              href={mailHref}
-              className="inline-flex items-center gap-2 text-sm text-portal-heading hover:text-primary"
-            >
-              <Mail className="size-4 text-portal-muted" aria-hidden />
-              {application.email}
-            </a>
             {telHref ? (
               <a
                 href={telHref}
@@ -186,12 +187,21 @@ export function AdminStudentAdmissionDetailModal({
                 {application.whatsapp}
               </a>
             ) : (
-              <span className="inline-flex items-center gap-2 text-sm text-portal-muted">
+              <button
+                type="button"
+                className="inline-flex items-center gap-2 text-sm text-portal-muted"
+                onClick={() => window.alert(t("admin.admissions.invalidPhone"))}
+              >
                 <Phone className="size-4" aria-hidden />
-                {application.whatsapp}
-              </span>
+                {application.whatsapp || t("admin.admissions.invalidPhone")}
+              </button>
             )}
-            <WhatsAppLinkButton href={wa} label={t("admin.admissions.modalWhatsApp")} size="sm" />
+            <WhatsAppLinkButton
+              href={wa}
+              label={t("admin.admissions.modalWhatsApp")}
+              size="sm"
+              disabledReason={t("admin.admissions.invalidWhatsApp")}
+            />
             {application.linkedUserId ? (
               <Link
                 to={`/admin/users/${application.linkedUserId}`}
@@ -239,13 +249,7 @@ export function AdminStudentAdmissionDetailModal({
         </div>
 
         {actions.length > 0 ? (
-          <div className="flex flex-col gap-2 border-t border-portal p-4 sm:flex-row sm:justify-end">
-            <a
-              href={mailHref}
-              className="inline-flex h-10 items-center justify-center rounded-xl border border-portal px-4 text-sm font-semibold text-portal-heading transition hover:border-primary/30 hover:text-primary"
-            >
-              {t("admin.admissions.modalReplyEmail")}
-            </a>
+          <div className="flex shrink-0 flex-col gap-2 border-t border-portal p-4 sm:flex-row sm:justify-end">
             {actions.map((action) => (
               <Button
                 key={action.status}

@@ -15,6 +15,12 @@ export function toViewableUploadUrl(url: string): string {
 
   try {
     const parsed = new URL(trimmed);
+    if (
+      parsed.searchParams.has("signature") ||
+      parsed.pathname.includes("/s--")
+    ) {
+      return trimmed;
+    }
     if (!parsed.hostname.includes("res.cloudinary.com")) return trimmed;
 
     const path = parsed.pathname;

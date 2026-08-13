@@ -22,9 +22,13 @@ export function WhatsAppLinkButton({
       : "h-10 gap-2 px-4 text-sm";
 
   if (!href) {
+    const message = disabledReason ?? "This WhatsApp number is not valid.";
     return (
-      <span
-        title={disabledReason ?? "Invalid or missing WhatsApp number"}
+      <button
+        type="button"
+        title={message}
+        aria-label={message}
+        onClick={() => window.alert(message)}
         className={cn(
           "inline-flex cursor-not-allowed items-center justify-center rounded-xl border border-zinc-200 bg-zinc-50 font-medium text-zinc-400",
           sizeClass,
@@ -33,7 +37,7 @@ export function WhatsAppLinkButton({
       >
         <MessageCircle className="size-4" aria-hidden />
         {label}
-      </span>
+      </button>
     );
   }
 

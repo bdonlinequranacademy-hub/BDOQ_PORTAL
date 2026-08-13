@@ -1,4 +1,4 @@
-import { Download, Eye, Mail, MoreHorizontal, Phone, Search } from "lucide-react";
+import { Download, Eye, Phone, Search } from "lucide-react";
 import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { UserInitialAvatar } from "@/components/ui/UserInitialAvatar";
@@ -7,6 +7,7 @@ import { waMeUrlFromRaw } from "@/lib/whatsapp";
 import { teacherApplicationFollowUpMessage } from "@/lib/whatsappMessageTemplates";
 import type { TeacherApplicationStatus, TeacherApplicationView } from "@/types/models";
 import { TeacherApplicationStatusBadge } from "@/features/admin/components/teacher-applications/TeacherApplicationStatusBadge";
+import { AdminStatusMenu } from "@/features/admin/components/shared/AdminStatusMenu";
 import {
   formatAppliedAt,
   formatTeacherSubjectsSummary,
@@ -15,9 +16,8 @@ import {
   getTeacherLocation,
   getTeacherQualification,
   getTeacherQualificationDetail,
-  nextTeacherApplicationActionLabel,
-  nextTeacherApplicationStatus,
-  teacherApplicationMailtoHref,
+  getTeacherWhatsAppNumber,
+  TEACHER_APPLICATION_STATUSES,
   teacherApplicationTelHref,
   type AdminTeacherApplicationsTab,
 } from "@/features/admin/components/teacher-applications/adminTeacherApplicationsUtils";
@@ -64,15 +64,13 @@ export function AdminTeacherApplicationsTable({
               const country = getTeacherCountry(app) ?? undefined;
               const location = getTeacherLocation(app);
               const subjects = formatTeacherSubjectsSummary(app);
+              const whatsappNumber = getTeacherWhatsAppNumber(app);
               const wa = waMeUrlFromRaw(
-                app.phone,
+                whatsappNumber,
                 country,
                 teacherApplicationFollowUpMessage(app.fullName)
               );
               const telHref = teacherApplicationTelHref(app.phone, country);
-              const mailHref = teacherApplicationMailtoHref(app);
-              const nextStatus = nextTeacherApplicationStatus(app.status);
-              const nextLabel = nextTeacherApplicationActionLabel(app.status);
 
               return (
                 <tr
@@ -124,7 +122,13 @@ export function AdminTeacherApplicationsTable({
                   </td>
                   <td className="px-5 py-4">
                     <div className="flex items-center justify-end gap-1">
-                      <WhatsAppLinkButton href={wa} label="" size="sm" className="!size-8 !p-0" />
+                      <WhatsAppLinkButton
+                        href={wa}
+                        label=""
+                        size="sm"
+                        className="!size-8 !p-0"
+                        disabledReason={t("admin.teacherApplications.invalidWhatsApp")}
+                      />
                       {telHref ? (
                         <a
                           href={telHref}
@@ -134,15 +138,19 @@ export function AdminTeacherApplicationsTable({
                         >
                           <Phone className="size-4" aria-hidden />
                         </a>
-                      ) : null}
-                      <a
-                        href={mailHref}
-                        className={contactActionClass}
-                        aria-label={`Email ${app.fullName}`}
-                        title={app.email}
-                      >
-                        <Mail className="size-4" aria-hidden />
-                      </a>
+                      ) : (
+                        <button
+                          type="button"
+                          className={cn(contactActionClass, "cursor-not-allowed opacity-60")}
+                          aria-label={t("admin.teacherApplications.invalidPhone")}
+                          title={t("admin.teacherApplications.invalidPhone")}
+                          onClick={() =>
+                            window.alert(t("admin.teacherApplications.invalidPhone"))
+                          }
+                        >
+                          <Phone className="size-4" aria-hidden />
+                        </button>
+                      )}
                       <button
                         type="button"
                         onClick={() => onView(app)}
@@ -152,18 +160,21 @@ export function AdminTeacherApplicationsTable({
                       >
                         <Eye className="size-4" aria-hidden />
                       </button>
-                      {nextStatus && nextLabel ? (
-                        <button
-                          type="button"
-                          disabled={busy}
-                          onClick={() => onAdvanceStatus(app, nextStatus)}
-                          className={cn(contactActionClass, "disabled:opacity-50")}
-                          title={nextLabel}
-                          aria-label={nextLabel}
-                        >
-                          <MoreHorizontal className="size-4" aria-hidden />
-                        </button>
-                      ) : null}
+                      <AdminStatusMenu
+                        item={app}
+                        currentStatus={app.status}
+                        statuses={TEACHER_APPLICATION_STATUSES}
+                        busy={busy}
+                        title={t("admin.teacherApplications.statusMenuTitle")}
+                        currentLabel={t("admin.teacherApplications.statusMenuCurrent")}
+                        ariaLabel={t("admin.teacherApplications.statusMenuAria", {
+                          name: app.fullName,
+                        })}
+                        onStatusChange={onAdvanceStatus}
+                        renderBadge={(status) => (
+                          <TeacherApplicationStatusBadge status={status} />
+                        )}
+                      />
                     </div>
                   </td>
                 </tr>

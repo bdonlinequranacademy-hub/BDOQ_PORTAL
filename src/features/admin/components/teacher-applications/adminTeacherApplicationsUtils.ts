@@ -81,6 +81,20 @@ const VALUE_LABELS: Record<string, string> = {
   friday: "Friday",
 };
 
+export const TEACHER_APPLICATION_STATUSES: TeacherApplicationStatus[] = [
+  "new",
+  "reviewing",
+  "approved",
+  "rejected",
+  "closed",
+];
+
+export function getTeacherWhatsAppNumber(app: TeacherApplicationView): string {
+  const fromForm = app.formData.whatsapp;
+  if (typeof fromForm === "string" && fromForm.trim()) return fromForm.trim();
+  return app.phone?.trim() ?? "";
+}
+
 export function teacherApplicationStatusLabel(status: TeacherApplicationStatus): string {
   return STATUS_LABELS[status];
 }

@@ -1,4 +1,4 @@
-import { Download, Eye, Mail, MoreHorizontal, Phone, Search } from "lucide-react";
+import { Download, Eye, Phone, Search } from "lucide-react";
 import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { UserInitialAvatar } from "@/components/ui/UserInitialAvatar";
@@ -8,8 +8,8 @@ import { admissionFollowUpMessage } from "@/lib/whatsappMessageTemplates";
 import type { StudentAdmissionStatus, StudentAdmissionView } from "@/types/models";
 import { AdmissionStatusBadge } from "@/features/admin/components/student-admissions/AdmissionStatusBadge";
 import { AdmissionPaymentStatusBadge } from "@/features/admin/components/student-admissions/AdmissionPaymentStatusBadge";
+import { AdminStatusMenu } from "@/features/admin/components/shared/AdminStatusMenu";
 import {
-  admissionMailtoHref,
   admissionTelHref,
   getAdmissionCountry,
   getAdmissionFeeSummary,
@@ -17,8 +17,7 @@ import {
   getAdmissionProgramDetail,
   getAdmissionSource,
   getAdmissionSourceDetail,
-  nextAdmissionActionLabel,
-  nextAdmissionStatus,
+  STUDENT_ADMISSION_STATUSES,
   type AdminStudentAdmissionsTab,
 } from "@/features/admin/components/student-admissions/adminStudentAdmissionsUtils";
 import { usePortalTranslation } from "@/i18n/LocaleProvider";
@@ -41,7 +40,7 @@ export function AdminStudentAdmissionsTable({
   onView,
   onAdvanceStatus,
 }: IAdminStudentAdmissionsTableProps) {
-  const { t, statusLabel, dynamicLabel, formatDateTime } = usePortalTranslation();
+  const { t, dynamicLabel, formatDateTime } = usePortalTranslation();
 
   return (
     <Card className="overflow-hidden rounded-2xl border border-portal bg-portal-surface p-0 shadow-[0_8px_24px_-16px_rgba(13,74,47,0.18)]">
@@ -67,9 +66,6 @@ export function AdminStudentAdmissionsTable({
                 admissionFollowUpMessage(app.fullName)
               );
               const telHref = admissionTelHref(app.whatsapp, country);
-              const mailHref = admissionMailtoHref(app, t);
-              const nextStatus = nextAdmissionStatus(app.status);
-              const nextLabel = nextAdmissionActionLabel(app.status, t, statusLabel);
               const appliedParts = formatDateTime(app.createdAt).split(", ");
 
               return (
@@ -122,7 +118,13 @@ export function AdminStudentAdmissionsTable({
                   </td>
                   <td className="px-5 py-4">
                     <div className="flex items-center justify-end gap-1">
-                      <WhatsAppLinkButton href={wa} label="" size="sm" className="!size-8 !p-0" />
+                      <WhatsAppLinkButton
+                        href={wa}
+                        label=""
+                        size="sm"
+                        className="!size-8 !p-0"
+                        disabledReason={t("admin.admissions.invalidWhatsApp")}
+                      />
                       {telHref ? (
                         <a
                           href={telHref}
@@ -132,15 +134,17 @@ export function AdminStudentAdmissionsTable({
                         >
                           <Phone className="size-4" aria-hidden />
                         </a>
-                      ) : null}
-                      <a
-                        href={mailHref}
-                        className={contactActionClass}
-                        aria-label={t("admin.trialLeads.emailPerson", { name: app.fullName })}
-                        title={app.email}
-                      >
-                        <Mail className="size-4" aria-hidden />
-                      </a>
+                      ) : (
+                        <button
+                          type="button"
+                          className={cn(contactActionClass, "cursor-not-allowed opacity-60")}
+                          aria-label={t("admin.admissions.invalidPhone")}
+                          title={t("admin.admissions.invalidPhone")}
+                          onClick={() => window.alert(t("admin.admissions.invalidPhone"))}
+                        >
+                          <Phone className="size-4" aria-hidden />
+                        </button>
+                      )}
                       <button
                         type="button"
                         onClick={() => onView(app)}
@@ -150,18 +154,19 @@ export function AdminStudentAdmissionsTable({
                       >
                         <Eye className="size-4" aria-hidden />
                       </button>
-                      {nextStatus && nextLabel ? (
-                        <button
-                          type="button"
-                          disabled={busy}
-                          onClick={() => onAdvanceStatus(app, nextStatus)}
-                          className={cn(contactActionClass, "disabled:opacity-50")}
-                          title={nextLabel}
-                          aria-label={nextLabel}
-                        >
-                          <MoreHorizontal className="size-4" aria-hidden />
-                        </button>
-                      ) : null}
+                      <AdminStatusMenu
+                        item={app}
+                        currentStatus={app.status}
+                        statuses={STUDENT_ADMISSION_STATUSES}
+                        busy={busy}
+                        title={t("admin.admissions.statusMenuTitle")}
+                        currentLabel={t("admin.admissions.statusMenuCurrent")}
+                        ariaLabel={t("admin.admissions.statusMenuAria", {
+                          name: app.fullName,
+                        })}
+                        onStatusChange={onAdvanceStatus}
+                        renderBadge={(status) => <AdmissionStatusBadge status={status} />}
+                      />
                     </div>
                   </td>
                 </tr>

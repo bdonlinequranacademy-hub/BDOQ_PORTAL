@@ -11,6 +11,13 @@ import type {
 
 export type AdminStudentAdmissionsTab = "all" | StudentAdmissionStatus;
 
+export const STUDENT_ADMISSION_STATUSES: StudentAdmissionStatus[] = [
+  "new",
+  "reviewing",
+  "approved",
+  "closed",
+];
+
 export const ADMISSION_CLASS_DAYS: StudentAdmissionClassDay[] = [
   "Saturday",
   "Sunday",
