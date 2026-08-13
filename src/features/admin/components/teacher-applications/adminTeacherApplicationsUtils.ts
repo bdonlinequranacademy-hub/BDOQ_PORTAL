@@ -1,6 +1,6 @@
 import type { TeacherApplicationStatus, TeacherApplicationView } from "@/types/models";
 import { parseWhatsApp } from "@/lib/whatsapp";
-import { toViewableUploadUrl } from "@/lib/toViewableUploadUrl";
+import { isImageUploadUrl, toPreviewImageUrl, toViewableUploadUrl } from "@/lib/toViewableUploadUrl";
 import type {
   PortalTranslate,
 } from "@/features/admin/components/trial-leads/adminTrialLeadsUtils";
@@ -511,25 +511,31 @@ export function buildTeacherApplicationDisplaySections(
   return sections;
 }
 
+export interface ITeacherApplicationFileItem {
+  label: string;
+  url: string;
+  imageUrl: string;
+}
+
 export function teacherApplicationFileLinks(
   files: TeacherApplicationView["files"]
-): { label: string; url: string }[] {
-  const items: { label: string; url: string }[] = [];
-  if (files.certificateUrl) {
-    items.push({ label: "Certificate", url: toViewableUploadUrl(files.certificateUrl) });
-  }
-  if (files.cvUrl) {
-    items.push({ label: "CV", url: toViewableUploadUrl(files.cvUrl) });
-  }
-  if (files.profilePhotoUrl) {
-    items.push({ label: "Profile photo", url: toViewableUploadUrl(files.profilePhotoUrl) });
-  }
-  if (files.screenshotUrl) {
+): ITeacherApplicationFileItem[] {
+  const items: ITeacherApplicationFileItem[] = [];
+
+  function push(label: string, rawUrl?: string): void {
+    if (!rawUrl) return;
+    const url = toViewableUploadUrl(rawUrl);
     items.push({
-      label: "Social screenshot",
-      url: toViewableUploadUrl(files.screenshotUrl),
+      label,
+      url,
+      imageUrl: isImageUploadUrl(url) ? url : toPreviewImageUrl(url),
     });
   }
+
+  push("Certificate", files.certificateUrl);
+  push("CV", files.cvUrl);
+  push("Profile photo", files.profilePhotoUrl);
+  push("Social screenshot", files.screenshotUrl);
   return items;
 }
 

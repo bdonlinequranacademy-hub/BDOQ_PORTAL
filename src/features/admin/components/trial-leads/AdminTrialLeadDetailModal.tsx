@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { Mail, Pencil, Phone, Trash2, X } from "lucide-react";
+import { AdminCenteredModal } from "@/features/admin/components/shared/AdminCenteredModal";
 import { Button } from "@/components/ui/Button";
 import { UserInitialAvatar } from "@/components/ui/UserInitialAvatar";
 import { WhatsAppLinkButton } from "@/components/whatsapp/WhatsAppLinkButton";
@@ -23,7 +24,6 @@ import {
   type ITrialLeadUpdatePayload,
 } from "@/features/admin/components/trial-leads/adminTrialLeadsUtils";
 import { usePortalTranslation } from "@/i18n/LocaleProvider";
-import { cn } from "@/lib/utils/cn";
 
 interface IAdminTrialLeadDetailModalProps {
   lead: TrialBookingView | null;
@@ -106,23 +106,13 @@ export function AdminTrialLeadDetailModal({
   }
 
   return (
-    <div className="fixed inset-0 z-[100] flex items-end justify-center p-0 sm:items-center sm:p-4">
-      <button
-        type="button"
-        className="absolute inset-0 bg-[#0A1628]/55 backdrop-blur-[2px]"
-        aria-label={t("admin.trialLeads.modalClose")}
-        onClick={onClose}
-      />
-      <div
-        role="dialog"
-        aria-modal="true"
-        aria-labelledby="trial-lead-detail-title"
-        className={cn(
-          "relative z-10 flex max-h-[92vh] w-full max-w-3xl flex-col overflow-hidden",
-          "rounded-t-3xl border border-portal bg-portal-surface shadow-2xl sm:rounded-2xl"
-        )}
-      >
-        <div className="flex items-center justify-between border-b border-portal px-5 py-4">
+    <AdminCenteredModal
+      open
+      titleId="trial-lead-detail-title"
+      onClose={onClose}
+      closeLabel={t("admin.trialLeads.modalClose")}
+      header={
+        <div className="flex items-center justify-between px-5 py-4">
           <div className="flex min-w-0 items-center gap-3">
             <UserInitialAvatar name={activeLead.parentName} size="md" />
             <div className="min-w-0">
@@ -174,8 +164,25 @@ export function AdminTrialLeadDetailModal({
             </button>
           </div>
         </div>
-
-        <div className="overflow-y-auto p-5">
+      }
+      footer={
+        mode === "view" && actions.length > 0 ? (
+          <div className="flex flex-col gap-2 p-4 sm:flex-row sm:justify-end">
+            {actions.map((action) => (
+              <Button
+                key={action.status}
+                type="button"
+                disabled={busy}
+                onClick={() => onUpdateStatus(activeLead, action.status)}
+                className="h-10 rounded-xl bg-primary-dark px-4 text-sm text-white"
+              >
+                {action.label}
+              </Button>
+            ))}
+          </div>
+        ) : undefined
+      }
+    >
           {mode === "edit" ? (
             <TrialLeadEditForm
               key={activeLead._id}
@@ -215,6 +222,7 @@ export function AdminTrialLeadDetailModal({
                   href={wa}
                   label={t("admin.trialLeads.modalWhatsApp")}
                   size="sm"
+                  disabledReason={t("admin.trialLeads.invalidPhone")}
                 />
                 <p className="text-xs text-portal-muted sm:ml-auto">
                   {t("admin.trialLeads.tableRequestedAt")}{" "}
@@ -242,32 +250,6 @@ export function AdminTrialLeadDetailModal({
               </div>
             </>
           )}
-        </div>
-
-        {mode === "view" && actions.length > 0 ? (
-          <div className="flex flex-col gap-2 border-t border-portal p-4 sm:flex-row sm:justify-end">
-            {mailHref ? (
-              <a
-                href={mailHref}
-                className="inline-flex h-10 items-center justify-center rounded-xl border border-portal px-4 text-sm font-semibold text-portal-heading transition hover:border-primary/30 hover:text-primary"
-              >
-                {t("admin.trialLeads.modalReplyEmail")}
-              </a>
-            ) : null}
-            {actions.map((action) => (
-              <Button
-                key={action.status}
-                type="button"
-                disabled={busy}
-                onClick={() => onUpdateStatus(activeLead, action.status)}
-                className="h-10 rounded-xl bg-primary-dark px-4 text-sm text-white"
-              >
-                {action.label}
-              </Button>
-            ))}
-          </div>
-        ) : null}
-      </div>
-    </div>
+    </AdminCenteredModal>
   );
 }

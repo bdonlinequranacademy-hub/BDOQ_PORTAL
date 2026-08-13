@@ -1,10 +1,29 @@
 export function isImageUploadUrl(url: string): boolean {
   const lower = url.toLowerCase();
-  if (lower.includes(".pdf") || lower.includes("f_pdf")) return false;
+  if (lower.includes(".pdf") || lower.includes("f_pdf") || lower.includes("/raw/upload/")) {
+    return false;
+  }
   return (
     /\.(jpe?g|png|webp|gif|avif|bmp)(\?|#|$)/i.test(url) ||
     lower.includes("/image/upload/")
   );
+}
+
+export function toPreviewImageUrl(url: string): string {
+  const trimmed = url.trim();
+  if (!trimmed) return trimmed;
+  if (isImageUploadUrl(trimmed)) return trimmed;
+
+  try {
+    const parsed = new URL(trimmed);
+    if (!parsed.hostname.includes("res.cloudinary.com")) return trimmed;
+    parsed.pathname = parsed.pathname
+      .replace("/raw/upload/", "/image/upload/")
+      .replace("/image/upload/", "/image/upload/f_jpg,pg_1/");
+    return parsed.toString();
+  } catch {
+    return trimmed;
+  }
 }
 
 export function toViewableUploadUrl(url: string): string {

@@ -1,4 +1,4 @@
-import { isImageUploadUrl, toViewableUploadUrl } from "@/lib/toViewableUploadUrl";
+import { isImageUploadUrl, toPreviewImageUrl, toViewableUploadUrl } from "@/lib/toViewableUploadUrl";
 
 export interface IAdmissionDisplayRow {
   key: string;
@@ -274,9 +274,9 @@ export function buildAdmissionDisplaySections(
         rows.push({
           key,
           label: FIELD_LABELS[key] ?? humanizeKey(key),
-          value: isImageUploadUrl(value) ? "View payment screenshot" : "Open payment proof",
+          value: "Payment proof",
           href: viewUrl,
-          imageUrl: isImageUploadUrl(value) ? value : undefined,
+          imageUrl: isImageUploadUrl(viewUrl) ? viewUrl : toPreviewImageUrl(viewUrl),
           fullWidth: true,
         });
         usedKeys.add(key);

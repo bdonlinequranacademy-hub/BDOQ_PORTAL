@@ -1,4 +1,3 @@
-import { useEffect } from "react";
 import { Phone, UserCircle, X } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/Button";
@@ -20,6 +19,8 @@ import { AdmissionStatusBadge } from "@/features/admin/components/student-admiss
 import { AdmissionPaymentStatusBadge } from "@/features/admin/components/student-admissions/AdmissionPaymentStatusBadge";
 import { AdmissionPaymentReviewPanel } from "@/features/admin/components/student-admissions/AdmissionPaymentReviewPanel";
 import { AdmissionEnrollmentSetupPanel } from "@/features/admin/components/student-admissions/AdmissionEnrollmentSetupPanel";
+import { AdminCenteredModal } from "@/features/admin/components/shared/AdminCenteredModal";
+import { AdminImageDocumentCard } from "@/features/admin/components/shared/AdminImageDocumentCard";
 import {
   admissionStatusActions,
   admissionTelHref,
@@ -27,7 +28,6 @@ import {
   type IAdmissionEnrollmentPayload,
 } from "@/features/admin/components/student-admissions/adminStudentAdmissionsUtils";
 import { usePortalTranslation } from "@/i18n/LocaleProvider";
-import { cn } from "@/lib/utils/cn";
 
 interface IAdminStudentAdmissionDetailModalProps {
   application: StudentAdmissionView | null;
@@ -43,7 +43,15 @@ interface IAdminStudentAdmissionDetailModalProps {
   onSaveEnrollment: (app: StudentAdmissionView, payload: IAdmissionEnrollmentPayload) => void;
 }
 
-function AdmissionSection({ section }: { section: IAdmissionDisplaySection }) {
+function AdmissionSection({
+  section,
+  openLabel,
+  printLabel,
+}: {
+  section: IAdmissionDisplaySection;
+  openLabel: string;
+  printLabel: string;
+}) {
   return (
     <div>
       <h4 className="text-xs font-semibold uppercase tracking-wide text-portal-muted">
@@ -55,21 +63,13 @@ function AdmissionSection({ section }: { section: IAdmissionDisplaySection }) {
             <dt className="text-xs text-portal-muted">{row.label}</dt>
             <dd className="mt-0.5 whitespace-pre-wrap text-sm font-medium text-portal-heading">
               {row.imageUrl ? (
-                <div className="space-y-2">
-                  <a
-                    href={row.href ?? row.imageUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-primary underline-offset-2 hover:underline"
-                  >
-                    {row.value}
-                  </a>
-                  <img
-                    src={row.imageUrl}
-                    alt={row.label}
-                    className="max-h-64 max-w-full rounded-xl border border-portal object-contain"
-                  />
-                </div>
+                <AdminImageDocumentCard
+                  label={row.label}
+                  url={row.href ?? row.imageUrl}
+                  imageUrl={row.imageUrl}
+                  openLabel={openLabel}
+                  printLabel={printLabel}
+                />
               ) : row.href ? (
                 <a
                   href={row.href}
@@ -101,15 +101,6 @@ export function AdminStudentAdmissionDetailModal({
 }: IAdminStudentAdmissionDetailModalProps) {
   const { t, formatDateTime, pickField } = usePortalTranslation();
 
-  useEffect(() => {
-    if (!application) return undefined;
-    const previous = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
-    return () => {
-      document.body.style.overflow = previous;
-    };
-  }, [application]);
-
   if (!application) return null;
 
   const country = getAdmissionCountry(application) ?? undefined;
@@ -129,23 +120,13 @@ export function AdminStudentAdmissionDetailModal({
         : null;
 
   return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center p-3 sm:p-6">
-      <button
-        type="button"
-        className="absolute inset-0 bg-[#0A1628]/55 backdrop-blur-[2px]"
-        aria-label={t("admin.admissions.modalClose")}
-        onClick={onClose}
-      />
-      <div
-        role="dialog"
-        aria-modal="true"
-        aria-labelledby="admission-detail-title"
-        className={cn(
-          "relative z-10 flex h-[min(90vh,880px)] w-full max-w-3xl flex-col overflow-hidden",
-          "rounded-2xl border border-portal bg-portal-surface shadow-2xl"
-        )}
-      >
-        <div className="flex shrink-0 items-center justify-between border-b border-portal px-5 py-4">
+    <AdminCenteredModal
+      open
+      titleId="admission-detail-title"
+      onClose={onClose}
+      closeLabel={t("admin.admissions.modalClose")}
+      header={
+        <div className="flex items-center justify-between px-5 py-4">
           <div className="flex min-w-0 items-center gap-3">
             <UserInitialAvatar name={application.fullName} size="md" />
             <div className="min-w-0">
@@ -175,81 +156,10 @@ export function AdminStudentAdmissionDetailModal({
             <X className="size-5" aria-hidden />
           </button>
         </div>
-
-        <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain p-5">
-          <div className="flex flex-col gap-3 rounded-2xl border border-portal bg-portal-muted/20 p-4 sm:flex-row sm:flex-wrap sm:items-center">
-            {telHref ? (
-              <a
-                href={telHref}
-                className="inline-flex items-center gap-2 text-sm text-portal-heading hover:text-primary"
-              >
-                <Phone className="size-4 text-portal-muted" aria-hidden />
-                {application.whatsapp}
-              </a>
-            ) : (
-              <button
-                type="button"
-                className="inline-flex items-center gap-2 text-sm text-portal-muted"
-                onClick={() => window.alert(t("admin.admissions.invalidPhone"))}
-              >
-                <Phone className="size-4" aria-hidden />
-                {application.whatsapp || t("admin.admissions.invalidPhone")}
-              </button>
-            )}
-            <WhatsAppLinkButton
-              href={wa}
-              label={t("admin.admissions.modalWhatsApp")}
-              size="sm"
-              disabledReason={t("admin.admissions.invalidWhatsApp")}
-            />
-            {application.linkedUserId ? (
-              <Link
-                to={`/admin/users/${application.linkedUserId}`}
-                className="inline-flex items-center gap-2 rounded-xl border border-primary/30 bg-primary/10 px-3 py-2 text-sm font-semibold text-primary-dark transition hover:bg-primary/15"
-              >
-                <UserCircle className="size-4" aria-hidden />
-                {t("admin.admissions.openStudentProfile")}
-              </Link>
-            ) : null}
-            <p className="text-xs text-portal-muted sm:ml-auto">
-              {t("admin.admissions.tableSubmitted")} {formatDateTime(application.createdAt)}
-            </p>
-          </div>
-
-          {application.adminNote ? (
-            <div className="mt-4 rounded-xl border border-amber-500/25 bg-amber-500/10 p-4">
-              <p className="text-xs font-semibold uppercase tracking-wide text-amber-800">
-                {t("admin.admissions.modalAdminNote")}
-              </p>
-              <p className="mt-1 text-sm text-portal-heading">{application.adminNote}</p>
-            </div>
-          ) : null}
-
-          <div className="mt-5 space-y-4">
-            <AdmissionPaymentReviewPanel
-              application={application}
-              busy={busy}
-              onUpdatePaymentStatus={(status, rejectReason) =>
-                onUpdatePaymentStatus(application, status, rejectReason)
-              }
-            />
-            <AdmissionEnrollmentSetupPanel
-              application={application}
-              teachers={teachers}
-              busy={busy}
-              onSave={(payload) => onSaveEnrollment(application, payload)}
-            />
-          </div>
-
-          <div className="mt-5 space-y-5">
-            {sections.map((section) => (
-              <AdmissionSection key={section.title} section={section} />
-            ))}
-          </div>
-        </div>
-
-        {actions.length > 0 ? (
-          <div className="flex shrink-0 flex-col gap-2 border-t border-portal p-4 sm:flex-row sm:justify-end">
+      }
+      footer={
+        actions.length > 0 ? (
+          <div className="flex flex-col gap-2 p-4 sm:flex-row sm:justify-end">
             {actions.map((action) => (
               <Button
                 key={action.status}
@@ -262,8 +172,83 @@ export function AdminStudentAdmissionDetailModal({
               </Button>
             ))}
           </div>
+        ) : undefined
+      }
+    >
+      <div className="flex flex-col gap-3 rounded-2xl border border-portal bg-portal-muted/20 p-4 sm:flex-row sm:flex-wrap sm:items-center">
+        {telHref ? (
+          <a
+            href={telHref}
+            className="inline-flex items-center gap-2 text-sm text-portal-heading hover:text-primary"
+          >
+            <Phone className="size-4 text-portal-muted" aria-hidden />
+            {application.whatsapp}
+          </a>
+        ) : (
+          <button
+            type="button"
+            className="inline-flex items-center gap-2 text-sm text-portal-muted"
+            onClick={() => window.alert(t("admin.admissions.invalidPhone"))}
+          >
+            <Phone className="size-4" aria-hidden />
+            {application.whatsapp || t("admin.admissions.invalidPhone")}
+          </button>
+        )}
+        <WhatsAppLinkButton
+          href={wa}
+          label={t("admin.admissions.modalWhatsApp")}
+          size="sm"
+          disabledReason={t("admin.admissions.invalidWhatsApp")}
+        />
+        {application.linkedUserId ? (
+          <Link
+            to={`/admin/users/${application.linkedUserId}`}
+            className="inline-flex items-center gap-2 rounded-xl border border-primary/30 bg-primary/10 px-3 py-2 text-sm font-semibold text-primary-dark transition hover:bg-primary/15"
+          >
+            <UserCircle className="size-4" aria-hidden />
+            {t("admin.admissions.openStudentProfile")}
+          </Link>
         ) : null}
+        <p className="text-xs text-portal-muted sm:ml-auto">
+          {t("admin.admissions.tableSubmitted")} {formatDateTime(application.createdAt)}
+        </p>
       </div>
-    </div>
+
+      {application.adminNote ? (
+        <div className="mt-4 rounded-xl border border-amber-500/25 bg-amber-500/10 p-4">
+          <p className="text-xs font-semibold uppercase tracking-wide text-amber-800">
+            {t("admin.admissions.modalAdminNote")}
+          </p>
+          <p className="mt-1 text-sm text-portal-heading">{application.adminNote}</p>
+        </div>
+      ) : null}
+
+      <div className="mt-5 space-y-4">
+        <AdmissionPaymentReviewPanel
+          application={application}
+          busy={busy}
+          onUpdatePaymentStatus={(status, rejectReason) =>
+            onUpdatePaymentStatus(application, status, rejectReason)
+          }
+        />
+        <AdmissionEnrollmentSetupPanel
+          application={application}
+          teachers={teachers}
+          busy={busy}
+          onSave={(payload) => onSaveEnrollment(application, payload)}
+        />
+      </div>
+
+      <div className="mt-5 space-y-5">
+        {sections.map((section) => (
+          <AdmissionSection
+            key={section.title}
+            section={section}
+            openLabel={t("admin.admissions.openDocument")}
+            printLabel={t("admin.admissions.printDocument")}
+          />
+        ))}
+      </div>
+    </AdminCenteredModal>
   );
 }
