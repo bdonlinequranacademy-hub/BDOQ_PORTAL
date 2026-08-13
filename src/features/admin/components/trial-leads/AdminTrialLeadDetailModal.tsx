@@ -37,7 +37,7 @@ interface IAdminTrialLeadDetailModalProps {
   onSave: (lead: TrialBookingView, payload: ITrialLeadUpdatePayload) => void;
   onSaveScheduling: (lead: TrialBookingView, payload: ITrialLeadSchedulingPayload) => void;
   onSendInvitation: (lead: TrialBookingView, payload: ITrialLeadSchedulingPayload) => void;
-  onConvert: (lead: TrialBookingView, payload: { email: string; createUser: boolean }) => void;
+  onConvert: (lead: TrialBookingView, payload: { email: string }) => void;
   convertResult: IConvertTrialResult | null;
   canDelete?: boolean;
   onDelete: (lead: TrialBookingView) => void;

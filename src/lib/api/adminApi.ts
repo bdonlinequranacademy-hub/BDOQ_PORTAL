@@ -318,14 +318,13 @@ export const adminApi = {
 
   convertTrialToAdmission: (
     id: string,
-    payload: { email: string; createUser?: boolean; locale?: "en" | "bn" }
+    payload: { email: string; locale?: "en" | "bn" }
   ) =>
     apiClient
       .post<
         ApiResponse<{
           booking: TrialBookingView;
           admission: StudentAdmissionView;
-          user?: { _id: string; email: string; temporaryPassword?: string };
           prefillUrl: string;
           portalAdmissionPath: string;
         }>

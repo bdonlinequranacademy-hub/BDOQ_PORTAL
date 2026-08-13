@@ -189,7 +189,7 @@ export function AdminTrialBookingsPage() {
 
   function handleConvertLead(
     lead: TrialBookingView,
-    payload: { email: string; createUser: boolean }
+    payload: { email: string }
   ) {
     convertTrial.mutate(
       { id: lead._id, payload },
@@ -201,7 +201,6 @@ export function AdminTrialBookingsPage() {
             setConvertResult({
               prefillUrl: data.prefillUrl,
               portalAdmissionPath: data.portalAdmissionPath,
-              user: data.user,
               admission: data.admission,
             });
           }

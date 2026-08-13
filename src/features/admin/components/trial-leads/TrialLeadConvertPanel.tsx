@@ -14,11 +14,6 @@ import { cn } from "@/lib/utils/cn";
 export interface IConvertTrialResult {
   prefillUrl: string;
   portalAdmissionPath: string;
-  user?: {
-    _id: string;
-    email: string;
-    temporaryPassword?: string;
-  };
   admission: {
     _id: string;
   };
@@ -28,7 +23,7 @@ interface ITrialLeadConvertPanelProps {
   lead: TrialBookingView;
   busy: boolean;
   lastResult: IConvertTrialResult | null;
-  onConvert: (payload: { email: string; createUser: boolean }) => void;
+  onConvert: (payload: { email: string }) => void;
 }
 
 const fieldClass = cn(formControlClass, "shadow-none");
@@ -41,7 +36,6 @@ export function TrialLeadConvertPanel({
 }: ITrialLeadConvertPanelProps) {
   const { t, formatDateTime } = usePortalTranslation();
   const [email, setEmail] = useState(lead.email ?? "");
-  const [createUser, setCreateUser] = useState(true);
   const [copied, setCopied] = useState<string | null>(null);
 
   useEffect(() => {
@@ -159,25 +153,13 @@ export function TrialLeadConvertPanel({
             required
           />
         </label>
-
-        <label className="flex items-center gap-2 sm:col-span-2">
-          <input
-            type="checkbox"
-            checked={createUser}
-            onChange={(event) => setCreateUser(event.target.checked)}
-            className="size-4 rounded border-portal text-primary"
-          />
-          <span className="text-sm text-portal-heading">
-            {t("admin.trialLeads.convertCreateUser")}
-          </span>
-        </label>
       </div>
 
       <div className="mt-4 flex flex-col gap-2 border-t border-portal pt-4 sm:flex-row sm:items-center">
         <Button
           type="button"
           disabled={busy || !email.trim()}
-          onClick={() => onConvert({ email: email.trim(), createUser })}
+          onClick={() => onConvert({ email: email.trim() })}
           className="inline-flex h-10 items-center gap-2 rounded-xl bg-primary-dark px-4 text-white"
         >
           <ArrowRight className="size-4" aria-hidden />
@@ -189,13 +171,6 @@ export function TrialLeadConvertPanel({
       {resultForLead ? (
         <div className="mt-4 rounded-xl border border-primary/20 bg-white p-3 text-xs text-portal-heading">
           <p className="font-semibold text-primary-dark">{t("admin.trialLeads.convertSuccess")}</p>
-          {resultForLead.user?.temporaryPassword ? (
-            <p className="mt-2">
-              {t("admin.trialLeads.tempPassword", {
-                password: resultForLead.user.temporaryPassword,
-              })}
-            </p>
-          ) : null}
           <div className="mt-3 flex flex-col gap-2">
             <Input value={resultForLead.prefillUrl} readOnly className={fieldClass} />
             <div className="flex flex-wrap gap-2">
