@@ -965,6 +965,7 @@ export interface AdminClass {
   teacher: PopulatedUserRef | string;
   students: PopulatedUserRef[] | string[];
   schedule?: ClassSchedule;
+  curriculum?: CurriculumAssignment;
   meetingLink?: string;
   sessionRateBdt?: number;
   isActive?: boolean;

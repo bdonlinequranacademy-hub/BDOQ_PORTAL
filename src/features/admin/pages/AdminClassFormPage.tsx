@@ -15,6 +15,9 @@ import { formControlClass } from "@/lib/formControl";
 import { CLASS_WEEK_DAYS, toTimeInputValue } from "@/lib/utils/schedule";
 import { toast } from "@/stores/uiStore";
 import type { ClassSchedule } from "@/types/models";
+import type { CurriculumPath } from "@/lib/api/curriculumApi";
+import { NestedCurriculumSelect, useCurriculumTree } from "@/components/curriculum/NestedCurriculumSelect";
+import { PageLoading } from "@/components/ui/PageLoading";
 import { usePortalTranslation } from "@/i18n/LocaleProvider";
 
 const DURATION_OPTIONS = [30, 45, 60, 90] as const;
@@ -42,7 +45,10 @@ export function AdminClassFormPage() {
   const [scheduleRepeatWeekly, setScheduleRepeatWeekly] = useState(true);
   const [sessionRateBdt, setSessionRateBdt] = useState("500");
   const [selectedStudents, setSelectedStudents] = useState<string[]>([]);
+  const [curriculum, setCurriculum] = useState<CurriculumPath>({ programId: "" });
   const [formError, setFormError] = useState<string | null>(null);
+
+  const { data: curriculumTree = [], isLoading: treeLoading } = useCurriculumTree();
 
   useEffect(() => {
     if (!existing || !isEdit) return;
@@ -57,6 +63,13 @@ export function AdminClassFormPage() {
       setScheduleTime(toTimeInputValue(existing.schedule.time));
       setScheduleDuration(existing.schedule.duration || 60);
       setScheduleRepeatWeekly(existing.schedule.repeatWeekly !== false);
+    }
+    if (existing.curriculum) {
+      setCurriculum({
+        programId: existing.curriculum.programId,
+        unitId: existing.curriculum.unitId,
+        topicId: existing.curriculum.topicId,
+      });
     }
     const enrolled = existing.students ?? [];
     if (enrolled.length && typeof enrolled[0] === "object") {
@@ -98,6 +111,7 @@ export function AdminClassFormPage() {
       teacherId,
       studentIds: selectedStudents,
       schedule,
+      curriculum: curriculum.programId ? curriculum : undefined,
       meetingLink: meetingLink.trim() || undefined,
       sessionRateBdt: Number(sessionRateBdt) || 500,
     };
@@ -174,6 +188,21 @@ export function AdminClassFormPage() {
                 </option>
               ))}
             </select>
+          </div>
+
+          <div className="flex flex-col gap-1">
+            <label className="text-xs font-medium text-zinc-500">Curriculum (Study Plan)</label>
+            <div className="rounded-xl border border-zinc-200 bg-zinc-50 p-4">
+              {treeLoading ? (
+                <PageLoading compact label="Loading study plan..." />
+              ) : (
+                <NestedCurriculumSelect
+                  tree={curriculumTree}
+                  value={curriculum}
+                  onChange={setCurriculum}
+                />
+              )}
+            </div>
           </div>
 
           <div className="rounded-xl border border-[#C4922B]/25 bg-[#FDF3E0]/40 p-4">

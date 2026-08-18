@@ -145,6 +145,7 @@ export const adminApi = {
     teacherId: string;
     studentIds?: string[];
     schedule?: ClassSchedule;
+    curriculum?: CurriculumAssignment;
     meetingLink?: string;
     sessionRateBdt?: number;
   }) =>
@@ -158,6 +159,7 @@ export const adminApi = {
       teacherId: string;
       studentIds: string[];
       schedule: ClassSchedule;
+      curriculum: CurriculumAssignment;
       meetingLink: string;
       sessionRateBdt: number;
       isActive: boolean;
