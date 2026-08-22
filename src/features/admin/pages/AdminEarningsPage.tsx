@@ -125,9 +125,9 @@ export function AdminEarningsPage() {
           description={t("admin.common.noEarningsDesc")}
         />
       ) : (
-        <div className="grid grid-cols-1 items-start gap-4 xl:gap-5 xl:grid-cols-[minmax(0,1fr)_280px]">
-          <div className="flex min-w-0 flex-col gap-5">
-            <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
+        <div className="grid grid-cols-1 items-start gap-3 xl:gap-4 xl:grid-cols-[minmax(0,1fr)_280px] mt-4">
+          <div className="flex min-w-0 flex-col gap-3">
+            <div className="grid grid-cols-1 gap-3 lg:grid-cols-2">
               <AdminEarningsByTeacherTable
                 data={data}
                 onViewAll={() => navigate("/admin/class-logs")}
@@ -147,7 +147,7 @@ export function AdminEarningsPage() {
             />
           </div>
 
-          <div className="flex flex-col gap-4">
+          <div className="flex flex-col gap-3">
             <AdminEarningsTrendChart
               data={trendData}
               range={trendRange}
