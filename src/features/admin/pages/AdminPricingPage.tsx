@@ -109,8 +109,8 @@ export function AdminPricingPage() {
           onAction={() => navigate("/admin/pricing/new")}
         />
       ) : (
-        <div className="grid grid-cols-1 items-start gap-4 xl:gap-5 xl:grid-cols-[minmax(0,1fr)_300px]">
-          <div className="flex min-w-0 flex-col gap-5">
+        <div className="grid grid-cols-1 items-start gap-3 xl:gap-4 xl:grid-cols-[minmax(0,1fr)_300px] mt-4">
+          <div className="flex min-w-0 flex-col gap-3">
             <AdminPricingToolbar
               search={search}
               status={status}
@@ -138,7 +138,7 @@ export function AdminPricingPage() {
             <Pagination pagination={pagination} itemLabel="packages" />
           </div>
 
-          <aside className="flex flex-col gap-5 xl:sticky xl:top-24 xl:self-start">
+          <aside className="flex flex-col gap-3 xl:sticky xl:top-24 xl:self-start">
             <AdminPricingStatusOverview
               slices={statusSlices}
               total={packages.length}
