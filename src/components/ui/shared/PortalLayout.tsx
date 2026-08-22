@@ -10,7 +10,6 @@ import {
   Sparkles,
 } from "lucide-react";
 import { BrandLogo } from "@/components/brand/BrandLogo";
-import { PortalBrandingHeader } from "@/components/layout/PortalBrandingHeader";
 import { GlobalSearch } from "@/components/search/GlobalSearch";
 import { ThemeToggle } from "@/components/theme/ThemeToggle";
 import { LanguageToggle } from "@/components/shared/LanguageToggle";
@@ -388,11 +387,7 @@ export function PortalLayout({
           )}
         </div>
 
-        {/* Mosque silhouette watermark */}
-        {sidebarOpen ? (
-          <div className="portal-sidebar-mosque" aria-hidden />
-        ) : null}
-      </aside>
+        {/* Profile + sign out */}
 
       <div
         className={cn(
@@ -551,9 +546,6 @@ export function PortalLayout({
 
           <main className="portal-mobile-content flex-1 w-full min-w-0 animate-page-in lg:pb-8">
             <div className="flex min-h-full flex-col">
-              <div className="px-4 pt-3 sm:px-6 sm:pt-3.5 lg:px-8 lg:pt-4">
-                <PortalBrandingHeader name={user.name} role={user.role} />
-              </div>
               <Outlet />
             </div>
           </main>
