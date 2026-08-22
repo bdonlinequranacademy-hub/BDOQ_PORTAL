@@ -59,7 +59,7 @@ function SearchListSection({
       <p className="mb-1.5 px-2 text-[10px] font-semibold uppercase tracking-[0.16em] text-portal-muted">
         {title}
       </p>
-      <ul className="overflow-hidden rounded border border-[rgb(220_235_228/0.7)] bg-white/80 shadow-[var(--portal-card-shadow)]">
+      <ul className="overflow-hidden rounded border border-portal bg-portal-surface shadow-[var(--portal-card-shadow)]">
         {children}
       </ul>
     </section>
@@ -82,7 +82,7 @@ function SearchListRow({
   active?: boolean;
 }) {
   return (
-    <li className="border-b border-[rgb(220_235_228/0.55)] last:border-b-0">
+    <li className="border-b border-portal last:border-b-0">
       <button
         type="button"
         onClick={onClick}
@@ -90,7 +90,7 @@ function SearchListRow({
           "group flex w-full items-center gap-3 px-3 py-2.5 text-left transition",
           active
             ? "bg-primary/8"
-            : "hover:bg-[#f6fcf9] focus-visible:bg-[#f6fcf9] focus-visible:outline-none"
+            : "hover:bg-portal-surface-muted focus-visible:bg-portal-surface-muted focus-visible:outline-none"
         )}
       >
         <span className="flex size-9 shrink-0 items-center justify-center rounded bg-primary/10 text-primary ring-1 ring-primary/15 transition group-hover:bg-gold/15 group-hover:text-gold-dark group-hover:ring-gold/25">
@@ -220,10 +220,10 @@ export function GlobalSearch({
             aria-label={t("search.dialogLabel")}
           >
             <div
-              className="w-full max-w-lg overflow-hidden rounded-xl border border-[rgb(220_235_228/0.7)] bg-portal-surface shadow-[var(--portal-card-shadow)] animate-page-in"
+              className="w-full max-w-lg overflow-hidden rounded-xl border border-portal bg-portal-surface shadow-[var(--portal-card-shadow)] animate-page-in"
               onClick={(e) => e.stopPropagation()}
             >
-              <div className="flex items-center gap-2 border-b border-[rgb(220_235_228/0.7)] px-4 py-3">
+              <div className="flex items-center gap-2 border-b border-portal px-4 py-3">
                 <span className="flex size-8 shrink-0 items-center justify-center rounded bg-primary/10 text-primary">
                   <Search className="size-4" />
                 </span>
@@ -237,7 +237,7 @@ export function GlobalSearch({
                 <button
                   type="button"
                   onClick={() => setOpen(false)}
-                  className="rounded p-1.5 text-portal-muted transition hover:bg-[#f6fcf9] hover:text-portal-heading"
+                  className="rounded p-1.5 text-portal-muted transition hover:bg-portal-surface-muted hover:text-portal-heading"
                   aria-label={t("search.closeSearch")}
                 >
                   <X className="size-4" />
@@ -344,14 +344,14 @@ export function GlobalSearch({
         type="button"
         onClick={() => setOpen(true)}
         className={cn(
-          "hidden items-center gap-2 rounded border border-[rgb(220_235_228/0.7)] bg-portal-surface px-3 py-1.5 text-sm text-portal-muted shadow-[var(--portal-card-shadow)] transition hover:text-portal-heading sm:flex",
+          "hidden items-center gap-2 rounded border border-portal bg-portal-surface px-3 py-1.5 text-sm text-portal-muted shadow-[var(--portal-card-shadow)] transition hover:text-portal-heading sm:flex",
           className
         )}
         aria-label={t("search.openSearch")}
       >
         <Search className="size-4" />
         <span>{t("search.placeholderShort")}</span>
-        <kbd className="rounded bg-[#f6fcf9] px-1.5 py-0.5 text-[10px] font-medium text-portal-muted">
+        <kbd className="rounded bg-portal-surface-muted border border-portal px-1.5 py-0.5 text-[10px] font-medium text-portal-muted">
           Ctrl K
         </kbd>
       </button>
