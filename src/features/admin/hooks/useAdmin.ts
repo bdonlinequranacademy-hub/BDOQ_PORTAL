@@ -1037,6 +1037,7 @@ export function useConvertTrialToAdmission() {
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["admin", "trialBookings"] });
       qc.invalidateQueries({ queryKey: ["admin", "studentAdmissions"] });
+      qc.invalidateQueries({ queryKey: ["admin", "users"] });
       addToast("success", "Trial lead converted to admission");
     },
     onError: () => addToast("error", "Failed to convert trial lead"),
@@ -1158,6 +1159,7 @@ export function useUpdateTeacherApplicationStatus() {
     }) => adminApi.updateTeacherApplicationStatus(id, status, adminNote),
     onSuccess: (_response, variables) => {
       qc.invalidateQueries({ queryKey: ["admin", "teacherApplications"] });
+      qc.invalidateQueries({ queryKey: ["admin", "users"] });
       qc.invalidateQueries({ queryKey: ["admin", "users"] });
       qc.invalidateQueries({ queryKey: adminKeys.stats });
       addToast(
