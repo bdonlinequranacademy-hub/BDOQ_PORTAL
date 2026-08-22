@@ -259,7 +259,7 @@
   }
 
   .portal-auth-card {
-    @apply portal-card-islamic portal-card--lg rounded-3xl border border-portal bg-portal-surface shadow-lg;
+    @apply rounded-3xl border border-portal bg-portal-surface shadow-lg;
   }
 
   .portal-card-islamic {
@@ -275,7 +275,6 @@
   }
 
   .portal-islamic-hero {
-    @apply portal-card-islamic portal-card--lg;
     background-color: var(--portal-surface);
     border-color: rgb(220 235 228 / 0.7);
   }
@@ -523,7 +522,7 @@
   }
 
   .portal-card {
-    @apply portal-card-islamic rounded-[8px] border border-portal transition-[box-shadow,background-color,border-color] duration-200;
+    @apply rounded-[8px] border border-portal transition-[box-shadow,background-color,border-color] duration-200;
     position: relative;
     overflow: hidden;
     isolation: isolate;
