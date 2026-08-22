@@ -19,16 +19,6 @@ export function AdminTestimonialsOverviewHeader({
         className="pointer-events-none absolute -right-8 -top-10 size-56 rounded-full bg-primary/8 blur-2xl sm:size-72"
         aria-hidden
       />
-      <div
-        className="pointer-events-none absolute bottom-0 left-1/2 h-32 w-[min(100%,42rem)] -translate-x-1/2 opacity-[0.14] sm:h-40"
-        style={{
-          backgroundImage: "url('/brand/islamic-shape-bg.png')",
-          backgroundSize: "contain",
-          backgroundPosition: "center bottom",
-          backgroundRepeat: "no-repeat",
-        }}
-        aria-hidden
-      />
       <div className="relative flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <div>
           <p className="text-xs font-semibold uppercase tracking-[0.18em] text-primary">

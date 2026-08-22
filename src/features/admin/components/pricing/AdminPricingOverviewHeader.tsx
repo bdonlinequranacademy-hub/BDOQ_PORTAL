@@ -14,16 +14,6 @@ export function AdminPricingOverviewHeader() {
         className="pointer-events-none absolute -right-10 -top-12 size-56 rounded-full bg-primary/10 blur-2xl"
         aria-hidden
       />
-      <div
-        className="pointer-events-none absolute bottom-0 left-1/2 h-28 w-[min(100%,36rem)] -translate-x-1/2 opacity-[0.12] sm:h-36"
-        style={{
-          backgroundImage: "url('/brand/islamic-shape-bg.png')",
-          backgroundSize: "contain",
-          backgroundPosition: "center bottom",
-          backgroundRepeat: "no-repeat",
-        }}
-        aria-hidden
-      />
 
       <div className="relative grid gap-5 lg:grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] lg:items-center">
         <div className="flex items-center gap-3">
