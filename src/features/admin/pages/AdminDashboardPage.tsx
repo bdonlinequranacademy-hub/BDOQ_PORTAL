@@ -5,20 +5,11 @@ import {
   GraduationCap,
   BookOpen,
   Activity,
-  BarChart3,
-  ClipboardList,
-  Newspaper,
   CalendarDays,
-  Banknote,
-  ClipboardCheck,
   CalendarCheck,
   Inbox,
-  Briefcase,
-  BookOpenCheck,
   Library,
   CreditCard,
-  Gift,
-  MessageSquareQuote,
   Percent,
   CheckCircle2,
   Radio,
@@ -36,12 +27,12 @@ import {
   type IAdminDashboardActionItem,
 } from "@/features/admin/components/dashboard/AdminDashboardActionPanel";
 import { usePortalTranslation } from "@/i18n/LocaleProvider";
-import { useAuth } from "@/hooks/useAuth";
+import { useAuthStore } from "@/stores/authStore";
 
 export function AdminDashboardPage() {
   const navigate = useNavigate();
-  const { user } = useAuth();
-  const { t, nav, locale, role: roleLabel } = usePortalTranslation();
+  const { user } = useAuthStore();
+  const { t, locale, role: roleLabel } = usePortalTranslation();
   const { data: stats, isLoading } = useAdminStats();
   const { data: waQueue = [] } = useAdminWhatsAppQueue();
   const waActionable = waQueue.filter((i) => i.category !== "missing_whatsapp").length;
@@ -168,28 +159,28 @@ export function AdminDashboardPage() {
         {/* Core Stats */}
         <StatCard
           label={t("admin.dashboard.statsStudents")}
-          value={isLoading ? "—" : (stats?.totalStudents ?? 0)}
+          value={isLoading ? "â€”" : (stats?.totalStudents ?? 0)}
           icon={<Users className="text-portal-muted" />}
           iconBg="bg-portal-surface-muted/30"
           onClick={() => navigate("/admin/users")}
         />
         <StatCard
           label={t("admin.dashboard.statsTeachers")}
-          value={isLoading ? "—" : (stats?.totalTeachers ?? 0)}
+          value={isLoading ? "â€”" : (stats?.totalTeachers ?? 0)}
           icon={<GraduationCap className="text-portal-muted" />}
           iconBg="bg-portal-surface-muted/30"
           onClick={() => navigate("/admin/users")}
         />
         <StatCard
           label={t("admin.dashboard.statsClasses")}
-          value={isLoading ? "—" : (stats?.totalClasses ?? 0)}
+          value={isLoading ? "â€”" : (stats?.totalClasses ?? 0)}
           icon={<BookOpen className="text-portal-muted" />}
           iconBg="bg-portal-surface-muted/30"
           onClick={() => navigate("/admin/classes")}
         />
         <StatCard
           label="Running now"
-          value={isLoading ? "—" : (liveSummary?.liveCount ?? 0)}
+          value={isLoading ? "â€”" : (liveSummary?.liveCount ?? 0)}
           icon={<Activity className="text-portal-muted" />}
           iconBg="bg-portal-surface-muted/30"
           onClick={() => navigate("/admin/live-monitor")}
@@ -198,21 +189,21 @@ export function AdminDashboardPage() {
         {/* Health Metrics */}
         <StatCard
           label={t("admin.dashboard.attendanceRate")}
-          value={stats?.attendanceRate != null ? \\%\ : "—"}
+          value={stats?.attendanceRate != null ? `${stats.attendanceRate}%` : "â€”"}
           icon={<Percent className="text-portal-muted" />}
           iconBg="bg-portal-surface-muted/30"
           onClick={() => navigate("/admin/attendance")}
         />
         <StatCard
           label={t("admin.dashboard.homeworkCompletion")}
-          value={stats?.homeworkCompletion != null ? \\%\ : "—"}
+          value={stats?.homeworkCompletion != null ? `${stats.homeworkCompletion}%` : "â€”"}
           icon={<CheckCircle2 className="text-portal-muted" />}
           iconBg="bg-portal-surface-muted/30"
           onClick={() => navigate("/admin/homework")}
         />
         <StatCard
           label={t("admin.dashboard.curriculumAssigned")}
-          value={coverage ? \\/\\ : "—"}
+          value={coverage ? `${coverage.studentsWithPrograms}/${coverage.totalStudents}` : "â€”"}
           icon={<Library className="text-portal-muted" />}
           iconBg="bg-portal-surface-muted/30"
           onClick={() => navigate("/admin/curriculum")}
@@ -222,7 +213,7 @@ export function AdminDashboardPage() {
           value={waQueue.length}
           icon={<MessageCircle className="text-portal-muted" />}
           iconBg="bg-portal-surface-muted/30"
-          hint={waActionable > 0 ? \\ urgent WhatsApp reminders right now\ : "No urgent WhatsApp reminders right now"}
+          hint={waActionable > 0 ? `${waActionable} urgent WhatsApp reminders right now` : "No urgent WhatsApp reminders right now"}
           onClick={() => navigate("/admin/whatsapp-queue")}
         />
       </div>

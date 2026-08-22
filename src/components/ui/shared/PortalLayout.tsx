@@ -386,8 +386,7 @@ export function PortalLayout({
             </div>
           )}
         </div>
-
-        {/* Profile + sign out */}
+      </aside>
 
       <div
         className={cn(
