@@ -153,6 +153,7 @@ export function PortalLayout({
   const location = useLocation();
   const { t, role: roleLabel, portalLabel, section, locale } = usePortalTranslation();
   const [sidebarOpen, setSidebarOpen] = useState(readSidebarOpenPreference);
+  const [expandedSections, setExpandedSections] = useState<Record<string, boolean>>({});
 
   useEffect(() => {
     localStorage.setItem(SIDEBAR_OPEN_KEY, String(sidebarOpen));
@@ -175,6 +176,15 @@ export function PortalLayout({
   );
   const profileActive = Boolean(profilePath && isActive(profilePath));
   const hijriLabel = useMemo(() => hijriDateLabel(), []);
+
+  useEffect(() => {
+    const activeSection = navSections.find((sec) =>
+      sec.items.some((item) => isActive(item.path))
+    );
+    if (activeSection && activeSection.id !== "dashboard") {
+      setExpandedSections((prev) => ({ ...prev, [activeSection.id]: true }));
+    }
+  }, [location.pathname, navSections]);
 
   function goToProfile() {
     if (profilePath) navigate(profilePath);
@@ -226,29 +236,76 @@ export function PortalLayout({
             sidebarOpen ? "px-3" : "px-2"
           )}
         >
-          {navSections.map((section) => (
-            <div key={section.id} className="mb-1">
-              {sidebarOpen && section.label ? (
-                <div className="portal-sidebar-section-label">
-                  <Sparkles className="size-3 shrink-0 text-gold" aria-hidden />
-                  <span>{section.label}</span>
+          {navSections.map((section) => {
+            if (section.id === "dashboard" || !section.label) {
+              return (
+                <div key={section.id} className="mb-2 flex flex-col gap-0.5">
+                  {section.items.map((item) => (
+                    <NavButton
+                      key={item.path}
+                      item={item}
+                      active={isActive(item.path)}
+                      onClick={() => navigate(item.path)}
+                      layout="sidebar"
+                      collapsed={!sidebarOpen}
+                      emphasize={section.id === "dashboard"}
+                    />
+                  ))}
                 </div>
-              ) : null}
-              <div className={cn("flex flex-col gap-0.5", sidebarOpen && section.label ? "pb-1" : "")}>
-                {section.items.map((item) => (
-                  <NavButton
-                    key={item.path}
-                    item={item}
-                    active={isActive(item.path)}
-                    onClick={() => navigate(item.path)}
-                    layout="sidebar"
-                    collapsed={!sidebarOpen}
-                    emphasize={section.id === "dashboard"}
-                  />
-                ))}
+              );
+            }
+
+            const isExpanded = expandedSections[section.id] ?? false;
+
+            return (
+              <div key={section.id} className="mb-1">
+                {sidebarOpen ? (
+                  <button
+                    type="button"
+                    onClick={() =>
+                      setExpandedSections((prev) => ({
+                        ...prev,
+                        [section.id]: !prev[section.id],
+                      }))
+                    }
+                    className="flex w-full items-center justify-between px-3 py-2 text-[11px] font-bold uppercase tracking-wider text-portal-muted transition-colors hover:text-white"
+                  >
+                    <div className="flex items-center gap-2">
+                      <Sparkles className="size-3 shrink-0 text-gold" aria-hidden />
+                      <span>{section.label}</span>
+                    </div>
+                    <ChevronRight
+                      className={cn(
+                        "size-3.5 transition-transform",
+                        isExpanded ? "rotate-90" : ""
+                      )}
+                    />
+                  </button>
+                ) : null}
+
+                <div
+                  className={cn(
+                    "flex flex-col gap-0.5 overflow-hidden transition-all duration-200",
+                    sidebarOpen && section.label && !isExpanded
+                      ? "max-h-0"
+                      : "max-h-[1000px] pb-1"
+                  )}
+                >
+                  {section.items.map((item) => (
+                    <NavButton
+                      key={item.path}
+                      item={item}
+                      active={isActive(item.path)}
+                      onClick={() => navigate(item.path)}
+                      layout="sidebar"
+                      collapsed={!sidebarOpen}
+                      emphasize={false}
+                    />
+                  ))}
+                </div>
               </div>
-            </div>
-          ))}
+            );
+          })}
         </nav>
 
         {/* Profile + sign out */}
