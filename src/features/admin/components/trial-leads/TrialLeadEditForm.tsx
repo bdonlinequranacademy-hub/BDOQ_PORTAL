@@ -30,7 +30,7 @@ export function TrialLeadEditForm({
   onCancel,
   onSave,
 }: ITrialLeadEditFormProps) {
-  const { t, statusLabel } = usePortalTranslation();
+  const { t, statusLabel, locale } = usePortalTranslation();
   const defaults = useMemo(() => buildTrialLeadEditDefaults(lead), [lead]);
   const [form, setForm] = useState(defaults);
 
@@ -279,6 +279,11 @@ export function TrialLeadEditForm({
                 {statusLabel(status)}
               </option>
             ))}
+            {form.status === "approved" && !TRIAL_LEAD_STATUSES.includes("approved") && (
+              <option key="approved" value="approved">
+                {locale === "bn" ? "ভর্তি হয়েছে (Enrolled)" : "Enrolled"}
+              </option>
+            )}
           </Select>
         </div>
       </div>

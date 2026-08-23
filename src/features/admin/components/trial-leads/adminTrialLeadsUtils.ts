@@ -497,7 +497,6 @@ export const TRIAL_LEAD_STATUSES: TrialBookingStatus[] = [
   "contacted",
   "scheduled",
   "reviewing",
-  "approved",
   "rejected",
 ];
 

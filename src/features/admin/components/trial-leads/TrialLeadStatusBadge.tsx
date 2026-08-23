@@ -4,7 +4,7 @@ import { cn } from "@/lib/utils/cn";
 import { usePortalTranslation } from "@/i18n/LocaleProvider";
 
 export function TrialLeadStatusBadge({ status }: { status: TrialBookingStatus }) {
-  const { statusLabel } = usePortalTranslation();
+  const { statusLabel, locale } = usePortalTranslation();
 
   return (
     <span
@@ -13,7 +13,11 @@ export function TrialLeadStatusBadge({ status }: { status: TrialBookingStatus })
         trialLeadStatusStyles(status)
       )}
     >
-      {statusLabel(status)}
+      {status === "approved"
+        ? locale === "bn"
+          ? "ভর্তি হয়েছে (Enrolled)"
+          : "Enrolled"
+        : statusLabel(status)}
     </span>
   );
 }
