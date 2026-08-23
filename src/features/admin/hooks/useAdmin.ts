@@ -1077,7 +1077,7 @@ export function useUpdateStudentAdmissionStatus() {
       );
     },
     onError: (error: unknown) =>
-      addToast("error", getApiErrorMessage(error, "Failed to update admission application")),
+      addToast("error", getApiErrorMessage(error, "স্টুডেন্ট এডমিশন আপডেট করতে সমস্যা হয়েছে। দয়া করে আবার চেষ্টা করুন।")),
   });
 }
 
@@ -1170,7 +1170,7 @@ export function useUpdateTeacherApplicationStatus() {
       );
     },
     onError: (error: unknown) =>
-      addToast("error", getApiErrorMessage(error, "Failed to update teacher application")),
+      addToast("error", getApiErrorMessage(error, "টিচার এপ্লিকেশন আপডেট করতে সমস্যা হয়েছে। দয়া করে আবার চেষ্টা করুন।")),
   });
 }
 
