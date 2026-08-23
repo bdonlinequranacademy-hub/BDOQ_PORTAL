@@ -46,8 +46,8 @@ export function AdminStudentAdmissionsStatsGrid({
         icon={<ClipboardList className="size-5 text-orange-600" />}
         iconBg="bg-orange-100"
         hint={
-          stats.new > 0
-            ? `${formatNumber(stats.new)} ${statusLabel("new").toLowerCase()}`
+          stats.pending > 0
+            ? `${formatNumber(stats.pending)} ${statusLabel("pending").toLowerCase()}`
             : pct(stats.underReview, stats.total)
         }
       />
@@ -60,10 +60,10 @@ export function AdminStudentAdmissionsStatsGrid({
       />
       <StatCard
         label={t("admin.admissions.statsClosed")}
-        value={isLoading ? "—" : stats.closed}
+        value={isLoading ? "—" : stats.rejected}
         icon={<XCircle className="size-5 text-red-600" />}
         iconBg="bg-red-100"
-        hint={pct(stats.closed, stats.total)}
+        hint={pct(stats.rejected, stats.total)}
       />
       <StatCard
         label={t("admin.admissions.statsConversion")}

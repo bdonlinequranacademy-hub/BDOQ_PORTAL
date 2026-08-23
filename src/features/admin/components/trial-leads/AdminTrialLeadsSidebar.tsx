@@ -123,7 +123,7 @@ function TodaysLeads({ leads }: { leads: TrialBookingView[] }) {
 function ClosedOverview({ leads }: { leads: TrialBookingView[] }) {
   const { t, formatNumber } = usePortalTranslation();
   const stats = computeTrialLeadsStats(leads);
-  const rate = stats.total > 0 ? Math.round((stats.closed / stats.total) * 100) : 0;
+  const rate = stats.total > 0 ? Math.round((stats.rejected / stats.total) * 100) : 0;
 
   return (
     <Card className="rounded-2xl border border-portal bg-portal-surface p-5 shadow-[0_8px_24px_-16px_rgba(13,74,47,0.18)]">
@@ -137,7 +137,7 @@ function ClosedOverview({ leads }: { leads: TrialBookingView[] }) {
         <div className="flex items-end justify-between gap-2">
           <p className="text-2xl font-bold text-portal-heading">
             {t("admin.trialLeads.sidebarClosedCount", {
-              count: formatNumber(stats.closed),
+              count: formatNumber(stats.rejected),
             })}
           </p>
           <p className="text-sm font-semibold text-primary">{formatNumber(rate)}%</p>
@@ -150,7 +150,7 @@ function ClosedOverview({ leads }: { leads: TrialBookingView[] }) {
         </div>
         <p className="mt-2 text-xs text-portal-muted">
           {t("admin.trialLeads.sidebarClosedRatio", {
-            closed: formatNumber(stats.closed),
+            closed: formatNumber(stats.rejected),
             total: formatNumber(stats.total),
           })}
         </p>
@@ -167,7 +167,7 @@ export function AdminTrialLeadsSidebar({
   onReviewNew,
 }: IAdminTrialLeadsSidebarProps) {
   const { t } = usePortalTranslation();
-  const newCount = leads.filter((lead) => lead.status === "new").length;
+  const newCount = leads.filter((lead) => lead.status === "pending").length;
 
   const actions = [
     {

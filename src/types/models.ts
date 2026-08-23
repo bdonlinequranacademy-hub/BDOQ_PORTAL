@@ -775,7 +775,7 @@ export interface WhatsAppQueueItem {
   createdAt?: string;
 }
 
-export type StudentRequestStatus = "pending" | "approved" | "rejected";
+export type StudentRequestStatus = "pending" | "reviewing" | "approved" | "rejected";
 
 export type ContactMessageStatus = "new" | "replied" | "closed";
 
@@ -803,7 +803,7 @@ export interface NewsletterSubscriberView {
   updatedAt: string;
 }
 
-export type TrialBookingStatus = "new" | "contacted" | "scheduled" | "closed";
+export type TrialBookingStatus = "pending" | "contacted" | "scheduled" | "reviewing" | "approved" | "rejected";
 
 export interface TrialBookingView {
   _id: string;
@@ -847,7 +847,7 @@ export interface TrialBookingView {
   updatedAt: string;
 }
 
-export type StudentAdmissionStatus = "new" | "reviewing" | "approved" | "closed";
+export type StudentAdmissionStatus = "pending" | "reviewing" | "approved" | "rejected";
 
 export type StudentAdmissionPaymentStatus = "pending" | "verified" | "rejected";
 
@@ -893,11 +893,10 @@ export interface StudentAdmissionView {
 }
 
 export type TeacherApplicationStatus =
-  | "new"
+  | "pending"
   | "reviewing"
   | "approved"
-  | "rejected"
-  | "closed";
+  | "rejected";
 
 export interface TeacherApplicationFilesView {
   certificateUrl?: string;

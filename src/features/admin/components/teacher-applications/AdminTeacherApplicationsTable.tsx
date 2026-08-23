@@ -256,11 +256,10 @@ export function AdminTeacherApplicationsToolbar({
 
   const tabs: { id: AdminTeacherApplicationsTab; label: string }[] = [
     { id: "all", label: t("admin.teacherApplications.tabAll") },
-    { id: "new", label: t("admin.admissions.tabNew") },
+    { id: "pending", label: statusLabel("pending") },
     { id: "reviewing", label: t("admin.admissions.tabReviewing") },
     { id: "approved", label: t("admin.admissions.tabApproved") },
     { id: "rejected", label: statusLabel("rejected") },
-    { id: "closed", label: t("admin.admissions.tabClosed") },
   ];
 
   return (

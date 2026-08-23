@@ -83,10 +83,10 @@ export function AdminStudentAdmissionsPage() {
   const tabCounts = useMemo(
     () => ({
       all: applications.length,
-      new: stats.new,
+      pending: stats.pending,
       reviewing: stats.reviewing,
       approved: stats.approved,
-      closed: stats.closed,
+      rejected: stats.rejected,
     }),
     [applications.length, stats]
   );
@@ -141,7 +141,7 @@ export function AdminStudentAdmissionsPage() {
       {
         onSuccess: (response) => {
           syncSelectedApp(response.data ?? undefined);
-          if (selectedApp?._id === app._id && status === "closed") {
+          if (selectedApp?._id === app._id && status === "rejected") {
             setSelectedApp(null);
           }
         },
@@ -210,7 +210,7 @@ export function AdminStudentAdmissionsPage() {
 
       <AdminStudentAdmissionsStatsGrid stats={stats} isLoading={isLoading} />
 
-      <AdminStudentAdmissionsNewAlert newCount={stats.new} onReview={() => setTab("new")} />
+      <AdminStudentAdmissionsNewAlert newCount={stats.pending} onReview={() => setTab("pending")} />
 
       <AdminStudentAdmissionsToolbar
         search={search}

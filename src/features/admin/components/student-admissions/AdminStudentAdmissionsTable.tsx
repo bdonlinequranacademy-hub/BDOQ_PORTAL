@@ -252,10 +252,10 @@ export function AdminStudentAdmissionsToolbar({
 
   const tabs: { id: AdminStudentAdmissionsTab; label: string }[] = [
     { id: "all", label: t("admin.admissions.tabAll") },
-    { id: "new", label: statusLabel("new") },
+    { id: "pending", label: statusLabel("pending") },
     { id: "reviewing", label: t("admin.admissions.tabReviewing") },
     { id: "approved", label: statusLabel("approved") },
-    { id: "closed", label: statusLabel("closed") },
+    { id: "rejected", label: statusLabel("rejected") },
   ];
 
   return (

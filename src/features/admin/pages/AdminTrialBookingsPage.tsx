@@ -76,10 +76,12 @@ export function AdminTrialBookingsPage() {
   const tabCounts = useMemo(
     () => ({
       all: bookings.length,
-      new: stats.new,
+      pending: stats.pending,
       contacted: stats.contacted,
       scheduled: stats.scheduled,
-      closed: stats.closed,
+      reviewing: stats.reviewing,
+      approved: stats.approved,
+      rejected: stats.rejected,
     }),
     [bookings.length, stats]
   );
@@ -243,7 +245,7 @@ export function AdminTrialBookingsPage() {
 
       <AdminTrialLeadsStatsGrid stats={stats} isLoading={isLoading} />
 
-      <AdminTrialLeadsNewAlert newCount={stats.new} onReview={() => setTab("new")} />
+      <AdminTrialLeadsNewAlert newCount={stats.pending} onReview={() => setTab("pending")} />
 
       <AdminTrialLeadsToolbar
         search={search}
@@ -307,8 +309,8 @@ export function AdminTrialBookingsPage() {
             filteredLeads={visibleLeads}
             isFetching={isFetching}
             onRefresh={() => void refetch()}
-            onReviewNew={() => setTab("new")}
-          />
+            onReviewNew={() => setTab("pending")}
+            newCount={stats.pending}/>
         </div>
       )}
 

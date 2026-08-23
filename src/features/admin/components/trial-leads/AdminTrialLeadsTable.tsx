@@ -258,10 +258,12 @@ export function AdminTrialLeadsToolbar({
 
   const tabs: { id: AdminTrialLeadsTab; label: string }[] = [
     { id: "all", label: t("admin.trialLeads.tabAllLeads") },
-    { id: "new", label: statusLabel("new") },
+    { id: "pending", label: statusLabel("pending") },
     { id: "contacted", label: statusLabel("contacted") },
     { id: "scheduled", label: statusLabel("scheduled") },
-    { id: "closed", label: statusLabel("closed") },
+    { id: "reviewing", label: statusLabel("reviewing") },
+    { id: "approved", label: statusLabel("approved") },
+    { id: "rejected", label: statusLabel("rejected") },
   ];
 
   return (

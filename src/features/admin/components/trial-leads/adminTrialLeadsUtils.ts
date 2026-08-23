@@ -17,10 +17,12 @@ export type StatusLabelFn = (status: string) => string;
 
 export interface IAdminTrialLeadsStats {
   total: number;
-  new: number;
+  pending: number;
   contacted: number;
   scheduled: number;
-  closed: number;
+  reviewing: number;
+  approved: number;
+  rejected: number;
   newToday: number;
   newThisWeek: number;
 }
@@ -31,8 +33,10 @@ export function trialLeadStatusStyles(status: TrialBookingStatus): string {
       return "border-blue-500/35 bg-blue-500/10 text-blue-800";
     case "scheduled":
       return "border-violet-500/35 bg-violet-500/10 text-violet-800";
-    case "closed":
+    case "rejected":
       return "border-red-500/35 bg-red-500/10 text-red-800";
+    case "reviewing":
+      return "border-amber-500/35 bg-amber-500/10 text-amber-800";
     default:
       return "border-amber-500/35 bg-amber-500/10 text-amber-800";
   }
@@ -376,16 +380,18 @@ export function computeTrialLeadsStats(bookings: TrialBookingView[]): IAdminTria
 
   for (const booking of bookings) {
     const created = new Date(booking.createdAt);
-    if (created >= todayStart && booking.status === "new") newToday += 1;
+    if (created >= todayStart && booking.status === "pending") newToday += 1;
     if (created >= weekStart) newThisWeek += 1;
   }
 
   return {
     total: bookings.length,
-    new: bookings.filter((booking) => booking.status === "new").length,
+    pending: bookings.filter((booking) => booking.status === "pending").length,
     contacted: bookings.filter((booking) => booking.status === "contacted").length,
     scheduled: bookings.filter((booking) => booking.status === "scheduled").length,
-    closed: bookings.filter((booking) => booking.status === "closed").length,
+    reviewing: bookings.filter((booking) => booking.status === "reviewing").length,
+    approved: bookings.filter((booking) => booking.status === "approved").length,
+    rejected: bookings.filter((booking) => booking.status === "rejected").length,
     newToday,
     newThisWeek,
   };
@@ -471,22 +477,28 @@ export function nextTrialLeadStatus(
   status: TrialBookingStatus
 ): TrialBookingStatus | null {
   switch (status) {
-    case "new":
+    case "pending":
       return "contacted";
     case "contacted":
       return "scheduled";
     case "scheduled":
-      return "closed";
+      return "reviewing";
+    case "reviewing":
+      return "approved";
+    case "approved":
+      return "rejected";
     default:
       return null;
   }
 }
 
 export const TRIAL_LEAD_STATUSES: TrialBookingStatus[] = [
-  "new",
+  "pending",
   "contacted",
   "scheduled",
-  "closed",
+  "reviewing",
+  "approved",
+  "rejected",
 ];
 
 export const TRIAL_LEAD_AGE_OPTIONS = [

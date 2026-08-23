@@ -12,22 +12,20 @@ export type AdminTeacherApplicationsTab = "all" | TeacherApplicationStatus;
 
 export interface IAdminTeacherApplicationsStats {
   total: number;
-  new: number;
+  pending: number;
   reviewing: number;
   underReview: number;
   approved: number;
   rejected: number;
-  closed: number;
   newToday: number;
   newThisWeek: number;
 }
 
 const STATUS_LABELS: Record<TeacherApplicationStatus, string> = {
-  new: "New",
+  pending: "Pending",
   reviewing: "Under review",
   approved: "Approved",
   rejected: "Rejected",
-  closed: "Closed",
 };
 
 const SUBJECT_LABELS: Record<string, string> = {
@@ -83,11 +81,10 @@ const VALUE_LABELS: Record<string, string> = {
 };
 
 export const TEACHER_APPLICATION_STATUSES: TeacherApplicationStatus[] = [
-  "new",
+  "pending",
   "reviewing",
   "approved",
   "rejected",
-  "closed",
 ];
 
 export function getTeacherWhatsAppNumber(app: TeacherApplicationView): string {
@@ -108,8 +105,6 @@ export function teacherApplicationStatusStyles(status: TeacherApplicationStatus)
       return "border-emerald-500/35 bg-emerald-500/10 text-emerald-800";
     case "rejected":
       return "border-red-500/35 bg-red-500/10 text-red-800";
-    case "closed":
-      return "border-violet-500/35 bg-violet-500/10 text-violet-800";
     default:
       return "border-amber-500/35 bg-amber-500/10 text-amber-800";
   }
@@ -245,21 +240,20 @@ export function computeTeacherApplicationsStats(
 
   for (const app of applications) {
     const created = new Date(app.createdAt);
-    if (created >= todayStart && app.status === "new") newToday += 1;
+    if (created >= todayStart && app.status === "pending") newToday += 1;
     if (created >= weekStart) newThisWeek += 1;
   }
 
-  const newCount = applications.filter((app) => app.status === "new").length;
+  const newCount = applications.filter((app) => app.status === "pending").length;
   const reviewing = applications.filter((app) => app.status === "reviewing").length;
 
   return {
     total: applications.length,
-    new: newCount,
+    pending: newCount,
     reviewing,
     underReview: newCount + reviewing,
     approved: applications.filter((app) => app.status === "approved").length,
     rejected: applications.filter((app) => app.status === "rejected").length,
-    closed: applications.filter((app) => app.status === "closed").length,
     newToday,
     newThisWeek,
   };
@@ -323,13 +317,12 @@ export function nextTeacherApplicationStatus(
   status: TeacherApplicationStatus
 ): TeacherApplicationStatus | null {
   switch (status) {
-    case "new":
+    case "pending":
       return "reviewing";
     case "reviewing":
       return "approved";
     case "approved":
-    case "rejected":
-      return "closed";
+      return "rejected";
     default:
       return null;
   }
@@ -345,8 +338,8 @@ export function nextTeacherApplicationActionLabel(
       return "Start review";
     case "approved":
       return "Approve";
-    case "closed":
-      return "Close";
+    case "rejected":
+      return "Reject";
     default:
       return `Mark ${teacherApplicationStatusLabel(next).toLowerCase()}`;
   }
@@ -356,7 +349,7 @@ export function teacherApplicationStatusActions(
   status: TeacherApplicationStatus
 ): { label: string; status: TeacherApplicationStatus }[] {
   switch (status) {
-    case "new":
+    case "pending":
       return [{ label: "Start review", status: "reviewing" }];
     case "reviewing":
       return [
@@ -364,8 +357,7 @@ export function teacherApplicationStatusActions(
         { label: "Reject", status: "rejected" },
       ];
     case "approved":
-    case "rejected":
-      return [{ label: "Close", status: "closed" }];
+      return [{ label: "Reject", status: "rejected" }];
     default:
       return [];
   }
@@ -393,11 +385,10 @@ export function groupTeacherApplicationsByStatus(
 ): { label: string; count: number; color: string }[] {
   const stats = computeTeacherApplicationsStats(applications);
   return [
-    { label: "New", count: stats.new, color: "#F59E0B" },
+    { label: "Pending", count: stats.pending, color: "#F59E0B" },
     { label: "Under review", count: stats.reviewing, color: "#3B82F6" },
     { label: "Approved", count: stats.approved, color: "#32C991" },
     { label: "Rejected", count: stats.rejected, color: "#EF4444" },
-    { label: "Closed", count: stats.closed, color: "#8B5CF6" },
   ].filter((segment) => segment.count > 0);
 }
 
@@ -590,15 +581,15 @@ export function exportTeacherApplicationsFile(
 }
 
 export function teacherApplicationsStatHint(
-  key: "underReview" | "approved" | "rejected" | "closed",
+  key: "underReview" | "approved" | "rejected",
   stats: IAdminTeacherApplicationsStats,
   t: PortalTranslate,
   formatNumber: (n: number) => string
 ): string {
   switch (key) {
     case "underReview":
-      return stats.new > 0
-        ? `${formatNumber(stats.new)} ${t("admin.admissions.tabNew").toLowerCase()}`
+      return stats.pending > 0
+        ? `${formatNumber(stats.pending)} ${t("admin.admissions.tabNew").toLowerCase()}`
         : t("stats.ofTotal", {
             pct: formatNumber(
               stats.total > 0 ? Math.round((stats.underReview / stats.total) * 100) : 0

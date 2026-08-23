@@ -164,7 +164,7 @@ export function AdminStudentAdmissionsSidebar({
       label: t("admin.admissions.actionReviewNew"),
       icon: Inbox,
       onClick: onReviewNew,
-      show: stats.new > 0,
+      show: stats.pending > 0,
     },
     {
       id: "export",

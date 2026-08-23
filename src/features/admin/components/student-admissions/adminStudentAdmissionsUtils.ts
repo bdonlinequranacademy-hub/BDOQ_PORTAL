@@ -18,10 +18,10 @@ import type {
 export type AdminStudentAdmissionsTab = "all" | StudentAdmissionStatus;
 
 export const STUDENT_ADMISSION_STATUSES: StudentAdmissionStatus[] = [
-  "new",
+  "pending",
   "reviewing",
   "approved",
-  "closed",
+  "rejected",
 ];
 
 export const ADMISSION_CLASS_DAYS: StudentAdmissionClassDay[] = [
@@ -149,11 +149,11 @@ export function buildAdmissionEnrollmentFormState(application: StudentAdmissionV
 
 export interface IAdminStudentAdmissionsStats {
   total: number;
-  new: number;
+  pending: number;
   reviewing: number;
   underReview: number;
   approved: number;
-  closed: number;
+  rejected: number;
   newToday: number;
   newThisWeek: number;
   conversionRate: number;
@@ -167,7 +167,7 @@ export function admissionStatusStyles(status: StudentAdmissionStatus): string {
       return "border-orange-500/35 bg-orange-500/10 text-orange-800";
     case "approved":
       return "border-emerald-500/35 bg-emerald-500/10 text-emerald-800";
-    case "closed":
+    case "rejected":
       return "border-red-500/35 bg-red-500/10 text-red-800";
     default:
       return "border-amber-500/35 bg-amber-500/10 text-amber-800";
@@ -285,7 +285,7 @@ export function buildAdmissionWhatsAppMessage(
   t: PortalTranslate,
   dynamicLabel: DynamicLabelFn
 ): string {
-  if (app.status !== "approved" && app.status !== "closed") {
+  if (app.status !== "approved" && app.status !== "rejected") {
     return admissionFollowUpMessage(app.fullName);
   }
 
@@ -365,22 +365,22 @@ export function computeStudentAdmissionsStats(
 
   for (const app of applications) {
     const created = new Date(app.createdAt);
-    if (created >= todayStart && app.status === "new") newToday += 1;
+    if (created >= todayStart && app.status === "pending") newToday += 1;
     if (created >= weekStart) newThisWeek += 1;
   }
 
-  const newCount = applications.filter((app) => app.status === "new").length;
+  const newCount = applications.filter((app) => app.status === "pending").length;
   const reviewing = applications.filter((app) => app.status === "reviewing").length;
   const approved = applications.filter((app) => app.status === "approved").length;
   const total = applications.length;
 
   return {
     total,
-    new: newCount,
+    pending: newCount,
     reviewing,
     underReview: newCount + reviewing,
     approved,
-    closed: applications.filter((app) => app.status === "closed").length,
+    rejected: applications.filter((app) => app.status === "rejected").length,
     newToday,
     newThisWeek,
     conversionRate: total > 0 ? Math.round((approved / total) * 100) : 0,
@@ -470,12 +470,12 @@ export function nextAdmissionStatus(
   status: StudentAdmissionStatus
 ): StudentAdmissionStatus | null {
   switch (status) {
-    case "new":
+    case "pending":
       return "reviewing";
     case "reviewing":
       return "approved";
     case "approved":
-      return "closed";
+      return "rejected";
     default:
       return null;
   }
@@ -493,7 +493,7 @@ export function nextAdmissionActionLabel(
       return t("admin.admissions.actionStartReview");
     case "approved":
       return t("admin.admissions.actionApprove");
-    case "closed":
+    case "rejected":
       return t("admin.admissions.actionClose");
     default:
       return statusLabel(next);
@@ -505,15 +505,15 @@ export function admissionStatusActions(
   t: PortalTranslate
 ): { label: string; status: StudentAdmissionStatus }[] {
   switch (status) {
-    case "new":
+    case "pending":
       return [{ label: t("admin.admissions.actionStartReview"), status: "reviewing" }];
     case "reviewing":
       return [
         { label: t("admin.admissions.actionApprove"), status: "approved" },
-        { label: t("admin.admissions.actionClose"), status: "closed" },
+        { label: t("admin.admissions.actionClose"), status: "rejected" },
       ];
     case "approved":
-      return [{ label: t("admin.admissions.actionClose"), status: "closed" }];
+      return [{ label: t("admin.admissions.actionClose"), status: "rejected" }];
     default:
       return [];
   }

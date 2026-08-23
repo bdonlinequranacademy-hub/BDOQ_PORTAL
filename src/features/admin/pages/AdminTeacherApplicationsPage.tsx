@@ -59,11 +59,10 @@ export function AdminTeacherApplicationsPage() {
   const tabCounts = useMemo(
     () => ({
       all: applications.length,
-      new: stats.new,
+      pending: stats.pending,
       reviewing: stats.reviewing,
       approved: stats.approved,
       rejected: stats.rejected,
-      closed: stats.closed,
     }),
     [applications.length, stats]
   );
@@ -93,7 +92,7 @@ export function AdminTeacherApplicationsPage() {
       { id: app._id, status },
       {
         onSuccess: () => {
-          if (selectedApp?._id === app._id && status === "closed") {
+          if (selectedApp?._id === app._id && status === "rejected") {
             setSelectedApp(null);
           }
         },
@@ -137,7 +136,7 @@ export function AdminTeacherApplicationsPage() {
 
       <AdminTeacherApplicationsStatsGrid stats={stats} isLoading={isLoading} />
 
-      <AdminTeacherApplicationsNewAlert newCount={stats.new} onReview={() => setTab("new")} />
+      <AdminTeacherApplicationsNewAlert newCount={stats.pending} onReview={() => setTab("pending")} />
 
       <AdminTeacherApplicationsToolbar
         search={search}
@@ -198,8 +197,8 @@ export function AdminTeacherApplicationsPage() {
             filteredApplications={visibleApplications}
             isFetching={isFetching}
             onRefresh={() => void refetch()}
-            onReviewNew={() => setTab("new")}
-            newCount={stats.new}
+            onReviewNew={() => setTab("pending")}
+            newCount={stats.pending}
           />
         </div>
       )}

@@ -22,7 +22,7 @@ export function AdminTeacherApplicationsStatsGrid({
   const { t, formatNumber } = usePortalTranslation();
 
   return (
-    <div className="grid grid-cols-2 items-start gap-2.5 sm:gap-3 xl:grid-cols-5">
+    <div className="grid grid-cols-2 items-start gap-2.5 sm:gap-3 xl:grid-cols-4">
       <StatCard
         label={t("admin.teacherApplications.statsTotal")}
         value={isLoading ? "—" : stats.total}
@@ -50,18 +50,10 @@ export function AdminTeacherApplicationsStatsGrid({
       />
       <StatCard
         label={t("admin.studentRequests.statsRejected")}
-        value={isLoading ? "—" : stats.rejected}
+        value={isLoading ? "-" : stats.rejected}
         icon={<XCircle className="size-5 text-red-600" />}
         iconBg="bg-red-100"
         hint={teacherApplicationsStatHint("rejected", stats, t, formatNumber)}
-      />
-      <StatCard
-        label={t("admin.teacherApplications.statsClosed")}
-        value={isLoading ? "—" : stats.closed}
-        icon={<Lock className="size-5 text-violet-600" />}
-        iconBg="bg-violet-100"
-        className="col-span-2 xl:col-span-1"
-        hint={teacherApplicationsStatHint("closed", stats, t, formatNumber)}
       />
     </div>
   );

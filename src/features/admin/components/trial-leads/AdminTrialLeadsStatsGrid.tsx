@@ -43,7 +43,7 @@ export function AdminTrialLeadsStatsGrid({
       />
       <StatCard
         label={t("admin.trialLeads.statsNewLeads")}
-        value={isLoading ? "—" : stats.new}
+        value={isLoading ? "—" : stats.pending}
         icon={<UserPlus className="size-5 text-amber-600" />}
         iconBg="bg-amber-100"
         hint={
@@ -69,12 +69,12 @@ export function AdminTrialLeadsStatsGrid({
         hint={pct(stats.scheduled, stats.total)}
       />
       <StatCard
-        label={t("admin.trialLeads.statsClosed")}
-        value={isLoading ? "—" : stats.closed}
+        label={t("admin.studentRequests.statsRejected")}
+        value={isLoading ? "—" : stats.rejected}
         icon={<CheckCircle2 className="size-5 text-red-600" />}
         iconBg="bg-red-100"
         className="col-span-2 xl:col-span-1"
-        hint={pct(stats.closed, stats.total)}
+        hint={pct(stats.rejected, stats.total)}
       />
     </div>
   );
