@@ -84,8 +84,7 @@ function NavButton({
             ? collapsed
               ? "portal-nav-item--active portal-nav-item--active-collapsed"
               : "portal-nav-item--active"
-            : "text-white/80 hover:bg-white/10 hover:text-white",
-          emphasize && "portal-nav-item--dashboard"
+            : "text-white/80 hover:bg-white/10 hover:text-white"
         )}
       >
         <span className="shrink-0 text-current [&>svg]:size-[18px]">{item.icon}</span>

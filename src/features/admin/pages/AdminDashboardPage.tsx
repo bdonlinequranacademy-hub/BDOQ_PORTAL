@@ -14,6 +14,9 @@ import {
   CheckCircle2,
   Radio,
   MessageCircle,
+  Briefcase,
+  ClipboardList,
+  BookOpenCheck,
 } from "lucide-react";
 import { useAdminStats, useAdminWhatsAppQueue } from "@/features/admin/hooks/useAdmin";
 import { PageContainer } from "@/components/layout/PageContainer";
@@ -267,6 +270,30 @@ export function AdminDashboardPage() {
           icon={<GraduationCap className="text-violet-500" />}
           iconBg="bg-violet-500/5"
           onClick={() => navigate("/admin/student-admissions")}
+        />
+        <StatCard
+          label="Teacher Applications"
+          icon={<Briefcase className="text-pink-500" />}
+          iconBg="bg-pink-500/5"
+          onClick={() => navigate("/admin/teacher-applications")}
+        />
+        <StatCard
+          label="Curriculum"
+          icon={<Library className="text-indigo-500" />}
+          iconBg="bg-indigo-500/5"
+          onClick={() => navigate("/admin/curriculum")}
+        />
+        <StatCard
+          label="Attendance"
+          icon={<ClipboardList className="text-cyan-600" />}
+          iconBg="bg-cyan-600/5"
+          onClick={() => navigate("/admin/attendance")}
+        />
+        <StatCard
+          label="Homework"
+          icon={<BookOpenCheck className="text-emerald-500" />}
+          iconBg="bg-emerald-500/5"
+          onClick={() => navigate("/admin/homework")}
         />
       </div>
 
