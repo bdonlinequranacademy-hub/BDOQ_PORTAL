@@ -596,10 +596,8 @@ export function teacherApplicationsStatHint(
             ),
           });
     case "approved":
-    case "rejected":
-    case "closed": {
-      const part =
-        key === "approved" ? stats.approved : key === "rejected" ? stats.rejected : stats.closed;
+    case "rejected": {
+      const part = key === "approved" ? stats.approved : stats.rejected;
       return t("stats.ofTotal", {
         pct: formatNumber(stats.total > 0 ? Math.round((part / stats.total) * 100) : 0),
       });

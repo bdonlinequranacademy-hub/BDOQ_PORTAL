@@ -310,7 +310,7 @@ export function AdminTrialBookingsPage() {
             isFetching={isFetching}
             onRefresh={() => void refetch()}
             onReviewNew={() => setTab("pending")}
-            newCount={stats.pending}/>
+          />
         </div>
       )}
 

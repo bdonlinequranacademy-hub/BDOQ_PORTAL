@@ -7,6 +7,7 @@ export type AdminStudentRequestsTab = "all" | StudentRequestStatus;
 export interface IAdminStudentRequestsStats {
   total: number;
   pending: number;
+  reviewing: number;
   approved: number;
   rejected: number;
   newThisWeek: number;
@@ -23,6 +24,7 @@ export interface IStudentRequestActivityItem {
 
 const STATUS_LABELS: Record<StudentRequestStatus, string> = {
   pending: "Pending review",
+  reviewing: "Under review",
   approved: "Approved",
   rejected: "Rejected",
 };
@@ -109,9 +111,10 @@ export function computeStudentRequestsStats(
 
   return {
     total: requests.length,
-    pending: requests.filter((request) => request.status === "pending").length,
-    approved: requests.filter((request) => request.status === "approved").length,
-    rejected: requests.filter((request) => request.status === "rejected").length,
+    pending: requests.filter((r) => r.status === "pending").length,
+    reviewing: requests.filter((r) => r.status === "reviewing").length,
+    approved: requests.filter((r) => r.status === "approved").length,
+    rejected: requests.filter((r) => r.status === "rejected").length,
     newThisWeek,
     approvedThisMonth,
     rejectedThisMonth,

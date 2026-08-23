@@ -2,7 +2,6 @@ import {
   Briefcase,
   CheckCircle2,
   ClipboardList,
-  Lock,
   XCircle,
 } from "lucide-react";
 import { StatCard } from "@/components/ui/shared/StatCard";

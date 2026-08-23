@@ -275,7 +275,7 @@ export function AdminStudentAdmissionsPage() {
             stats={stats}
             isFetching={isFetching}
             onRefresh={() => void refetch()}
-            onReviewNew={() => setTab("new")}
+            onReviewNew={() => setTab("pending")}
           />
         </div>
       )}

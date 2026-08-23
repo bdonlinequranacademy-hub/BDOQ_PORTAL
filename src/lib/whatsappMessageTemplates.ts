@@ -13,7 +13,7 @@ JazakAllah Khair.`;
 
 export interface IAdmissionConfirmedMessageInput {
   name: string;
-  status: "approved" | "closed";
+  status: "approved" | "rejected";
   program?: string;
   plan?: string;
   teacherName?: string;
@@ -31,8 +31,8 @@ export interface IAdmissionConfirmedMessageInput {
 export function admissionConfirmedMessage(input: IAdmissionConfirmedMessageInput): string {
   const first = input.name.split(" ")[0] || input.name;
   const intro =
-    input.status === "closed"
-      ? `Your admission file at ${ACADEMY} is *closed*. Your class details are below.`
+    input.status === "rejected"
+      ? `Your admission file at ${ACADEMY} is *rejected*. Your class details are below.`
       : `Alhamdulillah — your admission at ${ACADEMY} is *confirmed*.`;
 
   const lines = [

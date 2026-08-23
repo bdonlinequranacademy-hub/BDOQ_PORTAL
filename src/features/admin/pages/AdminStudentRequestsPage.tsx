@@ -52,6 +52,7 @@ export function AdminStudentRequestsPage() {
     () => ({
       all: requests.length,
       pending: stats.pending,
+      reviewing: stats.reviewing,
       approved: stats.approved,
       rejected: stats.rejected,
     }),

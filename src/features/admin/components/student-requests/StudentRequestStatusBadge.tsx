@@ -5,6 +5,7 @@ import { usePortalTranslation } from "@/i18n/LocaleProvider";
 
 const statusKeys: Record<StudentRequestStatus, string> = {
   pending: "pending_review",
+  reviewing: "under_review",
   approved: "approved",
   rejected: "rejected",
 };
