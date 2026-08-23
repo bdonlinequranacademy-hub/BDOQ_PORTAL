@@ -60,14 +60,12 @@ function NavButton({
   onClick,
   layout,
   collapsed = false,
-  emphasize = false,
 }: {
   item: IPortalNavItem;
   active: boolean;
   onClick: () => void;
   layout: "sidebar" | "tab";
   collapsed?: boolean;
-  emphasize?: boolean;
 }) {
   if (layout === "sidebar") {
     return (
@@ -246,7 +244,6 @@ export function PortalLayout({
                       onClick={() => navigate(item.path)}
                       layout="sidebar"
                       collapsed={!sidebarOpen}
-                      emphasize={section.id === "dashboard"}
                     />
                   ))}
                 </div>
@@ -297,7 +294,6 @@ export function PortalLayout({
                       onClick={() => navigate(item.path)}
                       layout="sidebar"
                       collapsed={!sidebarOpen}
-                      emphasize={false}
                     />
                   ))}
                 </div>
