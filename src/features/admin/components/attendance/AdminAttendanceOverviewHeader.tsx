@@ -33,95 +33,86 @@ export function AdminAttendanceOverviewHeader({
   const { t } = usePortalTranslation();
 
   return (
-    <div className="portal-card-islamic portal-card--lg relative overflow-hidden rounded-2xl border border-portal bg-portal-surface px-5 py-6 shadow-[0_8px_24px_-16px_rgba(13,74,47,0.18)] sm:px-8 sm:py-8">
-      <div
-        className="pointer-events-none absolute -right-8 -top-10 size-56 rounded-full bg-primary/8 blur-2xl sm:size-72"
-        aria-hidden
-      />
-      <div className="relative flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
-        <div>
-          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-primary">
-            {t("admin.attendance.analyticsBadge")}
-          </p>
-          <h1 className="portal-page-title mt-1 font-display text-2xl font-bold text-primary-dark sm:text-3xl">
-            {t("admin.attendance.title")}
-          </h1>
-          <p className="portal-page-subtitle mt-2 max-w-2xl text-sm text-portal-muted sm:text-base">
-            {t("admin.attendance.subtitle")}
-          </p>
+    <div className="mb-4 flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+      <div>
+        <h1 className="text-xl font-bold tracking-tight text-portal-heading sm:text-2xl">
+          {t("admin.attendance.title")}
+        </h1>
+        <p className="hidden mt-1 text-sm text-portal-muted sm:block">
+          {t("admin.attendance.subtitle")}
+        </p>
+      </div>
+
+      <div className="flex w-full flex-col gap-2 sm:max-w-xl lg:items-end">
+        <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:items-center sm:justify-end">
+          <select
+            className={cn(
+              formControlClass,
+              "h-10 min-h-10 w-full py-2 text-sm shadow-none sm:min-w-[180px] sm:flex-1"
+            )}
+            value={classFilter}
+            onChange={(event) => onClassChange(event.target.value)}
+            aria-label={t("filters.filterByClass")}
+          >
+            <option value="">{t("filters.allClasses")}</option>
+            {classes.map((cls) => (
+              <option key={cls._id} value={cls._id}>
+                {cls.title}
+              </option>
+            ))}
+          </select>
+
+          <select
+            className={cn(
+              formControlClass,
+              "h-10 min-h-10 w-full py-2 text-sm shadow-none sm:min-w-[160px]"
+            )}
+            value={rateFilter}
+            onChange={(event) =>
+              onRateFilterChange(event.target.value as AttendanceRateFilter)
+            }
+            aria-label={t("filters.filterAttendanceRate")}
+          >
+            <option value="all">{t("filters.allRates")}</option>
+            <option value="low">{t("filters.needsAttentionPct")}</option>
+            <option value="good">{t("admin.attendance.rateGood")}</option>
+            <option value="excellent">{t("filters.excellentPct")}</option>
+          </select>
         </div>
 
-        <div className="flex w-full flex-col gap-2 sm:max-w-xl lg:items-end">
-          <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:items-center sm:justify-end">
-            <select
-              className={cn(
-                formControlClass,
-                "h-10 min-h-10 w-full py-2 text-sm shadow-none sm:min-w-[180px] sm:flex-1"
-              )}
-              value={classFilter}
-              onChange={(event) => onClassChange(event.target.value)}
-              aria-label={t("filters.filterByClass")}
-            >
-              <option value="">{t("filters.allClasses")}</option>
-              {classes.map((cls) => (
-                <option key={cls._id} value={cls._id}>
-                  {cls.title}
-                </option>
-              ))}
-            </select>
-
-            <select
-              className={cn(
-                formControlClass,
-                "h-10 min-h-10 w-full py-2 text-sm shadow-none sm:min-w-[160px]"
-              )}
-              value={rateFilter}
-              onChange={(event) =>
-                onRateFilterChange(event.target.value as AttendanceRateFilter)
-              }
-              aria-label={t("filters.filterAttendanceRate")}
-            >
-              <option value="all">{t("filters.allRates")}</option>
-              <option value="low">{t("filters.needsAttentionPct")}</option>
-              <option value="good">{t("admin.attendance.rateGood")}</option>
-              <option value="excellent">{t("filters.excellentPct")}</option>
-            </select>
-          </div>
-
-          <div className="flex flex-wrap items-center gap-2 sm:justify-end">
-            <Button
-              type="button"
-              variant="ghost"
-              onClick={onClearFilters}
-              disabled={!hasActiveFilters}
-              className="inline-flex shrink-0 items-center gap-2 rounded-xl border border-portal bg-portal-surface/80 px-4 backdrop-blur-sm disabled:opacity-45"
-            >
-              <Eraser className="size-4" aria-hidden />
-              {t("filters.clearFilters")}
-            </Button>
-            <Button
-              type="button"
-              variant="ghost"
-              onClick={onRefresh}
-              disabled={isFetching}
-              className="inline-flex shrink-0 items-center gap-2 rounded-xl border border-portal bg-portal-surface/80 px-4 backdrop-blur-sm"
-            >
-              <RefreshCw
-                className={cn("size-4", isFetching && "animate-spin")}
-                aria-hidden
-              />
-              {t("actions.refresh")}
-            </Button>
-            <Button
-              type="button"
-              variant="ghost"
-              onClick={onExport}
-              className="inline-flex shrink-0 items-center gap-2 rounded-xl border border-portal bg-portal-surface/80 px-4 backdrop-blur-sm"
-            >
-              <Download className="size-4" aria-hidden />
-              {t("actions.exportReport")}
-            </Button>
-          </div>
+        <div className="flex flex-wrap items-center gap-2 sm:justify-end">
+          <Button
+            type="button"
+            variant="ghost"
+            onClick={onClearFilters}
+            disabled={!hasActiveFilters}
+            className="inline-flex shrink-0 items-center gap-2 rounded-xl px-4 disabled:opacity-45"
+          >
+            <Eraser className="size-4" aria-hidden />
+            <span className="hidden sm:inline">{t("filters.clearFilters")}</span>
+          </Button>
+          <Button
+            type="button"
+            variant="ghost"
+            onClick={onRefresh}
+            disabled={isFetching}
+            className="inline-flex shrink-0 items-center gap-2 rounded-xl px-4"
+          >
+            <RefreshCw
+              className={cn("size-4", isFetching && "animate-spin")}
+              aria-hidden
+            />
+            <span className="hidden sm:inline">{t("actions.refresh")}</span>
+          </Button>
+          <Button
+            type="button"
+            variant="secondary"
+            onClick={onExport}
+            className="inline-flex shrink-0 items-center gap-2 rounded-xl px-4"
+          >
+            <Download className="size-4" aria-hidden />
+            <span className="hidden sm:inline">{t("actions.exportReport")}</span>
+          </Button>
         </div>
       </div>
     </div>

@@ -236,43 +236,46 @@ export function AdminCurriculumPage() {
 
   return (
     <PageContainer>
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+      <div className="mb-4 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <div className="min-w-0">
-          <h1 className="portal-page-title font-display text-2xl font-bold text-primary-dark sm:text-3xl">
+          <h1 className="text-xl font-bold tracking-tight text-portal-heading sm:text-2xl">
             {t("admin.curriculum.title")}
           </h1>
-          <p className="portal-page-subtitle mt-1 max-w-2xl text-portal-muted">
+          <p className="hidden mt-1 text-sm text-portal-muted sm:block">
             {t("admin.curriculum.subtitle")}
           </p>
         </div>
-        <div className="flex flex-wrap gap-2">
+        <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
           <Button
             type="button"
             variant="primary"
             onClick={handleAddProgram}
-            className="inline-flex items-center gap-2 rounded-xl px-5 py-2.5 text-sm font-semibold"
+            className="inline-flex shrink-0 items-center gap-2 rounded-xl bg-primary-dark px-4 text-white hover:bg-primary-dark/90"
           >
             <Plus className="size-4" aria-hidden />
-            {t("admin.curriculum.addProgram")}
+            <span className="hidden sm:inline">{t("admin.curriculum.addProgram")}</span>
           </Button>
           <Button
             type="button"
             variant="ghost"
             onClick={handleReset}
             disabled={resetCurriculum.isPending}
-            className="inline-flex items-center gap-2 rounded-xl border border-portal bg-portal-surface px-4 py-2.5 text-sm font-semibold text-portal-heading shadow-sm hover:bg-portal-muted/40"
+            className="inline-flex shrink-0 items-center gap-2 rounded-xl px-4"
           >
             <RotateCcw className="size-4" aria-hidden />
-            {t("admin.curriculum.resetDefaults")}
+            <span className="hidden sm:inline">{t("admin.curriculum.resetDefaults")}</span>
           </Button>
           <Button
             type="button"
+            variant="secondary"
             onClick={handleSave}
             disabled={!dirty || updateCurriculum.isPending}
-            className="inline-flex items-center gap-2 rounded-xl border border-primary bg-primary/10 px-4 py-2.5 text-sm font-semibold text-primary-dark hover:bg-primary/15 disabled:opacity-50"
+            className="inline-flex shrink-0 items-center gap-2 rounded-xl border border-primary bg-primary/10 px-4 text-primary-dark hover:bg-primary/15 disabled:opacity-50"
           >
             <Save className="size-4" aria-hidden />
-            {updateCurriculum.isPending ? t("admin.curriculum.saving") : t("admin.curriculum.saveChanges")}
+            <span className="hidden sm:inline">
+              {updateCurriculum.isPending ? t("admin.curriculum.saving") : t("admin.curriculum.saveChanges")}
+            </span>
           </Button>
         </div>
       </div>
@@ -321,7 +324,7 @@ export function AdminCurriculumPage() {
             onGrammarSelection={handleGrammarSelection}
           />
 
-          <div className="grid grid-cols-1 items-start gap-4 xl:gap-5 xl:grid-cols-3">
+          <div className="grid grid-cols-1 items-start gap-3 xl:gap-4 xl:grid-cols-3 mt-4">
             <AdminCurriculumOverview tree={tree} />
             <AdminCurriculumActivity tree={tree} dirty={dirty} />
             <AdminCurriculumQuickActions

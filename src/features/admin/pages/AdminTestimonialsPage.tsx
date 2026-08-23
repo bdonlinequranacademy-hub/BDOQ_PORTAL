@@ -120,7 +120,7 @@ export function AdminTestimonialsPage() {
       <AdminSectionHeaderPanel sectionKey="pages.reviews" />
       <AdminTestimonialsOverviewHeader onExport={handleExport} />
 
-      <div className="grid grid-cols-1 items-start gap-4 xl:grid-cols-[minmax(0,1.4fr)_minmax(260px,0.7fr)] xl:gap-5">
+      <div className="grid grid-cols-1 items-start gap-3 xl:grid-cols-[minmax(0,1.4fr)_minmax(260px,0.7fr)] xl:gap-4">
         <AdminTestimonialsStatsGrid
           stats={stats}
           isLoading={isLoading}
@@ -145,8 +145,8 @@ export function AdminTestimonialsPage() {
           onAction={() => navigate("/admin/testimonials/new")}
         />
       ) : (
-        <div className="grid grid-cols-1 items-start gap-4 xl:gap-5 xl:grid-cols-[minmax(0,1fr)_280px]">
-          <div className="flex min-w-0 flex-col gap-5">
+        <div className="grid grid-cols-1 items-start gap-3 xl:gap-4 xl:grid-cols-[minmax(0,1fr)_280px] mt-4">
+          <div className="flex min-w-0 flex-col gap-3">
             <AdminTestimonialsToolbar
               tab={tab}
               tabCounts={tabCounts}
@@ -183,7 +183,7 @@ export function AdminTestimonialsPage() {
             <AdminTestimonialsTipBanner pendingCount={stats.pending} />
           </div>
 
-          <aside className="flex flex-col gap-5">
+          <aside className="flex flex-col gap-3">
             <AdminTestimonialsMediaTypesCard
               rows={mediaRows}
               activeType={mediaType}
