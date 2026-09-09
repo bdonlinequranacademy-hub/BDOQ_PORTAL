@@ -378,6 +378,8 @@ export interface AdminStudentProfileDetail {
   user: AdminUser;
   parentInfo?: ParentInfo;
   profileNotes?: string;
+  applicationData?: Record<string, unknown> | null;
+  applicationId?: string | null;
   enrollment?: StudentEnrollmentSummary | null;
   stats: {
     activeClasses: number;
@@ -700,6 +702,8 @@ export interface StudentProfile {
   avatarUrl?: string;
   gender?: "male" | "female";
   parentInfo?: ParentInfo;
+  applicationId?: string;
+  applicationData?: Record<string, unknown>;
 }
 
 export interface StudentProfileHub {

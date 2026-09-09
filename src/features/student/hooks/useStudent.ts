@@ -150,6 +150,21 @@ export function useUpdateStudentProfile() {
   });
 }
 
+export function useUpdateApplicationData() {
+  const qc = useQueryClient();
+  const addToast = useUiStore((s) => s.addToast);
+  return useMutation({
+    mutationFn: ({ applicationId, applicationData }: { applicationId: string; applicationData: Record<string, unknown> }) =>
+      studentApi.updateApplicationData(applicationId, applicationData),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: studentKeys.profile });
+      qc.invalidateQueries({ queryKey: studentKeys.profileHub });
+      addToast("success", "Application data updated");
+    },
+    onError: () => addToast("error", "Failed to update application data"),
+  });
+}
+
 export function useChangeStudentPassword() {
   const addToast = useUiStore((s) => s.addToast);
   return useMutation({

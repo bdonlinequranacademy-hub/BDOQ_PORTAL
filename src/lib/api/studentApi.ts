@@ -96,6 +96,14 @@ export const studentApi = {
   }) =>
     apiClient.patch<ApiResponse<StudentProfile>>("/student/profile", payload).then((r) => r.data),
 
+  updateApplicationData: (applicationId: string, applicationData: Record<string, unknown>) =>
+    apiClient
+      .put<ApiResponse<Record<string, unknown>>>("/student/profile/application-data", {
+        applicationId,
+        applicationData,
+      })
+      .then((r) => r.data),
+
   changePassword: (payload: { currentPassword: string; newPassword: string }) =>
     apiClient
       .patch<ApiResponse<null>>("/student/profile/password", payload)

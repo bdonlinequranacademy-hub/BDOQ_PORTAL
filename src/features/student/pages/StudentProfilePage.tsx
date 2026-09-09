@@ -14,7 +14,9 @@ import {
   useStudentProfile,
   useStudentProfileHub,
   useUpdateStudentProfile,
+  useUpdateApplicationData,
 } from "@/features/student/hooks/useStudent";
+import { ApplicationDataView } from "@/components/ui/shared/ApplicationDataView";
 import { PageContainer } from "@/components/layout/PageContainer";
 import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
@@ -33,7 +35,7 @@ import { formatTrialMeetingPlatformLabel } from "@/lib/trialMeetingPlatform";
 import { cn } from "@/lib/utils/cn";
 import type { ParentInfo, StudentEnrollmentSummary } from "@/types/models";
 
-type TabId = "overview" | "classes" | "activity" | "payments" | "settings";
+type TabId = "overview" | "classes" | "activity" | "payments" | "settings" | "application";
 
 function ParentInfoCard({
   parentInfo,
@@ -149,6 +151,7 @@ export function StudentProfilePage() {
   const { data: profile, isLoading: profileLoading } = useStudentProfile();
   const { data: hub, isLoading: hubLoading } = useStudentProfileHub();
   const updateProfile = useUpdateStudentProfile();
+  const updateApplicationData = useUpdateApplicationData();
   const changePassword = useChangeStudentPassword();
   const uploadAvatar = useUploadProfileAvatar("student");
 
@@ -178,6 +181,7 @@ export function StudentProfilePage() {
     { id: "activity", label: t("student.tabActivity") },
     { id: "payments", label: t("student.tabPayments") },
     { id: "settings", label: t("student.tabSettings") },
+    { id: "application", label: "Application Data" },
   ];
 
   function handleProfileSubmit(e: React.FormEvent) {
@@ -561,6 +565,28 @@ export function StudentProfilePage() {
                 </Button>
               </form>
             </Card>
+          ) : null}
+
+          {tab === "application" ? (
+            displayProfile?.applicationId && displayProfile?.applicationData ? (
+              <ApplicationDataView
+                applicationId={displayProfile.applicationId}
+                applicationData={displayProfile.applicationData}
+                onUpdate={async (appId, updatedData) => {
+                  await updateApplicationData.mutateAsync({
+                    applicationId: appId,
+                    applicationData: updatedData,
+                  });
+                }}
+                isUpdating={updateApplicationData.isPending}
+              />
+            ) : (
+              <Card className="rounded-3xl border-0 p-6 shadow-sm">
+                <p className="text-sm text-zinc-500 text-center py-4">
+                  No application data found for your profile.
+                </p>
+              </Card>
+            )
           ) : null}
         </>
       )}

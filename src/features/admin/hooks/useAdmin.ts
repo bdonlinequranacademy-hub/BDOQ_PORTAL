@@ -184,6 +184,21 @@ export function useUpdateUser(id: string) {
   });
 }
 
+export function useUpdateUserApplicationData(id: string) {
+  const qc = useQueryClient();
+  const addToast = useUiStore((s) => s.addToast);
+  return useMutation({
+    mutationFn: ({ applicationId, applicationData }: { applicationId: string; applicationData: Record<string, unknown> }) =>
+      adminApi.updateUserApplicationData(id, applicationId, applicationData),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: adminKeys.userProfile(id) });
+      addToast("success", "Application data updated");
+    },
+    onError: (error: unknown) =>
+      addToast("error", getApiErrorMessage(error, "Failed to update application data")),
+  });
+}
+
 export function useDeleteUser() {
   const qc = useQueryClient();
   const addToast = useUiStore((s) => s.addToast);

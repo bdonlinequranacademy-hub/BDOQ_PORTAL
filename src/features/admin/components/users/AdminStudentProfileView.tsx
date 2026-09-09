@@ -24,7 +24,8 @@ import { waMeUrlFromRaw } from "@/lib/whatsapp";
 import { formatTrialMeetingPlatformLabel } from "@/lib/trialMeetingPlatform";
 import { usePortalTranslation } from "@/i18n/LocaleProvider";
 import { cn } from "@/lib/utils/cn";
-import { useUpdateUser } from "@/features/admin/hooks/useAdmin";
+import { useUpdateUser, useUpdateUserApplicationData } from "@/features/admin/hooks/useAdmin";
+import { ApplicationDataView } from "@/components/ui/shared/ApplicationDataView";
 import type { AdminStudentProfileDetail, ParentInfo, StudentEnrollmentSummary } from "@/types/models";
 
 interface IAdminStudentProfileViewProps {
@@ -33,7 +34,7 @@ interface IAdminStudentProfileViewProps {
   onDeactivate?: () => void;
 }
 
-type TabId = "overview" | "classes" | "learning" | "finance" | "notes";
+type TabId = "overview" | "classes" | "learning" | "finance" | "notes" | "application";
 
 function ParentInfoSection({
   parentInfo,
@@ -176,6 +177,7 @@ export function AdminStudentProfileView({
   } = usePortalTranslation();
   const [tab, setTab] = useState<TabId>("overview");
   const updateUser = useUpdateUser(data.user.id);
+  const updateApplicationData = useUpdateUserApplicationData(data.user.id);
   const [notesDraft, setNotesDraft] = useState(
     data.profileNotes ?? data.user.profileNotes ?? ""
   );
@@ -193,6 +195,7 @@ export function AdminStudentProfileView({
     { id: "learning", label: t("admin.studentProfile.tabLearning") },
     { id: "finance", label: t("admin.studentProfile.tabFinance") },
     { id: "notes", label: t("admin.studentProfile.tabNotes") },
+    { id: "application", label: "Application Data" },
   ];
   const {
     user,
@@ -845,6 +848,26 @@ export function AdminStudentProfileView({
             </button>
           </div>
         </section>
+      ) : null}
+
+      {tab === "application" ? (
+        data.applicationId && data.applicationData ? (
+          <ApplicationDataView
+            applicationId={data.applicationId}
+            applicationData={data.applicationData}
+            onUpdate={async (appId, updatedData) => {
+              await updateApplicationData.mutateAsync({
+                applicationId: appId,
+                applicationData: updatedData,
+              });
+            }}
+            isUpdating={updateApplicationData.isPending}
+          />
+        ) : (
+          <section className="rounded-2xl border border-portal bg-portal-surface p-5">
+            <p className="text-sm text-portal-muted text-center py-4">No application data found for this student.</p>
+          </section>
+        )
       ) : null}
     </div>
   );

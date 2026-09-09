@@ -209,10 +209,17 @@ export function StudentDashboardPage() {
                         {teacherName(typeof cls.teacher === "object" ? cls.teacher : undefined)}
                       </span>
                       {cls.meetingLink ? (
-                        <span className="inline-flex items-center gap-1 text-xs text-primary">
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            window.open(cls.meetingLink, "_blank");
+                          }}
+                          className="inline-flex items-center gap-1 text-xs text-primary hover:underline"
+                        >
                           <Video className="size-3" aria-hidden />
                           {t("student.joinClass")}
-                        </span>
+                        </button>
                       ) : null}
                     </button>
                   ))}

@@ -130,6 +130,14 @@ export const adminApi = {
   ) =>
     apiClient.put<ApiResponse<AdminUser>>(`/admin/users/${id}`, payload).then((r) => r.data),
 
+  updateUserApplicationData: (id: string, applicationId: string, applicationData: Record<string, unknown>) =>
+    apiClient
+      .put<ApiResponse<Record<string, unknown>>>(`/admin/users/${id}/application-data`, {
+        applicationId,
+        applicationData,
+      })
+      .then((r) => r.data),
+
   deleteUser: (id: string) =>
     apiClient.delete<ApiResponse<null>>(`/admin/users/${id}`).then((r) => r.data),
 
