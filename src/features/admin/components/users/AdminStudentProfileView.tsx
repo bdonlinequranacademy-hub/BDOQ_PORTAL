@@ -132,7 +132,7 @@ function EnrollmentSummarySection({
           enrollment.paymentStatus ? statusLabel(enrollment.paymentStatus) : "—",
         ],
       ].map(([label, value]) => (
-        <div key={label} className="rounded-xl bg-primary-light/30 px-3 py-2">
+        <div key={label} className="rounded-xl bg-portal-muted/20 px-3 py-2 transition hover:bg-portal-muted/30">
           <dt className="text-[11px] font-medium uppercase tracking-wide text-portal-muted">
             {label}
           </dt>
@@ -140,7 +140,7 @@ function EnrollmentSummarySection({
         </div>
       ))}
       {enrollment.meetingLink ? (
-        <div className="sm:col-span-2 rounded-xl bg-primary-light/30 px-3 py-2">
+        <div className="sm:col-span-2 rounded-xl bg-portal-muted/20 px-3 py-2 transition hover:bg-portal-muted/30">
           <dt className="text-[11px] font-medium uppercase tracking-wide text-portal-muted">
             {t("admin.studentProfile.enrollmentMeetingLink")}
           </dt>
@@ -375,7 +375,7 @@ export function AdminStudentProfileView({
       {tab === "overview" ? (
         <div className="grid grid-cols-1 gap-5 lg:grid-cols-2">
           {enrollment ? (
-            <section className="rounded-2xl border border-primary/20 bg-primary-light/20 p-5 lg:col-span-2">
+            <section className="rounded-2xl border border-portal bg-portal-surface p-5 lg:col-span-2">
               <div className="flex items-center gap-2">
                 <BookOpen className="size-5 text-primary-dark" aria-hidden />
                 <h2 className="font-display text-lg font-semibold text-primary-dark">
@@ -468,21 +468,21 @@ export function AdminStudentProfileView({
               {t("admin.studentProfile.attendanceSnapshot")}
             </h3>
             <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
-              <div className="rounded-xl bg-primary-light/40 p-3">
+              <div className="rounded-xl bg-primary/15 p-3">
                 <p className="text-xs text-portal-muted">{statusLabel("present")}</p>
                 <p className="text-lg font-bold text-primary-dark">
                   {formatNumber(stats.attendancePresent)}
                 </p>
               </div>
-              <div className="rounded-xl bg-amber-50 p-3">
+              <div className="rounded-xl bg-amber-500/15 p-3">
                 <p className="text-xs text-portal-muted">{statusLabel("late")}</p>
-                <p className="text-lg font-bold text-amber-700">{formatNumber(stats.attendanceLate)}</p>
+                <p className="text-lg font-bold text-amber-500">{formatNumber(stats.attendanceLate)}</p>
               </div>
-              <div className="rounded-xl bg-red-50 p-3">
+              <div className="rounded-xl bg-red-500/15 p-3">
                 <p className="text-xs text-portal-muted">{statusLabel("absent")}</p>
-                <p className="text-lg font-bold text-red-600">{formatNumber(stats.attendanceAbsent)}</p>
+                <p className="text-lg font-bold text-red-500">{formatNumber(stats.attendanceAbsent)}</p>
               </div>
-              <div className="rounded-xl bg-portal-muted/30 p-3">
+              <div className="rounded-xl bg-portal-muted/20 p-3">
                 <p className="text-xs text-portal-muted">{t("admin.studentProfile.total")}</p>
                 <p className="text-lg font-bold text-portal-heading">
                   {formatNumber(stats.attendanceTotal)}
