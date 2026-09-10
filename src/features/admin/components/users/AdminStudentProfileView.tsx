@@ -195,7 +195,7 @@ export function AdminStudentProfileView({
     { id: "learning", label: t("admin.studentProfile.tabLearning") },
     { id: "finance", label: t("admin.studentProfile.tabFinance") },
     { id: "notes", label: t("admin.studentProfile.tabNotes") },
-    { id: "application", label: "Application Data" },
+    { id: "application", label: t("admin.studentProfile.tabApplication") || "Application Data" },
   ];
   const {
     user,
@@ -865,7 +865,7 @@ export function AdminStudentProfileView({
           />
         ) : (
           <section className="rounded-2xl border border-portal bg-portal-surface p-5">
-            <p className="text-sm text-portal-muted text-center py-4">No application data found for this student.</p>
+            <p className="text-sm text-portal-muted text-center py-4">{t("admin.studentProfile.noApplicationData") || "No application data found for this student."}</p>
           </section>
         )
       ) : null}

@@ -181,7 +181,7 @@ export function StudentProfilePage() {
     { id: "activity", label: t("student.tabActivity") },
     { id: "payments", label: t("student.tabPayments") },
     { id: "settings", label: t("student.tabSettings") },
-    { id: "application", label: "Application Data" },
+    { id: "application", label: t("studentProfile.tabApplication") || "Application Data" },
   ];
 
   function handleProfileSubmit(e: React.FormEvent) {
@@ -582,8 +582,8 @@ export function StudentProfilePage() {
               />
             ) : (
               <Card className="rounded-3xl border-0 p-6 shadow-sm">
-                <p className="text-sm text-zinc-500 text-center py-4">
-                  No application data found for your profile.
+                <p className="py-4 text-center text-sm text-portal-muted">
+                  {t("studentProfile.noApplicationData") || "No application data found for your profile."}
                 </p>
               </Card>
             )

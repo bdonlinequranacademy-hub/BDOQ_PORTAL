@@ -1,9 +1,10 @@
 import React, { useState } from "react";
-import { User, BookOpen, Edit2, Trash2, Plus } from "lucide-react";
-import { Card } from "../Card";
+import { UserRound, BookOpen, Edit2, Plus } from "lucide-react";
 import { Modal } from "../Modal";
 import { Input } from "../Input";
 import { Button } from "../Button";
+import { usePortalTranslation } from "@/i18n/LocaleProvider";
+
 
 interface ApplicationDataViewProps {
   applicationId: string;
@@ -56,44 +57,26 @@ export const ApplicationDataView: React.FC<ApplicationDataViewProps> = ({
   onUpdate,
   isUpdating,
 }) => {
-  const [editingField, setEditingField] = useState<{ key: string; value: string } | null>(null);
-  const [addingField, setAddingField] = useState<{ category: string } | null>(null);
-  const [newKey, setNewKey] = useState("");
-  const [newValue, setNewValue] = useState("");
+  const { t } = usePortalTranslation();
+  const [editingField, setEditingField] = useState<{ key: string; value: string; label: string } | null>(null);
 
-  const handleEditClick = (key: string, value: unknown) => {
-    setEditingField({ key, value: String(value ?? "") });
+  const handleEditClick = (key: string, value: unknown, label: string) => {
+    setEditingField({ key, value: String(value ?? ""), label });
   };
 
   const handleSaveEdit = async () => {
     if (!editingField) return;
     const updated = { ...applicationData };
-    updated[editingField.key] = editingField.value;
+    
+    // If the value is empty, we remove the key, otherwise we update it
+    if (!editingField.value.trim()) {
+      delete updated[editingField.key];
+    } else {
+      updated[editingField.key] = editingField.value;
+    }
+    
     await onUpdate(applicationId, updated);
     setEditingField(null);
-  };
-
-  const handleDeleteClick = async (key: string) => {
-    if (window.confirm(`Are you sure you want to delete ${formatKeyName(key)}?`)) {
-      const updated = { ...applicationData };
-      delete updated[key];
-      await onUpdate(applicationId, updated);
-    }
-  };
-
-  const handleSaveAdd = async () => {
-    if (!newKey.trim()) return;
-    const updated = { ...applicationData };
-    // Convert to camelCase
-    const formattedKey = newKey
-      .toLowerCase()
-      .replace(/[^a-zA-Z0-9]+(.)/g, (_m, chr) => chr.toUpperCase());
-    
-    updated[formattedKey] = newValue;
-    await onUpdate(applicationId, updated);
-    setAddingField(null);
-    setNewKey("");
-    setNewValue("");
   };
 
   const basicInfo: Record<string, unknown> = {};
@@ -114,116 +97,111 @@ export const ApplicationDataView: React.FC<ApplicationDataViewProps> = ({
     title: string,
     subtitle: string,
     icon: React.ReactNode,
-    data: Record<string, unknown>,
-    category: string
+    data: Record<string, unknown>
   ) => {
-    return (
-      <Card className="mb-6 border-slate-700/50 bg-slate-800/30">
-        <div className="p-5">
-          <div className="flex items-center gap-3 mb-6">
-            <div className="p-2 bg-slate-800 rounded-lg text-slate-400 border border-slate-700">
-              {icon}
-            </div>
-            <div>
-              <h3 className="text-lg font-semibold text-white">{title}</h3>
-              <p className="text-sm text-slate-400">{subtitle}</p>
-            </div>
-          </div>
+    const entries = Object.entries(data);
+    if (entries.length === 0) return null;
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {Object.entries(data).map(([key, value]) => (
+    return (
+      <section className="rounded-2xl border border-portal bg-portal-surface p-5">
+        <div className="mb-4">
+          <div className="flex items-center gap-2">
+            <span className="text-primary-dark">{icon}</span>
+            <h2 className="font-display text-lg font-semibold text-primary-dark">
+              {title}
+            </h2>
+          </div>
+          <p className="mt-1 text-sm text-portal-muted">{subtitle}</p>
+        </div>
+
+        <dl className="grid grid-cols-1 gap-2 text-sm sm:grid-cols-2 lg:grid-cols-3">
+          {entries.map(([key, value]) => {
+            const label = formatKeyName(key);
+            // Check if there is a translation for this specific key
+            // We use a generic fallback if the translation doesn't exist
+            const translatedLabel = t(`applicationData.${key}`) || label;
+            
+            return (
               <div
                 key={key}
-                className="bg-slate-900/50 border border-slate-700/50 rounded-xl p-4 flex flex-col justify-between group hover:border-slate-600 transition-colors"
+                className="group relative rounded-xl bg-portal-muted/20 px-3 py-2 transition hover:bg-portal-muted/30"
               >
-                <div className="flex items-start justify-between mb-2">
-                  <span className="text-xs font-semibold text-slate-400 uppercase tracking-wider">
-                    {formatKeyName(key)}
-                  </span>
-                  <div className="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                    <button
-                      onClick={() => handleEditClick(key, value)}
-                      disabled={isUpdating}
-                      className="text-slate-400 hover:text-blue-400 transition-colors disabled:opacity-50"
-                    >
-                      <Edit2 size={14} />
-                    </button>
-                    <button
-                      onClick={() => handleDeleteClick(key)}
-                      disabled={isUpdating}
-                      className="text-slate-400 hover:text-red-400 transition-colors disabled:opacity-50"
-                    >
-                      <Trash2 size={14} />
-                    </button>
-                  </div>
-                </div>
-                <div className="text-white font-medium break-words">
-                  {value ? String(value) : <span className="text-slate-500 italic">Not provided</span>}
-                </div>
+                <dt className="text-[11px] font-medium uppercase tracking-wide text-portal-muted">
+                  {translatedLabel}
+                </dt>
+                <dd className="mt-0.5 font-medium text-portal-heading break-words pr-8">
+                  {value ? String(value) : <span className="text-portal-muted italic">{t("labels.not_provided") || "Not provided"}</span>}
+                </dd>
+                <button
+                  onClick={() => handleEditClick(key, value, translatedLabel)}
+                  disabled={isUpdating}
+                  title={t("actions.edit")}
+                  className="absolute right-2 top-1/2 -translate-y-1/2 p-1.5 text-portal-muted opacity-0 transition-opacity hover:text-primary group-hover:opacity-100 disabled:opacity-0"
+                >
+                  <Edit2 className="size-3.5" />
+                </button>
               </div>
-            ))}
-
-            <button
-              onClick={() => setAddingField({ category })}
-              disabled={isUpdating}
-              className="border border-dashed border-slate-700 hover:border-slate-500 rounded-xl p-4 flex items-center justify-center text-slate-400 hover:text-white transition-colors h-full min-h-[100px]"
-            >
-              <div className="flex items-center gap-2">
-                <Plus size={16} />
-                <span className="text-sm font-medium">Add Field</span>
-              </div>
-            </button>
-          </div>
-        </div>
-      </Card>
+            );
+          })}
+        </dl>
+      </section>
     );
   };
 
+  // Provide fallback text if translation is not found
+  const basicInfoTitle = t("applicationData.basicInfo") || "Basic Information";
+  const basicInfoDesc = t("applicationData.basicInfoDesc") || "Personal details submitted during admission.";
+  
+  const learningPrefsTitle = t("applicationData.learningPrefs") || "Learning Preferences";
+  const learningPrefsDesc = t("applicationData.learningPrefsDesc") || "Course preferences and availability.";
+  
+  const otherDetailsTitle = t("applicationData.otherDetails") || "Other Details";
+  const otherDetailsDesc = t("applicationData.otherDetailsDesc") || "Additional information from the application.";
+
   return (
-    <div className="space-y-6">
-      {renderSection(
-        "Basic Information",
-        "Your personal details submitted during admission.",
-        <User size={20} />,
-        basicInfo,
-        "basic"
-      )}
-
-      {renderSection(
-        "Learning Preferences",
-        "Your course preferences and availability.",
-        <BookOpen size={20} />,
-        learningPrefs,
-        "learning"
-      )}
-
-      {Object.keys(otherInfo).length > 0 &&
-        renderSection(
-          "Other Details",
-          "Additional information from your application.",
-          <Plus size={20} />,
-          otherInfo,
-          "other"
+    <div className="grid grid-cols-1 gap-5 lg:grid-cols-2">
+      <div className="space-y-5 lg:col-span-2">
+        {renderSection(
+          basicInfoTitle,
+          basicInfoDesc,
+          <UserRound className="size-5" />,
+          basicInfo
         )}
 
-      {/* Edit Field Modal */}
+        {renderSection(
+          learningPrefsTitle,
+          learningPrefsDesc,
+          <BookOpen className="size-5" />,
+          learningPrefs
+        )}
+
+        {renderSection(
+          otherDetailsTitle,
+          otherDetailsDesc,
+          <Plus className="size-5" />,
+          otherInfo
+        )}
+      </div>
+
+      {/* Edit Information Modal */}
       <Modal
         open={!!editingField}
         onClose={() => setEditingField(null)}
-        title={`Edit ${editingField ? formatKeyName(editingField.key) : ""}`}
+        title={t("applicationData.editInformation") || "Edit Information"}
       >
         <div className="p-6 space-y-4">
           <div>
-            <label className="block text-sm font-medium text-slate-300 mb-1">
-              Value
+            <label className="block text-sm font-medium text-portal-heading mb-1">
+              {editingField?.label}
             </label>
             <Input
               value={editingField?.value || ""}
               onChange={(e) =>
                 setEditingField((prev) => (prev ? { ...prev, value: e.target.value } : null))
               }
-              placeholder="Enter value..."
+              placeholder={t("applicationData.infoDetailsPlaceholder") || "Enter details... (leave blank to remove)"}
               autoFocus
+              className="bg-white text-portal-heading"
             />
           </div>
           <div className="flex justify-end gap-3 pt-4">
@@ -232,67 +210,14 @@ export const ApplicationDataView: React.FC<ApplicationDataViewProps> = ({
               onClick={() => setEditingField(null)}
               disabled={isUpdating}
             >
-              Cancel
+              {t("actions.cancel") || "Cancel"}
             </Button>
             <Button
               onClick={handleSaveEdit}
-              disabled={isUpdating || !editingField?.value.trim()}
-            >
-              Save Changes
-            </Button>
-          </div>
-        </div>
-      </Modal>
-
-      {/* Add Field Modal */}
-      <Modal
-        open={!!addingField}
-        onClose={() => {
-          setAddingField(null);
-          setNewKey("");
-          setNewValue("");
-        }}
-        title="Add New Field"
-      >
-        <div className="p-6 space-y-4">
-          <div>
-            <label className="block text-sm font-medium text-slate-300 mb-1">
-              Field Name
-            </label>
-            <Input
-              value={newKey}
-              onChange={(e) => setNewKey(e.target.value)}
-              placeholder="e.g. Previous Experience"
-              autoFocus
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-slate-300 mb-1">
-              Field Value
-            </label>
-            <Input
-              value={newValue}
-              onChange={(e) => setNewValue(e.target.value)}
-              placeholder="Enter value..."
-            />
-          </div>
-          <div className="flex justify-end gap-3 pt-4">
-            <Button
-              variant="secondary"
-              onClick={() => {
-                setAddingField(null);
-                setNewKey("");
-                setNewValue("");
-              }}
               disabled={isUpdating}
+              className="bg-primary hover:bg-primary-dark text-white"
             >
-              Cancel
-            </Button>
-            <Button
-              onClick={handleSaveAdd}
-              disabled={isUpdating || !newKey.trim() || !newValue.trim()}
-            >
-              Add Field
+              {t("actions.save") || "Save"}
             </Button>
           </div>
         </div>
