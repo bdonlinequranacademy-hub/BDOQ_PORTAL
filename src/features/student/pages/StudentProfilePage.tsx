@@ -49,10 +49,10 @@ function ParentInfoCard({
   }
 
   return (
-    <Card className="rounded-3xl border-0 p-6 shadow-sm">
+    <Card className="rounded-3xl border-0 p-6 shadow-sm bg-portal-surface">
       <div className="mb-4 flex items-center gap-2">
-        <UserRound className="size-5 text-primary-dark" aria-hidden />
-        <h2 className="font-bold text-primary-dark">{t("student.parentGuardian")}</h2>
+        <UserRound className="size-5 text-portal-heading" aria-hidden />
+        <h2 className="font-bold text-portal-heading">{t("student.parentGuardian")}</h2>
       </div>
       <dl className="grid gap-3 sm:grid-cols-2">
         {[
@@ -61,9 +61,9 @@ function ParentInfoCard({
           [t("student.parentWhatsapp"), parentInfo?.whatsapp || "—"],
           [t("student.parentEmail"), parentInfo?.email || "—"],
         ].map(([label, value]) => (
-          <div key={label} className="rounded-xl bg-zinc-50 px-3 py-2">
-            <dt className="text-xs text-zinc-500">{label}</dt>
-            <dd className="mt-0.5 text-sm font-medium text-primary-dark">{value}</dd>
+          <div key={label} className="rounded-xl bg-portal-surface-muted/30 px-3 py-2">
+            <dt className="text-xs text-portal-muted">{label}</dt>
+            <dd className="mt-0.5 text-sm font-medium text-portal-heading">{value}</dd>
           </div>
         ))}
       </dl>
@@ -85,10 +85,10 @@ function EnrollmentCard({
   statusLabel: (status: string) => string;
 }) {
   return (
-    <Card className="rounded-3xl border border-primary/15 bg-primary-light/20 p-6 shadow-sm">
+    <Card className="rounded-3xl border-0 p-6 shadow-sm bg-portal-surface">
       <div className="mb-4 flex items-center gap-2">
-        <BookOpen className="size-5 text-primary-dark" aria-hidden />
-        <h2 className="font-bold text-primary-dark">{t("student.enrollmentSummary")}</h2>
+        <BookOpen className="size-5 text-portal-heading" aria-hidden />
+        <h2 className="font-bold text-portal-heading">{t("student.enrollmentSummary")}</h2>
       </div>
       <dl className="grid gap-3 sm:grid-cols-2">
         {[
@@ -124,9 +124,9 @@ function EnrollmentCard({
             enrollment.paymentStatus ? statusLabel(enrollment.paymentStatus) : "—",
           ],
         ].map(([label, value]) => (
-          <div key={label} className="rounded-xl bg-white/70 px-3 py-2">
-            <dt className="text-xs text-zinc-500">{label}</dt>
-            <dd className="mt-0.5 text-sm font-medium text-primary-dark">{value}</dd>
+          <div key={label} className="rounded-xl bg-portal-surface-muted/30 px-3 py-2">
+            <dt className="text-xs text-portal-muted">{label}</dt>
+            <dd className="mt-0.5 text-sm font-medium text-portal-heading">{value}</dd>
           </div>
         ))}
       </dl>

@@ -224,73 +224,73 @@ export function AdminDashboardPage() {
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-4 lg:grid-cols-4 xl:grid-cols-4 mb-6">
         {/* Quick Links */}
         <StatCard
-          label="Users"
+          label={t("admin.dashboard.quickLinkUsers")}
           icon={<Users className="text-primary" />}
           iconBg="bg-primary/5"
           onClick={() => navigate("/admin/users")}
         />
         <StatCard
-          label="Payments"
+          label={t("admin.dashboard.quickLinkPayments")}
           icon={<CreditCard className="text-gold" />}
           iconBg="bg-gold/5"
           onClick={() => navigate("/admin/payments")}
         />
         <StatCard
-          label="Classes"
+          label={t("admin.dashboard.quickLinkClasses")}
           icon={<BookOpen className="text-teal" />}
           iconBg="bg-teal/5"
           onClick={() => navigate("/admin/classes")}
         />
         <StatCard
-          label="Routine"
+          label={t("admin.dashboard.quickLinkRoutine")}
           icon={<CalendarDays className="text-amber-500" />}
           iconBg="bg-amber-500/5"
           onClick={() => navigate("/admin/schedule/routine")}
         />
         <StatCard
-          label="Live Monitor"
+          label={t("admin.dashboard.quickLinkLiveMonitor")}
           icon={<Radio className="text-red-500" />}
           iconBg="bg-red-500/5"
           onClick={() => navigate("/admin/live-monitor")}
         />
         <StatCard
-          label="Free Class Leads"
+          label={t("admin.dashboard.quickLinkFreeClassLeads")}
           icon={<CalendarCheck className="text-primary-dark" />}
           iconBg="bg-primary-dark/5"
           onClick={() => navigate("/admin/trial-bookings")}
         />
         <StatCard
-          label="Contact Inbox"
+          label={t("admin.dashboard.quickLinkContactInbox")}
           icon={<Inbox className="text-blue-500" />}
           iconBg="bg-blue-500/5"
           onClick={() => navigate("/admin/contact-messages")}
         />
         <StatCard
-          label="Student Admissions"
+          label={t("admin.dashboard.quickLinkStudentAdmissions")}
           icon={<GraduationCap className="text-violet-500" />}
           iconBg="bg-violet-500/5"
           onClick={() => navigate("/admin/student-admissions")}
         />
         <StatCard
-          label="Teacher Applications"
+          label={t("admin.dashboard.quickLinkTeacherApplications")}
           icon={<Briefcase className="text-pink-500" />}
           iconBg="bg-pink-500/5"
           onClick={() => navigate("/admin/teacher-applications")}
         />
         <StatCard
-          label="Curriculum"
+          label={t("admin.dashboard.quickLinkCurriculum")}
           icon={<Library className="text-indigo-500" />}
           iconBg="bg-indigo-500/5"
           onClick={() => navigate("/admin/curriculum")}
         />
         <StatCard
-          label="Attendance"
+          label={t("admin.dashboard.quickLinkAttendance")}
           icon={<ClipboardList className="text-cyan-600" />}
           iconBg="bg-cyan-600/5"
           onClick={() => navigate("/admin/attendance")}
         />
         <StatCard
-          label="Homework"
+          label={t("admin.dashboard.quickLinkHomework")}
           icon={<BookOpenCheck className="text-emerald-500" />}
           iconBg="bg-emerald-500/5"
           onClick={() => navigate("/admin/homework")}
