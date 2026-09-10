@@ -45,10 +45,50 @@ const LEARNING_PREF_KEYS = [
   "availability",
 ];
 
+const HIDDEN_KEYS = [
+  "prefillToken",
+  "admissionPaymentProofPublicId",
+  "paymentProofPublicId",
+  "termsAccepted",
+  "token",
+  "id",
+  "_id",
+];
+
 // Helper to format camelCase or snake_case to Title Case
 const formatKeyName = (key: string) => {
   const result = key.replace(/([A-Z])/g, " $1").replace(/_/g, " ");
   return result.charAt(0).toUpperCase() + result.slice(1).trim();
+};
+
+const renderValue = (value: unknown, t: any) => {
+  if (value == null || value === "") {
+    return <span className="text-portal-muted italic">{t("labels.not_provided") || "Not provided"}</span>;
+  }
+
+  if (typeof value === "boolean") {
+    return value ? (t("labels.yes") || "Yes") : (t("labels.no") || "No");
+  }
+  if (value === "true") return t("labels.yes") || "Yes";
+  if (value === "false") return t("labels.no") || "No";
+
+  const strValue = String(value);
+  if (
+    strValue.startsWith("http") &&
+    (strValue.includes("cloudinary.com") || strValue.match(/\.(jpeg|jpg|gif|png|webp)$/i))
+  ) {
+    return (
+      <a href={strValue} target="_blank" rel="noreferrer" className="mt-2 block">
+        <img
+          src={strValue}
+          alt="Attachment"
+          className="max-h-40 rounded-lg border border-portal object-contain shadow-sm"
+        />
+      </a>
+    );
+  }
+
+  return <span className="break-words">{strValue}</span>;
 };
 
 export const ApplicationDataView: React.FC<ApplicationDataViewProps> = ({
@@ -99,7 +139,7 @@ export const ApplicationDataView: React.FC<ApplicationDataViewProps> = ({
     icon: React.ReactNode,
     data: Record<string, unknown>
   ) => {
-    const entries = Object.entries(data);
+    const entries = Object.entries(data).filter(([key]) => !HIDDEN_KEYS.includes(key));
     if (entries.length === 0) return null;
 
     return (
@@ -129,8 +169,8 @@ export const ApplicationDataView: React.FC<ApplicationDataViewProps> = ({
                 <dt className="text-[11px] font-medium uppercase tracking-wide text-portal-muted">
                   {translatedLabel}
                 </dt>
-                <dd className="mt-0.5 font-medium text-portal-heading break-words pr-8">
-                  {value ? String(value) : <span className="text-portal-muted italic">{t("labels.not_provided") || "Not provided"}</span>}
+                <dd className="mt-1 font-medium text-portal-heading pr-8">
+                  {renderValue(value, t)}
                 </dd>
                 <button
                   onClick={() => handleEditClick(key, value, translatedLabel)}
