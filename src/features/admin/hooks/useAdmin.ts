@@ -1533,7 +1533,7 @@ export function useUpdateSiteSettings() {
       addToast("success", "Settings updated successfully");
     },
     onError: (err) => {
-      addToast("error", getApiErrorMessage(err));
+      addToast("error", getApiErrorMessage(err, "Failed to update settings"));
     },
   });
 }
