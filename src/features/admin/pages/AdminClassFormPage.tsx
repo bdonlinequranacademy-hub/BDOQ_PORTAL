@@ -58,28 +58,35 @@ export function AdminClassFormPage() {
   const lastAutoFilledStudentId = useRef<string>("");
 
   useEffect(() => {
-    if (!isEdit && selectedStudentProfile?.kind === "student" && selectedStudentProfile.enrollment) {
+    if (!isEdit && selectedStudentProfile?.kind === "student" && (selectedStudentProfile.enrollment || selectedStudentProfile.applicationData)) {
       if (selectedStudentProfile.user.id === lastAutoFilledStudentId.current) {
         return; // Already auto-filled for this student
       }
       lastAutoFilledStudentId.current = selectedStudentProfile.user.id;
       
       const enr = selectedStudentProfile.enrollment;
+      const appData = selectedStudentProfile.applicationData as any;
       
-      if (enr.assignedTeacherName) {
-        const match = teachers.find(t => t.name === enr.assignedTeacherName);
+      const teacherName = enr?.assignedTeacherName || appData?.assignedTeacherName || appData?.assignedTeacherSlug;
+      if (teacherName) {
+        const match = teachers.find(t => 
+          t.name.toLowerCase() === teacherName.toLowerCase() || 
+          t.name.toLowerCase().includes(teacherName.toLowerCase()) || 
+          teacherName.toLowerCase().includes(t.name.toLowerCase())
+        );
         if (match) setTeacherId(match.id);
       }
-      if (enr.meetingLink) {
-        setMeetingLink(enr.meetingLink);
+      
+      if (enr?.meetingLink || appData?.meetingLink) {
+        setMeetingLink(enr?.meetingLink || appData?.meetingLink || "");
       }
-      if (enr.classDays && enr.classDays.length > 0) {
+      if (enr?.classDays && enr.classDays.length > 0) {
         setScheduleDay(enr.classDays[0] as ClassSchedule["day"]);
       }
-      if (enr.classDurationMinutes) {
+      if (enr?.classDurationMinutes) {
         setScheduleDuration(enr.classDurationMinutes);
       }
-      if (enr.classTime) {
+      if (enr?.classTime) {
         const [hourRaw, minuteRaw] = enr.classTime.split(":");
         const hour = hourRaw?.padStart(2, "0");
         const minute = minuteRaw?.split(" ")[0]?.padStart(2, "0"); 
@@ -87,19 +94,19 @@ export function AdminClassFormPage() {
            setScheduleTime(`${hour}:${minute}`);
         }
       }
-      if (enr.monthlyFeeAmount) {
+      if (enr?.monthlyFeeAmount) {
         setSessionRateBdt(String(enr.monthlyFeeAmount));
       }
 
-      const appData = selectedStudentProfile.applicationData as any;
-      const topic = appData?.program || appData?.topics || enr.packagePlan;
-      if (topic) {
-        setTitle(`${selectedStudentProfile.user.name} - ${topic}`);
-      } else {
-        setTitle(`${selectedStudentProfile.user.name} - Class`);
+      const topicName = appData?.program || appData?.topics || enr?.packagePlan;
+      if (topicName && curriculumTree.length > 0) {
+        const progMatch = curriculumTree.find(
+          p => p.label.toLowerCase() === String(topicName).toLowerCase() || String(topicName).toLowerCase().includes(p.label.toLowerCase())
+        );
+        if (progMatch) setCurriculum({ programId: progMatch.id });
       }
     }
-  }, [selectedStudentProfile, isEdit, teachers]);
+  }, [selectedStudentProfile, isEdit, teachers, curriculumTree]);
 
   useEffect(() => {
     if (!existing || !isEdit) return;
@@ -208,7 +215,7 @@ export function AdminClassFormPage() {
         </h1>
       </div>
 
-      <Card className="flex flex-col gap-4 rounded-2xl border-0 p-5 shadow-sm bg-white">
+      <Card className="flex flex-col gap-4 rounded-2xl border-0 p-5 shadow-sm">
         <div className="flex flex-col gap-1">
           <span className="font-bold text-primary-dark text-sm">Auto-fill from Admission Application</span>
           <select
@@ -267,7 +274,7 @@ export function AdminClassFormPage() {
             placeholder="Optional — syllabus notes, level, or goals"
             value={description}
             onChange={(e) => setDescription(e.target.value)}
-            className="min-h-20 resize-none rounded-xl border border-zinc-200 px-4 py-3 text-sm outline-none"
+            className={`${formControlClass} min-h-20 resize-none`}
           />
           <p className="-mt-2 text-xs text-zinc-500">Description is optional.</p>
           <div className="flex flex-col gap-1">
