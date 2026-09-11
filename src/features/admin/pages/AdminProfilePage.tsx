@@ -18,6 +18,8 @@ import {
   useAdminProfile,
   useChangeAdminPassword,
   useUpdateAdminProfile,
+  useSiteSettings,
+  useUpdateSiteSettings,
 } from "@/features/admin/hooks/useAdmin";
 import { PageContainer } from "@/components/layout/PageContainer";
 import { Card } from "@/components/ui/Card";
@@ -44,6 +46,9 @@ export function AdminProfilePage() {
   const updateProfile = useUpdateAdminProfile();
   const changePassword = useChangeAdminPassword();
   const uploadAvatar = useUploadProfileAvatar(authUser?.role ?? "admin");
+
+  const { data: siteSettings } = useSiteSettings();
+  const updateSiteSettings = useUpdateSiteSettings();
 
   const [name, setName] = useState("");
   const [gender, setGender] = useState<"" | "male" | "female">("");
@@ -548,6 +553,38 @@ export function AdminProfilePage() {
               ))}
             </div>
           </Card>
+
+          {authUser?.role === "super_admin" && (
+            <Card className="rounded-2xl border border-portal bg-portal-surface p-5 shadow-sm sm:p-6">
+              <h3 className="text-sm font-bold text-primary-dark">Global Site Settings</h3>
+              <p className="mt-0.5 text-xs text-portal-muted">
+                Configure features that affect the public-facing website.
+              </p>
+              
+              <div className="mt-6 flex items-center justify-between rounded-xl border border-portal bg-portal-background/50 p-4">
+                <div>
+                  <p className="text-sm font-semibold text-portal-heading">Teacher Application Form</p>
+                  <p className="mt-1 text-xs text-portal-muted">
+                    If active, the Teacher Registration link will be visible on the public site's navigation menu.
+                  </p>
+                </div>
+                <label className="relative inline-flex cursor-pointer items-center">
+                  <input
+                    type="checkbox"
+                    className="peer sr-only"
+                    checked={siteSettings?.isTeacherApplicationOpen ?? false}
+                    disabled={updateSiteSettings.isPending}
+                    onChange={(e) => {
+                      updateSiteSettings.mutate({
+                        isTeacherApplicationOpen: e.target.checked,
+                      });
+                    }}
+                  />
+                  <div className="peer h-7 w-14 rounded-full bg-gray-200 after:absolute after:left-[4px] after:top-[4px] after:h-5 after:w-5 after:rounded-full after:border after:border-gray-300 after:bg-white after:transition-all after:content-[''] peer-checked:bg-primary peer-checked:after:translate-x-full peer-checked:after:border-white peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-primary/30 dark:border-gray-600 dark:bg-gray-700"></div>
+                </label>
+              </div>
+            </Card>
+          )}
         </div>
       </div>
     </PageContainer>

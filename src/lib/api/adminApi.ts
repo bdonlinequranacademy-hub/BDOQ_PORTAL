@@ -401,6 +401,17 @@ export const adminApi = {
       .delete<ApiResponse<null>>(`/admin/student-admissions/${id}`)
       .then((r) => r.data),
 
+  // Site Settings
+  getSiteSettings: () =>
+    apiClient
+      .get<ApiResponse<{ isTeacherApplicationOpen: boolean }>>("/admin/site-settings")
+      .then((r) => r.data),
+
+  updateSiteSettings: (payload: { isTeacherApplicationOpen: boolean }) =>
+    apiClient
+      .patch<ApiResponse<{ isTeacherApplicationOpen: boolean }>>("/admin/site-settings", payload)
+      .then((r) => r.data),
+
   getTeacherApplications: (status?: TeacherApplicationStatus) =>
     apiClient
       .get<ApiResponse<TeacherApplicationView[]>>("/admin/teacher-applications", {

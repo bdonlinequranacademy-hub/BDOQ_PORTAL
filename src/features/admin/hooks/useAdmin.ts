@@ -31,6 +31,7 @@ export const adminKeys = {
   teacherProfiles: ["admin", "teacherProfiles"] as const,
   teacherProfile: (id: string) => ["admin", "teacherProfile", id] as const,
   faq: ["admin", "faq"] as const,
+  siteSettings: ["admin", "siteSettings"] as const,
   faqItem: (id: string) => ["admin", "faqItem", id] as const,
   homeHero: ["admin", "homeHero"] as const,
   sectionHeaders: ["admin", "sectionHeaders"] as const,
@@ -1511,5 +1512,28 @@ export function useChangeAdminPassword() {
     mutationFn: adminApi.changePassword,
     onSuccess: () => addToast("success", "Password changed"),
     onError: () => addToast("error", "Failed to change password"),
+  });
+}
+
+export function useSiteSettings() {
+  return useQuery({
+    queryKey: adminKeys.siteSettings,
+    queryFn: adminApi.getSiteSettings,
+    select: (r) => r.data,
+  });
+}
+
+export function useUpdateSiteSettings() {
+  const qc = useQueryClient();
+  const addToast = useUiStore((s) => s.addToast);
+  return useMutation({
+    mutationFn: adminApi.updateSiteSettings,
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: adminKeys.siteSettings });
+      addToast("success", "Settings updated successfully");
+    },
+    onError: (err) => {
+      addToast("error", getApiErrorMessage(err));
+    },
   });
 }
