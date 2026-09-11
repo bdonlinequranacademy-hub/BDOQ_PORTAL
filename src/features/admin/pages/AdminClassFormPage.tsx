@@ -62,6 +62,12 @@ export function AdminClassFormPage() {
       if (selectedStudentProfile.user.id === lastAutoFilledStudentId.current) {
         return; // Already auto-filled for this student
       }
+      
+      // Wait for reference data to load so we can match dropdowns correctly
+      if (teachers.length === 0 || treeLoading) {
+        return;
+      }
+
       lastAutoFilledStudentId.current = selectedStudentProfile.user.id;
       
       const enr = selectedStudentProfile.enrollment;
@@ -101,12 +107,14 @@ export function AdminClassFormPage() {
       const topicName = appData?.program || appData?.topics || enr?.packagePlan;
       if (topicName && curriculumTree.length > 0) {
         const progMatch = curriculumTree.find(
-          p => p.label.toLowerCase() === String(topicName).toLowerCase() || String(topicName).toLowerCase().includes(p.label.toLowerCase())
+          p => p.label.toLowerCase() === String(topicName).toLowerCase() || 
+               String(topicName).toLowerCase().includes(p.label.toLowerCase()) ||
+               p.label.toLowerCase().includes(String(topicName).toLowerCase())
         );
         if (progMatch) setCurriculum({ programId: progMatch.id });
       }
     }
-  }, [selectedStudentProfile, isEdit, teachers, curriculumTree]);
+  }, [selectedStudentProfile, isEdit, teachers, curriculumTree, treeLoading]);
 
   useEffect(() => {
     if (!existing || !isEdit) return;
@@ -236,15 +244,15 @@ export function AdminClassFormPage() {
         </div>
 
         {hasProfileData && (
-          <div className="flex flex-col gap-3 rounded-xl border border-[#C4922B]/30 bg-[#FDF3E0]/40 p-4 text-sm text-zinc-800">
-            <p className="font-semibold text-[#9A6B1A]">Student Preferences:</p>
+          <div className="flex flex-col gap-3 rounded-xl border border-[#C4922B]/30 bg-[#C4922B]/10 p-4 text-sm">
+            <p className="font-semibold text-[#C4922B]">Student Preferences:</p>
             <ul className="list-inside list-disc flex flex-col gap-1">
               <li>
-                <span className="font-medium text-primary-dark">Topics:</span>{" "}
+                <span className="font-medium text-portal-contrast">Topics:</span>{" "}
                 {String(stAppData?.program || stAppData?.topics || stEnrollment?.packagePlan || "N/A")}
               </li>
               <li>
-                <span className="font-medium text-primary-dark">Preferred Days:</span>{" "}
+                <span className="font-medium text-portal-contrast">Preferred Days:</span>{" "}
                 {stEnrollment?.classDays?.join(", ") || "N/A"}
               </li>
             </ul>
@@ -311,7 +319,7 @@ export function AdminClassFormPage() {
             </div>
           </div>
 
-          <div className="rounded-xl border border-[#C4922B]/25 bg-[#FDF3E0]/40 p-4">
+          <div className="rounded-xl border border-[#C4922B]/25 bg-[#C4922B]/10 p-4">
             <p className="text-sm font-semibold text-primary-dark">Class schedule</p>
             <p className="mt-1 text-xs leading-relaxed text-zinc-600">
               Pick the day and time for this class (Bangladesh time). This appears on the
