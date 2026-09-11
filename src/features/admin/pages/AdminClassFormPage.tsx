@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { ArrowLeft } from "lucide-react";
 import {
@@ -55,15 +55,22 @@ export function AdminClassFormPage() {
     !isEdit && selectedStudents.length === 1 ? selectedStudents[0] : ""
   );
 
+  const lastAutoFilledStudentId = useRef<string>("");
+
   useEffect(() => {
     if (!isEdit && selectedStudentProfile?.kind === "student" && selectedStudentProfile.enrollment) {
+      if (selectedStudentProfile.user.id === lastAutoFilledStudentId.current) {
+        return; // Already auto-filled for this student
+      }
+      lastAutoFilledStudentId.current = selectedStudentProfile.user.id;
+      
       const enr = selectedStudentProfile.enrollment;
       
-      if (enr.assignedTeacherName && !teacherId) {
+      if (enr.assignedTeacherName) {
         const match = teachers.find(t => t.name === enr.assignedTeacherName);
         if (match) setTeacherId(match.id);
       }
-      if (enr.meetingLink && !meetingLink) {
+      if (enr.meetingLink) {
         setMeetingLink(enr.meetingLink);
       }
       if (enr.classDays && enr.classDays.length > 0) {
@@ -72,7 +79,7 @@ export function AdminClassFormPage() {
       if (enr.classDurationMinutes) {
         setScheduleDuration(enr.classDurationMinutes);
       }
-      if (enr.classTime && scheduleTime === "09:00") {
+      if (enr.classTime) {
         const [hourRaw, minuteRaw] = enr.classTime.split(":");
         const hour = hourRaw?.padStart(2, "0");
         const minute = minuteRaw?.split(" ")[0]?.padStart(2, "0"); 
@@ -80,7 +87,7 @@ export function AdminClassFormPage() {
            setScheduleTime(`${hour}:${minute}`);
         }
       }
-      if (enr.monthlyFeeAmount && sessionRateBdt === "500") {
+      if (enr.monthlyFeeAmount) {
         setSessionRateBdt(String(enr.monthlyFeeAmount));
       }
     }
