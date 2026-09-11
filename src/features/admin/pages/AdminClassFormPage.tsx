@@ -6,6 +6,7 @@ import {
   useAdminUsers,
   useCreateClass,
   useUpdateClass,
+  useAdminUserProfile,
 } from "@/features/admin/hooks/useAdmin";
 import { PageContainer } from "@/components/layout/PageContainer";
 import { Card } from "@/components/ui/Card";
@@ -49,6 +50,41 @@ export function AdminClassFormPage() {
   const [formError, setFormError] = useState<string | null>(null);
 
   const { data: curriculumTree = [], isLoading: treeLoading } = useCurriculumTree();
+
+  const { data: selectedStudentProfile } = useAdminUserProfile(
+    !isEdit && selectedStudents.length === 1 ? selectedStudents[0] : ""
+  );
+
+  useEffect(() => {
+    if (!isEdit && selectedStudentProfile?.kind === "student" && selectedStudentProfile.enrollment) {
+      const enr = selectedStudentProfile.enrollment;
+      
+      if (enr.assignedTeacherName && !teacherId) {
+        const match = teachers.find(t => t.name === enr.assignedTeacherName);
+        if (match) setTeacherId(match.id);
+      }
+      if (enr.meetingLink && !meetingLink) {
+        setMeetingLink(enr.meetingLink);
+      }
+      if (enr.classDays && enr.classDays.length > 0) {
+        setScheduleDay(enr.classDays[0] as ClassSchedule["day"]);
+      }
+      if (enr.classDurationMinutes) {
+        setScheduleDuration(enr.classDurationMinutes);
+      }
+      if (enr.classTime && scheduleTime === "09:00") {
+        const [hourRaw, minuteRaw] = enr.classTime.split(":");
+        const hour = hourRaw?.padStart(2, "0");
+        const minute = minuteRaw?.split(" ")[0]?.padStart(2, "0"); 
+        if (hour && minute) {
+           setScheduleTime(`${hour}:${minute}`);
+        }
+      }
+      if (enr.monthlyFeeAmount && sessionRateBdt === "500") {
+        setSessionRateBdt(String(enr.monthlyFeeAmount));
+      }
+    }
+  }, [selectedStudentProfile, isEdit, teachers]);
 
   useEffect(() => {
     if (!existing || !isEdit) return;
@@ -157,6 +193,33 @@ export function AdminClassFormPage() {
           {isEdit ? t("admin.classForm.editTitle") : t("admin.classForm.createTitle")}
         </h1>
       </div>
+
+      <Card className="flex flex-col gap-3 rounded-2xl border-0 p-5 shadow-sm">
+        <span className="font-bold text-primary-dark text-sm">{t("admin.classForm.enrollStudents")}</span>
+        <p className="-mt-1 text-xs text-zinc-500">
+          {scheduleRepeatWeekly
+            ? `Each student gets a routine slot every ${scheduleDay} at ${scheduleTime}.`
+            : `Each student gets one routine slot on the next ${scheduleDay} at ${scheduleTime}.`}
+        </p>
+        <div className="max-h-48 overflow-y-auto flex flex-col gap-2">
+          {students
+            .filter((s) => s.isActive !== false || selectedStudents.includes(s.id))
+            .map((s) => (
+            <label
+              key={s.id}
+              className="flex cursor-pointer items-center gap-3 rounded-lg px-2 py-2 hover:bg-zinc-50"
+            >
+              <input
+                type="checkbox"
+                checked={selectedStudents.includes(s.id)}
+                onChange={() => toggleStudent(s.id)}
+                className="rounded border-zinc-300"
+              />
+              <span className="text-sm text-primary-dark">{s.name}</span>
+            </label>
+          ))}
+        </div>
+      </Card>
 
       <Card className="flex flex-col gap-4 rounded-2xl border-0 p-5 shadow-sm">
           <Input
@@ -289,33 +352,6 @@ export function AdminClassFormPage() {
             value={sessionRateBdt}
             onChange={(e) => setSessionRateBdt(e.target.value)}
           />
-        </Card>
-
-        <Card className="flex flex-col gap-3 rounded-2xl border-0 p-5 shadow-sm">
-          <span className="font-bold text-primary-dark text-sm">{t("admin.classForm.enrollStudents")}</span>
-          <p className="-mt-1 text-xs text-zinc-500">
-            {scheduleRepeatWeekly
-              ? `Each student gets a routine slot every ${scheduleDay} at ${scheduleTime}.`
-              : `Each student gets one routine slot on the next ${scheduleDay} at ${scheduleTime}.`}
-          </p>
-          <div className="max-h-48 overflow-y-auto flex flex-col gap-2">
-            {students
-              .filter((s) => s.isActive !== false || selectedStudents.includes(s.id))
-              .map((s) => (
-              <label
-                key={s.id}
-                className="flex cursor-pointer items-center gap-3 rounded-lg px-2 py-2 hover:bg-zinc-50"
-              >
-                <input
-                  type="checkbox"
-                  checked={selectedStudents.includes(s.id)}
-                  onChange={() => toggleStudent(s.id)}
-                  className="rounded border-zinc-300"
-                />
-                <span className="text-sm text-primary-dark">{s.name}</span>
-              </label>
-            ))}
-          </div>
         </Card>
 
         {formError ? (
