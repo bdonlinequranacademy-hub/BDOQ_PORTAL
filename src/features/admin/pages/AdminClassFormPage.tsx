@@ -90,6 +90,14 @@ export function AdminClassFormPage() {
       if (enr.monthlyFeeAmount) {
         setSessionRateBdt(String(enr.monthlyFeeAmount));
       }
+
+      const appData = selectedStudentProfile.applicationData as any;
+      const topic = appData?.program || appData?.topics || enr.packagePlan;
+      if (topic) {
+        setTitle(`${selectedStudentProfile.user.name} - ${topic}`);
+      } else {
+        setTitle(`${selectedStudentProfile.user.name} - Class`);
+      }
     }
   }, [selectedStudentProfile, isEdit, teachers]);
 
@@ -119,12 +127,6 @@ export function AdminClassFormPage() {
       setSelectedStudents((enrolled as { _id: string }[]).map((s) => s._id));
     }
   }, [existing, isEdit]);
-
-  function toggleStudent(sid: string) {
-    setSelectedStudents((prev) =>
-      prev.includes(sid) ? prev.filter((x) => x !== sid) : [...prev, sid]
-    );
-  }
 
   async function handleSubmit() {
     setFormError(null);
@@ -186,6 +188,11 @@ export function AdminClassFormPage() {
     }
   }
 
+  const isStudentProfile = selectedStudentProfile?.kind === "student";
+  const stEnrollment = isStudentProfile ? selectedStudentProfile.enrollment : null;
+  const stAppData = isStudentProfile ? (selectedStudentProfile.applicationData as any) : null;
+  const hasProfileData = isStudentProfile && (stEnrollment || stAppData);
+
   return (
     <PageContainer className="flex max-w-3xl flex-col gap-6" size="narrow">
       <div className="flex items-center gap-3">
@@ -201,31 +208,53 @@ export function AdminClassFormPage() {
         </h1>
       </div>
 
-      <Card className="flex flex-col gap-3 rounded-2xl border-0 p-5 shadow-sm">
-        <span className="font-bold text-primary-dark text-sm">{t("admin.classForm.enrollStudents")}</span>
-        <p className="-mt-1 text-xs text-zinc-500">
-          {scheduleRepeatWeekly
-            ? `Each student gets a routine slot every ${scheduleDay} at ${scheduleTime}.`
-            : `Each student gets one routine slot on the next ${scheduleDay} at ${scheduleTime}.`}
-        </p>
-        <div className="max-h-48 overflow-y-auto flex flex-col gap-2">
-          {students
-            .filter((s) => s.isActive !== false || selectedStudents.includes(s.id))
-            .map((s) => (
-            <label
-              key={s.id}
-              className="flex cursor-pointer items-center gap-3 rounded-lg px-2 py-2 hover:bg-zinc-50"
-            >
-              <input
-                type="checkbox"
-                checked={selectedStudents.includes(s.id)}
-                onChange={() => toggleStudent(s.id)}
-                className="rounded border-zinc-300"
-              />
-              <span className="text-sm text-primary-dark">{s.name}</span>
-            </label>
-          ))}
+      <Card className="flex flex-col gap-4 rounded-2xl border-0 p-5 shadow-sm bg-white">
+        <div className="flex flex-col gap-1">
+          <span className="font-bold text-primary-dark text-sm">Auto-fill from Admission Application</span>
+          <select
+            value={selectedStudents[0] || ""}
+            onChange={(e) => {
+              const val = e.target.value;
+              setSelectedStudents(val ? [val] : []);
+            }}
+            className={formControlClass}
+          >
+            <option value="">Select a student...</option>
+            {students.map((s) => (
+              <option key={s.id} value={s.id}>
+                {s.name} {s.email ? `(${s.email})` : ""}
+              </option>
+            ))}
+          </select>
         </div>
+
+        {hasProfileData && (
+          <div className="flex flex-col gap-3 rounded-xl border border-[#C4922B]/30 bg-[#FDF3E0]/40 p-4 text-sm text-zinc-800">
+            <p className="font-semibold text-[#9A6B1A]">Student Preferences:</p>
+            <ul className="list-inside list-disc flex flex-col gap-1">
+              <li>
+                <span className="font-medium text-primary-dark">Topics:</span>{" "}
+                {String(stAppData?.program || stAppData?.topics || stEnrollment?.packagePlan || "N/A")}
+              </li>
+              <li>
+                <span className="font-medium text-primary-dark">Preferred Days:</span>{" "}
+                {stEnrollment?.classDays?.join(", ") || "N/A"}
+              </li>
+            </ul>
+            <p className="text-xs text-zinc-500 mt-1">
+              Note: A class can only be scheduled for one recurring day. If the student requested multiple days, you will need to create separate classes for each day.
+            </p>
+            
+            {(stEnrollment?.classesPerWeek ?? 0) > 1 && (
+              <div className="mt-2 flex gap-2 rounded-lg bg-[#C4922B]/10 p-3 text-xs font-medium text-[#9A6B1A]">
+                <span>⚠️</span>
+                <span>
+                  This student requested {stEnrollment?.classesPerWeek} classes per week. You will need to create {stEnrollment?.classesPerWeek} separate class routines.
+                </span>
+              </div>
+            )}
+          </div>
+        )}
       </Card>
 
       <Card className="flex flex-col gap-4 rounded-2xl border-0 p-5 shadow-sm">
