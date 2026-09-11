@@ -108,22 +108,80 @@ export const ApplicationDataView: React.FC<ApplicationDataViewProps> = ({
     if (!editingField) return;
     const updated = { ...applicationData };
     
-    // If the value is empty, we remove the key, otherwise we update it
-    if (!editingField.value.trim()) {
-      delete updated[editingField.key];
+    if (editingField.key === "preferredTime") {
+      if (!editingField.value.trim()) {
+        delete updated.preferredHour;
+        delete updated.preferredMinute;
+        delete updated.preferredPeriod;
+        delete updated.preferredTime;
+      } else {
+        const val = editingField.value.trim();
+        const match = val.match(/^(\d{1,2})(?::(\d{1,2}))?\s*(AM|PM)?$/i);
+        if (match) {
+          updated.preferredHour = match[1].padStart(2, "0");
+          updated.preferredMinute = match[2] ? match[2].padStart(2, "0") : "00";
+          if (match[3]) {
+            updated.preferredPeriod = match[3].toUpperCase();
+          } else {
+            delete updated.preferredPeriod;
+          }
+          delete updated.preferredTime;
+        } else {
+          updated.preferredTime = val;
+          delete updated.preferredHour;
+          delete updated.preferredMinute;
+          delete updated.preferredPeriod;
+        }
+      }
     } else {
-      updated[editingField.key] = editingField.value;
+      // If the value is empty, we remove the key, otherwise we update it
+      if (!editingField.value.trim()) {
+        delete updated[editingField.key];
+      } else {
+        updated[editingField.key] = editingField.value;
+      }
     }
     
     await onUpdate(applicationId, updated);
     setEditingField(null);
   };
 
+  const processedData = { ...applicationData };
+
+  // Combine preferred time fields
+  if (
+    processedData.preferredHour !== undefined ||
+    processedData.preferredMinute !== undefined ||
+    processedData.preferredPeriod !== undefined
+  ) {
+    const hour = processedData.preferredHour ? String(processedData.preferredHour).padStart(2, "0") : "";
+    const minute = processedData.preferredMinute ? String(processedData.preferredMinute).padStart(2, "0") : "00";
+    const period = processedData.preferredPeriod ? String(processedData.preferredPeriod).toUpperCase() : "";
+    
+    let combined = "";
+    if (hour) {
+      combined = `${hour}:${minute}`;
+      if (period) {
+        combined += ` ${period}`;
+      }
+    } else if (period) {
+      combined = period;
+    }
+    
+    if (combined.trim()) {
+      processedData.preferredTime = combined.trim();
+    }
+    
+    delete processedData.preferredHour;
+    delete processedData.preferredMinute;
+    delete processedData.preferredPeriod;
+  }
+
   const basicInfo: Record<string, unknown> = {};
   const learningPrefs: Record<string, unknown> = {};
   const otherInfo: Record<string, unknown> = {};
 
-  Object.entries(applicationData).forEach(([key, value]) => {
+  Object.entries(processedData).forEach(([key, value]) => {
     if (BASIC_INFO_KEYS.includes(key)) {
       basicInfo[key] = value;
     } else if (LEARNING_PREF_KEYS.includes(key)) {
