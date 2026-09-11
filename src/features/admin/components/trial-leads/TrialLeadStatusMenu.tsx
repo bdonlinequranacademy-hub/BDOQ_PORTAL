@@ -182,7 +182,7 @@ export function TrialLeadStatusMenu({
         className={triggerClass}
         aria-haspopup="menu"
         aria-expanded={open}
-        aria-label={t("admin.trialLeads.statusMenuAria", { name: lead.parentName })}
+        aria-label={t("admin.trialLeads.statusMenuAria", { name: lead.studentName })}
         title={t("admin.trialLeads.statusMenuTitle")}
       >
         <MoreHorizontal className="size-4" aria-hidden />

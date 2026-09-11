@@ -811,8 +811,7 @@ export type TrialBookingStatus = "pending" | "contacted" | "scheduled" | "review
 
 export interface TrialBookingView {
   _id: string;
-  parentName: string;
-  studentName?: string;
+  studentName: string;
   email?: string;
   whatsapp: string;
   country?: string;

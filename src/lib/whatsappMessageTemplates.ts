@@ -72,11 +72,10 @@ export function admissionConfirmedMessage(input: IAdmissionConfirmedMessageInput
 }
 
 export function trialAdmissionPrefillMessage(input: {
-  parentName: string;
-  studentName?: string;
+  studentName: string;
   prefillUrl: string;
 }): string {
-  const first = input.parentName.split(" ")[0] || input.parentName;
+  const first = input.studentName.split(" ")[0] || input.studentName;
   const studentLine = input.studentName?.trim()
     ? `*Student:* ${input.studentName.trim()}`
     : null;
@@ -98,9 +97,9 @@ export function trialAdmissionPrefillMessage(input: {
     .join("\n");
 }
 
-export function trialLeadFollowUpMessage(parentName: string): string {
-  const first = parentName.split(" ")[0] || parentName;
-  return `Assalamu Alaikum ${first},
+export function trialLeadFollowUpMessage(studentName: string): string {
+  const first = studentName.split(" ")[0] || studentName;
+  return `Assalamu Alaikum Dear ${first},
 
 Thank you for booking a *free trial class* with ${ACADEMY}.
 
@@ -121,7 +120,6 @@ JazakAllah Khair.`;
 }
 
 export interface ITrialInvitationMessageInput {
-  parentName: string;
   studentName: string;
   teacherName: string;
   courseLabel: string;
@@ -132,7 +130,7 @@ export interface ITrialInvitationMessageInput {
 }
 
 export function trialInvitationMessage(input: ITrialInvitationMessageInput): string {
-  const first = input.parentName.split(" ")[0] || input.parentName;
+  const first = input.studentName.split(" ")[0] || input.studentName;
   const lines = [
     `Assalamu Alaikum ${first},`,
     "",

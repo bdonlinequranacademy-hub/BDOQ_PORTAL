@@ -64,10 +64,10 @@ export function AdminTrialLeadsTable({
               const wa = waMeUrlFromRaw(
                 lead.whatsapp,
                 lead.country,
-                trialLeadFollowUpMessage(lead.parentName)
+                trialLeadFollowUpMessage(lead.studentName)
               );
               const telHref = trialLeadTelHref(lead.whatsapp, lead.country);
-              const mailHref = trialLeadMailtoHref(lead.email, lead.parentName, t);
+              const mailHref = trialLeadMailtoHref(lead.email, lead.studentName, t);
 
               return (
                 <tr
@@ -76,7 +76,7 @@ export function AdminTrialLeadsTable({
                 >
                   <td className="px-5 py-4">
                     <div className="flex items-center gap-3">
-                      <UserInitialAvatar name={lead.parentName} size="sm" />
+                      <UserInitialAvatar name={lead.studentName} size="sm" />
                       <div className="min-w-0">
                         <button
                           type="button"
@@ -84,7 +84,7 @@ export function AdminTrialLeadsTable({
                           className="text-left"
                         >
                           <p className="text-sm font-semibold text-portal-heading transition hover:text-primary">
-                            {lead.parentName}
+                            {lead.studentName}
                           </p>
                         </button>
                         <p className="text-xs text-portal-muted">{lead.whatsapp}</p>
@@ -131,7 +131,7 @@ export function AdminTrialLeadsTable({
                           href={telHref}
                           className={contactActionClass}
                           aria-label={t("admin.trialLeads.callPerson", {
-                            name: lead.parentName,
+                            name: lead.studentName,
                           })}
                           title={lead.whatsapp}
                         >
@@ -151,7 +151,7 @@ export function AdminTrialLeadsTable({
                           href={mailHref}
                           className={contactActionClass}
                           aria-label={t("admin.trialLeads.emailPerson", {
-                            name: lead.parentName,
+                            name: lead.studentName,
                           })}
                           title={lead.email ?? undefined}
                         >
@@ -183,7 +183,7 @@ export function AdminTrialLeadsTable({
                           onClick={() => {
                             const confirmed = window.confirm(
                               t("admin.trialLeads.confirmDeleteLead", {
-                                name: lead.parentName,
+                                name: lead.studentName,
                               })
                             );
                             if (confirmed) onDelete(lead);

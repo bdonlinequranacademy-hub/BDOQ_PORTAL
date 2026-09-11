@@ -65,8 +65,7 @@ export function TrialLeadConvertPanel({
         lead.whatsapp,
         lead.country,
         trialAdmissionPrefillMessage({
-          parentName: lead.parentName,
-          studentName: lead.studentName,
+          studentName: lead.studentName || "",
           prefillUrl,
         })
       )

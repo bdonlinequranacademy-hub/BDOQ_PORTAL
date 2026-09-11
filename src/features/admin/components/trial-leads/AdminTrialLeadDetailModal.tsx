@@ -95,14 +95,14 @@ export function AdminTrialLeadDetailModal({
   const wa = waMeUrlFromRaw(
     activeLead.whatsapp,
     activeLead.country,
-    trialLeadFollowUpMessage(activeLead.parentName)
+    trialLeadFollowUpMessage(activeLead.studentName)
   );
   const telHref = trialLeadTelHref(activeLead.whatsapp, activeLead.country);
-  const mailHref = trialLeadMailtoHref(activeLead.email, activeLead.parentName, t);
+  const mailHref = trialLeadMailtoHref(activeLead.email, activeLead.studentName, t);
 
   function handleDelete(): void {
     const confirmed = window.confirm(
-      t("admin.trialLeads.confirmDeleteLead", { name: activeLead.parentName })
+      t("admin.trialLeads.confirmDeleteLead", { name: activeLead.studentName })
     );
     if (!confirmed) return;
     onDelete(activeLead);
@@ -117,7 +117,7 @@ export function AdminTrialLeadDetailModal({
       header={
         <div className="flex items-center justify-between px-5 py-4">
           <div className="flex min-w-0 items-center gap-3">
-            <UserInitialAvatar name={activeLead.parentName} size="md" />
+            <UserInitialAvatar name={activeLead.studentName} size="md" />
             <div className="min-w-0">
               <h2
                 id="trial-lead-detail-title"
@@ -129,7 +129,7 @@ export function AdminTrialLeadDetailModal({
               </h2>
               <div className="mt-1 flex flex-wrap items-center gap-2">
                 <TrialLeadStatusBadge status={activeLead.status} />
-                <span className="truncate text-sm text-portal-muted">{activeLead.parentName}</span>
+                <span className="truncate text-sm text-portal-muted">{activeLead.studentName}</span>
               </div>
             </div>
           </div>

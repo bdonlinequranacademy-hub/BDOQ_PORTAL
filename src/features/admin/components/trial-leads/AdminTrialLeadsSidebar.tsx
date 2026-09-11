@@ -104,10 +104,10 @@ function TodaysLeads({ leads }: { leads: TrialBookingView[] }) {
         <div className="mt-4 flex max-h-[260px] flex-col gap-3 overflow-y-auto pr-1">
           {todayLeads.map((lead) => (
             <div key={lead._id} className="flex items-center gap-3">
-              <UserInitialAvatar name={lead.parentName} size="sm" />
+              <UserInitialAvatar name={lead.studentName} size="sm" />
               <div className="min-w-0 flex-1">
                 <p className="truncate text-sm font-semibold text-portal-heading">
-                  {lead.parentName}
+                  {lead.studentName}
                 </p>
                 <p className="text-xs text-portal-muted">{formatDateTime(lead.createdAt)}</p>
               </div>

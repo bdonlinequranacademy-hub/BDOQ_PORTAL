@@ -47,7 +47,6 @@ export function TrialLeadEditForm({
   function handleSubmit(event: React.FormEvent<HTMLFormElement>): void {
     event.preventDefault();
     onSave({
-      parentName: form.parentName.trim(),
       studentName: form.studentName.trim(),
       email: form.email.trim(),
       whatsapp: form.whatsapp.trim(),
@@ -76,8 +75,8 @@ export function TrialLeadEditForm({
             {t("admin.trialLeads.fieldParentName")}
           </span>
           <Input
-            value={form.parentName}
-            onChange={(event) => updateField("parentName", event.target.value)}
+            value={form.studentName}
+            onChange={(event) => updateField("studentName", event.target.value)}
             className={fieldClass}
             required
           />

@@ -175,7 +175,7 @@ export function buildTrialLeadDisplaySections(
     {
       title: t("admin.trialLeads.modalSectionContact"),
       rows: [
-        { key: "parentName", label: t("admin.trialLeads.fieldParentName"), value: lead.parentName },
+        { key: "studentName", label: t("admin.trialLeads.fieldParentName"), value: lead.studentName },
         {
           key: "studentName",
           label: t("admin.trialLeads.fieldStudentName"),
@@ -348,7 +348,7 @@ export function trialLeadStatusActions(
 export function leadSearchText(booking: TrialBookingView): string {
   const gender = extractTrialLeadGender(booking);
   return [
-    booking.parentName,
+    booking.studentName,
     booking.studentName,
     booking.email,
     booking.whatsapp,
@@ -506,7 +506,6 @@ export const TRIAL_LEAD_AGE_OPTIONS = [
 ];
 
 export interface ITrialLeadUpdatePayload {
-  parentName?: string;
   studentName?: string;
   email?: string;
   whatsapp?: string;
@@ -540,7 +539,6 @@ export interface ITrialInvitationDelivery {
 
 export function buildTrialLeadEditDefaults(lead: TrialBookingView) {
   return {
-    parentName: lead.parentName,
     studentName: lead.studentName ?? "",
     email: lead.email ?? "",
     whatsapp: lead.whatsapp,
@@ -578,7 +576,7 @@ export function trialLeadTelHref(raw: string, country?: string): string | null {
 
 export function trialLeadMailtoHref(
   email: string | undefined,
-  parentName: string,
+  studentName: string,
   t: PortalTranslate
 ): string | null {
   const trimmed = email?.trim();
@@ -586,7 +584,7 @@ export function trialLeadMailtoHref(
 
   const subject = encodeURIComponent(t("admin.trialLeads.mailSubject"));
   const body = encodeURIComponent(
-    t("admin.trialLeads.mailBodyIntro", { name: parentName })
+    t("admin.trialLeads.mailBodyIntro", { name: studentName })
   );
 
   return `mailto:${trimmed}?subject=${subject}&body=${body}`;
@@ -634,7 +632,7 @@ export function exportTrialLeadsFile(
       const gender = extractTrialLeadGender(booking);
       const preferredTimes = extractTrialLeadPreferredTimes(booking);
       return [
-        csvEscape(booking.parentName),
+        csvEscape(booking.studentName),
         csvEscape(booking.email ?? ""),
         csvEscape(booking.whatsapp),
         csvEscape(booking.country ?? ""),
