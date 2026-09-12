@@ -1,6 +1,6 @@
 import { useState, type FormEvent } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
-import { Lock } from "lucide-react";
+import { Lock, Eye, EyeOff } from "lucide-react";
 import { AuthLayout } from "@/components/layout/AuthLayout";
 import { resetPasswordRequest } from "@/features/auth/api/authApi";
 import { toast } from "@/stores/uiStore";
@@ -14,6 +14,8 @@ export function ResetPasswordPage() {
   const navigate = useNavigate();
   const [password, setPassword] = useState("");
   const [confirm, setConfirm] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirm, setShowConfirm] = useState(false);
   const [loading, setLoading] = useState(false);
 
   async function handleSubmit(e: FormEvent) {
@@ -57,26 +59,42 @@ export function ResetPasswordPage() {
           <div className="relative">
             <Lock className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-zinc-400" />
             <input
-              type="password"
+              type={showPassword ? "text" : "password"}
               required
               minLength={6}
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               placeholder={t("auth.newPasswordPlaceholder")}
-              className={`h-11 ${formControlLgClass} pl-9 pr-4 bg-white`}
+              className={`h-11 ${formControlLgClass} px-9 bg-white`}
             />
+            <button
+              type="button"
+              onClick={() => setShowPassword(!showPassword)}
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-400 hover:text-zinc-600"
+              tabIndex={-1}
+            >
+              {showPassword ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
+            </button>
           </div>
           <div className="relative">
             <Lock className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-zinc-400" />
             <input
-              type="password"
+              type={showConfirm ? "text" : "password"}
               required
               minLength={6}
               value={confirm}
               onChange={(e) => setConfirm(e.target.value)}
               placeholder={t("auth.confirmPasswordShort")}
-              className={`h-11 ${formControlLgClass} pl-9 pr-4 bg-white`}
+              className={`h-11 ${formControlLgClass} px-9 bg-white`}
             />
+            <button
+              type="button"
+              onClick={() => setShowConfirm(!showConfirm)}
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-400 hover:text-zinc-600"
+              tabIndex={-1}
+            >
+              {showConfirm ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
+            </button>
           </div>
           <button
             type="submit"
