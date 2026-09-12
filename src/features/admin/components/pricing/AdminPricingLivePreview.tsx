@@ -30,8 +30,8 @@ export function AdminPricingLivePreview({
   const periodLabel = period.trim() || dynamicLabel("monthly");
 
   return (
-    <Card className="overflow-hidden rounded-2xl border border-portal bg-portal-surface p-0 shadow-[0_8px_24px_-16px_rgba(13,74,47,0.18)]">
-      <div className="flex items-center justify-between border-b border-portal bg-amber-50/80 px-4 py-3">
+    <Card className="overflow-hidden rounded-2xl border border-portal bg-portal-surface p-0 shadow-[0_8px_24px_-16px_rgba(13,74,47,0.18)] dark:shadow-none">
+      <div className="flex items-center justify-between border-b border-portal bg-amber-50/80 px-4 py-3 dark:bg-amber-500/10">
         <h2 className="text-sm font-bold text-primary-dark">
           {t("admin.cms.shared.livePreview")}
         </h2>
@@ -49,7 +49,7 @@ export function AdminPricingLivePreview({
         </span>
       </div>
 
-      <div className="relative bg-gradient-to-b from-amber-50/90 to-white px-5 pb-5 pt-6 text-center">
+      <div className="relative bg-gradient-to-b from-amber-50/90 to-white px-5 pb-5 pt-6 text-center dark:from-amber-500/10 dark:to-portal-surface">
         {popular ? (
           <span className="absolute right-3 top-3 rounded-full bg-primary px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wide text-white">
             {t("admin.cms.shared.statPopular")}
