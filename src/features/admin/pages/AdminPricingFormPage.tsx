@@ -466,15 +466,6 @@ export function AdminPricingFormPage() {
         </div>
 
         <aside className="flex flex-col gap-4 xl:sticky xl:top-24 xl:self-start">
-          <AdminPricingLivePreview
-            name={name}
-            period={period}
-            priceBdt={priceBdt}
-            priceUsd={priceUsd}
-            features={features}
-            popular={popular}
-            showOnWebsite={showOnWebsite}
-          />
 
           <Card className="rounded-2xl border border-portal bg-portal-surface p-5 shadow-sm">
             <h2 className="text-sm font-bold text-primary-dark">
