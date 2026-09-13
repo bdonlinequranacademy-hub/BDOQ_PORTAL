@@ -26,7 +26,6 @@ import {
 import { cn } from "@/lib/utils/cn";
 import { env } from "@/config/env";
 import { AdminPricingFormSection } from "@/features/admin/components/pricing/AdminPricingFormSection";
-import { AdminPricingLivePreview } from "@/features/admin/components/pricing/AdminPricingLivePreview";
 import { usePortalTranslation } from "@/i18n/LocaleProvider";
 
 function slugify(value: string): string {
