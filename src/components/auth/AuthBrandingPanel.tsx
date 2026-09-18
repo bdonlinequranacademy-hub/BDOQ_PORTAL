@@ -8,7 +8,7 @@ export function AuthBrandingPanel() {
         decoding="async"
         className="absolute inset-0 h-full w-full object-cover object-top"
       />
-      {/* Soft edge so panel meets form cleanly */}
+      {/* Soft edge so panel meets form clean */}
       <div
         className="pointer-events-none absolute inset-y-0 right-0 w-8 bg-gradient-to-l from-black/20 to-transparent"
         aria-hidden
